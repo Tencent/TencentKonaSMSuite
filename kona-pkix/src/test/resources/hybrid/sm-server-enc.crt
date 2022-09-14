@@ -1,0 +1,47 @@
+Certificate:
+    Data:
+        Version: 3 (0x2)
+        Serial Number:
+            46:73:72:37:54:46:dd:3f:6c:7a:e9:34:68:c3:df:cb:ca:60:76:84
+        Signature Algorithm: SM2-with-SM3
+        Issuer: CN = sm-intca
+        Validity
+            Not Before: Jun  8 06:28:28 2022 GMT
+            Not After : Jun  5 06:28:28 2032 GMT
+        Subject: CN = sm-server-enc
+        Subject Public Key Info:
+            Public Key Algorithm: id-ecPublicKey
+                Public-Key: (256 bit)
+                pub:
+                    04:6d:85:ab:56:0a:87:e8:77:12:f4:5e:3c:0d:ab:
+                    9b:1f:ae:93:b5:7d:a1:6d:e2:42:14:cf:45:78:34:
+                    ac:8c:8c:59:d5:7f:82:39:19:f2:ca:52:84:29:cb:
+                    05:cf:e8:8a:73:1f:af:10:05:cb:a9:cb:4d:f8:00:
+                    84:82:43:18:3e
+                ASN1 OID: SM2
+        X509v3 extensions:
+            X509v3 Subject Key Identifier:
+                AA:A0:8D:40:6D:68:A4:00:0F:AA:25:C1:83:1F:CC:46:8D:BF:53:88
+            X509v3 Authority Key Identifier:
+                keyid:D7:88:1E:5B:30:5F:FB:DF:F5:D3:97:3C:E6:74:07:CA:51:A7:FC:99
+
+            X509v3 Basic Constraints: critical
+                CA:FALSE
+            X509v3 Key Usage: critical
+                Key Encipherment, Data Encipherment, Key Agreement
+    Signature Algorithm: SM2-with-SM3
+         30:45:02:20:5f:35:78:20:4f:70:7b:71:54:78:f6:dd:d3:84:
+         e2:4f:e9:92:47:1b:4a:cc:10:a0:d9:06:62:8a:36:b0:50:c3:
+         02:21:00:d1:86:db:4d:81:64:b4:a0:29:60:20:8f:29:e9:9b:
+         58:58:1d:31:48:13:76:90:d7:5f:d4:0f:34:53:a5:18:a8
+-----BEGIN CERTIFICATE-----
+MIIBjTCCATOgAwIBAgIURnNyN1RG3T9seuk0aMPfy8pgdoQwCgYIKoEcz1UBg3Uw
+EzERMA8GA1UEAwwIc20taW50Y2EwHhcNMjIwNjA4MDYyODI4WhcNMzIwNjA1MDYy
+ODI4WjAYMRYwFAYDVQQDDA1zbS1zZXJ2ZXItZW5jMFkwEwYHKoZIzj0CAQYIKoEc
+z1UBgi0DQgAEbYWrVgqH6HcS9F48DaubH66TtX2hbeJCFM9FeDSsjIxZ1X+CORny
+ylKEKcsFz+iKcx+vEAXLqctN+ACEgkMYPqNgMF4wHQYDVR0OBBYEFKqgjUBtaKQA
+D6olwYMfzEaNv1OIMB8GA1UdIwQYMBaAFNeIHlswX/vf9dOXPOZ0B8pRp/yZMAwG
+A1UdEwEB/wQCMAAwDgYDVR0PAQH/BAQDAgM4MAoGCCqBHM9VAYN1A0gAMEUCIF81
+eCBPcHtxVHj23dOE4k/pkkcbSswQoNkGYoo2sFDDAiEA0YbbTYFktKApYCCPKemb
+WFgdMUgTdpDXX9QPNFOlGKg=
+-----END CERTIFICATE-----

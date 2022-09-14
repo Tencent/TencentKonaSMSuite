@@ -1,0 +1,50 @@
+Certificate:
+    Data:
+        Version: 3 (0x2)
+        Serial Number:
+            4a:1b:e9:1f:d3:b4:7b:5a:bf:4e:04:5a:90:e4:de:5d:68:ed:74:82
+        Signature Algorithm: ecdsa-with-SHA256
+        Issuer: CN = ca-p256ecdsa
+        Validity
+            Not Before: Sep 11 20:15:16 2021 GMT
+            Not After : Sep  9 20:15:16 2031 GMT
+        Subject: CN = ca-p256ecdsa
+        Subject Public Key Info:
+            Public Key Algorithm: id-ecPublicKey
+                Public-Key: (256 bit)
+                pub:
+                    04:d5:fb:8e:bc:a9:26:b9:d5:4c:db:2e:69:1c:f4:
+                    7b:02:50:4e:98:b7:e7:06:32:3f:ca:84:48:e8:37:
+                    f6:4c:4e:03:45:98:48:0b:72:69:14:ae:97:6d:fb:
+                    0d:6d:4a:1c:80:90:28:e4:f0:85:ff:40:45:c3:3b:
+                    6c:65:7c:06:b8
+                ASN1 OID: prime256v1
+                NIST CURVE: P-256
+        X509v3 extensions:
+            X509v3 Subject Key Identifier:
+                AE:05:72:65:AA:6F:06:04:93:E7:D7:2F:0E:00:26:1C:58:88:43:CF
+            X509v3 Authority Key Identifier:
+                keyid:AE:05:72:65:AA:6F:06:04:93:E7:D7:2F:0E:00:26:1C:58:88:43:CF
+
+            X509v3 Basic Constraints: critical
+                CA:TRUE
+            X509v3 Key Usage: critical
+                Digital Signature, Certificate Sign, CRL Sign
+            X509v3 Extended Key Usage: critical
+                OCSP Signing
+    Signature Algorithm: ecdsa-with-SHA256
+         30:46:02:21:00:c7:cb:e6:91:8f:cc:1f:f2:6a:fb:03:67:5b:
+         29:66:7d:16:78:61:4a:84:94:84:12:0d:f2:94:d3:eb:dd:f1:
+         2e:02:21:00:d6:4b:9f:9f:12:c9:4d:31:ed:e2:17:55:ed:f1:
+         a5:f7:ac:69:1b:3e:85:4a:56:a3:64:66:d5:2f:31:d8:46:96
+-----BEGIN CERTIFICATE-----
+MIIBrDCCAVGgAwIBAgIUShvpH9O0e1q/TgRakOTeXWjtdIIwCgYIKoZIzj0EAwIw
+FzEVMBMGA1UEAwwMY2EtcDI1NmVjZHNhMB4XDTIxMDkxMTIwMTUxNloXDTMxMDkw
+OTIwMTUxNlowFzEVMBMGA1UEAwwMY2EtcDI1NmVjZHNhMFkwEwYHKoZIzj0CAQYI
+KoZIzj0DAQcDQgAE1fuOvKkmudVM2y5pHPR7AlBOmLfnBjI/yoRI6Df2TE4DRZhI
+C3JpFK6XbfsNbUocgJAo5PCF/0BFwztsZXwGuKN7MHkwHQYDVR0OBBYEFK4FcmWq
+bwYEk+fXLw4AJhxYiEPPMB8GA1UdIwQYMBaAFK4FcmWqbwYEk+fXLw4AJhxYiEPP
+MA8GA1UdEwEB/wQFMAMBAf8wDgYDVR0PAQH/BAQDAgGGMBYGA1UdJQEB/wQMMAoG
+CCsGAQUFBwMJMAoGCCqGSM49BAMCA0kAMEYCIQDHy+aRj8wf8mr7A2dbKWZ9Fnhh
+SoSUhBIN8pTT693xLgIhANZLn58SyU0x7eIXVe3xpfesaRs+hUpWo2Rm1S8x2EaW
+-----END CERTIFICATE-----

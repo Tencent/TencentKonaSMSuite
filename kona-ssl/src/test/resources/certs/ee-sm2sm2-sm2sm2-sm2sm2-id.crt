@@ -1,0 +1,42 @@
+Certificate:
+    Data:
+        Version: 3 (0x2)
+        Serial Number:
+            47:d5:15:57:b6:d3:34:d8:dc:c8:8e:1f:e6:37:0e:62:1f:b1:98:a7
+        Signature Algorithm: SM2-with-SM3
+        Issuer: CN = intca-sm2sm2-sm2sm2
+        Validity
+            Not Before: Jan 20 04:36:34 2022 GMT
+            Not After : Jan 18 04:36:34 2032 GMT
+        Subject: CN = localhost
+        Subject Public Key Info:
+            Public Key Algorithm: id-ecPublicKey
+                Public-Key: (256 bit)
+                pub:
+                    04:99:43:82:0c:7a:2e:39:32:45:61:0f:24:85:8e:
+                    90:f5:d7:b3:33:e5:f2:6c:1f:cb:81:b6:5b:47:67:
+                    32:4f:a3:0d:e8:b0:d2:0e:1c:b7:4d:57:8d:e0:45:
+                    c8:28:e6:07:be:b8:9b:12:a0:bb:f2:d3:48:fd:fd:
+                    73:8a:b0:05:4e
+                ASN1 OID: SM2
+        X509v3 extensions:
+            X509v3 Subject Key Identifier:
+                E5:C6:9A:5B:66:F4:49:EF:2D:A9:74:FF:BB:5B:15:A9:EE:7E:2E:6F
+            X509v3 Authority Key Identifier:
+                keyid:BD:AA:64:6D:4D:40:33:81:B7:50:B3:4D:2F:12:7D:8E:A6:EF:64:42
+
+    Signature Algorithm: SM2-with-SM3
+         30:45:02:21:00:e9:87:48:f5:05:67:7b:1f:4e:33:62:73:b7:
+         9c:06:2b:97:65:bf:29:66:dc:69:04:e9:53:fa:e2:60:db:63:
+         bb:02:20:43:3c:cd:5f:2b:e3:2a:e6:74:e9:a4:2d:d0:15:bf:
+         a2:36:1d:fd:a6:b4:df:f3:c1:88:71:2d:99:7e:c9:8d:1b
+-----BEGIN CERTIFICATE-----
+MIIBdjCCARygAwIBAgIUR9UVV7bTNNjcyI4f5jcOYh+xmKcwCgYIKoEcz1UBg3Uw
+HjEcMBoGA1UEAwwTaW50Y2Etc20yc20yLXNtMnNtMjAeFw0yMjAxMjAwNDM2MzRa
+Fw0zMjAxMTgwNDM2MzRaMBQxEjAQBgNVBAMMCWxvY2FsaG9zdDBZMBMGByqGSM49
+AgEGCCqBHM9VAYItA0IABJlDggx6LjkyRWEPJIWOkPXXszPl8mwfy4G2W0dnMk+j
+Deiw0g4ct01XjeBFyCjmB764mxKgu/LTSP39c4qwBU6jQjBAMB0GA1UdDgQWBBTl
+xppbZvRJ7y2pdP+7WxWp7n4ubzAfBgNVHSMEGDAWgBS9qmRtTUAzgbdQs00vEn2O
+pu9kQjAKBggqgRzPVQGDdQNIADBFAiEA6YdI9QVnex9OM2Jzt5wGK5dlvylm3GkE
+6VP64mDbY7sCIEM8zV8r4yrmdOmkLdAVv6I2Hf2mtN/zwYhxLZl+yY0b
+-----END CERTIFICATE-----

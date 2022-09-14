@@ -1,0 +1,51 @@
+Certificate:
+    Data:
+        Version: 3 (0x2)
+        Serial Number:
+            79:a7:ff:15:de:73:6c:87:88:74:74:05:08:18:9e:7e:ee:89:be:4f
+        Signature Algorithm: ecdsa-with-SHA256
+        Issuer: CN = intca-p256ecdsa-p256ecdsa
+        Validity
+            Not Before: Nov 21 13:40:45 2021 GMT
+            Not After : Nov 19 13:40:45 2031 GMT
+        Subject: CN = ee-p256ecdsa-p256ecdsa-p256ecdsa-crldp
+        Subject Public Key Info:
+            Public Key Algorithm: id-ecPublicKey
+                Public-Key: (256 bit)
+                pub:
+                    04:b5:f8:d1:d3:03:42:46:59:54:52:4d:6c:1a:91:
+                    ac:ae:23:84:24:10:ad:58:a8:c2:80:3a:f8:14:0f:
+                    05:e0:a9:98:19:51:0e:29:e2:7d:d1:e2:5c:6e:03:
+                    5a:d1:3d:5e:c8:91:44:08:6c:3f:0e:4a:57:38:d6:
+                    de:8c:3f:41:73
+                ASN1 OID: prime256v1
+                NIST CURVE: P-256
+        X509v3 extensions:
+            X509v3 Subject Key Identifier:
+                F2:D6:5E:A3:92:8E:78:D1:C0:EE:CB:AA:82:D2:68:68:3E:A0:C8:60
+            X509v3 Authority Key Identifier:
+                keyid:70:14:99:72:81:7F:0B:D1:A9:1E:88:36:D2:E6:48:97:8F:87:B8:55
+
+            X509v3 CRL Distribution Points:
+
+                Full Name:
+                  URI:file:src/test/resources/certs/ee-p256ecdsa-p256ecdsa-p256ecdsa-crldp.crl
+
+    Signature Algorithm: ecdsa-with-SHA256
+         30:45:02:21:00:95:b0:03:47:59:80:33:56:ca:b1:2b:d1:44:
+         c5:ac:b0:7e:58:d6:d9:52:a7:73:f3:d2:69:0b:91:1d:d7:f0:
+         ca:02:20:45:a9:4b:92:10:04:00:87:c9:ad:dd:b5:45:08:23:
+         f0:e9:60:49:fe:ac:bb:43:e1:9e:8b:17:ef:3a:9e:4e:e4
+-----BEGIN CERTIFICATE-----
+MIIB9jCCAZygAwIBAgIUeaf/Fd5zbIeIdHQFCBiefu6Jvk8wCgYIKoZIzj0EAwIw
+JDEiMCAGA1UEAwwZaW50Y2EtcDI1NmVjZHNhLXAyNTZlY2RzYTAeFw0yMTExMjEx
+MzQwNDVaFw0zMTExMTkxMzQwNDVaMDExLzAtBgNVBAMMJmVlLXAyNTZlY2RzYS1w
+MjU2ZWNkc2EtcDI1NmVjZHNhLWNybGRwMFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcD
+QgAEtfjR0wNCRllUUk1sGpGsriOEJBCtWKjCgDr4FA8F4KmYGVEOKeJ90eJcbgNa
+0T1eyJFECGw/DkpXONbejD9Bc6OBnjCBmzAdBgNVHQ4EFgQU8tZeo5KOeNHA7suq
+gtJoaD6gyGAwHwYDVR0jBBgwFoAUcBSZcoF/C9GpHog20uZIl4+HuFUwWQYDVR0f
+BFIwUDBOoEygSoZIZmlsZTpzcmMvdGVzdC9yZXNvdXJjZXMvY2VydHMvZWUtcDI1
+NmVjZHNhLXAyNTZlY2RzYS1wMjU2ZWNkc2EtY3JsZHAuY3JsMAoGCCqGSM49BAMC
+A0gAMEUCIQCVsANHWYAzVsqxK9FExaywfljW2VKnc/PSaQuRHdfwygIgRalLkhAE
+AIfJrd21RQgj8OlgSf6su0PhnosX7zqeTuQ=
+-----END CERTIFICATE-----

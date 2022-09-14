@@ -1,0 +1,50 @@
+Certificate:
+    Data:
+        Version: 3 (0x2)
+        Serial Number:
+            56:e6:15:8c:78:33:c3:11:fd:fc:e3:89:44:fc:15:34:69:88:95:cb
+        Signature Algorithm: sm3WithSM2Sign
+        Issuer: CN = intca-sm2sm2-sm2sm2
+        Validity
+            Not Before: Nov 21 13:48:40 2021 GMT
+            Not After : Nov 19 13:48:40 2031 GMT
+        Subject: CN = ee-sm2sm2-sm2sm2-sm2sm2-crldp
+        Subject Public Key Info:
+            Public Key Algorithm: id-ecPublicKey
+                Public-Key: (256 bit)
+                pub:
+                    04:7b:9a:74:83:de:13:93:f7:7f:e3:30:44:79:97:
+                    f1:2e:97:4e:d9:70:2b:ee:fd:83:35:a4:c3:85:8b:
+                    53:3f:3a:a9:eb:cb:37:52:ea:38:51:a4:18:a4:96:
+                    53:00:48:e6:0b:73:d7:8d:ce:30:4e:51:28:f6:3e:
+                    f8:d3:83:00:e4
+                ASN1 OID: SM2
+        X509v3 extensions:
+            X509v3 Subject Key Identifier:
+                D0:BD:67:9E:17:06:7C:B9:4D:89:59:D3:D5:6F:14:AD:26:5D:8E:70
+            X509v3 Authority Key Identifier:
+                keyid:BD:AA:64:6D:4D:40:33:81:B7:50:B3:4D:2F:12:7D:8E:A6:EF:64:42
+
+            X509v3 CRL Distribution Points:
+
+                Full Name:
+                  URI:file:src/test/resources/certs/ee-sm2sm2-sm2sm2-sm2sm2-crldp.crl
+
+    Signature Algorithm: sm3WithSM2Sign
+         30:45:02:21:00:f4:7a:d4:26:70:2b:7c:91:a1:54:42:dd:f2:
+         0b:38:50:b8:18:e7:20:3e:69:a6:01:22:44:e6:75:84:2f:fe:
+         9a:02:20:60:4a:4c:ae:5f:01:ce:60:4f:6d:ea:c7:10:a8:dc:
+         ce:19:a1:be:29:d3:cf:b5:48:25:58:ba:1d:a1:e4:c2:cb
+-----BEGIN CERTIFICATE-----
+MIIB3jCCAYSgAwIBAgIUVuYVjHgzwxH9/OOJRPwVNGmIlcswCgYIKoEcz1UBg3Uw
+HjEcMBoGA1UEAwwTaW50Y2Etc20yc20yLXNtMnNtMjAeFw0yMTExMjExMzQ4NDBa
+Fw0zMTExMTkxMzQ4NDBaMCgxJjAkBgNVBAMMHWVlLXNtMnNtMi1zbTJzbTItc20y
+c20yLWNybGRwMFkwEwYHKoZIzj0CAQYIKoEcz1UBgi0DQgAEe5p0g94Tk/d/4zBE
+eZfxLpdO2XAr7v2DNaTDhYtTPzqp68s3Uuo4UaQYpJZTAEjmC3PXjc4wTlEo9j74
+04MA5KOBlTCBkjAdBgNVHQ4EFgQU0L1nnhcGfLlNiVnT1W8UrSZdjnAwHwYDVR0j
+BBgwFoAUvapkbU1AM4G3ULNNLxJ9jqbvZEIwUAYDVR0fBEkwRzBFoEOgQYY/Zmls
+ZTpzcmMvdGVzdC9yZXNvdXJjZXMvY2VydHMvZWUtc20yc20yLXNtMnNtMi1zbTJz
+bTItY3JsZHAuY3JsMAoGCCqBHM9VAYN1A0gAMEUCIQD0etQmcCt8kaFUQt3yCzhQ
+uBjnID5ppgEiROZ1hC/+mgIgYEpMrl8BzmBPberHEKjczhmhvinTz7VIJVi6HaHk
+wss=
+-----END CERTIFICATE-----

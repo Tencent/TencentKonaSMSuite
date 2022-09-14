@@ -1,0 +1,18 @@
+Certificate Revocation List (CRL):
+        Version 1 (0x0)
+        Signature Algorithm: ecdsa-with-SHA256
+        Issuer: CN = ca-p256ecdsa
+        Last Update: Nov 19 18:53:29 2021 GMT
+        Next Update: Nov 17 18:53:29 2031 GMT
+No Revoked Certificates.
+    Signature Algorithm: ecdsa-with-SHA256
+         30:45:02:21:00:ca:8d:af:44:26:57:b3:50:9e:8c:65:4c:07:
+         87:62:ee:67:16:eb:26:2f:a9:56:73:b4:e3:4c:e6:dc:ac:6e:
+         9f:02:20:18:06:cc:28:24:d1:ab:56:2e:d6:33:f7:fc:b0:71:
+         0a:57:3a:6c:f6:6a:00:3e:74:57:fc:35:12:06:52:d4:ae
+-----BEGIN X509 CRL-----
+MIGbMEMwCgYIKoZIzj0EAwIwFzEVMBMGA1UEAwwMY2EtcDI1NmVjZHNhFw0yMTEx
+MTkxODUzMjlaFw0zMTExMTcxODUzMjlaMAoGCCqGSM49BAMCA0gAMEUCIQDKja9E
+JlezUJ6MZUwHh2LuZxbrJi+pVnO040zm3KxunwIgGAbMKCTRq1Yu1jP3/LBxClc6
+bPZqAD50V/w1EgZS1K4=
+-----END X509 CRL-----

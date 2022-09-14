@@ -1,0 +1,50 @@
+Certificate:
+    Data:
+        Version: 3 (0x2)
+        Serial Number:
+            1e:fc:a2:87:55:4f:d4:b7:f8:be:5e:b0:c9:57:6d:e8:4f:08:ff:aa
+        Signature Algorithm: sm3WithSM2Sign
+        Issuer: CN = ca-p256sm2
+        Validity
+            Not Before: Sep 11 20:15:16 2021 GMT
+            Not After : Sep  9 20:15:16 2031 GMT
+        Subject: CN = ca-p256sm2
+        Subject Public Key Info:
+            Public Key Algorithm: id-ecPublicKey
+                Public-Key: (256 bit)
+                pub:
+                    04:00:60:a7:80:6d:c4:f5:f5:30:f1:83:11:99:fc:
+                    39:0a:65:3a:a9:f2:54:85:90:70:c9:7a:bf:c4:a7:
+                    45:bc:bd:be:14:25:2f:3f:30:65:d8:e8:b4:b7:d7:
+                    b5:1d:0a:f1:67:d5:87:38:15:69:2c:24:dc:88:cd:
+                    d8:b0:ed:ff:b4
+                ASN1 OID: prime256v1
+                NIST CURVE: P-256
+        X509v3 extensions:
+            X509v3 Subject Key Identifier:
+                60:8D:19:47:D7:7D:6B:04:2A:0F:81:AE:AC:61:B9:35:DE:23:44:DF
+            X509v3 Authority Key Identifier:
+                keyid:60:8D:19:47:D7:7D:6B:04:2A:0F:81:AE:AC:61:B9:35:DE:23:44:DF
+
+            X509v3 Basic Constraints: critical
+                CA:TRUE
+            X509v3 Key Usage: critical
+                Digital Signature, Certificate Sign, CRL Sign
+            X509v3 Extended Key Usage: critical
+                OCSP Signing
+    Signature Algorithm: sm3WithSM2Sign
+         30:45:02:20:2c:a9:81:5f:29:fb:b9:d8:62:ed:0c:c2:53:a5:
+         2f:a2:01:be:7b:96:1d:5f:ed:66:33:b9:d0:10:34:10:d9:0c:
+         02:21:00:ee:cf:bb:4c:da:6e:36:76:c1:78:07:48:d7:1d:96:
+         6c:b2:65:e8:99:d9:e8:0e:a1:a2:45:fc:78:0c:30:5c:36
+-----BEGIN CERTIFICATE-----
+MIIBpzCCAU2gAwIBAgIUHvyih1VP1Lf4vl6wyVdt6E8I/6owCgYIKoEcz1UBg3Uw
+FTETMBEGA1UEAwwKY2EtcDI1NnNtMjAeFw0yMTA5MTEyMDE1MTZaFw0zMTA5MDky
+MDE1MTZaMBUxEzARBgNVBAMMCmNhLXAyNTZzbTIwWTATBgcqhkjOPQIBBggqhkjO
+PQMBBwNCAAQAYKeAbcT19TDxgxGZ/DkKZTqp8lSFkHDJer/Ep0W8vb4UJS8/MGXY
+6LS317UdCvFn1Yc4FWksJNyIzdiw7f+0o3sweTAdBgNVHQ4EFgQUYI0ZR9d9awQq
+D4GurGG5Nd4jRN8wHwYDVR0jBBgwFoAUYI0ZR9d9awQqD4GurGG5Nd4jRN8wDwYD
+VR0TAQH/BAUwAwEB/zAOBgNVHQ8BAf8EBAMCAYYwFgYDVR0lAQH/BAwwCgYIKwYB
+BQUHAwkwCgYIKoEcz1UBg3UDSAAwRQIgLKmBXyn7udhi7QzCU6UvogG+e5YdX+1m
+M7nQEDQQ2QwCIQDuz7tM2m42dsF4B0jXHZZssmXomdnoDqGiRfx4DDBcNg==
+-----END CERTIFICATE-----

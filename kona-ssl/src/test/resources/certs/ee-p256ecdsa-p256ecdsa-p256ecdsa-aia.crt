@@ -1,0 +1,48 @@
+Certificate:
+    Data:
+        Version: 3 (0x2)
+        Serial Number:
+            6e:3e:80:96:63:23:52:42:86:f4:ad:30:0f:ff:2e:11:a0:d8:4c:ff
+        Signature Algorithm: ecdsa-with-SHA256
+        Issuer: CN = intca-p256ecdsa-p256ecdsa
+        Validity
+            Not Before: Dec 13 06:14:39 2021 GMT
+            Not After : Dec 11 06:14:39 2031 GMT
+        Subject: CN = ee-p256ecdsa-p256ecdsa-p256ecdsa-aia
+        Subject Public Key Info:
+            Public Key Algorithm: id-ecPublicKey
+                Public-Key: (256 bit)
+                pub:
+                    04:b5:f8:d1:d3:03:42:46:59:54:52:4d:6c:1a:91:
+                    ac:ae:23:84:24:10:ad:58:a8:c2:80:3a:f8:14:0f:
+                    05:e0:a9:98:19:51:0e:29:e2:7d:d1:e2:5c:6e:03:
+                    5a:d1:3d:5e:c8:91:44:08:6c:3f:0e:4a:57:38:d6:
+                    de:8c:3f:41:73
+                ASN1 OID: prime256v1
+                NIST CURVE: P-256
+        X509v3 extensions:
+            X509v3 Subject Key Identifier:
+                F2:D6:5E:A3:92:8E:78:D1:C0:EE:CB:AA:82:D2:68:68:3E:A0:C8:60
+            X509v3 Authority Key Identifier:
+                keyid:70:14:99:72:81:7F:0B:D1:A9:1E:88:36:D2:E6:48:97:8F:87:B8:55
+
+            Authority Information Access:
+                OCSP - URI:http://127.0.0.1:9080
+
+    Signature Algorithm: ecdsa-with-SHA256
+         30:44:02:20:40:f5:a6:1a:bf:d5:fb:5e:8f:4a:1b:8b:bc:c0:
+         8c:39:23:1e:32:0a:ab:41:9f:1a:bc:2e:0a:c9:80:0b:4a:69:
+         02:20:26:65:0b:ed:c9:8b:a1:89:61:ca:33:9b:9f:14:15:d6:
+         bf:32:8f:67:0d:ff:51:9e:d3:23:94:7e:da:ed:e4:9e
+-----BEGIN CERTIFICATE-----
+MIIByTCCAXCgAwIBAgIUbj6AlmMjUkKG9K0wD/8uEaDYTP8wCgYIKoZIzj0EAwIw
+JDEiMCAGA1UEAwwZaW50Y2EtcDI1NmVjZHNhLXAyNTZlY2RzYTAeFw0yMTEyMTMw
+NjE0MzlaFw0zMTEyMTEwNjE0MzlaMC8xLTArBgNVBAMMJGVlLXAyNTZlY2RzYS1w
+MjU2ZWNkc2EtcDI1NmVjZHNhLWFpYTBZMBMGByqGSM49AgEGCCqGSM49AwEHA0IA
+BLX40dMDQkZZVFJNbBqRrK4jhCQQrViowoA6+BQPBeCpmBlRDinifdHiXG4DWtE9
+XsiRRAhsPw5KVzjW3ow/QXOjdTBzMB0GA1UdDgQWBBTy1l6jko540cDuy6qC0mho
+PqDIYDAfBgNVHSMEGDAWgBRwFJlygX8L0akeiDbS5kiXj4e4VTAxBggrBgEFBQcB
+AQQlMCMwIQYIKwYBBQUHMAGGFWh0dHA6Ly8xMjcuMC4wLjE6OTA4MDAKBggqhkjO
+PQQDAgNHADBEAiBA9aYav9X7Xo9KG4u8wIw5Ix4yCqtBnxq8LgrJgAtKaQIgJmUL
+7cmLoYlhyjObnxQV1r8yj2cN/1Ge0yOUftrt5J4=
+-----END CERTIFICATE-----

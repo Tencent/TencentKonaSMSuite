@@ -1,0 +1,48 @@
+Certificate:
+    Data:
+        Version: 3 (0x2)
+        Serial Number:
+            25:8e:55:7a:3a:8f:f6:9a:0a:24:38:48:6d:a4:9b:eb:b1:4f:2e:88
+        Signature Algorithm: sm3WithSM2Sign
+        Issuer: CN = ca-demo
+        Validity
+            Not Before: Dec  3 03:39:10 2021 GMT
+            Not After : Dec  1 03:39:10 2031 GMT
+        Subject: CN = ee-demo
+        Subject Public Key Info:
+            Public Key Algorithm: id-ecPublicKey
+                Public-Key: (256 bit)
+                pub:
+                    04:92:e3:67:d8:0f:1e:fc:66:4d:d3:f5:ad:33:e5:
+                    7b:f5:ae:1f:f9:ee:f7:d1:96:f9:2b:96:66:6c:b8:
+                    de:d5:53:5b:5c:1e:4c:54:a7:38:91:34:d2:41:80:
+                    7b:e1:41:b4:1b:7c:c7:24:cf:da:0d:40:9e:62:48:
+                    2c:19:2f:a3:11
+                ASN1 OID: SM2
+        X509v3 extensions:
+            X509v3 Subject Key Identifier:
+                98:08:AD:39:87:BF:16:E3:6E:ED:6C:08:04:8A:8E:40:45:8A:97:F7
+            X509v3 Authority Key Identifier:
+                keyid:7B:23:29:2E:D6:F3:4B:0B:39:C5:05:55:E2:E8:E9:47:3A:DA:32:47
+
+            X509v3 CRL Distribution Points:
+
+                Full Name:
+                  URI:file:src/test/resources/demo/ee-demo.crl
+
+    Signature Algorithm: sm3WithSM2Sign
+         30:45:02:20:7b:9d:c2:46:59:b1:f1:3a:1a:40:ca:3b:8a:51:
+         c2:e6:a6:f8:ca:94:14:28:63:fa:d3:4e:8e:9d:dd:81:11:01:
+         02:21:00:a2:01:ae:e1:6c:12:e0:4a:54:7c:fb:28:1c:6c:77:
+         88:6c:8c:3a:d9:7d:67:b5:9f:c7:f3:87:af:69:a7:4c:d2
+-----BEGIN CERTIFICATE-----
+MIIBozCCAUmgAwIBAgIUJY5VejqP9poKJDhIbaSb67FPLogwCgYIKoEcz1UBg3Uw
+EjEQMA4GA1UEAwwHY2EtZGVtbzAeFw0yMTEyMDMwMzM5MTBaFw0zMTEyMDEwMzM5
+MTBaMBIxEDAOBgNVBAMMB2VlLWRlbW8wWTATBgcqhkjOPQIBBggqgRzPVQGCLQNC
+AASS42fYDx78Zk3T9a0z5Xv1rh/57vfRlvkrlmZsuN7VU1tcHkxUpziRNNJBgHvh
+QbQbfMckz9oNQJ5iSCwZL6MRo30wezAdBgNVHQ4EFgQUmAitOYe/FuNu7WwIBIqO
+QEWKl/cwHwYDVR0jBBgwFoAUeyMpLtbzSws5xQVV4ujpRzraMkcwOQYDVR0fBDIw
+MDAuoCygKoYoZmlsZTpzcmMvdGVzdC9yZXNvdXJjZXMvZGVtby9lZS1kZW1vLmNy
+bDAKBggqgRzPVQGDdQNIADBFAiB7ncJGWbHxOhpAyjuKUcLmpvjKlBQoY/rTTo6d
+3YERAQIhAKIBruFsEuBKVHz7KBxsd4hsjDrZfWe1n8fzh69pp0zS
+-----END CERTIFICATE-----

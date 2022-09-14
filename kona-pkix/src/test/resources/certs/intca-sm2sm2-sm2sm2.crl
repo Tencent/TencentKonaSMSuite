@@ -1,0 +1,24 @@
+Certificate Revocation List (CRL):
+        Version 2 (0x1)
+        Signature Algorithm: sm3WithSM2Sign
+        Issuer: CN = ca-sm2sm2
+        Last Update: Nov  9 09:29:14 2021 GMT
+        Next Update: Nov  7 09:29:14 2031 GMT
+Revoked Certificates:
+    Serial Number: 66B3F01773EA5860DCAE155B7BCAD7E03C099845
+        Revocation Date: Nov  9 09:29:04 2021 GMT
+        CRL entry extensions:
+            X509v3 CRL Reason Code:
+                Superseded
+    Signature Algorithm: sm3WithSM2Sign
+         30:45:02:20:7d:b4:e0:f5:a2:4b:ee:17:8d:37:c5:ff:15:ca:
+         aa:bc:71:b5:35:4d:a1:5b:6f:04:f4:79:96:da:40:92:ac:f2:
+         02:21:00:a0:4c:3f:d5:3b:7d:5c:40:ce:0b:d6:81:ac:94:82:
+         18:55:02:f4:7d:a0:70:7c:ea:2c:28:bd:89:ad:ea:37:af
+-----BEGIN X509 CRL-----
+MIHSMHoCAQEwCgYIKoEcz1UBg3UwFDESMBAGA1UEAwwJY2Etc20yc20yFw0yMTEx
+MDkwOTI5MTRaFw0zMTExMDcwOTI5MTRaMDUwMwIUZrPwF3PqWGDcrhVbe8rX4DwJ
+mEUXDTIxMTEwOTA5MjkwNFowDDAKBgNVHRUEAwoBBDAKBggqgRzPVQGDdQNIADBF
+AiB9tOD1okvuF403xf8Vyqq8cbU1TaFbbwT0eZbaQJKs8gIhAKBMP9U7fVxAzgvW
+gayUghhVAvR9oHB86iwovYmt6jev
+-----END X509 CRL-----

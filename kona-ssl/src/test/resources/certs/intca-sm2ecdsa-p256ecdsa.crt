@@ -1,0 +1,50 @@
+Certificate:
+    Data:
+        Version: 3 (0x2)
+        Serial Number:
+            2a:65:af:df:f4:df:83:58:24:68:f3:54:46:d3:4e:d3:f4:a4:8f:0a
+        Signature Algorithm: ecdsa-with-SHA256
+        Issuer: CN = ca-p256ecdsa
+        Validity
+            Not Before: Sep 11 20:15:16 2021 GMT
+            Not After : Sep  9 20:15:16 2031 GMT
+        Subject: CN = intca-sm2ecdsa-p256ecdsa
+        Subject Public Key Info:
+            Public Key Algorithm: id-ecPublicKey
+                Public-Key: (256 bit)
+                pub:
+                    04:70:8e:ae:54:7e:31:bc:67:f6:ab:2a:2d:01:fc:
+                    01:86:f7:16:e3:a0:58:22:d7:db:74:0e:23:e7:e6:
+                    48:16:b1:ff:cc:1a:0f:8e:e6:ad:89:ba:7e:ff:17:
+                    fe:f4:57:3c:21:9f:12:c2:ff:9c:d7:71:7d:d5:5e:
+                    64:e0:70:89:49
+                ASN1 OID: SM2
+        X509v3 extensions:
+            X509v3 Subject Key Identifier:
+                79:C8:A3:82:D1:A5:D2:7C:09:E8:7F:6F:1D:70:40:5F:03:0C:A6:7E
+            X509v3 Authority Key Identifier:
+                keyid:AE:05:72:65:AA:6F:06:04:93:E7:D7:2F:0E:00:26:1C:58:88:43:CF
+
+            X509v3 Basic Constraints: critical
+                CA:TRUE
+            X509v3 Key Usage: critical
+                Digital Signature, Certificate Sign, CRL Sign
+            X509v3 Extended Key Usage: critical
+                OCSP Signing
+    Signature Algorithm: ecdsa-with-SHA256
+         30:44:02:20:5f:ba:d5:05:e1:ec:a0:c9:23:dc:08:8a:ad:f7:
+         0b:42:17:bb:d8:6d:f7:af:5e:ec:8c:c0:ac:7c:8b:09:a4:e2:
+         02:20:1d:a2:d6:80:e6:e0:94:4d:59:76:a9:d5:b6:31:68:a3:
+         88:cd:23:fb:b6:63:2a:d5:d9:d0:04:b9:cf:ef:29:92
+-----BEGIN CERTIFICATE-----
+MIIBtjCCAV2gAwIBAgIUKmWv3/Tfg1gkaPNURtNO0/SkjwowCgYIKoZIzj0EAwIw
+FzEVMBMGA1UEAwwMY2EtcDI1NmVjZHNhMB4XDTIxMDkxMTIwMTUxNloXDTMxMDkw
+OTIwMTUxNlowIzEhMB8GA1UEAwwYaW50Y2Etc20yZWNkc2EtcDI1NmVjZHNhMFkw
+EwYHKoZIzj0CAQYIKoEcz1UBgi0DQgAEcI6uVH4xvGf2qyotAfwBhvcW46BYItfb
+dA4j5+ZIFrH/zBoPjuatibp+/xf+9Fc8IZ8Swv+c13F91V5k4HCJSaN7MHkwHQYD
+VR0OBBYEFHnIo4LRpdJ8Ceh/bx1wQF8DDKZ+MB8GA1UdIwQYMBaAFK4FcmWqbwYE
+k+fXLw4AJhxYiEPPMA8GA1UdEwEB/wQFMAMBAf8wDgYDVR0PAQH/BAQDAgGGMBYG
+A1UdJQEB/wQMMAoGCCsGAQUFBwMJMAoGCCqGSM49BAMCA0cAMEQCIF+61QXh7KDJ
+I9wIiq33C0IXu9ht969e7IzArHyLCaTiAiAdotaA5uCUTVl2qdW2MWijiM0j+7Zj
+KtXZ0AS5z+8pkg==
+-----END CERTIFICATE-----

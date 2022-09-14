@@ -1,0 +1,43 @@
+Certificate:
+    Data:
+        Version: 3 (0x2)
+        Serial Number:
+            7c:c6:ef:c9:ff:1b:40:4a:4c:11:85:e7:14:db:82:6c:61:57:31:26
+        Signature Algorithm: ecdsa-with-SHA256
+        Issuer: CN = intca-p256ecdsa-p256ecdsa
+        Validity
+            Not Before: Sep 11 20:15:16 2021 GMT
+            Not After : Sep  9 20:15:16 2031 GMT
+        Subject: CN = ee-sm2ecdsa-p256ecdsa-p256ecdsa
+        Subject Public Key Info:
+            Public Key Algorithm: id-ecPublicKey
+                Public-Key: (256 bit)
+                pub:
+                    04:8a:40:d7:d4:f6:f2:7a:9c:0c:43:ee:42:21:fd:
+                    ca:e2:2d:95:69:80:fa:aa:10:f3:0a:7e:29:f2:27:
+                    74:3d:08:ec:eb:e7:4a:67:59:36:db:7c:18:57:87:
+                    c9:31:19:01:ef:c2:5f:7c:ef:b1:13:31:e7:8a:35:
+                    6d:04:45:f9:ec
+                ASN1 OID: SM2
+        X509v3 extensions:
+            X509v3 Subject Key Identifier:
+                47:92:9C:3F:AE:61:DD:87:0C:8C:F2:50:27:58:0E:3B:61:CF:D2:79
+            X509v3 Authority Key Identifier:
+                keyid:70:14:99:72:81:7F:0B:D1:A9:1E:88:36:D2:E6:48:97:8F:87:B8:55
+
+    Signature Algorithm: ecdsa-with-SHA256
+         30:45:02:20:36:3b:bb:e0:72:76:51:e9:0e:8e:8d:5a:a0:5f:
+         6b:d8:ee:50:01:ed:7d:91:1a:64:d4:b8:d8:ff:55:d3:0c:71:
+         02:21:00:c9:fc:c3:6a:85:67:d5:f0:1b:7c:2c:3b:df:ab:3c:
+         17:35:3c:94:87:3c:f3:d1:4e:b4:57:09:69:72:c3:ec:e5
+-----BEGIN CERTIFICATE-----
+MIIBkjCCATigAwIBAgIUfMbvyf8bQEpMEYXnFNuCbGFXMSYwCgYIKoZIzj0EAwIw
+JDEiMCAGA1UEAwwZaW50Y2EtcDI1NmVjZHNhLXAyNTZlY2RzYTAeFw0yMTA5MTEy
+MDE1MTZaFw0zMTA5MDkyMDE1MTZaMCoxKDAmBgNVBAMMH2VlLXNtMmVjZHNhLXAy
+NTZlY2RzYS1wMjU2ZWNkc2EwWTATBgcqhkjOPQIBBggqgRzPVQGCLQNCAASKQNfU
+9vJ6nAxD7kIh/criLZVpgPqqEPMKfinyJ3Q9COzr50pnWTbbfBhXh8kxGQHvwl98
+77ETMeeKNW0ERfnso0IwQDAdBgNVHQ4EFgQUR5KcP65h3YcMjPJQJ1gOO2HP0nkw
+HwYDVR0jBBgwFoAUcBSZcoF/C9GpHog20uZIl4+HuFUwCgYIKoZIzj0EAwIDSAAw
+RQIgNju74HJ2UekOjo1aoF9r2O5QAe19kRpk1LjY/1XTDHECIQDJ/MNqhWfV8Bt8
+LDvfqzwXNTyUhzzz0U60VwlpcsPs5Q==
+-----END CERTIFICATE-----

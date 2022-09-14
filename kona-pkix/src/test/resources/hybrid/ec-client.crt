@@ -1,0 +1,48 @@
+Certificate:
+    Data:
+        Version: 3 (0x2)
+        Serial Number:
+            28:a6:db:2e:16:9c:97:d8:b3:c6:e3:e6:f1:6d:a0:43:b0:8c:19:ec
+        Signature Algorithm: ecdsa-with-SHA256
+        Issuer: CN = ec-intca
+        Validity
+            Not Before: Jun  8 06:28:27 2022 GMT
+            Not After : Jun  5 06:28:27 2032 GMT
+        Subject: CN = ec-client
+        Subject Public Key Info:
+            Public Key Algorithm: id-ecPublicKey
+                Public-Key: (256 bit)
+                pub:
+                    04:b3:c0:05:df:d1:c1:fe:f4:f8:9a:1b:de:48:e5:
+                    77:f9:d9:ac:3c:84:61:71:57:77:b1:7d:ae:6b:d1:
+                    6c:c2:3a:73:43:43:fe:70:68:9c:d3:4e:1c:ac:8c:
+                    3f:05:57:95:19:61:47:68:4a:ad:06:4d:5c:29:d7:
+                    08:2b:ab:fa:44
+                ASN1 OID: prime256v1
+                NIST CURVE: P-256
+        X509v3 extensions:
+            X509v3 Subject Key Identifier:
+                16:AC:FC:2F:A7:7B:A9:51:91:85:9B:31:07:4E:48:F3:92:88:B4:E0
+            X509v3 Authority Key Identifier:
+                keyid:3D:25:47:A4:25:87:09:1E:7E:3C:22:69:A4:7C:5F:AF:C2:C5:09:E8
+
+            X509v3 Basic Constraints: critical
+                CA:FALSE
+            X509v3 Key Usage: critical
+                Digital Signature, Key Encipherment, Data Encipherment, Key Agreement
+    Signature Algorithm: ecdsa-with-SHA256
+         30:44:02:20:1f:f9:1f:43:c7:bd:14:69:65:2f:c4:8e:df:a9:
+         ce:fa:97:99:0f:64:73:e8:78:07:2e:22:8e:3d:76:38:cf:a1:
+         02:20:11:ec:bc:8f:ff:2e:19:40:67:2b:50:d6:fa:94:17:7d:
+         88:cf:05:fa:f9:9d:91:87:91:99:4a:c7:31:53:78:25
+-----BEGIN CERTIFICATE-----
+MIIBiDCCAS+gAwIBAgIUKKbbLhacl9izxuPm8W2gQ7CMGewwCgYIKoZIzj0EAwIw
+EzERMA8GA1UEAwwIZWMtaW50Y2EwHhcNMjIwNjA4MDYyODI3WhcNMzIwNjA1MDYy
+ODI3WjAUMRIwEAYDVQQDDAllYy1jbGllbnQwWTATBgcqhkjOPQIBBggqhkjOPQMB
+BwNCAASzwAXf0cH+9PiaG95I5Xf52aw8hGFxV3exfa5r0WzCOnNDQ/5waJzTThys
+jD8FV5UZYUdoSq0GTVwp1wgrq/pEo2AwXjAdBgNVHQ4EFgQUFqz8L6d7qVGRhZsx
+B05I85KItOAwHwYDVR0jBBgwFoAUPSVHpCWHCR5+PCJppHxfr8LFCegwDAYDVR0T
+AQH/BAIwADAOBgNVHQ8BAf8EBAMCA7gwCgYIKoZIzj0EAwIDRwAwRAIgH/kfQ8e9
+FGllL8SO36nO+peZD2Rz6HgHLiKOPXY4z6ECIBHsvI//LhlAZytQ1vqUF32IzwX6
++Z2Rh5GZSscxU3gl
+-----END CERTIFICATE-----

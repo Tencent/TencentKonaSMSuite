@@ -1,0 +1,47 @@
+Certificate:
+    Data:
+        Version: 3 (0x2)
+        Serial Number:
+            18:f6:d5:24:dd:35:22:b2:eb:f5:fb:25:48:87:4e:e2:ba:a9:73:08
+        Signature Algorithm: SM2-with-SM3
+        Issuer: CN = tlcp-intca
+        Validity
+            Not Before: May 11 11:56:38 2022 GMT
+            Not After : May  8 11:56:38 2032 GMT
+        Subject: CN = localhost
+        Subject Public Key Info:
+            Public Key Algorithm: id-ecPublicKey
+                Public-Key: (256 bit)
+                pub:
+                    04:39:2e:35:df:df:30:6c:f7:8c:ff:66:1f:d0:30:
+                    07:4c:e0:47:d1:56:7d:2e:da:21:06:d4:d5:f8:df:
+                    db:84:dd:ce:5d:c4:53:52:90:5e:13:31:89:be:b2:
+                    02:17:17:11:a6:a6:15:cb:11:9b:d9:6f:a7:25:1c:
+                    e6:cc:8d:7a:1b
+                ASN1 OID: SM2
+        X509v3 extensions:
+            X509v3 Subject Key Identifier:
+                5D:59:BA:5A:80:98:82:BB:30:C6:33:9A:A2:06:52:C0:85:B8:30:8E
+            X509v3 Authority Key Identifier:
+                keyid:45:2F:DD:35:92:7E:77:44:9E:97:D4:D6:BC:63:58:19:69:F1:4D:BE
+
+            X509v3 Basic Constraints: critical
+                CA:FALSE
+            X509v3 Key Usage: critical
+                Key Encipherment, Data Encipherment, Key Agreement
+    Signature Algorithm: SM2-with-SM3
+         30:45:02:20:01:37:1f:dc:8a:31:58:e1:a8:06:e2:e0:f4:ec:
+         53:19:b3:b8:3f:a5:57:a5:2d:84:1b:03:e2:ef:80:5f:71:0d:
+         02:21:00:dd:d8:07:14:03:e9:76:7f:0a:0e:96:e9:2d:aa:22:
+         c3:a7:e9:c4:ef:00:4e:4a:f6:74:4a:a5:79:8b:fc:d0:52
+-----BEGIN CERTIFICATE-----
+MIIBizCCATGgAwIBAgIUGPbVJN01IrLr9fslSIdO4rqpcwgwCgYIKoEcz1UBg3Uw
+FTETMBEGA1UEAwwKdGxjcC1pbnRjYTAeFw0yMjA1MTExMTU2MzhaFw0zMjA1MDgx
+MTU2MzhaMBQxEjAQBgNVBAMMCWxvY2FsaG9zdDBZMBMGByqGSM49AgEGCCqBHM9V
+AYItA0IABDkuNd/fMGz3jP9mH9AwB0zgR9FWfS7aIQbU1fjf24Tdzl3EU1KQXhMx
+ib6yAhcXEaamFcsRm9lvpyUc5syNehujYDBeMB0GA1UdDgQWBBRdWbpagJiCuzDG
+M5qiBlLAhbgwjjAfBgNVHSMEGDAWgBRFL901kn53RJ6X1Na8Y1gZafFNvjAMBgNV
+HRMBAf8EAjAAMA4GA1UdDwEB/wQEAwIDODAKBggqgRzPVQGDdQNIADBFAiABNx/c
+ijFY4agG4uD07FMZs7g/pVelLYQbA+LvgF9xDQIhAN3YBxQD6XZ/Cg6W6S2qIsOn
+6cTvAE5K9nRKpXmL/NBS
+-----END CERTIFICATE-----

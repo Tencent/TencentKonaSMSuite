@@ -1,0 +1,48 @@
+Certificate:
+    Data:
+        Version: 3 (0x2)
+        Serial Number:
+            28:a6:db:2e:16:9c:97:d8:b3:c6:e3:e6:f1:6d:a0:43:b0:8c:19:eb
+        Signature Algorithm: ecdsa-with-SHA256
+        Issuer: CN = ec-intca
+        Validity
+            Not Before: Jun  8 06:28:27 2022 GMT
+            Not After : Jun  5 06:28:27 2032 GMT
+        Subject: CN = ec-server
+        Subject Public Key Info:
+            Public Key Algorithm: id-ecPublicKey
+                Public-Key: (256 bit)
+                pub:
+                    04:02:c5:8c:58:a6:37:5a:73:40:32:db:03:99:ad:
+                    96:f6:e0:fc:9d:26:0d:e5:66:8e:94:f2:08:dd:96:
+                    00:12:96:a4:15:ea:12:65:bf:bd:d5:4c:15:3a:93:
+                    82:8f:93:5b:48:fa:95:af:65:27:47:d0:f4:f3:38:
+                    6b:ea:fb:6d:f1
+                ASN1 OID: prime256v1
+                NIST CURVE: P-256
+        X509v3 extensions:
+            X509v3 Subject Key Identifier:
+                26:EA:94:EA:57:75:C7:AA:5E:12:88:19:EF:2E:01:AC:C0:9D:31:D7
+            X509v3 Authority Key Identifier:
+                keyid:3D:25:47:A4:25:87:09:1E:7E:3C:22:69:A4:7C:5F:AF:C2:C5:09:E8
+
+            X509v3 Basic Constraints: critical
+                CA:FALSE
+            X509v3 Key Usage: critical
+                Digital Signature, Key Encipherment, Data Encipherment, Key Agreement
+    Signature Algorithm: ecdsa-with-SHA256
+         30:45:02:20:50:23:61:77:61:a4:11:cb:c0:0f:3f:74:e7:1c:
+         0f:ba:20:44:dd:f5:5d:b2:7b:88:96:75:8b:34:13:68:7f:ba:
+         02:21:00:e8:98:a7:65:b3:8b:0c:98:c3:26:d9:12:87:b7:41:
+         c1:8e:e7:16:10:d5:70:c1:37:b9:e2:1e:7c:24:38:6b:a5
+-----BEGIN CERTIFICATE-----
+MIIBiTCCAS+gAwIBAgIUKKbbLhacl9izxuPm8W2gQ7CMGeswCgYIKoZIzj0EAwIw
+EzERMA8GA1UEAwwIZWMtaW50Y2EwHhcNMjIwNjA4MDYyODI3WhcNMzIwNjA1MDYy
+ODI3WjAUMRIwEAYDVQQDDAllYy1zZXJ2ZXIwWTATBgcqhkjOPQIBBggqhkjOPQMB
+BwNCAAQCxYxYpjdac0Ay2wOZrZb24PydJg3lZo6U8gjdlgASlqQV6hJlv73VTBU6
+k4KPk1tI+pWvZSdH0PTzOGvq+23xo2AwXjAdBgNVHQ4EFgQUJuqU6ld1x6peEogZ
+7y4BrMCdMdcwHwYDVR0jBBgwFoAUPSVHpCWHCR5+PCJppHxfr8LFCegwDAYDVR0T
+AQH/BAIwADAOBgNVHQ8BAf8EBAMCA7gwCgYIKoZIzj0EAwIDSAAwRQIgUCNhd2Gk
+EcvADz905xwPuiBE3fVdsnuIlnWLNBNof7oCIQDomKdls4sMmMMm2RKHt0HBjucW
+ENVwwTe54h58JDhrpQ==
+-----END CERTIFICATE-----

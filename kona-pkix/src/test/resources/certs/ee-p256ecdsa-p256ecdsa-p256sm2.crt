@@ -1,0 +1,44 @@
+Certificate:
+    Data:
+        Version: 3 (0x2)
+        Serial Number:
+            6e:56:4f:32:1d:97:e2:76:42:e4:5d:19:a7:e1:cd:b5:a2:79:76:e6
+        Signature Algorithm: ecdsa-with-SHA256
+        Issuer: CN = intca-p256ecdsa-p256sm2
+        Validity
+            Not Before: Sep 11 20:15:16 2021 GMT
+            Not After : Sep  9 20:15:16 2031 GMT
+        Subject: CN = ee-p256ecdsa-p256ecdsa-p256sm2
+        Subject Public Key Info:
+            Public Key Algorithm: id-ecPublicKey
+                Public-Key: (256 bit)
+                pub:
+                    04:ff:92:95:db:5c:2e:c3:2b:22:85:4d:f5:3f:40:
+                    93:3f:8d:db:2d:10:c5:65:2d:08:fc:cc:8e:89:c8:
+                    44:a6:0e:5c:a4:3e:c0:30:d1:b4:47:4a:38:88:8f:
+                    7c:44:df:81:b8:a1:e6:44:9d:c5:59:7e:a0:ad:13:
+                    4c:6d:a8:19:67
+                ASN1 OID: prime256v1
+                NIST CURVE: P-256
+        X509v3 extensions:
+            X509v3 Subject Key Identifier:
+                5B:36:6F:4C:4F:8B:AE:C3:F3:52:10:2A:93:12:47:A6:61:FC:6A:59
+            X509v3 Authority Key Identifier:
+                keyid:F6:CA:82:92:7E:39:E7:D2:9B:BC:F8:54:C5:B8:AF:00:38:98:C4:FC
+
+    Signature Algorithm: ecdsa-with-SHA256
+         30:46:02:21:00:f7:ea:0b:1a:2f:c4:55:0b:8c:e5:16:c4:22:
+         ab:90:36:c4:62:41:b8:19:77:ac:7a:f8:26:5c:f1:33:37:59:
+         76:02:21:00:d5:60:14:a9:ad:ff:aa:1b:26:56:df:16:66:ef:
+         e8:02:d0:0b:00:94:e2:9b:33:09:2a:09:3e:9f:78:5e:cc:28
+-----BEGIN CERTIFICATE-----
+MIIBkDCCATWgAwIBAgIUblZPMh2X4nZC5F0Zp+HNtaJ5duYwCgYIKoZIzj0EAwIw
+IjEgMB4GA1UEAwwXaW50Y2EtcDI1NmVjZHNhLXAyNTZzbTIwHhcNMjEwOTExMjAx
+NTE2WhcNMzEwOTA5MjAxNTE2WjApMScwJQYDVQQDDB5lZS1wMjU2ZWNkc2EtcDI1
+NmVjZHNhLXAyNTZzbTIwWTATBgcqhkjOPQIBBggqhkjOPQMBBwNCAAT/kpXbXC7D
+KyKFTfU/QJM/jdstEMVlLQj8zI6JyESmDlykPsAw0bRHSjiIj3xE34G4oeZEncVZ
+fqCtE0xtqBlno0IwQDAdBgNVHQ4EFgQUWzZvTE+LrsPzUhAqkxJHpmH8alkwHwYD
+VR0jBBgwFoAU9sqCkn4559KbvPhUxbivADiYxPwwCgYIKoZIzj0EAwIDSQAwRgIh
+APfqCxovxFULjOUWxCKrkDbEYkG4GXesevgmXPEzN1l2AiEA1WAUqa3/qhsmVt8W
+Zu/oAtALAJTimzMJKgk+n3hezCg=
+-----END CERTIFICATE-----

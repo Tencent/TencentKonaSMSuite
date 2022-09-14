@@ -1,0 +1,49 @@
+Certificate:
+    Data:
+        Version: 3 (0x2)
+        Serial Number:
+            72:3f:9b:a4:9c:be:0d:08:4b:37:26:47:7c:e0:f3:e5:23:dc:d7:2e
+        Signature Algorithm: ecdsa-with-SHA256
+        Issuer: CN = ca-sm2ecdsa
+        Validity
+            Not Before: Sep 11 20:15:16 2021 GMT
+            Not After : Sep  9 20:15:16 2031 GMT
+        Subject: CN = ca-sm2ecdsa
+        Subject Public Key Info:
+            Public Key Algorithm: id-ecPublicKey
+                Public-Key: (256 bit)
+                pub:
+                    04:52:fb:c8:a3:f5:f9:e6:71:6e:0e:a8:87:c2:d3:
+                    54:f3:bb:1c:c8:ec:29:9c:b2:0d:7c:16:0d:84:1d:
+                    54:34:4c:1a:87:37:45:fa:7c:99:6e:3e:d3:77:d9:
+                    4f:04:f7:a2:14:02:2f:b0:ee:09:96:a6:e4:78:c2:
+                    31:9b:dc:b9:2d
+                ASN1 OID: SM2
+        X509v3 extensions:
+            X509v3 Subject Key Identifier:
+                77:35:A7:5C:3E:B1:D0:D6:9A:FA:FD:D8:82:37:88:56:CB:B6:DA:B6
+            X509v3 Authority Key Identifier:
+                keyid:77:35:A7:5C:3E:B1:D0:D6:9A:FA:FD:D8:82:37:88:56:CB:B6:DA:B6
+
+            X509v3 Basic Constraints: critical
+                CA:TRUE
+            X509v3 Key Usage: critical
+                Digital Signature, Certificate Sign, CRL Sign
+            X509v3 Extended Key Usage: critical
+                OCSP Signing
+    Signature Algorithm: ecdsa-with-SHA256
+         30:45:02:21:00:ee:2b:b6:20:63:bf:05:d6:23:13:63:7e:66:
+         e7:97:b7:42:02:a2:79:3d:97:93:58:7f:6f:5d:01:2a:85:56:
+         6d:02:20:41:fd:f4:88:05:f7:62:62:5f:69:c5:a5:ce:63:64:
+         fe:94:85:92:3f:e2:07:00:55:67:a9:74:f0:90:a2:6c:de
+-----BEGIN CERTIFICATE-----
+MIIBqTCCAU+gAwIBAgIUcj+bpJy+DQhLNyZHfODz5SPc1y4wCgYIKoZIzj0EAwIw
+FjEUMBIGA1UEAwwLY2Etc20yZWNkc2EwHhcNMjEwOTExMjAxNTE2WhcNMzEwOTA5
+MjAxNTE2WjAWMRQwEgYDVQQDDAtjYS1zbTJlY2RzYTBZMBMGByqGSM49AgEGCCqB
+HM9VAYItA0IABFL7yKP1+eZxbg6oh8LTVPO7HMjsKZyyDXwWDYQdVDRMGoc3Rfp8
+mW4+03fZTwT3ohQCL7DuCZam5HjCMZvcuS2jezB5MB0GA1UdDgQWBBR3NadcPrHQ
+1pr6/diCN4hWy7batjAfBgNVHSMEGDAWgBR3NadcPrHQ1pr6/diCN4hWy7batjAP
+BgNVHRMBAf8EBTADAQH/MA4GA1UdDwEB/wQEAwIBhjAWBgNVHSUBAf8EDDAKBggr
+BgEFBQcDCTAKBggqhkjOPQQDAgNIADBFAiEA7iu2IGO/BdYjE2N+ZueXt0IConk9
+l5NYf29dASqFVm0CIEH99IgF92JiX2nFpc5jZP6UhZI/4gcAVWepdPCQomze
+-----END CERTIFICATE-----

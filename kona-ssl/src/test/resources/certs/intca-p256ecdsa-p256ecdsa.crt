@@ -1,0 +1,51 @@
+Certificate:
+    Data:
+        Version: 3 (0x2)
+        Serial Number:
+            2a:65:af:df:f4:df:83:58:24:68:f3:54:46:d3:4e:d3:f4:a4:8f:09
+        Signature Algorithm: ecdsa-with-SHA256
+        Issuer: CN = ca-p256ecdsa
+        Validity
+            Not Before: Sep 11 20:15:16 2021 GMT
+            Not After : Sep  9 20:15:16 2031 GMT
+        Subject: CN = intca-p256ecdsa-p256ecdsa
+        Subject Public Key Info:
+            Public Key Algorithm: id-ecPublicKey
+                Public-Key: (256 bit)
+                pub:
+                    04:8f:33:4b:bf:05:dd:e0:8e:9e:49:db:f4:25:08:
+                    ea:d6:b3:ed:85:e0:00:43:e9:57:4d:cd:d7:5c:c5:
+                    d7:41:0d:d6:36:9f:ed:9c:37:dc:e1:52:28:21:0f:
+                    68:21:6f:be:65:79:45:5e:7b:43:df:a4:82:84:b7:
+                    36:a4:7c:92:26
+                ASN1 OID: prime256v1
+                NIST CURVE: P-256
+        X509v3 extensions:
+            X509v3 Subject Key Identifier:
+                70:14:99:72:81:7F:0B:D1:A9:1E:88:36:D2:E6:48:97:8F:87:B8:55
+            X509v3 Authority Key Identifier:
+                keyid:AE:05:72:65:AA:6F:06:04:93:E7:D7:2F:0E:00:26:1C:58:88:43:CF
+
+            X509v3 Basic Constraints: critical
+                CA:TRUE
+            X509v3 Key Usage: critical
+                Digital Signature, Certificate Sign, CRL Sign
+            X509v3 Extended Key Usage: critical
+                OCSP Signing
+    Signature Algorithm: ecdsa-with-SHA256
+         30:46:02:21:00:b7:a5:fe:b4:21:dd:a0:50:09:e2:a4:b0:08:
+         66:77:63:d4:22:1e:d2:b2:e1:b2:91:84:c7:45:a5:9c:40:21:
+         62:02:21:00:9e:e2:51:f8:e6:24:81:f7:72:43:43:ab:90:6e:
+         38:df:76:34:a1:b9:65:2f:39:a0:bc:7a:00:73:22:91:5a:15
+-----BEGIN CERTIFICATE-----
+MIIBuTCCAV6gAwIBAgIUKmWv3/Tfg1gkaPNURtNO0/SkjwkwCgYIKoZIzj0EAwIw
+FzEVMBMGA1UEAwwMY2EtcDI1NmVjZHNhMB4XDTIxMDkxMTIwMTUxNloXDTMxMDkw
+OTIwMTUxNlowJDEiMCAGA1UEAwwZaW50Y2EtcDI1NmVjZHNhLXAyNTZlY2RzYTBZ
+MBMGByqGSM49AgEGCCqGSM49AwEHA0IABI8zS78F3eCOnknb9CUI6taz7YXgAEPp
+V03N11zF10EN1jaf7Zw33OFSKCEPaCFvvmV5RV57Q9+kgoS3NqR8kiajezB5MB0G
+A1UdDgQWBBRwFJlygX8L0akeiDbS5kiXj4e4VTAfBgNVHSMEGDAWgBSuBXJlqm8G
+BJPn1y8OACYcWIhDzzAPBgNVHRMBAf8EBTADAQH/MA4GA1UdDwEB/wQEAwIBhjAW
+BgNVHSUBAf8EDDAKBggrBgEFBQcDCTAKBggqhkjOPQQDAgNJADBGAiEAt6X+tCHd
+oFAJ4qSwCGZ3Y9QiHtKy4bKRhMdFpZxAIWICIQCe4lH45iSB93JDQ6uQbjjfdjSh
+uWUvOaC8egBzIpFaFQ==
+-----END CERTIFICATE-----

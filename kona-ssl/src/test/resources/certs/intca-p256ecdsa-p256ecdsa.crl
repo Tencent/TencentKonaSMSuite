@@ -1,0 +1,24 @@
+Certificate Revocation List (CRL):
+        Version 2 (0x1)
+        Signature Algorithm: ecdsa-with-SHA256
+        Issuer: CN = ca-p256ecdsa
+        Last Update: Nov  9 08:04:56 2021 GMT
+        Next Update: Nov  7 08:04:56 2031 GMT
+Revoked Certificates:
+    Serial Number: 2A65AFDFF4DF83582468F35446D34ED3F4A48F09
+        Revocation Date: Nov  9 07:45:12 2021 GMT
+        CRL entry extensions:
+            X509v3 CRL Reason Code:
+                Superseded
+    Signature Algorithm: ecdsa-with-SHA256
+         30:46:02:21:00:ea:ef:71:e0:d4:38:c3:35:bf:b8:af:a0:45:
+         be:5a:d7:27:9f:d3:54:d1:e4:a6:8c:c2:6c:44:3c:2d:fd:0b:
+         a6:02:21:00:90:8d:bb:af:39:f1:6f:3a:f1:38:ef:4d:b3:43:
+         e4:21:89:f4:be:7b:cd:00:64:5d:fb:ce:4a:53:46:52:56:63
+-----BEGIN X509 CRL-----
+MIHWMH0CAQEwCgYIKoZIzj0EAwIwFzEVMBMGA1UEAwwMY2EtcDI1NmVjZHNhFw0y
+MTExMDkwODA0NTZaFw0zMTExMDcwODA0NTZaMDUwMwIUKmWv3/Tfg1gkaPNURtNO
+0/SkjwkXDTIxMTEwOTA3NDUxMlowDDAKBgNVHRUEAwoBBDAKBggqhkjOPQQDAgNJ
+ADBGAiEA6u9x4NQ4wzW/uK+gRb5a1yef01TR5KaMwmxEPC39C6YCIQCQjbuvOfFv
+OvE4702zQ+QhifS+e80AZF37zkpTRlJWYw==
+-----END X509 CRL-----

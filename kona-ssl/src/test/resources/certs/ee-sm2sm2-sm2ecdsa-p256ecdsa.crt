@@ -1,0 +1,43 @@
+Certificate:
+    Data:
+        Version: 3 (0x2)
+        Serial Number:
+            2c:ad:bb:32:2c:b9:e0:2e:82:62:ae:28:3f:f6:77:a3:77:00:17:4a
+        Signature Algorithm: sm3WithSM2Sign
+        Issuer: CN = intca-sm2ecdsa-p256ecdsa
+        Validity
+            Not Before: Sep 11 20:15:16 2021 GMT
+            Not After : Sep  9 20:15:16 2031 GMT
+        Subject: CN = ee-sm2sm2-sm2ecdsa-p256ecdsa
+        Subject Public Key Info:
+            Public Key Algorithm: id-ecPublicKey
+                Public-Key: (256 bit)
+                pub:
+                    04:70:e9:24:73:27:f0:a7:b7:c3:81:da:ba:16:9c:
+                    5e:76:32:ea:86:be:a5:ac:8b:a9:79:04:43:e8:a8:
+                    95:35:a9:f9:1e:6f:44:7f:7a:6d:ba:15:74:7d:d5:
+                    26:51:c1:38:b5:86:19:c9:3f:33:54:7c:c7:ff:9f:
+                    9a:5f:f0:69:04
+                ASN1 OID: SM2
+        X509v3 extensions:
+            X509v3 Subject Key Identifier:
+                46:64:84:3A:69:E6:40:69:5B:7F:DF:EC:97:45:DE:8F:BA:12:3A:65
+            X509v3 Authority Key Identifier:
+                keyid:79:C8:A3:82:D1:A5:D2:7C:09:E8:7F:6F:1D:70:40:5F:03:0C:A6:7E
+
+    Signature Algorithm: sm3WithSM2Sign
+         30:45:02:20:3b:e5:a7:27:0f:ec:38:fc:34:3d:61:61:2c:80:
+         df:9e:89:d9:36:42:cc:59:8b:d3:f7:9a:c9:a9:da:35:26:b1:
+         02:21:00:84:09:c2:59:57:03:6f:1f:21:2b:82:c5:f3:64:4e:
+         5b:1f:e1:5d:8d:f5:30:56:cc:99:dc:38:96:01:31:f2:bc
+-----BEGIN CERTIFICATE-----
+MIIBjjCCATSgAwIBAgIULK27Miy54C6CYq4oP/Z3o3cAF0owCgYIKoEcz1UBg3Uw
+IzEhMB8GA1UEAwwYaW50Y2Etc20yZWNkc2EtcDI1NmVjZHNhMB4XDTIxMDkxMTIw
+MTUxNloXDTMxMDkwOTIwMTUxNlowJzElMCMGA1UEAwwcZWUtc20yc20yLXNtMmVj
+ZHNhLXAyNTZlY2RzYTBZMBMGByqGSM49AgEGCCqBHM9VAYItA0IABHDpJHMn8Ke3
+w4HauhacXnYy6oa+payLqXkEQ+iolTWp+R5vRH96bboVdH3VJlHBOLWGGck/M1R8
+x/+fml/waQSjQjBAMB0GA1UdDgQWBBRGZIQ6aeZAaVt/3+yXRd6PuhI6ZTAfBgNV
+HSMEGDAWgBR5yKOC0aXSfAnof28dcEBfAwymfjAKBggqgRzPVQGDdQNIADBFAiA7
+5acnD+w4/DQ9YWEsgN+eidk2QsxZi9P3msmp2jUmsQIhAIQJwllXA28fISuCxfNk
+Tlsf4V2N9TBWzJncOJYBMfK8
+-----END CERTIFICATE-----

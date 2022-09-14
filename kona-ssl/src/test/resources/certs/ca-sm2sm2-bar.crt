@@ -1,0 +1,50 @@
+Certificate:
+    Data:
+        Version: 3 (0x2)
+        Serial Number:
+            09:38:77:ff:6c:86:b6:5e:d7:f4:df:df:22:71:c0:f6:a3:85:52:b8
+        Signature Algorithm: sm3WithSM2Sign
+        Issuer: CN = ca-sm2sm2-bar
+        Validity
+            Not Before: Nov 23 03:26:37 2021 GMT
+            Not After : Nov 21 03:26:37 2031 GMT
+        Subject: CN = ca-sm2sm2-bar
+        Subject Public Key Info:
+            Public Key Algorithm: id-ecPublicKey
+                Public-Key: (256 bit)
+                pub:
+                    04:03:b9:82:72:b7:07:b5:77:76:d1:9c:fd:68:71:
+                    ed:6a:73:78:74:25:e2:08:22:63:2d:ac:a5:a0:53:
+                    80:55:71:6c:b3:58:26:9e:54:4f:e6:35:fb:10:66:
+                    8b:d4:ef:c1:bf:ea:82:f4:e6:92:ca:9e:38:b6:a5:
+                    a5:13:41:cd:06
+                ASN1 OID: SM2
+        X509v3 extensions:
+            X509v3 Subject Key Identifier:
+                84:2F:E5:55:BE:E8:6E:48:4E:FC:1F:D1:4A:94:F2:C3:D8:5A:72:97
+            X509v3 Authority Key Identifier:
+                keyid:84:2F:E5:55:BE:E8:6E:48:4E:FC:1F:D1:4A:94:F2:C3:D8:5A:72:97
+
+            X509v3 Basic Constraints: critical
+                CA:TRUE
+            X509v3 Key Usage: critical
+                Digital Signature, Certificate Sign, CRL Sign
+            X509v3 Extended Key Usage: critical
+                OCSP Signing
+    Signature Algorithm: sm3WithSM2Sign
+         30:45:02:21:00:9a:0f:eb:83:93:f4:1e:61:08:a0:44:59:93:
+         bd:f9:c8:95:19:6d:48:cb:ed:82:62:32:51:2c:92:58:71:92:
+         a1:02:20:49:96:49:81:7a:04:14:3b:a0:58:0d:90:c3:87:23:
+         b1:f0:94:1c:0b:fc:f9:25:76:e7:06:9e:4b:61:ab:86:0f
+-----BEGIN CERTIFICATE-----
+MIIBrTCCAVOgAwIBAgIUCTh3/2yGtl7X9N/fInHA9qOFUrgwCgYIKoEcz1UBg3Uw
+GDEWMBQGA1UEAwwNY2Etc20yc20yLWJhcjAeFw0yMTExMjMwMzI2MzdaFw0zMTEx
+MjEwMzI2MzdaMBgxFjAUBgNVBAMMDWNhLXNtMnNtMi1iYXIwWTATBgcqhkjOPQIB
+BggqgRzPVQGCLQNCAAQDuYJytwe1d3bRnP1oce1qc3h0JeIIImMtrKWgU4BVcWyz
+WCaeVE/mNfsQZovU78G/6oL05pLKnji2paUTQc0Go3sweTAdBgNVHQ4EFgQUhC/l
+Vb7obkhO/B/RSpTyw9hacpcwHwYDVR0jBBgwFoAUhC/lVb7obkhO/B/RSpTyw9ha
+cpcwDwYDVR0TAQH/BAUwAwEB/zAOBgNVHQ8BAf8EBAMCAYYwFgYDVR0lAQH/BAww
+CgYIKwYBBQUHAwkwCgYIKoEcz1UBg3UDSAAwRQIhAJoP64OT9B5hCKBEWZO9+ciV
+GW1Iy+2CYjJRLJJYcZKhAiBJlkmBegQUO6BYDZDDhyOx8JQcC/z5JXbnBp5LYauG
+Dw==
+-----END CERTIFICATE-----
