@@ -10,6 +10,9 @@ import javax.crypto.Mac;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 
+import java.security.InvalidParameterException;
+import java.security.SecureRandom;
+
 import static com.tencent.kona.crypto.TestUtils.PROVIDER;
 import static com.tencent.kona.crypto.util.Constants.SM3_HMAC_LEN;
 import static com.tencent.kona.crypto.CryptoUtils.toBytes;
@@ -31,11 +34,17 @@ public class SM3HMacTest {
     public void testSM3HMacKeyGen() throws Exception {
         KeyGenerator sm3HMacKeyGen
                 = KeyGenerator.getInstance("SM3HMac", PROVIDER);
-//        TestUtils.checkThrowable(
-//                InvalidParameterException.class, ()-> sm3HMacKeyGen.init(256));
+
+        TestUtils.checkThrowable(
+                InvalidParameterException.class, ()-> sm3HMacKeyGen.init(127));
+
         sm3HMacKeyGen.init(128);
         SecretKey key = sm3HMacKeyGen.generateKey();
         Assertions.assertEquals(16, key.getEncoded().length);
+
+        sm3HMacKeyGen.init(new SecureRandom());
+        key = sm3HMacKeyGen.generateKey();
+        Assertions.assertEquals(32, key.getEncoded().length);
     }
 
     @Test

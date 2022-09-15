@@ -31,10 +31,7 @@ public class Constants {
 
     public static final int SM2_PRIKEY_LEN = 32;
 
-    // The length of raw SM2 signature, exactly the values of R and S.
-    public static final int SM2_SIGN_RS_LEN = 64;
-
-    public static final int SM3_BLOCK_SIZE = 32;
+    public static final int SM3_BLOCK_SIZE = 64;
     public static final int SM3_DIGEST_LEN = 32;
     public static final int SM3_HMAC_LEN = 32;
 
