@@ -14,6 +14,7 @@ java {
     targetCompatibility = JavaVersion.VERSION_1_8
 
     withSourcesJar()
+    withJavadocJar()
 }
 
 repositories {
@@ -87,6 +88,11 @@ tasks {
                         descriptor: TestDescriptor?, result: TestResult?) { }
             })
         }
+    }
+
+    javadoc {
+        options.locale = "en_US"
+        isFailOnError = false
     }
 }
 
