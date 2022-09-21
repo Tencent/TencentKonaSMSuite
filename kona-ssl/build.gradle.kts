@@ -114,8 +114,22 @@ tasks {
 }
 
 publishing {
-    publications.create<MavenPublication>("maven") {
-        from(components["java"])
+    publications {
+        create<MavenPublication>("maven") {
+            from(components["java"])
+
+            pom {
+                name.set("Tencent Kona SSL Provider")
+                description.set("A Java security provider for supporting protocols TLCP, TLS 1.3 (RFC 8998) and TLS 1.2")
+                url.set("https://github.com/Tencent/TencentKonaSMSuite/tree/master/kona-ssl")
+                licenses {
+                    license {
+                        name.set("GNU GPL v2.0 license with classpath exception")
+                        url.set("https://github.com/Tencent/TencentKonaSMSuite/blob/master/LICENSE.txt")
+                    }
+                }
+            }
+        }
     }
 }
 
