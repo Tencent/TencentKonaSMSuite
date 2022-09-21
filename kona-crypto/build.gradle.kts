@@ -93,7 +93,21 @@ tasks {
 }
 
 publishing {
-    publications.create<MavenPublication>("maven") {
-        from(components["java"])
+    publications {
+        create<MavenPublication>("maven") {
+            from(components["java"])
+
+            pom {
+                name.set("Tencent Kona Crypto Provider")
+                description.set("A Java security provider for supporting ShangMi algorithms SM2, SM3 and SM4.")
+                url.set("https://github.com/Tencent/TencentKonaSMSuite/tree/master/kona-crypto")
+                licenses {
+                    license {
+                        name.set("GNU GPL v2.0 license with classpath exception")
+                        url.set("https://github.com/Tencent/TencentKonaSMSuite/blob/master/LICENSE.txt")
+                    }
+                }
+            }
+        }
     }
 }
