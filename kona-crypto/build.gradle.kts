@@ -4,6 +4,7 @@ import org.gradle.api.tasks.testing.logging.TestLogEvent
 plugins {
     id("java-library")
     id("maven-publish")
+    id("signing")
 }
 
 group = "com.tencent.kona"
@@ -110,4 +111,22 @@ publishing {
             }
         }
     }
+
+    repositories {
+        maven {
+            val snapshotRepoURL = uri("https://oss.sonatype.org/content/repositories/snapshots")
+            val releaseRepoURL = uri("https://oss.sonatype.org/service/local/staging/deploy/maven2")
+            url = if (version.toString().endsWith("-SNAPSHOT")) snapshotRepoURL else releaseRepoURL
+
+            // gradle.properties contains the below properties:
+            // ossrhUsername=<OSSRH User Name>
+            // ossrhPassword=<OSSRH Password>
+            name = "ossrh"
+            credentials(PasswordCredentials::class)
+        }
+    }
+}
+
+signing {
+    sign(publishing.publications["maven"])
 }
