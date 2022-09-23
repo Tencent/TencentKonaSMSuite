@@ -19,8 +19,33 @@ Tencent Kona SM Suite supports all the OpenJDK long-term supported (LTS) release
 
 Please note Tencent Kona SM Suite cannot run on Oracle JDK, because this JDK requires that a JCE provider must have an Oracle-issued [certificate]. However, we don't request that certificate yet. We are pleased to recommend Tencent's OpenJDK distributions, namely Tencent Kona JDKs, which provide versions [8], [11] and [17]. They support Linux, macOS and Windows operating system platforms.
 
+## Installation
+All the artifacts (jar files) in Tencent Kona SM Suite are already uploaded to the [Maven Central] repository. Generally, it just needs to declare the artifacts as dependencies in the project build scripts. For example, a [Gradle] script can declare the dependencies as the below,
+
+```
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation("com.tencent.kona:kona-crypto:1.0.1")
+    implementation("com.tencent.kona:kona-pkix:1.0.1")
+    implementation("com.tencent.kona:kona-ssl:1.0.1")
+    implementation("com.tencent.kona:kona-provider:1.0.1")
+}
+```
+
+Note that, it is unnecessary to put all the providers into the classpath. Please declare the dependencies as you need. For example, if only need the ShangMi crypto algorithms and want to use provider `Kona`, the dependency declaration may look like the followings,
+
+```
+dependencies {
+    implementation("com.tencent.kona:kona-crypto:1.0.1")
+    implementation("com.tencent.kona:kona-provider:1.0.1")
+}
+```
+
 ## Build
-Tencent Kona SM Suite uses [Gradle] to build this project. And the build script uses [Kotlin DSL]. This Gradle project contains four subprojects, namely *kona-crypto*，*kona-pkix*，*kona-ssl* and *kona-provider*. They respectively correspond to the four providers, namely `KonaCrypto`，`KonaPKIX`，`KonaSSL` and `Kona`.
+Tencent Kona SM Suite uses Gradle to build this project. And the build script uses [Kotlin DSL]. This Gradle project contains four subprojects, namely *kona-crypto*，*kona-pkix*，*kona-ssl* and *kona-provider*. They respectively correspond to the four providers, namely `KonaCrypto`，`KonaPKIX`，`KonaSSL` and `Kona`.
 
 A typical way to build this project just usts the following command:
 
@@ -67,6 +92,9 @@ Tencent Kona SM Suite is licensed under GNU GPL v2.0 license with classpath exce
 
 [17]:
 <https://github.com/Tencent/TencentKona-17>
+
+[Maven Central]:
+<https://repo1.maven.org/maven2/com/tencent/kona/>
 
 [Gradle]:
 <https://gradle.org>
