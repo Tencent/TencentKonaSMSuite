@@ -62,7 +62,7 @@ import com.tencent.kona.sun.security.util.SignatureUtil;
  *     signature            BIT STRING  }
  * </pre>
  * More information can be found in
- * <a href="http://tools.ietf.org/html/rfc5280">RFC 5280: Internet X.509
+ * <a href="https://tools.ietf.org/html/rfc5280">RFC 5280: Internet X.509
  * Public Key Infrastructure Certificate and CRL Profile</a>.
  * <p>
  * The ASN.1 definition of <code>tbsCertList</code> is:
