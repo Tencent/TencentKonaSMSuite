@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006, 2014, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2006, 2022, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -124,8 +124,9 @@ public final class ECParameters extends AlgorithmParametersSpi {
             int keySize = ((ECKeySizeParameterSpec)paramSpec).getKeySize();
             namedCurve = CurveDB.lookup(keySize);
         } else {
-            throw new InvalidParameterSpecException
-                ("Only ECParameterSpec, ECGenParameterSpec and ECKeySizeParameterSpec supported");
+            throw new InvalidParameterSpecException(
+                    "Only ECParameterSpec, ECGenParameterSpec " +
+                    "and ECKeySizeParameterSpec supported");
         }
 
         if (namedCurve == null) {
@@ -215,7 +216,8 @@ public final class ECParameters extends AlgorithmParametersSpi {
         }
 
         throw new InvalidParameterSpecException(
-                "Only ECParameterSpec, ECGenParameterSpec and ECKeySizeParameterSpec supported");
+                "Only ECParameterSpec, ECGenParameterSpec " +
+                "and ECKeySizeParameterSpec supported");
     }
 
     protected byte[] engineGetEncoded() throws IOException {
