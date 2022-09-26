@@ -315,7 +315,7 @@ public final class PKCS12KeyStore extends KeyStoreSpi {
         Entry entry = entries.get(alias.toLowerCase(Locale.ENGLISH));
         Key key = null;
 
-        if (entry == null || (!(entry instanceof KeyEntry))) {
+        if (!(entry instanceof KeyEntry)) {
             return null;
         }
 
@@ -478,7 +478,7 @@ public final class PKCS12KeyStore extends KeyStoreSpi {
      */
     public Certificate[] engineGetCertificateChain(String alias) {
         Entry entry = entries.get(alias.toLowerCase(Locale.ENGLISH));
-        if (entry != null && entry instanceof PrivateKeyEntry) {
+        if (entry instanceof PrivateKeyEntry) {
             if (((PrivateKeyEntry) entry).chain == null) {
                 return null;
             } else {
@@ -1020,7 +1020,7 @@ public final class PKCS12KeyStore extends KeyStoreSpi {
         }
 
         Entry entry = entries.get(alias.toLowerCase(Locale.ENGLISH));
-        if (entry != null && entry instanceof KeyEntry) {
+        if (entry instanceof KeyEntry) {
             throw new KeyStoreException("Cannot overwrite own certificate");
         }
 
@@ -1103,11 +1103,7 @@ public final class PKCS12KeyStore extends KeyStoreSpi {
      */
     public boolean engineIsKeyEntry(String alias) {
         Entry entry = entries.get(alias.toLowerCase(Locale.ENGLISH));
-        if (entry != null && entry instanceof KeyEntry) {
-            return true;
-        } else {
-            return false;
-        }
+        return entry instanceof KeyEntry;
     }
 
     /**
@@ -1119,12 +1115,8 @@ public final class PKCS12KeyStore extends KeyStoreSpi {
      */
     public boolean engineIsCertificateEntry(String alias) {
         Entry entry = entries.get(alias.toLowerCase(Locale.ENGLISH));
-        if (entry != null && entry instanceof CertEntry &&
-                ((CertEntry) entry).trustedKeyUsage != null) {
-            return true;
-        } else {
-            return false;
-        }
+        return entry instanceof CertEntry &&
+                ((CertEntry) entry).trustedKeyUsage != null;
     }
 
     /**
@@ -1152,10 +1144,10 @@ public final class PKCS12KeyStore extends KeyStoreSpi {
 
         Entry entry = entries.get(alias.toLowerCase(Locale.ENGLISH));
         if (entryClass == KeyStore.PrivateKeyEntry.class) {
-            return (entry != null && entry instanceof PrivateKeyEntry);
+            return (entry instanceof PrivateKeyEntry);
         }
         if (entryClass == KeyStore.SecretKeyEntry.class) {
-            return (entry != null && entry instanceof SecretKeyEntry);
+            return (entry instanceof SecretKeyEntry);
         }
         return false;
     }
@@ -1838,7 +1830,7 @@ public final class PKCS12KeyStore extends KeyStoreSpi {
 
             String alias = e.nextElement();
             Entry entry = entries.get(alias);
-            if (entry == null || (!(entry instanceof KeyEntry))) {
+            if ((!(entry instanceof KeyEntry))) {
                 continue;
             }
             DerOutputStream safeBag = new DerOutputStream();

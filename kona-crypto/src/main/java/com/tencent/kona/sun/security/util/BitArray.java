@@ -179,7 +179,7 @@ public class BitArray {
 
     public boolean equals(Object obj) {
         if (obj == this) return true;
-        if (obj == null || !(obj instanceof BitArray)) return false;
+        if (!(obj instanceof BitArray)) return false;
 
         BitArray ba = (BitArray) obj;
 
