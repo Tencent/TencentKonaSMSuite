@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1997, 2019, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997, 2022, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -129,7 +129,7 @@ public abstract class JavaKeyStore extends KeyStoreSpi {
     {
         Object entry = entries.get(convertAlias(alias));
 
-        if (entry == null || !(entry instanceof KeyEntry)) {
+        if (!(entry instanceof KeyEntry)) {
             return null;
         }
         if (password == null) {
@@ -166,7 +166,7 @@ public abstract class JavaKeyStore extends KeyStoreSpi {
     public Certificate[] engineGetCertificateChain(String alias) {
         Object entry = entries.get(convertAlias(alias));
 
-        if (entry != null && entry instanceof KeyEntry) {
+        if (entry instanceof KeyEntry) {
             if (((KeyEntry)entry).chain == null) {
                 return null;
             } else {
@@ -364,7 +364,7 @@ public abstract class JavaKeyStore extends KeyStoreSpi {
         synchronized(entries) {
 
             Object entry = entries.get(convertAlias(alias));
-            if ((entry != null) && (entry instanceof KeyEntry)) {
+            if ((entry instanceof KeyEntry)) {
                 throw new KeyStoreException
                     ("Cannot overwrite own certificate");
             }
@@ -429,11 +429,7 @@ public abstract class JavaKeyStore extends KeyStoreSpi {
      */
     public boolean engineIsKeyEntry(String alias) {
         Object entry = entries.get(convertAlias(alias));
-        if ((entry != null) && (entry instanceof KeyEntry)) {
-            return true;
-        } else {
-            return false;
-        }
+        return entry instanceof KeyEntry;
     }
 
     /**
@@ -445,11 +441,7 @@ public abstract class JavaKeyStore extends KeyStoreSpi {
      */
     public boolean engineIsCertificateEntry(String alias) {
         Object entry = entries.get(convertAlias(alias));
-        if ((entry != null) && (entry instanceof TrustedCertEntry)) {
-            return true;
-        } else {
-            return false;
-        }
+        return entry instanceof TrustedCertEntry;
     }
 
     /**
