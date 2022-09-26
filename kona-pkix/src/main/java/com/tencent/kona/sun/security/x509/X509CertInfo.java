@@ -230,9 +230,7 @@ public class X509CertInfo implements CertAttrSet<String> {
                 rawCertInfo = tmp.toByteArray();
             }
             return rawCertInfo.clone();
-        } catch (IOException e) {
-            throw new CertificateEncodingException(e.toString());
-        } catch (CertificateException e) {
+        } catch (IOException | CertificateException e) {
             throw new CertificateEncodingException(e.toString());
         }
     }

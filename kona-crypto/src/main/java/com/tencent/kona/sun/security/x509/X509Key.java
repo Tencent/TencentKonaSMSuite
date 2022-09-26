@@ -266,8 +266,7 @@ public class X509Key implements PublicKey {
                 result.parseKeyBits();
                 return result;
             }
-        } catch (ClassNotFoundException e) {
-        } catch (InstantiationException e) {
+        } catch (ClassNotFoundException | InstantiationException e) {
         } catch (IllegalAccessException e) {
             // this should not happen.
             throw new IOException (classname + " [internal error]");
