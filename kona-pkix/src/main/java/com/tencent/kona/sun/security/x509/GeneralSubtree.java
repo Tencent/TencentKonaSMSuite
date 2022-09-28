@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1997, 2004, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997, 2022, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -48,7 +48,7 @@ public class GeneralSubtree {
     private static final byte TAG_MAX = 1;
     private static final int  MIN_DEFAULT = 0;
 
-    private GeneralName name;
+    private final GeneralName name;
     private int         minimum = MIN_DEFAULT;
     private int         maximum = -1;
 
@@ -166,9 +166,7 @@ public class GeneralSubtree {
         }
         if (this.minimum != otherGS.minimum)
             return false;
-        if (this.maximum != otherGS.maximum)
-            return false;
-        return true;
+        return this.maximum == otherGS.maximum;
     }
 
     /**

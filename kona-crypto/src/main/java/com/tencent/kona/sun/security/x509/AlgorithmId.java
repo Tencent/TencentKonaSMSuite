@@ -258,7 +258,7 @@ public class AlgorithmId implements Serializable, DerEncoder {
      * to a string and used as part of an algorithm name, for example
      * "OID.1.3.14.3.2.13" style notation.  Use the <code>getName</code>
      * call when you do not need to ensure cross-system portability
-     * of algorithm names, or need a user friendly name.
+     * of algorithm names, or need a user-friendly name.
      */
     public final ObjectIdentifier getOID () {
         return algid;
@@ -313,11 +313,7 @@ public class AlgorithmId implements Serializable, DerEncoder {
             return o.stdName();
         } else {
             String n = aliasOidsTable().get(oidStr);
-            if (n != null) {
-                return n;
-            } else {
-                return algid.toString();
-            }
+            return (n != null) ? n : algid.toString();
         }
     }
 
@@ -351,7 +347,7 @@ public class AlgorithmId implements Serializable, DerEncoder {
      * with the same parameters.
      */
     public boolean equals(AlgorithmId other) {
-        return algid.equals((Object)other.algid) &&
+        return algid.equals(other.algid) &&
                 Arrays.equals(encodedParams, other.encodedParams);
     }
 
@@ -560,7 +556,7 @@ public class AlgorithmId implements Serializable, DerEncoder {
         }
     }
 
-    // oid string cache index'ed by algorithm name and oid strings
+    // oid string cache indexed by algorithm name and oid strings
     private static volatile Map<String,String> aliasOidsTable;
 
     // called by sun.security.jca.Providers whenever provider list is changed
@@ -570,7 +566,7 @@ public class AlgorithmId implements Serializable, DerEncoder {
 
     // returns the aliasOidsTable, lazily initializing it on first access.
     private static Map<String,String> aliasOidsTable() {
-        // Double checked locking; safe because aliasOidsTable is volatile
+        // Double-checked locking; safe because aliasOidsTable is volatile
         Map<String,String> tab = aliasOidsTable;
         if (tab == null) {
             synchronized (AlgorithmId.class) {

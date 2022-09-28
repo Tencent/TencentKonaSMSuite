@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, 2020, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2018, 2022, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -124,8 +124,7 @@ public class CookieExtension {
             CookieSpec spec = (CookieSpec)chc.handshakeExtensions.get(
                     SSLExtension.HRR_COOKIE);
 
-            if (spec != null &&
-                    spec.cookie != null && spec.cookie.length != 0) {
+            if (spec != null && spec.cookie.length != 0) {
                 byte[] extData = new byte[spec.cookie.length + 2];
                 ByteBuffer m = ByteBuffer.wrap(extData);
                 Record.putBytes16(m, spec.cookie);
@@ -288,8 +287,7 @@ public class CookieExtension {
             CookieSpec spec = (CookieSpec)shc.handshakeExtensions.get(
                     SSLExtension.CH_COOKIE);
 
-            if (spec != null &&
-                    spec.cookie != null && spec.cookie.length != 0) {
+            if (spec != null && spec.cookie.length != 0) {
                 byte[] extData = new byte[spec.cookie.length + 2];
                 ByteBuffer m = ByteBuffer.wrap(extData);
                 Record.putBytes16(m, spec.cookie);

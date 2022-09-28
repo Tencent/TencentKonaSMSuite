@@ -450,7 +450,7 @@ abstract class HandshakeContext implements ConnectionContext {
                 // action and SSLEngine.getHandshakeStatus() to indicate the
                 // FINISHED handshake status.
                 //
-                // To workaround this special user case, the follow-on call to
+                // To work around this special user case, the follow-on call to
                 // SSLEngine.wrap() method will return HandshakeStatus.FINISHED
                 // status if needed.
                 //

@@ -43,11 +43,11 @@ import com.tencent.kona.sun.security.x509.AlgorithmId;
 
 class MacData {
 
-    private String digestAlgorithmName;
+    private final String digestAlgorithmName;
     private AlgorithmParameters digestAlgorithmParams;
-    private byte[] digest;
-    private byte[] macSalt;
-    private int iterations;
+    private final byte[] digest;
+    private final byte[] macSalt;
+    private final int iterations;
 
     // the ASN.1 encoded contents of this class
     private byte[] encoded = null;
@@ -55,9 +55,7 @@ class MacData {
     /**
      * Parses a PKCS#12 MAC data.
      */
-    MacData(DerInputStream derin)
-            throws IOException, ParsingException
-    {
+    MacData(DerInputStream derin) throws IOException {
         DerValue[] macData = derin.getSequence(2);
         if (macData.length < 2 || macData.length > 3) {
             throw new ParsingException("Invalid length for MacData");

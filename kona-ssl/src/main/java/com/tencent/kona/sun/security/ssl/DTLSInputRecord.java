@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, 2020, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2015, 2022, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -694,12 +694,8 @@ final class DTLSInputRecord extends InputRecord implements DTLSRecord {
                 }   // Otherwise, it is unlikely to happen.
             }
 
-            boolean fragmented = false;
-            if ((hsf.fragmentOffset) != 0 ||
-                (hsf.fragmentLength != hsf.messageLength)) {
-
-                fragmented = true;
-            }
+            boolean fragmented = (hsf.fragmentOffset) != 0 ||
+                    (hsf.fragmentLength != hsf.messageLength);
 
             List<HoleDescriptor> holes =
                     handshakeFlight.holesMap.get(hsf.handshakeType);
@@ -707,7 +703,7 @@ final class DTLSInputRecord extends InputRecord implements DTLSRecord {
                 if (!fragmented) {
                     holes = Collections.emptyList();
                 } else {
-                    holes = new LinkedList<HoleDescriptor>();
+                    holes = new LinkedList<>();
                     holes.add(new HoleDescriptor(0, hsf.messageLength));
                 }
                 handshakeFlight.holesMap.put(hsf.handshakeType, holes);
@@ -738,10 +734,7 @@ final class DTLSInputRecord extends InputRecord implements DTLSRecord {
                     }
 
                     // The ranges SHOULD NOT overlap.
-                    if (((hole.offset > hsf.fragmentOffset) &&
-                         (hole.offset < fragmentLimit)) ||
-                        ((hole.limit > hsf.fragmentOffset) &&
-                         (hole.limit < fragmentLimit))) {
+                    if (hole.offset > hsf.fragmentOffset || hole.limit < fragmentLimit) {
 
                         if (SSLLogger.isOn && SSLLogger.isOn("ssl")) {
                             SSLLogger.fine("Discard invalid record: " +
@@ -903,7 +896,7 @@ final class DTLSInputRecord extends InputRecord implements DTLSRecord {
         // Check for retransmission and lost records.
         private boolean isDesirable(RecordFragment rf) throws SSLProtocolException {
             //
-            // Discard records old than the previous epoch.
+            // Discard records older than the previous epoch.
             //
             int previousEpoch = nextRecordEpoch - 1;
             if (rf.recordEpoch < previousEpoch) {
@@ -967,7 +960,7 @@ final class DTLSInputRecord extends InputRecord implements DTLSRecord {
 
                 // Previously disordered record for the current epoch.
                 //
-                // Should has been retransmitted. Discard this record.
+                // Should have been retransmitted. Discard this record.
                 if (SSLLogger.isOn && SSLLogger.isOn("verbose")) {
                     SSLLogger.fine(
                             "Lagging behind record (sequence), discard it.");
@@ -1016,7 +1009,7 @@ final class DTLSInputRecord extends InputRecord implements DTLSRecord {
             }
 
             if (!flightIsReady && needToCheckFlight) {
-                // check the fligth status
+                // check the flight status
                 flightIsReady = flightIsReady();
 
                 // Reset if this flight is ready.
@@ -1058,7 +1051,7 @@ final class DTLSInputRecord extends InputRecord implements DTLSRecord {
 
                 // Reset the handshake flight.
                 if (bufferedFragments.isEmpty()) {
-                    // Need not to backup the holes map.  Clear up it at first.
+                    // Need not backup the holes map.  Clear up it at first.
                     handshakeFlight.holesMap.clear();   // cleanup holes map
 
                     // Update the preceding flight.
@@ -1164,8 +1157,8 @@ final class DTLSInputRecord extends InputRecord implements DTLSRecord {
                 return null;
             }
 
-            // The ciphtext handshake message can only be Finished (the
-            // end of this flight), ClinetHello or HelloRequest (the
+            // The ciphertext handshake message can only be Finished (the
+            // end of this flight), ClientHello or HelloRequest (the
             // beginning of the next flight) message.  Need not to check
             // any ChangeCipherSpec message.
             if (rFrag.contentType == ContentType.HANDSHAKE.id) {
@@ -1512,7 +1505,7 @@ final class DTLSInputRecord extends InputRecord implements DTLSRecord {
                 }
             }
 
-            return hasFin && hasCCS;
+            return false;
         }
 
         // Is client CertificateVerify a mandatory message?

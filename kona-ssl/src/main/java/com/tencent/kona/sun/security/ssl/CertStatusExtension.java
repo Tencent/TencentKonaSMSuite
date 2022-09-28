@@ -238,14 +238,14 @@ final class CertStatusExtension {
         }
     }
 
-    static enum CertStatusRequestType {
+    enum CertStatusRequestType {
         OCSP        ((byte)0x01,    "ocsp"),        // RFC 6066/6961
         OCSP_MULTI  ((byte)0x02,    "ocsp_multi");  // RFC 6961
 
         final byte id;
         final String name;
 
-        private CertStatusRequestType(byte id, String name) {
+        CertStatusRequestType(byte id, String name) {
             this.id = id;
             this.name = name;
         }

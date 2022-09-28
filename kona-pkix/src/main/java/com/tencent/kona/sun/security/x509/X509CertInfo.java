@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1997, 2021, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997, 2022, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -115,7 +115,7 @@ public class X509CertInfo implements CertAttrSet<String> {
     private byte[]      rawCertInfo = null;
 
     // The certificate attribute name to integer mapping stored here
-    private static final Map<String,Integer> map = new HashMap<String,Integer>();
+    private static final Map<String,Integer> map = new HashMap<>();
     static {
         map.put(VERSION, Integer.valueOf(ATTR_VERSION));
         map.put(SERIAL_NUMBER, Integer.valueOf(ATTR_SERIAL));
@@ -315,12 +315,12 @@ public class X509CertInfo implements CertAttrSet<String> {
             sb.append("  Subject Id:\n").append(subjectUniqueId).append('\n');
         }
         if (extensions != null) {
-            Collection<com.tencent.kona.sun.security.x509.Extension> allExts = extensions.getAllExtensions();
-            com.tencent.kona.sun.security.x509.Extension[] exts = allExts.toArray(new com.tencent.kona.sun.security.x509.Extension[0]);
+            Collection<Extension> allExts = extensions.getAllExtensions();
+            Extension[] exts = allExts.toArray(new Extension[0]);
             sb.append("\nCertificate Extensions: ").append(exts.length);
             for (int i = 0; i < exts.length; i++) {
                 sb.append("\n[").append(i+1).append("]: ");
-                com.tencent.kona.sun.security.x509.Extension ext = exts[i];
+                Extension ext = exts[i];
                 try {
                     if (OIDMap.getClass(ext.getExtensionId()) == null) {
                         sb.append(ext);
@@ -342,8 +342,8 @@ public class X509CertInfo implements CertAttrSet<String> {
                     sb.append(", Error parsing this extension");
                 }
             }
-            Map<String, com.tencent.kona.sun.security.x509.Extension> invalid = extensions.getUnparseableExtensions();
-            if (invalid.isEmpty() == false) {
+            Map<String, Extension> invalid = extensions.getUnparseableExtensions();
+            if (!invalid.isEmpty()) {
                 sb.append("\nUnparseable certificate extensions: ")
                         .append(invalid.size());
                 int i = 1;
@@ -727,8 +727,8 @@ public class X509CertInfo implements CertAttrSet<String> {
                         "incomplete: subject field is empty, and certificate " +
                         "has no extensions");
             }
-            SubjectAlternativeNameExtension subjectAltNameExt = null;
-            GeneralNames names = null;
+            SubjectAlternativeNameExtension subjectAltNameExt;
+            GeneralNames names;
             try {
                 subjectAltNameExt = (SubjectAlternativeNameExtension)
                         extensions.get(SubjectAlternativeNameExtension.NAME);
@@ -745,7 +745,7 @@ public class X509CertInfo implements CertAttrSet<String> {
                 throw new CertificateParsingException("X.509 Certificate is " +
                         "incomplete: subject field is empty, and " +
                         "SubjectAlternativeName extension is empty");
-            } else if (subjectAltNameExt.isCritical() == false) {
+            } else if (!subjectAltNameExt.isCritical()) {
                 throw new CertificateParsingException("X.509 Certificate is " +
                         "incomplete: SubjectAlternativeName extension MUST " +
                         "be marked critical when subject field is empty");

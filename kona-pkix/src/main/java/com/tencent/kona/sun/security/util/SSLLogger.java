@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2018, 2022, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -564,7 +564,7 @@ public class SSLLogger {
             String formatted;
             if (value instanceof String) {
                 // "key": "value"
-                formatted = "\"" + key + "\": \"" + (String)value + "\"";
+                formatted = "\"" + key + "\": \"" + value + "\"";
             } else if (value instanceof String[]) {
                 // "key": [ "string a",
                 //          "string b",
@@ -573,9 +573,11 @@ public class SSLLogger {
                 StringBuilder builder = new StringBuilder(512);
                 String[] strings = (String[])value;
                 builder.append("\"" + key + "\": [\n");
-                for (String string : strings) {
+                int len = strings.length;
+                for (int i = 0; i < len; i++) {
+                    String string = strings[i];
                     builder.append("      \"" + string + "\"");
-                    if (string != strings[strings.length - 1]) {
+                    if (i != len - 1) {
                         builder.append(",");
                     }
                     builder.append("\n");

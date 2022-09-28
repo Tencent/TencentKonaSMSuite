@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1997, 2020, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997, 2022, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -43,7 +43,7 @@ import com.tencent.kona.sun.security.util.Oid;
  * @see GeneralNameInterface
  */
 public class OIDName implements GeneralNameInterface {
-    private ObjectIdentifier oid;
+    private final ObjectIdentifier oid;
 
     /**
      * Create the OIDName object from the passed encoded Der value.
@@ -156,7 +156,7 @@ public class OIDName implements GeneralNameInterface {
             constraintType = NAME_DIFF_TYPE;
         else if (inputName.getType() != NAME_OID)
             constraintType = NAME_DIFF_TYPE;
-        else if (this.equals((OIDName)inputName))
+        else if (this.equals(inputName))
             constraintType = NAME_MATCH;
         else
             //widens and narrows not defined in RFC 5280 for OIDName (aka registeredID)

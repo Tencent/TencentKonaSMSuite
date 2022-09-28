@@ -77,7 +77,7 @@ public final class ObjectIdentifier implements Serializable {
      * We use the DER value (no tag, no length) as the internal format
      * @serial
      */
-    private byte[] encoding = null;
+    private byte[] encoding;
 
     private transient volatile String stringForm;
 
@@ -125,7 +125,7 @@ public final class ObjectIdentifier implements Serializable {
      */
     private int         componentLen = -1;            // how much is used.
 
-    // Is the components field calculated?
+    // Is the component's field calculated?
     private transient boolean   componentsCalculated = false;
 
     private void readObject(ObjectInputStream is)
@@ -176,17 +176,17 @@ public final class ObjectIdentifier implements Serializable {
     private ObjectIdentifier(String oid) throws IOException {
         int ch = '.';
         int start = 0;
-        int end = 0;
+        int end;
 
         int pos = 0;
         byte[] tmp = new byte[oid.length()];
-        int first = 0, second;
+        int first = 0;
         int count = 0;
 
         try {
-            String comp = null;
+            String comp;
             do {
-                int length = 0; // length of one section
+                int length; // length of one section
                 end = oid.indexOf(ch,start);
                 if (end == -1) {
                     comp = oid.substring(start);
@@ -204,7 +204,7 @@ public final class ObjectIdentifier implements Serializable {
                     } else {
                         if (count == 1) {
                             checkSecondComponent(first, bignum);
-                            bignum = bignum.add(BigInteger.valueOf(40*first));
+                            bignum = bignum.add(BigInteger.valueOf(40L * first));
                         } else {
                             checkOtherComponent(count, bignum);
                         }
@@ -267,7 +267,7 @@ public final class ObjectIdentifier implements Serializable {
             pos += pack7Oid(components[0] * 40 + components[1], tmp, pos);
         } else {
             BigInteger big = BigInteger.valueOf(components[1]);
-            big = big.add(BigInteger.valueOf(components[0] * 40));
+            big = big.add(BigInteger.valueOf(components[0] * 40L));
             pos += pack7Oid(big, tmp, pos);
         }
 
@@ -281,8 +281,8 @@ public final class ObjectIdentifier implements Serializable {
         System.arraycopy(tmp, 0, encoding, 0, pos);
     }
 
-    // oid cache index'ed by the oid string
-    private static ConcurrentHashMap<String,ObjectIdentifier> oidTable =
+    // oid cache indexed by the oid string
+    private static final ConcurrentHashMap<String,ObjectIdentifier> oidTable =
             new ConcurrentHashMap<>();
 
     /**
@@ -336,7 +336,7 @@ public final class ObjectIdentifier implements Serializable {
         if (this == obj) {
             return true;
         }
-        if (obj instanceof ObjectIdentifier == false) {
+        if (!(obj instanceof ObjectIdentifier)) {
             return false;
         }
         ObjectIdentifier other = (ObjectIdentifier)obj;

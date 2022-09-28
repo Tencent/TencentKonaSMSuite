@@ -146,7 +146,7 @@ public class X509CertImpl extends X509Certificate
     // number of standard key usage bits.
     private static final int NUM_STANDARD_KEY_USAGE = 9;
 
-    // SubjectAlterntativeNames cache
+    // SubjectAlternativeNames cache
     private Collection<List<?>> subjectAlternativeNames;
 
     // IssuerAlternativeNames cache
@@ -219,7 +219,7 @@ public class X509CertImpl extends X509Certificate
      */
     public X509CertImpl(InputStream in) throws CertificateException {
 
-        DerValue der = null;
+        DerValue der;
 
         BufferedInputStream inBuffered = new BufferedInputStream(in);
 
@@ -289,7 +289,7 @@ public class X509CertImpl extends X509Certificate
      */
     private DerValue readRFC1421Cert(InputStream in) throws IOException {
         DerValue der = null;
-        String line = null;
+        String line;
         BufferedReader certBufferedReader =
                 new BufferedReader(new InputStreamReader(in, US_ASCII));
         try {
@@ -467,7 +467,7 @@ public class X509CertImpl extends X509Certificate
             throw new CertificateEncodingException("Uninitialized certificate");
         }
         // Verify the signature ...
-        Signature sigVerf = null;
+        Signature sigVerf;
         String sigName = algId.getName();
         if (sigProvider.isEmpty()) {
             sigVerf = CryptoInsts.getSignature(sigName);
@@ -496,7 +496,7 @@ public class X509CertImpl extends X509Certificate
         verifiedPublicKey = key;
         verifiedProvider = sigProvider;
 
-        if (verificationResult == false) {
+        if (!verificationResult) {
             throw new SignatureException("Signature does not match.");
         }
     }
@@ -525,7 +525,7 @@ public class X509CertImpl extends X509Certificate
             throw new CertificateEncodingException("Uninitialized certificate");
         }
         // Verify the signature ...
-        Signature sigVerf = null;
+        Signature sigVerf;
         String sigName = algId.getName();
         if (sigProvider == null) {
             sigVerf = CryptoInsts.getSignature(sigName);
@@ -553,7 +553,7 @@ public class X509CertImpl extends X509Certificate
         verificationResult = sigVerf.verify(signature);
         verifiedPublicKey = key;
 
-        if (verificationResult == false) {
+        if (!verificationResult) {
             throw new SignatureException("Signature does not match.");
         }
     }
@@ -664,7 +664,7 @@ public class X509CertImpl extends X509Certificate
     public void checkValidity(Date date)
             throws CertificateExpiredException, CertificateNotYetValidException {
 
-        CertificateValidity interval = null;
+        CertificateValidity interval;
         try {
             interval = (CertificateValidity)info.get(CertificateValidity.NAME);
         } catch (Exception e) {
@@ -759,11 +759,10 @@ public class X509CertImpl extends X509Certificate
                             + " be of type X509CertInfo.");
                 }
                 info = (X509CertInfo)obj;
-                signedCert = null;  //reset this as certificate data has changed
             } else {
                 info.set(attr.getSuffix(), obj);
-                signedCert = null;  //reset this as certificate data has changed
             }
+            signedCert = null;  //reset this as certificate data has changed
         } else {
             throw new CertificateException("Attribute name not recognized or " +
                     "set() not allowed for the same: " + id);
@@ -860,9 +859,8 @@ public class X509CertImpl extends X509Certificate
         if (info == null)
             return null;
         try {
-            PublicKey key = (PublicKey)info.get(CertificateX509Key.NAME
+            return (PublicKey)info.get(CertificateX509Key.NAME
                     + DOT + CertificateX509Key.KEY);
-            return key;
         } catch (Exception e) {
             return null;
         }
@@ -906,10 +904,9 @@ public class X509CertImpl extends X509Certificate
         if (info == null)
             return null;
         try {
-            SerialNumber ser = (SerialNumber)info.get(
+            return (SerialNumber)info.get(
                     CertificateSerialNumber.NAME + DOT +
                             CertificateSerialNumber.NUMBER);
-            return ser;
         } catch (Exception e) {
             return null;
         }
@@ -926,9 +923,8 @@ public class X509CertImpl extends X509Certificate
         if (info == null)
             return null;
         try {
-            Principal subject = (Principal)info.get(X509CertInfo.SUBJECT + DOT +
+            return (Principal)info.get(X509CertInfo.SUBJECT + DOT +
                     X509CertInfo.DN_NAME);
-            return subject;
         } catch (Exception e) {
             return null;
         }
@@ -944,10 +940,9 @@ public class X509CertImpl extends X509Certificate
             return null;
         }
         try {
-            X500Principal subject = (X500Principal)info.get(
+            return (X500Principal)info.get(
                     X509CertInfo.SUBJECT + DOT +
                             "x500principal");
-            return subject;
         } catch (Exception e) {
             return null;
         }
@@ -963,9 +958,8 @@ public class X509CertImpl extends X509Certificate
         if (info == null)
             return null;
         try {
-            Principal issuer = (Principal)info.get(X509CertInfo.ISSUER + DOT +
+            return (Principal)info.get(X509CertInfo.ISSUER + DOT +
                     X509CertInfo.DN_NAME);
-            return issuer;
         } catch (Exception e) {
             return null;
         }
@@ -981,10 +975,9 @@ public class X509CertImpl extends X509Certificate
             return null;
         }
         try {
-            X500Principal issuer = (X500Principal)info.get(
+            return (X500Principal)info.get(
                     X509CertInfo.ISSUER + DOT +
                             "x500principal");
-            return issuer;
         } catch (Exception e) {
             return null;
         }
@@ -999,9 +992,8 @@ public class X509CertImpl extends X509Certificate
         if (info == null)
             return null;
         try {
-            Date d = (Date) info.get(CertificateValidity.NAME + DOT +
+            return (Date) info.get(CertificateValidity.NAME + DOT +
                     CertificateValidity.NOT_BEFORE);
-            return d;
         } catch (Exception e) {
             return null;
         }
@@ -1016,9 +1008,8 @@ public class X509CertImpl extends X509Certificate
         if (info == null)
             return null;
         try {
-            Date d = (Date) info.get(CertificateValidity.NAME + DOT +
+            return (Date) info.get(CertificateValidity.NAME + DOT +
                     CertificateValidity.NOT_AFTER);
-            return d;
         } catch (Exception e) {
             return null;
         }
@@ -1358,7 +1349,7 @@ public class X509CertImpl extends X509Certificate
      * @return Extension or null if certificate does not contain this
      *         extension
      */
-    public com.tencent.kona.sun.security.x509.Extension getExtension(ObjectIdentifier oid) {
+    public Extension getExtension(ObjectIdentifier oid) {
         if (info == null) {
             return null;
         }
@@ -1372,25 +1363,25 @@ public class X509CertImpl extends X509Certificate
             if (extensions == null) {
                 return null;
             } else {
-                com.tencent.kona.sun.security.x509.Extension ex = extensions.getExtension(oid.toString());
+                Extension ex = extensions.getExtension(oid.toString());
                 if (ex != null) {
                     return ex;
                 }
-                for (com.tencent.kona.sun.security.x509.Extension ex2: extensions.getAllExtensions()) {
+                for (Extension ex2 : extensions.getAllExtensions()) {
                     if (ex2.getExtensionId().equals((Object) oid)) {
                         //XXXX May want to consider cloning this
                         return ex2;
                     }
                 }
-                /* no such extension in this certificate */
-                return null;
             }
+            /* no such extension in this certificate */
+            return null;
         } catch (IOException ioe) {
             return null;
         }
     }
 
-    public com.tencent.kona.sun.security.x509.Extension getUnparseableExtension(ObjectIdentifier oid) {
+    public Extension getUnparseableExtension(ObjectIdentifier oid) {
         if (info == null) {
             return null;
         }
@@ -1421,26 +1412,26 @@ public class X509CertImpl extends X509Certificate
         try {
             ObjectIdentifier findOID = Oid.of(oid);
             String extAlias = OIDMap.getName(findOID);
-            com.tencent.kona.sun.security.x509.Extension certExt = null;
+            Extension certExt = null;
             CertificateExtensions exts = (CertificateExtensions)info.get(
                     CertificateExtensions.NAME);
 
             if (extAlias == null) { // may be unknown
-                // get the extensions, search thru' for this oid
+                // get the extensions, search through' for this oid
                 if (exts == null) {
                     return null;
                 }
 
-                for (com.tencent.kona.sun.security.x509.Extension ex : exts.getAllExtensions()) {
+                for (Extension ex : exts.getAllExtensions()) {
                     ObjectIdentifier inCertOID = ex.getExtensionId();
                     if (inCertOID.equals((Object) findOID)) {
                         certExt = ex;
                         break;
                     }
                 }
-            } else { // there's sub-class that can handle this extension
+            } else { // there's subclass that can handle this extension
                 try {
-                    certExt = (com.tencent.kona.sun.security.x509.Extension)this.get(extAlias);
+                    certExt = (Extension)this.get(extAlias);
                 } catch (CertificateException e) {
                     // get() throws an Exception instead of returning null, ignore
                 }
@@ -1519,7 +1510,7 @@ public class X509CertImpl extends X509Certificate
      *
      * @throws CertificateParsingException if extension is unparseable
      */
-    private com.tencent.kona.sun.security.x509.Extension getExtensionIfParseable(ObjectIdentifier oid)
+    private Extension getExtensionIfParseable(ObjectIdentifier oid)
             throws CertificateParsingException {
         Extension ext = getExtension(oid);
         if (ext == null) {
@@ -1573,8 +1564,8 @@ public class X509CertImpl extends X509Certificate
             if (certExt == null)
                 return -1;
 
-            if (((Boolean)certExt.get(BasicConstraintsExtension.IS_CA)
-            ).booleanValue() == true)
+            if (((Boolean) certExt.get(BasicConstraintsExtension.IS_CA)).
+                    booleanValue())
                 return ((Integer)certExt.get(
                         BasicConstraintsExtension.PATH_LEN)).intValue();
             else
@@ -1595,7 +1586,7 @@ public class X509CertImpl extends X509Certificate
      */
     private static Collection<List<?>> makeAltNames(GeneralNames names) {
         if (names.isEmpty()) {
-            return Collections.<List<?>>emptySet();
+            return Collections.emptySet();
         }
         List<List<?>> newNames = new ArrayList<>();
         for (GeneralName gname : names.names()) {
@@ -1713,7 +1704,7 @@ public class X509CertImpl extends X509Certificate
                     SubjectAlternativeNameExtension.SUBJECT_NAME);
         } catch (IOException ioe) {
             // should not occur
-            return Collections.<List<?>>emptySet();
+            return Collections.emptySet();
         }
         subjectAlternativeNames = makeAltNames(names);
         return subjectAlternativeNames;
@@ -1746,7 +1737,7 @@ public class X509CertImpl extends X509Certificate
                         SubjectAlternativeNameExtension.SUBJECT_NAME);
             }  catch (IOException ioe) {
                 // should not occur
-                return Collections.<List<?>>emptySet();
+                return Collections.emptySet();
             }
             return makeAltNames(names);
         } catch (IOException ioe) {
@@ -1779,7 +1770,7 @@ public class X509CertImpl extends X509Certificate
                     IssuerAlternativeNameExtension.ISSUER_NAME);
         } catch (IOException ioe) {
             // should not occur
-            return Collections.<List<?>>emptySet();
+            return Collections.emptySet();
         }
         issuerAlternativeNames = makeAltNames(names);
         return issuerAlternativeNames;
@@ -1812,7 +1803,7 @@ public class X509CertImpl extends X509Certificate
                         IssuerAlternativeNameExtension.ISSUER_NAME);
             }  catch (IOException ioe) {
                 // should not occur
-                return Collections.<List<?>>emptySet();
+                return Collections.emptySet();
             }
             return makeAltNames(names);
         } catch (IOException ioe) {
@@ -1839,7 +1830,7 @@ public class X509CertImpl extends X509Certificate
      */
     private void parse(DerValue val)
             throws CertificateException, IOException {
-        // check if can over write the certificate
+        // check if we can overwrite the certificate
         if (readOnly)
             throw new CertificateParsingException(
                     "cannot over-write existing certificate");
@@ -1905,7 +1896,7 @@ public class X509CertImpl extends X509Certificate
         // tmp always contains serial number now
         tmp = tbsIn.getDerValue();              // skip signature
         tmp = tbsIn.getDerValue();              // issuer
-        if (getIssuer == false) {
+        if (!getIssuer) {
             tmp = tbsIn.getDerValue();          // skip validity
             tmp = tbsIn.getDerValue();          // subject
         }
@@ -1999,7 +1990,7 @@ public class X509CertImpl extends X509Certificate
         return false;
     }
 
-    private ConcurrentHashMap<String,String> fingerprints =
+    private final ConcurrentHashMap<String,String> fingerprints =
             new ConcurrentHashMap<>(2);
 
     private String getFingerprint(String algorithm, Debug debug) {

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2000, 2020, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2000, 2022, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -159,7 +159,7 @@ public class ExtendedKeyUsageExtension extends Extension
             throw new IOException("Invalid encoding for " +
                     "ExtendedKeyUsageExtension.");
         }
-        keyUsages = new Vector<ObjectIdentifier>();
+        keyUsages = new Vector<>();
         while (val.data.available() != 0) {
             DerValue seq = val.data.getDerValue();
             ObjectIdentifier usage = seq.getOID();
@@ -274,7 +274,7 @@ public class ExtendedKeyUsageExtension extends Extension
     }
 
     public List<String> getExtendedKeyUsage() {
-        List<String> al = new ArrayList<String>(keyUsages.size());
+        List<String> al = new ArrayList<>(keyUsages.size());
         for (ObjectIdentifier oid : keyUsages) {
             al.add(oid.toString());
         }

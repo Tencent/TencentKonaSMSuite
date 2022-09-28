@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2003, 2004, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2003, 2022, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -81,8 +81,6 @@ import com.tencent.kona.sun.security.x509.SerialNumber;
  */
 public class SigningCertificateInfo {
 
-    private byte[] ber = null;
-
     private ESSCertId[] certId = null;
 
     public SigningCertificateInfo(byte[] ber) throws IOException {
@@ -130,9 +128,9 @@ class ESSCertId {
 
     private static volatile HexDumpEncoder hexDumper;
 
-    private byte[] certHash;
-    private GeneralNames issuer;
-    private SerialNumber serialNumber;
+    private final byte[] certHash;
+    private final GeneralNames issuer;
+    private final SerialNumber serialNumber;
 
     ESSCertId(DerValue certId) throws IOException {
         // Parse certHash
@@ -145,6 +143,9 @@ class ESSCertId {
             issuer = new GeneralNames(issuerSerial.data.getDerValue());
             // Parse serialNumber
             serialNumber = new SerialNumber(issuerSerial.data.getDerValue());
+        } else {
+            issuer = null;
+            serialNumber = null;
         }
     }
 

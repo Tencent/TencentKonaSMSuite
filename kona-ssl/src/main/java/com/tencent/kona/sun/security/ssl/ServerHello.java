@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, 2020, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2015, 2022, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -198,7 +198,7 @@ final class ServerHello {
             //      cipher suite = 2
             //      compression = 1
             //      extensions: if present, 2 + length of extensions
-            // In TLS 1.3, use of certain extensions is mandatory.
+            // In TLS 1.3, use of certain extensions are mandatory.
             return 38 + sessionId.length() + extensions.length();
         }
 
@@ -306,8 +306,8 @@ final class ServerHello {
                         shc.negotiatedProtocol, shc.negotiatedCipherSuite);
 
                 // Check the incoming OCSP stapling extensions and attempt
-                // to get responses.  If the resulting stapleParams is non
-                // null, it implies that stapling is enabled on the server side.
+                // to get responses.  If the resulting stapleParams is non-null,
+                // it implies that stapling is enabled on the server side.
                 shc.stapleParams = StatusResponseManager.processStapling(shc);
                 shc.staplingActive = (shc.stapleParams != null);
 
@@ -699,7 +699,7 @@ final class ServerHello {
 
         private static CipherSuite chooseCipherSuite(
                 ServerHandshakeContext shc,
-                ClientHello.ClientHelloMessage clientHello) throws IOException {
+                ClientHello.ClientHelloMessage clientHello) {
             List<CipherSuite> preferred;
             List<CipherSuite> proposed;
             if (shc.sslConfig.preferLocalCipherSuites) {
@@ -785,7 +785,7 @@ final class ServerHello {
 
             // Produce extensions for HelloRetryRequest handshake message.
             SSLExtension[] serverHelloExtensions =
-                shc.sslConfig.getEnabledExtensions(
+                    shc.sslConfig.getEnabledExtensions(
                     SSLHandshake.HELLO_RETRY_REQUEST, shc.negotiatedProtocol);
             hhrm.extensions.produce(shc, serverHelloExtensions);
             if (SSLLogger.isOn && SSLLogger.isOn("ssl,handshake")) {
@@ -1090,10 +1090,8 @@ final class ServerHello {
                     //
                     // Invalidate the session for initial handshake in case
                     // of reusing next time.
-                    if (chc.resumingSession != null) {
-                        chc.resumingSession.invalidate();
-                        chc.resumingSession = null;
-                    }
+                    chc.resumingSession.invalidate();
+                    chc.resumingSession = null;
                     chc.isResumption = false;
                     if (!chc.sslConfig.enableSessionCreation) {
                         throw chc.conContext.fatal(Alert.PROTOCOL_VERSION,

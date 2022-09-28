@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2017, Red Hat, Inc. and/or its affiliates.
- * Copyright (c) 2018, 2020, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2018, 2022, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -55,7 +55,7 @@ final class ExtendedMasterSecretExtension {
      * The "extended_master_secret" extension.
      */
     static final class ExtendedMasterSecretSpec implements SSLExtension.SSLExtensionSpec {
-        // A nominal object that does not holding any real renegotiation info.
+        // A nominal object that does not hold any real renegotiation info.
         static final ExtendedMasterSecretSpec NOMINAL =
                 new ExtendedMasterSecretSpec();
 
@@ -94,7 +94,7 @@ final class ExtendedMasterSecretExtension {
     }
 
     /**
-     * Network data producer of a "extended_master_secret" extension in
+     * Network data producer of an "extended_master_secret" extension in
      * the ClientHello handshake message.
      */
     private static final
@@ -136,7 +136,7 @@ final class ExtendedMasterSecretExtension {
     }
 
     /**
-     * Network data producer of a "extended_master_secret" extension in
+     * Network data producer of an "extended_master_secret" extension in
      * the ServerHello handshake message.
      */
     private static final
@@ -194,7 +194,7 @@ final class ExtendedMasterSecretExtension {
     }
 
     /**
-     * The absence processing if a "extended_master_secret" extension is
+     * The absence processing if an "extended_master_secret" extension is
      * not present in the ClientHello handshake message.
      */
     private static final
@@ -259,7 +259,7 @@ final class ExtendedMasterSecretExtension {
     }
 
     /**
-     * Network data producer of a "extended_master_secret" extension in
+     * Network data producer of an "extended_master_secret" extension in
      * the ServerHello handshake message.
      */
     private static final
@@ -288,7 +288,7 @@ final class ExtendedMasterSecretExtension {
     }
 
     /**
-     * Network data consumer of a "extended_master_secret" extension in
+     * Network data consumer of an "extended_master_secret" extension in
      * the ServerHello handshake message.
      */
     private static final
@@ -333,7 +333,7 @@ final class ExtendedMasterSecretExtension {
     }
 
     /**
-     * The absence processing if a "extended_master_secret" extension is
+     * The absence processing if an "extended_master_secret" extension is
      * not present in the ServerHello handshake message.
      */
     private static final

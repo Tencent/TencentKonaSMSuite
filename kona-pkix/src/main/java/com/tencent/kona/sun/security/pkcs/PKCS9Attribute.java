@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1997, 2020, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997, 2022, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -515,10 +515,7 @@ public class PKCS9Attribute implements DerEncoder {
                 value = new SigningCertificateInfo(elems[0].toByteArray());
                 break;
 
-            case 17:     // SignatureTimestampToken attribute
-                value = elems[0].toByteArray();
-                break;
-
+            case 17:    // SignatureTimestampToken attribute
             case 18:    // CMSAlgorithmProtection
                 value = elems[0].toByteArray();
                 break;
@@ -647,9 +644,6 @@ public class PKCS9Attribute implements DerEncoder {
                 // break unnecessary
 
             case 17:    // SignatureTimestampToken
-                temp.write(DerValue.tag_Set, (byte[])value);
-                break;
-
             case 18:    // CMSAlgorithmProtection
                 temp.write(DerValue.tag_Set, (byte[])value);
                 break;
@@ -754,7 +748,6 @@ public class PKCS9Attribute implements DerEncoder {
                 sb.append(value.toString());
             }
             sb.append("]");
-            return sb.toString();
         } else { // multi-valued
             boolean first = true;
             Object[] values = (Object[]) value;
@@ -766,8 +759,8 @@ public class PKCS9Attribute implements DerEncoder {
                     sb.append(", ");
                 sb.append(curVal.toString());
             }
-            return sb.toString();
         }
+        return sb.toString();
     }
 
     /**

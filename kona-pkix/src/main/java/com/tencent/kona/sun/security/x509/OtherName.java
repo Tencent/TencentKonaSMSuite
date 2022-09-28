@@ -61,7 +61,7 @@ public class OtherName implements GeneralNameInterface {
     private int myhash = -1;
 
     /**
-     * Create the OtherName object from a passed ObjectIdentfier and
+     * Create the OtherName object from a passed ObjectIdentifier and
      * byte array name value
      *
      * @param oid ObjectIdentifier of this OtherName object
@@ -183,10 +183,10 @@ public class OtherName implements GeneralNameInterface {
             return false;
         }
         OtherName otherOther = (OtherName)other;
-        if (!(otherOther.oid.equals((Object) oid))) {
+        if (!(otherOther.oid.equals(oid))) {
             return false;
         }
-        GeneralNameInterface otherGNI = null;
+        GeneralNameInterface otherGNI;
         try {
             otherGNI = getGNI(otherOther.oid, otherOther.nameValue);
         } catch (IOException ioe) {

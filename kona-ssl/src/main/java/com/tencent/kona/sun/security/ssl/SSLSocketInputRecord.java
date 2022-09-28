@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1996, 2021, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1996, 2022, Oracle and/or its affiliates. All rights reserved.
  * Copyright (c) 2020, Azul Systems, Inc. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
@@ -136,7 +136,7 @@ final class SSLSocketInputRecord extends InputRecord implements SSLRecord {
                 //
                 len = ((byteZero & 0x7F) << 8) + (header[1] & 0xFF) + 2;
             } else {
-                // Gobblygook!
+                // Gobbledygook!
                 throw new SSLException(
                         "Unrecognized SSL message, plaintext connection?");
             }
@@ -145,7 +145,7 @@ final class SSLSocketInputRecord extends InputRecord implements SSLRecord {
         return len;
     }
 
-    // Note that the input arguments are not used actually.
+    // Note that the input arguments are not actually used.
     @Override
     Plaintext[] decode(ByteBuffer[] srcs, int srcsOffset,
             int srcsLength) throws IOException, BadPaddingException {
@@ -174,7 +174,7 @@ final class SSLSocketInputRecord extends InputRecord implements SSLRecord {
                 }
             }
 
-            // The record header should has consumed.
+            // The record header should be consumed.
             if (plaintext == null) {
                 plaintext = decodeInputRecord();
             }
@@ -220,7 +220,7 @@ final class SSLSocketInputRecord extends InputRecord implements SSLRecord {
         // Check for upper bound.
         //
         // Note: May check packetSize limit in the future.
-        if (contentLen < 0 || contentLen > maxLargeRecordSize - headerSize) {
+        if (contentLen > maxLargeRecordSize - headerSize) {
             throw new SSLProtocolException(
                 "Bad input record size, TLSCiphertext.length = " + contentLen);
         }
@@ -228,7 +228,7 @@ final class SSLSocketInputRecord extends InputRecord implements SSLRecord {
         //
         // Read a complete record and store in the recordBody
         // recordBody is used to cache incoming record and restore in case of
-        // read operation timedout
+        // read operation timeout
         //
         if (recordBody.position() == 0) {
             if (recordBody.capacity() < contentLen) {
@@ -366,7 +366,7 @@ final class SSLSocketInputRecord extends InputRecord implements SSLRecord {
             };
     }
 
-    private Plaintext[] handleUnknownRecord() throws IOException, BadPaddingException {
+    private Plaintext[] handleUnknownRecord() throws IOException {
         byte firstByte = header[0];
         byte thirdByte = header[2];
 

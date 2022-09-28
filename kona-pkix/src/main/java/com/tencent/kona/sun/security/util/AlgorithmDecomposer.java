@@ -97,7 +97,7 @@ public class AlgorithmDecomposer {
      * so that we can check the "SHA1" and "RSA" algorithm constraints
      * separately.
      * <p>
-     * Please override the method if need to support more name pattern.
+     * Please override the method if you need to support more name pattern.
      */
     public Set<String> decompose(String algorithm) {
         if (algorithm == null || algorithm.isEmpty()) {
@@ -122,8 +122,7 @@ public class AlgorithmDecomposer {
             if (elements.contains(e.getValue()) &&
                     !elements.contains(e.getKey())) {
                 elements.add(e.getKey());
-            } else if (elements.contains(e.getKey()) &&
-                    !elements.contains(e.getValue())) {
+            } else if (elements.contains(e.getKey())) {
                 elements.add(e.getValue());
             }
         }

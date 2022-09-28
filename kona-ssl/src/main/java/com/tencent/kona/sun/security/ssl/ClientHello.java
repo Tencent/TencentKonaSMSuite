@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, 2021, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2015, 2022, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -381,7 +381,7 @@ final class ClientHello {
     }
 
     /**
-     * The "ClientHello" handshake message kick start producer.
+     * The "ClientHello" handshake message kick-start producer.
      */
     private static final
             class ClientHelloKickstartProducer implements SSLProducer {
@@ -471,7 +471,7 @@ final class ClientHello {
                     SSLConfiguration.useExtendedMasterSecret) {
 
                 boolean isEmsAvailable = chc.sslConfig.isAvailable(
-                    SSLExtension.CH_EXTENDED_MASTER_SECRET, sessionVersion);
+                        SSLExtension.CH_EXTENDED_MASTER_SECRET, sessionVersion);
                 if (isEmsAvailable && !session.useExtendedMasterSecret &&
                         !SSLConfiguration.allowLegacyResumption) {
                     // perform full handshake instead
@@ -644,7 +644,7 @@ final class ClientHello {
             chm.write(chc.handshakeOutput);
             chc.handshakeOutput.flush();
 
-            // Reserve the initial ClientHello message for the follow on
+            // Reserve the initial ClientHello message for the follow-on
             // cookie exchange if needed.
             chc.initialClientHelloMsg = chm;
 
@@ -1198,7 +1198,7 @@ final class ClientHello {
             }
 
             if (!shc.handshakeProducers.isEmpty()) {
-                // unlikely, but please double check.
+                // unlikely, but please double-check.
                 throw shc.conContext.fatal(Alert.HANDSHAKE_FAILURE,
                     "unknown handshake producers: " + shc.handshakeProducers);
             }

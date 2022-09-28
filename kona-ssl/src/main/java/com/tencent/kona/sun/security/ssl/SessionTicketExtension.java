@@ -170,7 +170,7 @@ final class SessionTicketExtension {
 
             synchronized (hc.sslContext.keyHashMap) {
                 // If the current key is no longer expired, it was already
-                // updated by a previous operation and we can return.
+                // updated by a previous operation, and we can return.
                 ssk = hc.sslContext.keyHashMap.get(currentKeyID);
                 if (ssk != null && !ssk.isExpired()) {
                     return ssk;

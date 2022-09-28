@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1996, 2021, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1996, 2022, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -96,7 +96,7 @@ public class SignerInfo implements DerEncoder {
             this.checkKey = checkKey;
         }
     }
-    private Map<AlgorithmId, AlgorithmInfo> algorithms = new HashMap<>();
+    private final Map<AlgorithmId, AlgorithmInfo> algorithms = new HashMap<>();
 
     public SignerInfo(X500Name  issuerName,
                       BigInteger serial,
@@ -127,9 +127,7 @@ public class SignerInfo implements DerEncoder {
     /**
      * Parses a PKCS#7 signer info.
      */
-    public SignerInfo(DerInputStream derin)
-            throws IOException, ParsingException
-    {
+    public SignerInfo(DerInputStream derin) throws IOException {
         this(derin, false);
     }
 
@@ -140,12 +138,11 @@ public class SignerInfo implements DerEncoder {
      * PKCS#7 blocks that were generated using JDK1.1.x.
      *
      * @param derin the ASN.1 encoding of the signer info.
-     * @param oldStyle flag indicating whether or not the given signer info
+     * @param oldStyle flag indicating whether the given signer info
      * is encoded according to JDK1.1.x.
      */
     public SignerInfo(DerInputStream derin, boolean oldStyle)
-            throws IOException, ParsingException
-    {
+            throws IOException {
         // version
         version = derin.getBigInteger();
 
@@ -372,7 +369,7 @@ public class SignerInfo implements DerEncoder {
 
             byte[] dataSigned;
 
-            // if there are authenticate attributes, get the message
+            // if there are authenticated attributes, get the message
             // digest and compare it with the digest of data
             if (authenticatedAttributes == null) {
                 dataSigned = data;
@@ -446,7 +443,7 @@ public class SignerInfo implements DerEncoder {
             if (keyUsageBits != null) {
                 KeyUsageExtension keyUsage;
                 try {
-                    // We don't care whether or not this extension was marked
+                    // We don't care whether this extension was marked
                     // critical in the certificate.
                     // We're interested only in its value (i.e., the bits set)
                     // and treat the extension as critical.
@@ -731,7 +728,7 @@ public class SignerInfo implements DerEncoder {
     // sun.security.util.SignatureFileVerifier invokes this method
     // from sun.security.pkcs.SignerInfo, but not here.
 //    /**
-//     * Verify all of the algorithms in the array of SignerInfos against the
+//     * Verify all the algorithms in the array of SignerInfos against the
 //     * constraints in the jdk.jar.disabledAlgorithms security property.
 //     *
 //     * @param infos array of SignerInfos

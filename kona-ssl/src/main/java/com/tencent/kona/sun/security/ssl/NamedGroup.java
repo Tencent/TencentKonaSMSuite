@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2019, 2022, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -244,10 +244,10 @@ enum NamedGroup {
             Collections.unmodifiableSet(EnumSet.of(CryptoPrimitive.KEY_AGREEMENT));
 
     // Constructor used for all NamedGroup types
-    private NamedGroup(int id, String name,
-                       NamedGroupSpec namedGroupSpec,
-                       ProtocolVersion[] supportedProtocols,
-                       AlgorithmParameterSpec keAlgParamSpec) {
+    NamedGroup(int id, String name,
+               NamedGroupSpec namedGroupSpec,
+               ProtocolVersion[] supportedProtocols,
+               AlgorithmParameterSpec keAlgParamSpec) {
         this.id = id;
         this.name = name;
         this.spec = namedGroupSpec;
@@ -485,7 +485,7 @@ enum NamedGroup {
         private final String algorithm;     // key exchange name
         private final NamedGroupScheme scheme;  // named group operations
 
-        private NamedGroupSpec(String algorithm, NamedGroupScheme scheme) {
+        NamedGroupSpec(String algorithm, NamedGroupScheme scheme) {
             this.algorithm = algorithm;
             this.scheme = scheme;
         }
@@ -559,7 +559,7 @@ enum NamedGroup {
         @Override
         public byte[] encodePossessionPublicKey(
                 NamedGroupPossession namedGroupPossession) {
-            return ((DHKeyExchange.DHEPossession)namedGroupPossession).encode();
+            return namedGroupPossession.encode();
         }
 
         @Override

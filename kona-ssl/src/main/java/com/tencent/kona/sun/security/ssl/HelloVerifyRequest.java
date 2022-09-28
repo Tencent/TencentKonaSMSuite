@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2015, 2022, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -203,7 +203,7 @@ final class HelloVerifyRequest {
 
             // Note that HelloVerifyRequest.server_version is used solely to
             // indicate packet formatting, and not as part of version
-            // negotiation.  Need not to check version values match for
+            // negotiation.  Need not check version values match for
             // HelloVerifyRequest message.
             chc.initialClientHelloMsg.setHelloCookie(hvrm.cookie);
 

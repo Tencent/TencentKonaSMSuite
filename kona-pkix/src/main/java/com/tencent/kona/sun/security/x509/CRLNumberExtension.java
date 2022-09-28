@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1997, 2021, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997, 2022, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -59,9 +59,9 @@ public class CRLNumberExtension extends Extension
 
     private static final String LABEL = "CRL Number";
 
-    private BigInteger crlNumber = null;
-    private String extensionName;
-    private String extensionLabel;
+    private BigInteger crlNumber;
+    private final String extensionName;
+    private final String extensionLabel;
 
     // Encode this extension value
     private void encodeThis() throws IOException {

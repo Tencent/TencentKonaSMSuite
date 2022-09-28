@@ -49,7 +49,7 @@ import java.util.Arrays;
 import com.tencent.kona.sun.security.jca.JCAUtil;
 
 /**
- * A utility class to get key length, valiate keys, etc.
+ * A utility class to get key length, validate keys, etc.
  */
 public final class KeyUtil {
 
@@ -60,7 +60,7 @@ public final class KeyUtil {
      * @return the key size of the given key object in bits, or -1 if the
      *       key size is not accessible
      */
-    public static final int getKeySize(Key key) {
+    public static int getKeySize(Key key) {
         int size = -1;
 
         if (key instanceof Length) {
@@ -86,7 +86,7 @@ public final class KeyUtil {
                     size = (encoded.length * 8);
                     Arrays.fill(encoded, (byte)0);
                 }
-            }   // Otherwise, it may be a unextractable key of PKCS#11, or
+            }   // Otherwise, it may be an unextractable key of PKCS#11, or
                 // a key we are not able to handle.
         } else if (key instanceof RSAKey) {
             RSAKey pubk = (RSAKey)key;
@@ -101,7 +101,7 @@ public final class KeyUtil {
         } else if (key instanceof DHKey) {
             DHKey pubk = (DHKey)key;
             size = pubk.getParams().getP().bitLength();
-        }   // Otherwise, it may be a unextractable key of PKCS#11, or
+        }   // Otherwise, it may be an unextractable key of PKCS#11, or
             // a key we are not able to handle.
 
         return size;
@@ -278,7 +278,7 @@ public final class KeyUtil {
      *         contains the lower of that suggested by the client in the client
      *         hello and the highest supported by the server.
      * @param  encoded the encoded key in its "RAW" encoding format
-     * @param  isFailOver whether or not the previous decryption of the
+     * @param  isFailOver whether the previous decryption of the
      *         encrypted PreMasterSecret message run into problem
      * @return the polished PreMasterSecret key in its "RAW" encoding format
      */
@@ -326,7 +326,7 @@ public final class KeyUtil {
      * 1. Verify that y lies within the interval [2,p-1]. If it does not,
      *    the key is invalid.
      * 2. Compute y^q mod p. If the result == 1, the key is valid.
-     *    Otherwise the key is invalid.
+     *    Otherwise, the key is invalid.
      */
     private static void validateDHPublicKey(DHPublicKey publicKey)
             throws InvalidKeyException {

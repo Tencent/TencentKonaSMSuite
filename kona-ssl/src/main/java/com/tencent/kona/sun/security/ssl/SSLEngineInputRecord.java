@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1996, 2021, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1996, 2022, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -140,7 +140,7 @@ final class SSLEngineInputRecord extends InputRecord implements SSLRecord {
                         (packet.get(pos + 1) & 0xFF) + (isShort ? 2 : 3);
 
             } else {
-                // Gobblygook!
+                // Gobbledygook!
                 throw new SSLException(
                         "Unrecognized SSL message, plaintext connection?");
             }
@@ -352,7 +352,7 @@ final class SSLEngineInputRecord extends InputRecord implements SSLRecord {
     }
 
     private Plaintext[] handleUnknownRecord(ByteBuffer packet)
-            throws IOException, BadPaddingException {
+            throws IOException {
         //
         // The packet should be a complete record.
         //

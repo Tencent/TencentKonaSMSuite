@@ -95,8 +95,7 @@ public class ContentInfo {
      * Parses a PKCS#7 content info.
      */
     public ContentInfo(DerInputStream derin)
-            throws IOException, ParsingException
-    {
+            throws IOException {
         this(derin, false);
     }
 
@@ -107,12 +106,11 @@ public class ContentInfo {
      * PKCS#7 blocks that were generated using JDK1.1.x.
      *
      * @param derin the ASN.1 encoding of the content info.
-     * @param oldStyle flag indicating whether or not the given content info
+     * @param oldStyle flag indicating whether the given content info
      * is encoded according to JDK1.1.x.
      */
     public ContentInfo(DerInputStream derin, boolean oldStyle)
-            throws IOException, ParsingException
-    {
+            throws IOException {
         DerInputStream disType;
         DerInputStream disTaggedContent;
         DerValue type;
@@ -182,7 +180,7 @@ public class ContentInfo {
 
         // content is optional, it could be external
         if (content != null) {
-            DerValue taggedContent = null;
+            DerValue taggedContent;
             contentDerCode = new DerOutputStream();
             content.encode(contentDerCode);
 

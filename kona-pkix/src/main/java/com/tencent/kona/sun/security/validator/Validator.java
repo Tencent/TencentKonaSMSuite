@@ -183,7 +183,7 @@ public abstract class Validator {
      */
     public static Validator getInstance(String type, String variant,
                                         PKIXBuilderParameters params) {
-        if (type.equals(TYPE_PKIX) == false) {
+        if (!type.equals(TYPE_PKIX)) {
             throw new IllegalArgumentException
                     ("getInstance(PKIXBuilderParameters) can only be used "
                             + "with PKIX validator");
@@ -241,7 +241,7 @@ public abstract class Validator {
      *        processing
      * @param parameter an additional parameter object to pass specific data.
      *        This parameter object maybe one of the two below:
-     *        1) TLS_SERVER variant validators, where it must be non null and
+     *        1) TLS_SERVER variant validators, where it must be non-null and
      *        the name of the TLS key exchange algorithm being used
      *        (see JSSE X509TrustManager specification).
      *        2) {@code Timestamp} object from a signed JAR file.

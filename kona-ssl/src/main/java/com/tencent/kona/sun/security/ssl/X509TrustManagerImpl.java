@@ -74,7 +74,7 @@ final class X509TrustManagerImpl extends X509ExtendedTrustManager
         this.pkixParams = null;
 
         if (trustedCerts == null) {
-            trustedCerts = Collections.<X509Certificate>emptySet();
+            trustedCerts = Collections.emptySet();
         }
 
         this.trustedCerts = trustedCerts;
@@ -173,7 +173,7 @@ final class X509TrustManagerImpl extends X509ExtendedTrustManager
                 }
             }
         } else {
-            // assume double checked locking with a volatile flag works
+            // assume double-checked locking with a volatile flag works
             // (guaranteed under the new Tiger memory model)
             v = serverValidator;
             if (v == null) {
@@ -200,7 +200,7 @@ final class X509TrustManagerImpl extends X509ExtendedTrustManager
 
         X509Certificate[] trustedChain;
         if ((socket != null) && socket.isConnected() &&
-                                        (socket instanceof SSLSocket)) {
+                (socket instanceof SSLSocket)) {
 
             SSLSocket sslSocket = (SSLSocket)socket;
             SSLSession session = sslSocket.getHandshakeSession();
@@ -357,7 +357,7 @@ final class X509TrustManagerImpl extends X509ExtendedTrustManager
                     ((SSLSocket)socket).getHandshakeSession());
         }
 
-        return Collections.<SNIServerName>emptyList();
+        return Collections.emptyList();
     }
 
     // Also used by X509KeyManagerImpl
@@ -366,7 +366,7 @@ final class X509TrustManagerImpl extends X509ExtendedTrustManager
             return getRequestedServerNames(engine.getHandshakeSession());
         }
 
-        return Collections.<SNIServerName>emptyList();
+        return Collections.emptyList();
     }
 
     private static List<SNIServerName> getRequestedServerNames(
@@ -375,7 +375,7 @@ final class X509TrustManagerImpl extends X509ExtendedTrustManager
             return ((ExtendedSSLSession)session).getRequestedServerNames();
         }
 
-        return Collections.<SNIServerName>emptyList();
+        return Collections.emptyList();
     }
 
     /*
@@ -391,7 +391,7 @@ final class X509TrustManagerImpl extends X509ExtendedTrustManager
      * is not always a reliable fully qualified domain name. The HostName in
      * server_name extension is more reliable than peer host. So we prefer
      * the identity checking aginst the server_name extension if present, and
-     * may failove to peer host checking.
+     * may failover to peer host checking.
      */
     static void checkIdentity(SSLSession session,
             X509Certificate[] trustedChain,
@@ -424,7 +424,7 @@ final class X509TrustManagerImpl extends X509ExtendedTrustManager
                         throw ce;
                     }
 
-                    // otherwisw, failover to check peer host
+                    // otherwise, failover to check peer host
                 }
             }
         }

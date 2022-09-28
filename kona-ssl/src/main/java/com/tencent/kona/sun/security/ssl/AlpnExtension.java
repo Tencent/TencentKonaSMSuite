@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, 2021, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2015, 2022, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -444,7 +444,7 @@ final class AlpnExtension {
 
             // Clean or register the extension
             //
-            // No further use of the request and respond extension any more.
+            // No further use of the request and respond extension.
             shc.handshakeExtensions.remove(SSLExtension.CH_ALPN);
 
             return extData;
@@ -470,9 +470,8 @@ final class AlpnExtension {
             // In response to ALPN request only
             AlpnSpec requestedAlps =
                     (AlpnSpec)chc.handshakeExtensions.get(SSLExtension.CH_ALPN);
-            if (requestedAlps == null ||
-                    requestedAlps.applicationProtocols == null ||
-                    requestedAlps.applicationProtocols.isEmpty()) {
+            if (requestedAlps == null
+                    || requestedAlps.applicationProtocols.isEmpty()) {
                 throw chc.conContext.fatal(Alert.UNEXPECTED_MESSAGE,
                     "Unexpected " + SSLExtension.CH_ALPN.name + " extension");
             }
@@ -503,7 +502,7 @@ final class AlpnExtension {
 
             // Clean or register the extension
             //
-            // No further use of the request and respond extension any more.
+            // No further use of the request and respond extension.
             chc.handshakeExtensions.remove(SSLExtension.CH_ALPN);
         }
     }

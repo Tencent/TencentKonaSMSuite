@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2000, 2020, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2000, 2022, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -131,7 +131,7 @@ public class InhibitAnyPolicyExtension extends Extension
         if (!critical.booleanValue())
             throw new IOException("Criticality cannot be false for " +
                     "InhibitAnyPolicy");
-        this.critical = critical.booleanValue();
+        this.critical = true;
 
         this.extensionValue = (byte[]) value;
         DerValue val = new DerValue(this.extensionValue);
@@ -156,8 +156,7 @@ public class InhibitAnyPolicyExtension extends Extension
      * Return user readable form of extension.
      */
     public String toString() {
-        String s = super.toString() + "InhibitAnyPolicy: " + skipCerts + "\n";
-        return s;
+        return super.toString() + "InhibitAnyPolicy: " + skipCerts + "\n";
     }
 
     /**

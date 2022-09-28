@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, 2019, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2018, 2022, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -320,7 +320,7 @@ final class ECDHKeyExchange {
                 }
             }
 
-            if (x509Possession == null || ecdheCredentials == null) {
+            if (x509Possession == null) {
                 throw shc.conContext.fatal(Alert.HANDSHAKE_FAILURE,
                     "No sufficient ECDHE key agreement parameters negotiated");
             }
@@ -369,7 +369,7 @@ final class ECDHKeyExchange {
                 }
             }
 
-            if (ecdhePossession == null || x509Credentials == null) {
+            if (ecdhePossession == null) {
                 throw chc.conContext.fatal(Alert.HANDSHAKE_FAILURE,
                     "No sufficient ECDH key agreement parameters negotiated");
             }
@@ -413,7 +413,7 @@ final class ECDHKeyExchange {
                 }
             }
 
-            if (ecdhePossession == null || ecdheCredentials == null) {
+            if (ecdhePossession == null) {
                 throw context.conContext.fatal(Alert.HANDSHAKE_FAILURE,
                     "No sufficient ECDHE key agreement parameters negotiated");
             }
@@ -462,7 +462,7 @@ final class ECDHKeyExchange {
                 }
             }
 
-            if (namedGroupPossession == null || namedGroupCredentials == null) {
+            if (namedGroupPossession == null) {
                 throw context.conContext.fatal(Alert.HANDSHAKE_FAILURE,
                     "No sufficient ECDHE/XDH key agreement " +
                             "parameters negotiated");

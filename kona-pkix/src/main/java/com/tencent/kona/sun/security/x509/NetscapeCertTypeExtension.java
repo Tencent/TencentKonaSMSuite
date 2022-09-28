@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1998, 2020, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1998, 2022, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -45,7 +45,7 @@ import com.tencent.kona.sun.security.util.Oid;
  * <p>This extension, if present, defines both the purpose
  * (e.g., encipherment, signature, certificate signing) and the application
  * (e.g., SSL, S/Mime or Object Signing of the key contained in the
- * certificate. This extension has been superseded by IETF PKIX extensions
+ * certificate). This extension has been superseded by IETF PKIX extensions
  * but is provided here for compatibility reasons.
  *
  * @author Hemma Prafullchandra
@@ -92,7 +92,7 @@ public class NetscapeCertTypeExtension extends Extension
         }
     }
 
-    private static MapEntry[] mMapData = {
+    private static final MapEntry[] mMapData = {
             new MapEntry(SSL_CLIENT, 0),
             new MapEntry(SSL_SERVER, 1),
             new MapEntry(S_MIME, 2),
@@ -103,7 +103,7 @@ public class NetscapeCertTypeExtension extends Extension
             new MapEntry(OBJECT_SIGNING_CA, 7),
     };
 
-    private static final Vector<String> mAttributeNames = new Vector<String>();
+    private static final Vector<String> mAttributeNames = new Vector<>();
     static {
         for (MapEntry entry : mMapData) {
             mAttributeNames.add(entry.mName);
@@ -304,21 +304,20 @@ public class NetscapeCertTypeExtension extends Extension
      */
     public boolean[] getKeyUsageMappedBits() {
         KeyUsageExtension keyUsage = new KeyUsageExtension();
-        Boolean val = Boolean.TRUE;
 
         try {
             if (isSet(getPosition(SSL_CLIENT)) ||
                     isSet(getPosition(S_MIME)) ||
                     isSet(getPosition(OBJECT_SIGNING)))
-                keyUsage.set(KeyUsageExtension.DIGITAL_SIGNATURE, val);
+                keyUsage.set(KeyUsageExtension.DIGITAL_SIGNATURE, true);
 
             if (isSet(getPosition(SSL_SERVER)))
-                keyUsage.set(KeyUsageExtension.KEY_ENCIPHERMENT, val);
+                keyUsage.set(KeyUsageExtension.KEY_ENCIPHERMENT, true);
 
             if (isSet(getPosition(SSL_CA)) ||
                     isSet(getPosition(S_MIME_CA)) ||
                     isSet(getPosition(OBJECT_SIGNING_CA)))
-                keyUsage.set(KeyUsageExtension.KEY_CERTSIGN, val);
+                keyUsage.set(KeyUsageExtension.KEY_CERTSIGN, true);
         } catch (IOException e) { }
         return keyUsage.getBits();
     }

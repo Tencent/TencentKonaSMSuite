@@ -187,7 +187,7 @@ public abstract class Cache<K,V> {
             if (this == obj) {
                 return true;
             }
-            if (obj instanceof EqualByteArray == false) {
+            if (!(obj instanceof EqualByteArray)) {
                 return false;
             }
             EqualByteArray other = (EqualByteArray)obj;
@@ -196,7 +196,7 @@ public abstract class Cache<K,V> {
     }
 
     public interface CacheVisitor<K,V> {
-        public void visit(Map<K,V> map);
+        void visit(Map<K,V> map);
     }
 
 }
@@ -269,7 +269,7 @@ class MemoryCache<K,V> extends Cache<K,V> {
 
     public MemoryCache(boolean soft, int maxSize, int lifetime) {
         this.maxSize = maxSize;
-        this.lifetime = lifetime * 1000;
+        this.lifetime = lifetime * 1000L;
         if (soft)
             this.queue = new ReferenceQueue<>();
         else
@@ -334,7 +334,7 @@ class MemoryCache<K,V> extends Cache<K,V> {
         for (Iterator<CacheEntry<K,V>> t = cacheMap.values().iterator();
                 t.hasNext(); ) {
             CacheEntry<K,V> entry = t.next();
-            if (entry.isValid(time) == false) {
+            if (!entry.isValid(time)) {
                 t.remove();
                 cnt++;
             } else if (nextExpirationTime > entry.getExpirationTime()) {
@@ -403,7 +403,7 @@ class MemoryCache<K,V> extends Cache<K,V> {
             return null;
         }
         long time = (lifetime == 0) ? 0 : System.currentTimeMillis();
-        if (entry.isValid(time) == false) {
+        if (!entry.isValid(time)) {
             if (DEBUG) {
                 System.out.println("Ignoring expired entry");
             }
@@ -456,7 +456,7 @@ class MemoryCache<K,V> extends Cache<K,V> {
             }
         }
 
-        maxSize = size > 0 ? size : 0;
+        maxSize = Math.max(size, 0);
 
         if (DEBUG) {
             System.out.println("** capacity reset to " + size);
@@ -499,7 +499,7 @@ class MemoryCache<K,V> extends Cache<K,V> {
         }
     }
 
-    private static interface CacheEntry<K,V> {
+    private interface CacheEntry<K,V> {
 
         boolean isValid(long currentTime);
 
@@ -538,7 +538,7 @@ class MemoryCache<K,V> extends Cache<K,V> {
 
         public boolean isValid(long currentTime) {
             boolean valid = (currentTime <= expirationTime);
-            if (valid == false) {
+            if (!valid) {
                 invalidate();
             }
             return valid;
@@ -579,7 +579,7 @@ class MemoryCache<K,V> extends Cache<K,V> {
 
         public boolean isValid(long currentTime) {
             boolean valid = (currentTime <= expirationTime) && (get() != null);
-            if (valid == false) {
+            if (!valid) {
                 invalidate();
             }
             return valid;

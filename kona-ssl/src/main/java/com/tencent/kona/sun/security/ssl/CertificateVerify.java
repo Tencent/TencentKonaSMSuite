@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, 2021, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2015, 2022, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -215,12 +215,10 @@ final class CertificateVerify {
                         + algorithm);
             }
 
-            if (signer != null) {
-                if (key instanceof PublicKey) {
-                    signer.initVerify((PublicKey)(key));
-                } else {
-                    signer.initSign((PrivateKey)key);
-                }
+            if (key instanceof PublicKey) {
+                signer.initVerify((PublicKey)(key));
+            } else {
+                signer.initSign((PrivateKey)key);
             }
 
             return signer;
@@ -472,12 +470,10 @@ final class CertificateVerify {
                         + algorithm);
             }
 
-            if (signer != null) {
-                if (key instanceof PublicKey) {
-                    signer.initVerify((PublicKey)(key));
-                } else {
-                    signer.initSign((PrivateKey)key);
-                }
+            if (key instanceof PublicKey) {
+                signer.initVerify((PublicKey)(key));
+            } else {
+                signer.initSign((PrivateKey)key);
             }
 
             return signer;
@@ -601,7 +597,7 @@ final class CertificateVerify {
                     x509Possession,
                     chc.negotiatedProtocol);
             if (schemeAndSigner == null) {
-                // Unlikely, the credentials generator should have
+                // Unlikely, the credential's generator should have
                 // selected the preferable signature algorithm properly.
                 throw chc.conContext.fatal(Alert.INTERNAL_ERROR,
                     "No supported CertificateVerify signature algorithm for " +
@@ -920,7 +916,7 @@ final class CertificateVerify {
                     x509Possession,
                     context.negotiatedProtocol);
             if (schemeAndSigner == null) {
-                // Unlikely, the credentials generator should have
+                // Unlikely, the credential's generator should have
                 // selected the preferable signature algorithm properly.
                 throw context.conContext.fatal(Alert.INTERNAL_ERROR,
                     "No supported CertificateVerify signature algorithm for " +

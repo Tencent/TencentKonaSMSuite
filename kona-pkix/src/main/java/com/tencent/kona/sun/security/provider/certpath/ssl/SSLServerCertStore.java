@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2011, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2011, 2022, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -67,11 +67,7 @@ public final class SSLServerCertStore extends CertStoreSpi {
 
     static {
         trustManager = new GetChainTrustManager();
-        hostnameVerifier = new HostnameVerifier() {
-            public boolean verify(String hostname, SSLSession session) {
-                return true;
-            }
-        };
+        hostnameVerifier = (hostname, session) -> true;
 
         SSLSocketFactory tempFactory;
         try {
@@ -128,7 +124,7 @@ public final class SSLServerCertStore extends CertStoreSpi {
             throw new CertStoreException(ioe);
         }
 
-        return Collections.<X509Certificate>emptySet();
+        return Collections.emptySet();
     }
 
     private static List<X509Certificate> getMatchingCerts
@@ -167,7 +163,7 @@ public final class SSLServerCertStore extends CertStoreSpi {
             extends X509ExtendedTrustManager {
 
         private List<X509Certificate> serverChain =
-                Collections.<X509Certificate>emptyList();
+                Collections.emptyList();
         private boolean exchangedServerCerts = false;
 
         @Override
@@ -202,8 +198,8 @@ public final class SSLServerCertStore extends CertStoreSpi {
 
             exchangedServerCerts = true;
             this.serverChain = (chain == null)
-                    ? Collections.<X509Certificate>emptyList()
-                    : Arrays.<X509Certificate>asList(chain);
+                    ? Collections.emptyList()
+                    : Arrays.asList(chain);
 
         }
 
@@ -223,7 +219,7 @@ public final class SSLServerCertStore extends CertStoreSpi {
 
         void cleanup() {
             exchangedServerCerts = false;
-            serverChain = Collections.<X509Certificate>emptyList();
+            serverChain = Collections.emptyList();
         }
     }
 
