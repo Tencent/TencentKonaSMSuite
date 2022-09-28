@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, 2020, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2018, 2022, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -298,13 +298,12 @@ final class SSLExtensions {
                     if (old != null) {
                         encodedLength -= old.length + 4;
                     }
-                    encodedLength += encoded.length + 4;
                 } else {
                     extMap.put(extension, encoded);
-                    encodedLength += encoded.length + 4;
-                                                    // extension_type (2)
-                                                    // extension_data length(2)
                 }
+                encodedLength += encoded.length + 4;
+                // extension_type (2)
+                // extension_data length(2)
             } else if (SSLLogger.isOn && SSLLogger.isOn("ssl,handshake")) {
                 // The extension is not available in the context.
                 SSLLogger.fine(
@@ -363,8 +362,6 @@ final class SSLExtensions {
                         builder.append(toString(en.getKey(), en.getValue()));
                     }
                 }
-
-                return builder.toString();
             } else {
                 for (Map.Entry<SSLExtension, byte[]> en : extMap.entrySet()) {
                     if (builder.length() != 0) {
@@ -374,9 +371,8 @@ final class SSLExtensions {
                         en.getKey().toString(handshakeMessage.handshakeContext,
                                 ByteBuffer.wrap(en.getValue())));
                 }
-
-                return builder.toString();
             }
+            return builder.toString();
         }
     }
 

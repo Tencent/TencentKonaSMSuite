@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2000, 2021, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2000, 2022, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -88,7 +88,7 @@ public class PolicyInformation {
             throw new NullPointerException("policyQualifiers is null");
         }
         this.policyQualifiers =
-                new LinkedHashSet<PolicyQualifierInfo>(policyQualifiers);
+                new LinkedHashSet<>(policyQualifiers);
         this.policyIdentifier = policyIdentifier;
     }
 
@@ -105,7 +105,7 @@ public class PolicyInformation {
         }
         policyIdentifier = new CertificatePolicyId(val.data.getDerValue());
         if (val.data.available() != 0) {
-            policyQualifiers = new LinkedHashSet<PolicyQualifierInfo>();
+            policyQualifiers = new LinkedHashSet<>();
             DerValue opt = val.data.getDerValue();
             if (opt.tag != DerValue.tag_Sequence)
                 throw new IOException("Invalid encoding of PolicyInformation");

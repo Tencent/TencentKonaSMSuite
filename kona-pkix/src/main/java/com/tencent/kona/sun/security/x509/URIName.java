@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1997, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997, 2022, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -49,7 +49,7 @@ import com.tencent.kona.sun.security.util.DerValue;
  * case-sensitive, but other components of the scheme-specific-part may
  * be case-sensitive. When comparing URIs, conforming implementations
  * MUST compare the scheme and host without regard to case, but assume
- * the remainder of the scheme-specific-part is case sensitive.
+ * the remainder of the scheme-specific-part is case-sensitive.
  * <p>
  * [RFC1738] In general, URLs are written as follows:
  * <pre>
@@ -82,8 +82,8 @@ import com.tencent.kona.sun.security.util.DerValue;
 public class URIName implements GeneralNameInterface {
 
     // private attributes
-    private URI uri;
-    private String host;
+    private final URI uri;
+    private final String host;
     private DNSName hostDNS;
     private IPAddressName hostIP;
 
@@ -148,7 +148,7 @@ public class URIName implements GeneralNameInterface {
 
     /**
      * Create the URIName object with the specified name constraint. URI
-     * name constraints syntax is different than SubjectAltNames, etc. See
+     * name constraints syntax is different from SubjectAltNames, etc. See
      * 4.2.1.10 of RFC 5280.
      *
      * @param value the URI name constraint
@@ -382,7 +382,7 @@ public class URIName implements GeneralNameInterface {
      * @throws UnsupportedOperationException if not supported for this name type
      */
     public int subtreeDepth() throws UnsupportedOperationException {
-        DNSName dnsName = null;
+        DNSName dnsName;
         try {
             dnsName = new DNSName(host);
         } catch (IOException ioe) {

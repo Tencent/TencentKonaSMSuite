@@ -140,7 +140,8 @@ public final class OCSPResponse {
         UNUSED,                // is not used
         SIG_REQUIRED,          // Must sign the request
         UNAUTHORIZED           // Request unauthorized
-    };
+    }
+
     private static final ResponseStatus[] rsvalues = ResponseStatus.values();
 
     private static final Debug debug = Debug.getInstance("certpath");
@@ -182,7 +183,7 @@ public final class OCSPResponse {
         return tmp * 1000;
     }
 
-    // an array of all of the CRLReasons (used in SingleResponse)
+    // an array of all the CRLReasons (used in SingleResponse)
     private static final CRLReason[] values = CRLReason.values();
 
     private final ResponseStatus responseStatus;
@@ -191,7 +192,7 @@ public final class OCSPResponse {
     private final byte[] signature;
     private final byte[] tbsResponseData;
     private final byte[] responseNonce;
-    private List<X509CertImpl> certs;
+    private final List<X509CertImpl> certs;
     private X509CertImpl signerCert = null;
     private final ResponderId respId;
     private Date producedAtDate = null;
@@ -229,7 +230,7 @@ public final class OCSPResponse {
         if (responseStatus != ResponseStatus.SUCCESSFUL) {
             // no need to continue, responseBytes are not set.
             singleResponseMap = Collections.emptyMap();
-            certs = new ArrayList<X509CertImpl>();
+            certs = new ArrayList<>();
             sigAlgId = null;
             signature = null;
             tbsResponseData = null;
@@ -254,7 +255,7 @@ public final class OCSPResponse {
         // responseType
         derIn = tmp.data;
         ObjectIdentifier responseType = derIn.getOID();
-        if (responseType.equals((Object)OCSP_BASIC_RESPONSE_OID)) {
+        if (responseType.equals(OCSP_BASIC_RESPONSE_OID)) {
             if (debug != null) {
                 debug.println("OCSP response type: basic");
             }
@@ -362,7 +363,7 @@ public final class OCSPResponse {
                         "OCSP response: expected ASN.1 context specific tag 0.");
             }
             DerValue[] derCerts = seqCert.getData().getSequence(3);
-            certs = new ArrayList<X509CertImpl>(derCerts.length);
+            certs = new ArrayList<>(derCerts.length);
             try {
                 for (int i = 0; i < derCerts.length; i++) {
                     X509CertImpl cert =
@@ -378,7 +379,7 @@ public final class OCSPResponse {
                 throw new IOException("Bad encoding in X509 Certificate", ce);
             }
         } else {
-            certs = new ArrayList<X509CertImpl>();
+            certs = new ArrayList<>();
         }
     }
 
@@ -450,7 +451,7 @@ public final class OCSPResponse {
                     // This will match if the SKID is encoded using the 160-bit
                     // SHA-1 hash method as defined in RFC 5280.
                     KeyIdentifier certKeyId = cert.getSubjectKeyId();
-                    if (certKeyId != null && ridKeyId.equals(certKeyId)) {
+                    if (ridKeyId.equals(certKeyId)) {
                         signerCert = cert;
                         break;
                     } else {
@@ -522,7 +523,7 @@ public final class OCSPResponse {
                         new AlgorithmChecker(issuerInfo.getAnchor(), date,
                                 variant);
                 algChecker.init(false);
-                algChecker.check(signerCert, Collections.<String>emptySet());
+                algChecker.check(signerCert, Collections.emptySet());
 
                 // check the validity
                 try {
@@ -710,7 +711,7 @@ public final class OCSPResponse {
      * Get the {@code ResponderId} from this {@code OCSPResponse}
      *
      * @return the {@code ResponderId} from this response or {@code null}
-     *      if no responder ID is in the body of the response (e.g. a
+     *      if no responder ID is in the body of the response e.g. a
      *      response with a status other than SUCCESS.
      */
     public ResponderId getResponderId() {
@@ -1082,11 +1083,9 @@ public final class OCSPResponse {
          */
         @Override
         public String toString() {
-            StringBuilder sb = new StringBuilder();
-            sb.append("Issuer Info:\n");
-            sb.append("Name: ").append(name.toString()).append("\n");
-            sb.append("Public Key:\n").append(pubKey.toString()).append("\n");
-            return sb.toString();
+            return "Issuer Info:\n" +
+                    "Name: " + name.toString() + "\n" +
+                    "Public Key:\n" + pubKey.toString() + "\n";
         }
     }
 }

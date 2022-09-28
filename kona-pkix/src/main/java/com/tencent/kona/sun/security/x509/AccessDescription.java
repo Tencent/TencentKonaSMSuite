@@ -42,9 +42,9 @@ public final class AccessDescription {
 
     private int myhash = -1;
 
-    private ObjectIdentifier accessMethod;
+    private final ObjectIdentifier accessMethod;
 
-    private GeneralName accessLocation;
+    private final GeneralName accessLocation;
 
     public static final ObjectIdentifier Ad_OCSP_Id =
             Oid.of(KnownOIDs.OCSP);
@@ -105,7 +105,7 @@ public final class AccessDescription {
     }
 
     public String toString() {
-        String method = null;
+        String method;
         if (accessMethod.equals((Object) Ad_CAISSUERS_Id)) {
             method = "caIssuers";
         } else if (accessMethod.equals((Object) Ad_CAREPOSITORY_Id)) {

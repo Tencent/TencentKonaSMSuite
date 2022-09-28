@@ -193,7 +193,7 @@ final class CertificateMessage {
                 for (byte[] encodedCert : encodedCertChain) {
                     Object obj;
                     try {
-                        obj = (X509Certificate)cf.generateCertificate(
+                        obj = cf.generateCertificate(
                                     new ByteArrayInputStream(encodedCert));
                     } catch (CertificateException ce) {
                         obj = encodedCert;
@@ -586,7 +586,7 @@ final class CertificateMessage {
                 Collection<String> prevSubAltNames) {
             for (String thisSubAltName : thisSubAltNames) {
                 for (String prevSubAltName : prevSubAltNames) {
-                    // Only allow the exactly match.  No wildcard character
+                    // Only allow the exact match.  No wildcard character
                     // checking.
                     if (thisSubAltName.equalsIgnoreCase(prevSubAltName)) {
                         return true;
@@ -612,8 +612,8 @@ final class CertificateMessage {
 
             X509TrustManager tm = chc.sslContext.getX509TrustManager();
 
-            // find out the key exchange algorithm used
-            // use "RSA" for non-ephemeral "RSA_EXPORT"
+            // Find out the key exchange algorithm used.
+            // Use "RSA" for non-ephemeral "RSA_EXPORT".
             String keyExchangeString;
             if (chc.negotiatedCipherSuite.keyExchange ==
                     CipherSuite.KeyExchange.K_RSA_EXPORT ||
@@ -998,8 +998,8 @@ final class CertificateMessage {
             }
 
             // Check the OCSP stapling extensions and attempt
-            // to get responses.  If the resulting stapleParams is non
-            // null, it implies that stapling is enabled on the server side.
+            // to get responses.  If the resulting stapleParams is non-null,
+            // it implies that stapling is enabled on the server side.
             shc.stapleParams = StatusResponseManager.processStapling(shc);
             shc.staplingActive = (shc.stapleParams != null);
 
@@ -1031,7 +1031,7 @@ final class CertificateMessage {
 
         private static SSLPossession choosePossession(
                 HandshakeContext hc,
-                ClientHello.ClientHelloMessage clientHello) throws IOException {
+                ClientHello.ClientHelloMessage clientHello) {
             if (hc.peerRequestedCertSignSchemes == null ||
                     hc.peerRequestedCertSignSchemes.isEmpty()) {
                 if (SSLLogger.isOn && SSLLogger.isOn("ssl,handshake")) {
@@ -1191,7 +1191,7 @@ final class CertificateMessage {
             // Each CertificateEntry will have its own set of extensions
             // which must be consumed.
             SSLExtension[] enabledExtensions =
-                chc.sslConfig.getEnabledExtensions(SSLHandshake.CERTIFICATE);
+                    chc.sslConfig.getEnabledExtensions(SSLHandshake.CERTIFICATE);
             for (CertificateEntry certEnt : certificateMessage.certEntries) {
                 certEnt.extensions.consumeOnLoad(chc, enabledExtensions);
             }

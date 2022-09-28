@@ -123,7 +123,7 @@ final class JsseJce {
     static final String SIGNATURE_RAWECDSA = "NONEwithECDSA";
 
     /**
-     * JCA identifier string for Raw RSA, i.e. a RSA PKCS#1 v1.5 signature
+     * JCA identifier string for Raw RSA, i.e. an RSA PKCS#1 v1.5 signature
      * without hashing where the application provides the hash of the data.
      * Used for RSA client authentication with a 36 byte hash.
      */
@@ -131,7 +131,7 @@ final class JsseJce {
 
     /**
      * JCA identifier string for the SSL/TLS style RSA Signature. I.e.
-     * an signature using RSA with PKCS#1 v1.5 padding signing a
+     * a signature using RSA with PKCS#1 v1.5 padding signing a
      * concatenation of an MD5 and SHA-1 digest.
      */
     static final String SIGNATURE_SSLRSA = "MD5andSHA1withRSA";

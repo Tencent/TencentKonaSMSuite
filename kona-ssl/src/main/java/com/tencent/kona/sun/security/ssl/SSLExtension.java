@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, 2021, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2018, 2022, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -529,7 +529,7 @@ enum SSLExtension implements SSLStringizer {
     final SSLStringizer stringizer;
 
     // known but unsupported extension
-    private SSLExtension(int id, String name) {
+    SSLExtension(int id, String name) {
         this.id = id;
         this.handshakeType = SSLHandshake.NOT_APPLICABLE;
         this.name = name;
@@ -543,7 +543,7 @@ enum SSLExtension implements SSLStringizer {
     }
 
     // supported extension
-    private SSLExtension(int id, String name, SSLHandshake handshakeType,
+    SSLExtension(int id, String name, SSLHandshake handshakeType,
             ProtocolVersion[] supportedProtocols,
             HandshakeProducer producer,
             ExtensionConsumer onLoadConsumer, HandshakeAbsence onLoadAbsence,
@@ -687,7 +687,7 @@ enum SSLExtension implements SSLStringizer {
     //////////////////////////////////////////////////////
     // Nested extension, consumer and producer interfaces.
 
-    static interface ExtensionConsumer {
+    interface ExtensionConsumer {
         void consume(ConnectionContext context,
                 HandshakeMessage message, ByteBuffer buffer) throws IOException;
     }
@@ -700,7 +700,7 @@ enum SSLExtension implements SSLStringizer {
      * interface if the data is expected to handle in the following handshake
      * processes.
      */
-    static interface SSLExtensionSpec {
+    interface SSLExtensionSpec {
         // blank
     }
 

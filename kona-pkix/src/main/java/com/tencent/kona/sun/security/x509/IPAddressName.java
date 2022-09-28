@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1997, 2018, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997, 2022, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -70,7 +70,7 @@ import com.tencent.kona.sun.security.util.HexDumpEncoder;
  */
 public class IPAddressName implements GeneralNameInterface {
     private byte[] address;
-    private boolean isIPv4;
+    private final boolean isIPv4;
     private String name;
 
     /**
@@ -212,8 +212,7 @@ public class IPAddressName implements GeneralNameInterface {
             byte[] maskArray = bitArray.toByteArray();
 
             // copy mask bytes into mask portion of address
-            for (int i = 0; i < MASKSIZE; i++)
-                address[MASKSIZE+i] = maskArray[i];
+            System.arraycopy(maskArray, 0, address, 16, MASKSIZE);
         }
     }
 
@@ -279,8 +278,7 @@ public class IPAddressName implements GeneralNameInterface {
 
                 // copy subdomain into new array and convert to BitArray
                 byte[] maskBytes = new byte[16];
-                for (int i=16; i < 32; i++)
-                    maskBytes[i-16] = address[i];
+                System.arraycopy(address, 16, maskBytes, 0, 16);
                 BitArray ba = new BitArray(16*8, maskBytes);
                 // Find first zero bit
                 int i=0;
@@ -400,7 +398,7 @@ public class IPAddressName implements GeneralNameInterface {
             constraintType = NAME_DIFF_TYPE;
         else if (inputName.getType() != NAME_IP)
             constraintType = NAME_DIFF_TYPE;
-        else if (((IPAddressName)inputName).equals(this))
+        else if (inputName.equals(this))
             constraintType = NAME_MATCH;
         else {
             IPAddressName otherName = (IPAddressName)inputName;

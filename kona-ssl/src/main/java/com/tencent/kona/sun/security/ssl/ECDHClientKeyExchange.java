@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2003, 2019, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2003, 2022, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -161,7 +161,7 @@ final class ECDHClientKeyExchange {
 
             PublicKey publicKey = x509Credentials.popPublicKey;
 
-            NamedGroup namedGroup = null;
+            NamedGroup namedGroup;
             String algorithm = publicKey.getAlgorithm();
 
             // Determine which NamedGroup we'll be using, then use
@@ -267,20 +267,16 @@ final class ECDHClientKeyExchange {
 //            ECParameterSpec ecParams = x509Possession.getECParameterSpec();
 //            if (ecParams != null) {
 //                namedGroup = NamedGroup.valueOf(ecParams);
-//            }
-//
-//            NamedParameterSpec namedParams = null;
-//            // Wasn't EC, try XEC.
-//            if (ecParams == null) {
-//                namedParams = x509Possession.getXECParameterSpec();
+//            } else {
+//                // Wasn't EC, try XEC.
+//                NamedParameterSpec namedParams =
+//                        x509Possession.getXECParameterSpec();
+//                if (namedParams == null) {
+//                    throw shc.conContext.fatal(Alert.ILLEGAL_PARAMETER,
+//                        "Unknown named parameters in server cert for " +
+//                            "ECDH client key exchange");
+//                }
 //                namedGroup = NamedGroup.nameOf(namedParams.getName());
-//            }
-//
-//            // Can't figure this out, bail.
-//            if ((ecParams == null) && (namedParams == null)) {
-//                // unlikely, have been checked during cipher suite negotiation.
-//                throw shc.conContext.fatal(Alert.ILLEGAL_PARAMETER,
-//                    "Not EC server cert for ECDH client key exchange");
 //            }
 //
 //            // unlikely, have been checked during cipher suite negotiation.

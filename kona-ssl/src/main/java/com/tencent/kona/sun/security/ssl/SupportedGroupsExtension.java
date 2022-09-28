@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, 2020, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2015, 2022, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -88,7 +88,7 @@ final class SupportedGroupsExtension {
                     "Invalid supported_groups extension: unknown extra data"));
             }
 
-            if ((ngs == null) || (ngs.length == 0) || (ngs.length % 2 != 0)) {
+            if (ngs.length == 0 || ngs.length % 2 != 0) {
                 throw hc.conContext.fatal(Alert.DECODE_ERROR,
                         new SSLProtocolException(
                     "Invalid supported_groups extension: incomplete data"));
@@ -377,7 +377,7 @@ final class SupportedGroupsExtension {
 
             // Update the context.
             chc.clientRequestedNamedGroups =
-                    Collections.<NamedGroup>unmodifiableList(namedGroups);
+                    Collections.unmodifiableList(namedGroups);
             chc.handshakeExtensions.put(SSLExtension.CH_SUPPORTED_GROUPS,
                     new SupportedGroupsSpec(namedGroups));
 
@@ -526,7 +526,7 @@ final class SupportedGroupsExtension {
 
             // Update the context.
             shc.conContext.serverRequestedNamedGroups =
-                    Collections.<NamedGroup>unmodifiableList(namedGroups);
+                    Collections.unmodifiableList(namedGroups);
             SupportedGroupsSpec spec = new SupportedGroupsSpec(namedGroups);
             shc.handshakeExtensions.put(SSLExtension.EE_SUPPORTED_GROUPS, spec);
 

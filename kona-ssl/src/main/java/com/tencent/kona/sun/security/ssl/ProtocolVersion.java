@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2002, 2021, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2002, 2022, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -159,7 +159,7 @@ enum ProtocolVersion {
     // Empty ProtocolVersion array
     static final ProtocolVersion[] PROTOCOLS_EMPTY = new ProtocolVersion[0];
 
-    private ProtocolVersion(int id, String name, boolean isDTLS) {
+    ProtocolVersion(int id, String name, boolean isDTLS) {
         this.id = id;
         this.name = name;
         this.isDTLS = isDTLS;
@@ -167,7 +167,7 @@ enum ProtocolVersion {
         this.minor = (byte)(id & 0xFF);
 
         this.isAvailable = SSLAlgorithmConstraints.DEFAULT_SSL_ONLY.permits(
-                EnumSet.<CryptoPrimitive>of(CryptoPrimitive.KEY_AGREEMENT),
+                EnumSet.of(CryptoPrimitive.KEY_AGREEMENT),
                 name, null);
     }
 
@@ -258,9 +258,7 @@ enum ProtocolVersion {
             return v <= DTLS10.id;
         } else {
             if (v < SSL30.id) {
-               if (!allowSSL20Hello || (v != SSL20Hello.id)) {
-                   return false;
-               }
+                return allowSSL20Hello && (v == SSL20Hello.id);
             }
             return true;
         }
@@ -306,7 +304,7 @@ enum ProtocolVersion {
      */
     static List<ProtocolVersion> namesOf(String[] protocolNames) {
         if (protocolNames == null || protocolNames.length == 0) {
-            return Collections.<ProtocolVersion>emptyList();
+            return Collections.emptyList();
         }
 
         List<ProtocolVersion> pvs = new ArrayList<>(protocolNames.length);
@@ -416,7 +414,7 @@ enum ProtocolVersion {
     }
 
     /**
-     * Select the lower of that suggested protocol version and
+     * Select the lower of the suggested protocol version and
      * the highest of the listed protocol versions.
      *
      * @param listedVersions    the listed protocol version

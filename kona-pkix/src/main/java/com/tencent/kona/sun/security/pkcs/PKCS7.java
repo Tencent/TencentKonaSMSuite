@@ -110,7 +110,7 @@ public class PKCS7 {
      * @exception ParsingException on parsing errors.
      * @exception IOException on other errors.
      */
-    public PKCS7(InputStream in) throws ParsingException, IOException {
+    public PKCS7(InputStream in) throws IOException {
         DataInputStream dis = new DataInputStream(in);
         byte[] data = new byte[dis.available()];
         dis.readFully(data);
@@ -178,7 +178,7 @@ public class PKCS7 {
      * Parses a PKCS#7 block.
      *
      * @param derin the ASN.1 encoding of the PKCS#7 block.
-     * @param oldStyle flag indicating whether or not the given PKCS#7 block
+     * @param oldStyle flag indicating whether the given PKCS#7 block
      * is encoded according to JDK1.1.x.
      */
     private void parse(DerInputStream derin, boolean oldStyle)
@@ -232,8 +232,7 @@ public class PKCS7 {
         this(digestAlgorithmIds, contentInfo, certificates, null, signerInfos);
     }
 
-    private void parseNetscapeCertChain(DerValue val)
-            throws ParsingException, IOException {
+    private void parseNetscapeCertChain(DerValue val) throws IOException {
         DerInputStream dis = new DerInputStream(val.toByteArray());
         DerValue[] contents = dis.getSequence(2);
         certificates = new X509Certificate[contents.length];
@@ -279,9 +278,7 @@ public class PKCS7 {
     //     crls
     //       [1] IMPLICIT CertificateRevocationLists OPTIONAL,
     //     signerInfos SignerInfos }
-    private void parseSignedData(DerValue val)
-            throws ParsingException, IOException {
-
+    private void parseSignedData(DerValue val) throws IOException {
         DerInputStream dis = val.toDerInputStream();
 
         // Version
@@ -405,9 +402,7 @@ public class PKCS7 {
      * Parses an old-style SignedData encoding (for backwards
      * compatibility with JDK1.1.x).
      */
-    private void parseOldSignedData(DerValue val)
-            throws ParsingException, IOException
-    {
+    private void parseOldSignedData(DerValue val) throws IOException {
         DerInputStream dis = val.toDerInputStream();
 
         // Version
@@ -551,7 +546,7 @@ public class PKCS7 {
             // Add the CRL set (tagged with [1] IMPLICIT)
             // to the signed data
             signedData.putOrderedSetOf((byte)0xA1,
-                    implCRLs.toArray(new X509CRLImpl[implCRLs.size()]));
+                    implCRLs.toArray(new X509CRLImpl[0]));
         }
 
         // signerInfos
@@ -785,8 +780,8 @@ public class PKCS7 {
      * @param privateKey signer's private ky
      * @param signerChain signer's certificate chain
      * @param content the content to sign
-     * @param internalsf whether the content should be include in output
-     * @param directsign if the content is signed directly or thru authattrs
+     * @param internalsf whether the content should be included in output
+     * @param directsign if the content is signed directly or through authattrs
      * @param ts (optional) timestamper
      * @return the pkcs7 output in an array
      * @throws SignatureException if signing failed
@@ -1022,8 +1017,8 @@ public class PKCS7 {
             throws IOException, CertificateException
     {
         // Generate a timestamp
-        MessageDigest messageDigest = null;
-        TSRequest tsQuery = null;
+        MessageDigest messageDigest;
+        TSRequest tsQuery;
         try {
             messageDigest = CryptoInsts.getMessageDigest(tSADigestAlg);
             tsQuery = new TSRequest(tSAPolicyID, toBeTimestamped, messageDigest);

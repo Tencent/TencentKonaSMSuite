@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1997, 2021, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997, 2022, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -154,7 +154,7 @@ public class GeneralSubtrees implements Cloneable {
         if (this == obj) {
             return true;
         }
-        if (obj instanceof GeneralSubtrees == false) {
+        if (!(obj instanceof GeneralSubtrees)) {
             return false;
         }
         GeneralSubtrees other = (GeneralSubtrees)obj;
@@ -177,8 +177,7 @@ public class GeneralSubtrees implements Cloneable {
 
     private static GeneralNameInterface getGeneralNameInterface(GeneralSubtree gs) {
         GeneralName gn = gs.getName();
-        GeneralNameInterface gni = gn.getName();
-        return gni;
+        return gn.getName();
     }
 
     /**
@@ -410,7 +409,7 @@ public class GeneralSubtrees implements Cloneable {
                         }
                     }
                 }
-                if (intersection == false) {
+                if (!intersection) {
                     if (newExcluded == null) {
                         newExcluded = new GeneralSubtrees();
                     }

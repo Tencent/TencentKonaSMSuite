@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014, 2021, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2014, 2022, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -44,12 +44,12 @@ public class KeyStoreDelegator extends KeyStoreSpi {
     private static final String KEYSTORE_TYPE_COMPAT = "keystore.type.compat";
     private static final Debug debug = Debug.getInstance("keystore");
 
-    private String primaryType;   // the primary keystore's type
-    private String secondaryType; // the secondary keystore's type
-    private Class<? extends KeyStoreSpi> primaryKeyStore;
-    // the primary keystore's class
-    private Class<? extends KeyStoreSpi> secondaryKeyStore;
-    // the secondary keystore's class
+    private final String primaryType;   // the primary keystore's type
+    private final String secondaryType; // the secondary keystore's type
+    private final Class<? extends KeyStoreSpi> primaryKeyStore;
+                                    // the primary keystore's class
+    private final Class<? extends KeyStoreSpi> secondaryKeyStore;
+                                    // the secondary keystore's class
     private String type; // the delegate's type
     private KeyStoreSpi keystore; // the delegate
     private boolean compatModeEnabled = true;
@@ -302,7 +302,7 @@ public class KeyStoreDelegator extends KeyStoreSpi {
 //
 //        } finally {
 //            // reset
-//            if (result == false) {
+//            if (!result) {
 //                type = null;
 //                keystore = null;
 //            }

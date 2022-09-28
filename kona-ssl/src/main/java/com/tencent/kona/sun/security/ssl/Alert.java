@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2003, 2019, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2003, 2022, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -87,7 +87,7 @@ enum Alert {
     // Alert message consumer
     static final SSLConsumer alertConsumer = new AlertConsumer();
 
-    private Alert(byte id, String description, boolean handshakeOnly) {
+    Alert(byte id, String description, boolean handshakeOnly) {
         this.id = id;
         this.description = description;
         this.handshakeOnly = handshakeOnly;
@@ -153,7 +153,7 @@ enum Alert {
         // description of the Alert level
         final String description;
 
-        private Level(byte level, String description) {
+        Level(byte level, String description) {
             this.level = level;
             this.description = description;
         }
@@ -272,7 +272,7 @@ enum Alert {
                         throw tc.fatal(Alert.HANDSHAKE_FAILURE,
                             "received handshake warning: " + alert.description);
                     } else {
-                        // Otherwise ignore the warning but remove the
+                        // Otherwise, ignore the warning but remove the
                         // Certificate and CertificateVerify handshake
                         // consumer so the state machine doesn't expect it.
                         tc.handshakeContext.handshakeConsumers.remove(

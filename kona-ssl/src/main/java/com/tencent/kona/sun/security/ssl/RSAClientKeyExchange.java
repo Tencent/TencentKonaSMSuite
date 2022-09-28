@@ -248,9 +248,6 @@ final class RSAClientKeyExchange {
                     break;
                 } else if (possession instanceof X509Authentication.X509Possession) {
                     x509Possession = (X509Authentication.X509Possession)possession;
-                    if (rsaPossession != null) {
-                        break;
-                    }
                 }
             }
 

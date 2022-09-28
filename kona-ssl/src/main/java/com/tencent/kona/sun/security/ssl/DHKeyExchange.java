@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, 2019, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2018, 2022, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -339,7 +339,7 @@ final class DHKeyExchange {
              * cipher suites in default mode (system property
              * "com.tencent.kona.ssl.ephemeralDHKeySize" is not defined).
              *
-             * However, if applications want more stronger strength, setting
+             * However, if applications want stronger strength, setting
              * system property "com.tencent.kona.ssl.ephemeralDHKeySize" to "matched"
              * is a workaround to use ephemeral DH key which size matches the
              * corresponding authentication key. For example, if the public key
@@ -449,7 +449,7 @@ final class DHKeyExchange {
                 }
             }
 
-            if (dhePossession == null || dheCredentials == null) {
+            if (dhePossession == null) {
                 throw context.conContext.fatal(Alert.HANDSHAKE_FAILURE,
                     "No sufficient DHE key agreement parameters negotiated");
             }

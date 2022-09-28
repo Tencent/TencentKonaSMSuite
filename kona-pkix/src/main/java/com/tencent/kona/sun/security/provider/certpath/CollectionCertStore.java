@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2000, 2012, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2000, 2022, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -32,7 +32,6 @@ import java.util.Collection;
 import java.util.ConcurrentModificationException;
 import java.util.HashSet;
 import java.security.cert.CertSelector;
-import java.security.cert.CertStore;
 import java.security.cert.CertStoreException;
 import java.security.cert.CertStoreParameters;
 import java.security.cert.CollectionCertStoreParameters;
@@ -78,7 +77,7 @@ import java.security.cert.CertStoreSpi;
  */
 public class CollectionCertStore extends CertStoreSpi {
 
-    private Collection<?> coll;
+    private final Collection<?> coll;
 
     /**
      * Creates a <code>CertStore</code> with the specified parameters.

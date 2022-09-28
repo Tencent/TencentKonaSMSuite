@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1996, 2019, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1996, 2022, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -580,12 +580,8 @@ final class DTLSOutputRecord extends OutputRecord implements DTLSRecord {
         }
 
         boolean isEmpty() {
-            if (!flightIsReady || handshakeMemos.isEmpty() ||
-                    acquireIndex >= handshakeMemos.size()) {
-                return true;
-            }
-
-            return false;
+            return !flightIsReady || handshakeMemos.isEmpty() ||
+                    acquireIndex >= handshakeMemos.size();
         }
 
         boolean hasAlert() {

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006, 2020, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2006, 2022, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -115,7 +115,7 @@ class URICertStore extends CertStoreSpi {
     private long lastModified;
 
     // the URI of this CertStore
-    private URI uri;
+    private final URI uri;
 
     // true if URI is ldap
     private boolean ldap = false;

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1997, 2013, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997, 2022, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -65,8 +65,8 @@ import com.tencent.kona.sun.security.util.DerValue;
  */
 public class CRLExtensions {
 
-    private Map<String,Extension> map = Collections.synchronizedMap(
-            new TreeMap<String,Extension>());
+    private final Map<String,Extension> map = Collections.synchronizedMap(
+            new TreeMap<>());
     private boolean unsupportedCritExt = false;
 
     /**

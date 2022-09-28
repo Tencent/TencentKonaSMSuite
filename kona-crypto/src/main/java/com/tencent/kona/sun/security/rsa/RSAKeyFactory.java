@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2003, 2021, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2003, 2022, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -135,8 +135,8 @@ public class RSAKeyFactory extends KeyFactorySpi {
     }
 
     /*
-     * Single test entry point for all of the mechanisms in the SunRsaSign
-     * provider (RSA*KeyImpls).  All of the tests are the same.
+     * Single test entry point for all the mechanisms in the SunRsaSign
+     * provider (RSA*KeyImpls).  All the tests are the same.
      *
      * For compatibility, we round up to the nearest byte here:
      * some Key impls might pass in a value within a byte of the

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, 2021, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2015, 2022, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -61,7 +61,7 @@ final class CertificateRequest {
         new T13CertificateRequestProducer();
 
     // TLS 1.2 and prior versions
-    static enum ClientCertificateType {
+    enum ClientCertificateType {
         // RFC 2246
         RSA_SIGN            ((byte)0x01, "rsa_sign", Arrays.asList("RSA"), true),
         DSS_SIGN            ((byte)0x02, "dss_sign", Arrays.asList("DSA"), true),
@@ -95,11 +95,11 @@ final class CertificateRequest {
         final List<String> keyAlgorithm;
         final boolean isAvailable;
 
-        private ClientCertificateType(byte id, String name) {
+        ClientCertificateType(byte id, String name) {
             this(id, name, null, false);
         }
 
-        private ClientCertificateType(byte id, String name,
+        ClientCertificateType(byte id, String name,
                 List<String> keyAlgorithm, boolean isAvailable) {
             this.id = id;
             this.name = name;
@@ -365,7 +365,7 @@ final class CertificateRequest {
             // update
             //
 
-            // An empty client Certificate handshake message may be allow.
+            // An empty client Certificate handshake message may be allowed.
             chc.handshakeProducers.put(SSLHandshake.CERTIFICATE.id,
                     SSLHandshake.CERTIFICATE);
 
@@ -470,7 +470,7 @@ final class CertificateRequest {
             }
 
             byte[] algs = Record.getBytes16(m);
-            if (algs == null || algs.length == 0 || (algs.length & 0x01) != 0) {
+            if (algs.length == 0 || (algs.length & 0x01) != 0) {
                 throw handshakeContext.conContext.fatal(Alert.ILLEGAL_PARAMETER,
                         "Invalid CertificateRequest handshake message: " +
                         "incomplete signature algorithms");
@@ -614,8 +614,7 @@ final class CertificateRequest {
                             shc.algorithmConstraints, shc.activeProtocols);
             }
 
-            if (shc.localSupportedSignAlgs == null ||
-                    shc.localSupportedSignAlgs.isEmpty()) {
+            if (shc.localSupportedSignAlgs.isEmpty()) {
                 throw shc.conContext.fatal(Alert.HANDSHAKE_FAILURE,
                     "No supported signature algorithm");
             }
@@ -701,7 +700,7 @@ final class CertificateRequest {
             // update
             //
 
-            // An empty client Certificate handshake message may be allow.
+            // An empty client Certificate handshake message may be allowed.
             chc.handshakeProducers.put(SSLHandshake.CERTIFICATE.id,
                     SSLHandshake.CERTIFICATE);
 
@@ -710,7 +709,7 @@ final class CertificateRequest {
                             chc.sslConfig,
                             chc.algorithmConstraints, chc.negotiatedProtocol,
                             crm.algorithmIds);
-            if (sss == null || sss.isEmpty()) {
+            if (sss.isEmpty()) {
                 throw chc.conContext.fatal(Alert.HANDSHAKE_FAILURE,
                         "No supported signature algorithm");
             }
@@ -736,7 +735,7 @@ final class CertificateRequest {
         }
 
         private static SSLPossession choosePossession(HandshakeContext hc,
-                T12CertificateRequestMessage crm) throws IOException {
+                T12CertificateRequestMessage crm) {
             if (hc.peerRequestedCertSignSchemes == null ||
                     hc.peerRequestedCertSignSchemes.isEmpty()) {
                 if (SSLLogger.isOn && SSLLogger.isOn("ssl,handshake")) {
@@ -794,7 +793,7 @@ final class CertificateRequest {
         private final SSLExtensions extensions;
 
         T13CertificateRequestMessage(
-                HandshakeContext handshakeContext) throws IOException {
+                HandshakeContext handshakeContext) {
             super(handshakeContext);
 
             this.requestContext = new byte[0];

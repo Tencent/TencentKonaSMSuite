@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009, 2021, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2022, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -174,7 +174,7 @@ public final class AlgorithmChecker extends PKIXCertPathChecker {
     @Override
     public boolean isForwardCheckingSupported() {
         //  Note that as this class does not support forward mode, the method
-        //  will always returns false.
+        //  will always return false.
         return false;
     }
 

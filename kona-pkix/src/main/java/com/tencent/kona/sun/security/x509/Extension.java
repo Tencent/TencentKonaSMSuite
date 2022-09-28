@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1997, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997, 2022, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -69,7 +69,7 @@ public class Extension implements java.security.cert.Extension {
     protected byte[]            extensionValue = null;
 
     /**
-     * Default constructor.  Used only by sub-classes.
+     * Default constructor.  Used only by subclasses.
      */
     public Extension() { }
 
@@ -90,11 +90,10 @@ public class Extension implements java.security.cert.Extension {
 
             // Extension value (DER encoded)
             val = in.getDerValue();
-            extensionValue = val.getOctetString();
         } else {
             critical = false;
-            extensionValue = val.getOctetString();
         }
+        extensionValue = val.getOctetString();
     }
 
     /**
@@ -155,7 +154,7 @@ public class Extension implements java.security.cert.Extension {
 
         dos1.putOID(extensionId);
         if (critical) {
-            dos1.putBoolean(critical);
+            dos1.putBoolean(true);
         }
         dos1.putOctetString(extensionValue);
 
@@ -180,7 +179,7 @@ public class Extension implements java.security.cert.Extension {
 
         dos.putOID(extensionId);
         if (critical)
-            dos.putBoolean(critical);
+            dos.putBoolean(true);
         dos.putOctetString(extensionValue);
 
         out.write(DerValue.tag_Sequence, dos);
@@ -205,7 +204,7 @@ public class Extension implements java.security.cert.Extension {
     }
 
     /**
-     * Returns the extension value as an byte array for further processing.
+     * Returns the extension value as a byte array for further processing.
      * Note, this is the raw DER value of the extension, not the DER
      * encoded octet string which is in the certificate.
      * This method does not return a clone; it is the responsibility of the
