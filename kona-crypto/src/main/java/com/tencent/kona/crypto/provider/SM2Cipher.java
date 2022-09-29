@@ -71,10 +71,6 @@ public class SM2Cipher extends GMCipherSpi {
     @Override
     public byte[] engineDoFinal(byte[] in, int inOfs, int inLen)
             throws IllegalBlockSizeException, BadPaddingException {
-        // BC cannot process empty input
-        if (inLen == 0) {
-            return new byte[0];
-        }
         return super.engineDoFinal(in, inOfs, inLen);
     }
 
