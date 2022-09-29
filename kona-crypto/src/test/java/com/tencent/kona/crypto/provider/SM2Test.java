@@ -246,12 +246,12 @@ public class SM2Test {
         Cipher cipher = Cipher.getInstance("SM2", PROVIDER);
 
         cipher.init(Cipher.ENCRYPT_MODE, pubKey);
-        byte[] ciphertext = cipher.doFinal(EMPTY);
+        TestUtils.checkThrowable(BadPaddingException.class,
+                () -> cipher.doFinal(EMPTY));
 
         cipher.init(Cipher.DECRYPT_MODE, priKey);
-        byte[] cleartext = cipher.doFinal(ciphertext);
-
-        Assertions.assertArrayEquals(EMPTY, cleartext);
+        TestUtils.checkThrowable(BadPaddingException.class,
+                () -> cipher.doFinal(EMPTY));
     }
 
     @Test
