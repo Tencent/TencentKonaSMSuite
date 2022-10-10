@@ -303,10 +303,8 @@ final class TLCPServerHello {
                     //
                     // Invalidate the session for initial handshake in case
                     // of reusing next time.
-                    if (chc.resumingSession != null) {
-                        chc.resumingSession.invalidate();
-                        chc.resumingSession = null;
-                    }
+                    chc.resumingSession.invalidate();
+                    chc.resumingSession = null;
                     chc.isResumption = false;
                     if (!chc.sslConfig.enableSessionCreation) {
                         throw chc.conContext.fatal(Alert.PROTOCOL_VERSION,

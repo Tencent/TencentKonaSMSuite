@@ -239,7 +239,7 @@ public final class ObjectIdentifier implements Serializable {
             throw ioe;
         } catch (Exception e) {
             throw new IOException("ObjectIdentifier() -- Invalid format: "
-                    + e.toString(), e);
+                    + e, e);
         }
     }
 

@@ -88,7 +88,7 @@ final class TLCPCertificateRequest {
                 }
 
                 byte[] algs = Record.getBytes16(m);
-                if (algs == null || algs.length == 0 || (algs.length & 0x01) != 0) {
+                if (algs.length == 0 || (algs.length & 0x01) != 0) {
                     throw handshakeContext.conContext.fatal(Alert.ILLEGAL_PARAMETER,
                             "Invalid CertificateRequest handshake message: " +
                                     "incomplete signature algorithms");
@@ -234,8 +234,7 @@ final class TLCPCertificateRequest {
                                     shc.algorithmConstraints, shc.activeProtocols);
                 }
 
-                if (shc.localSupportedSignAlgs == null ||
-                        shc.localSupportedSignAlgs.isEmpty()) {
+                if (shc.localSupportedSignAlgs.isEmpty()) {
                     throw shc.conContext.fatal(Alert.HANDSHAKE_FAILURE,
                             "No supported signature algorithm");
                 }
@@ -332,7 +331,7 @@ final class TLCPCertificateRequest {
                                 chc.sslConfig,
                                 chc.algorithmConstraints, chc.negotiatedProtocol,
                                 crm.algorithmIds);
-                if (sss == null || sss.isEmpty()) {
+                if (sss.isEmpty()) {
                     throw chc.conContext.fatal(Alert.HANDSHAKE_FAILURE,
                             "No supported signature algorithm");
                 }
