@@ -3,7 +3,7 @@
 ## Introduction
 Tencent Kona SSL is a java security provider, which is named `KonaSSL`. This provider implements China's GB/T 38636-2020 specification based on Java Secure Socket Extension（[JSSE]）framework. And it also applies ShangMi algorithms to TLS 1.3 based on [RFC 8998].
 
-For providing the above features, `KonaSSL` implements the JDK-specified Service Provider Interfaces (SPIs), such as CertificateFactorySpi，KeyStoreSpi，CertPathBuilderSpi，SignatureSpi，KeyAgreementSpi and SSLContextSpi.
+For providing the above features, `KonaSSL` implements the JDK-specified Service Provider Interfaces (SPIs), such as SSLContextSpi.
 
 ## Usages
 Now that `KonaSSL` is based on the JDK-specific SPIs, then the usages are the same as those SPIs, say SSLContext. Understanding JSSE really helps, so please read the official [reference].
