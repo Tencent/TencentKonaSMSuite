@@ -3,7 +3,7 @@
 ## 简介
 腾讯Kona SSL是一个Java安全特性Provider实现，其Provider名称为`KonaSSL`。它基于OpenJDK的Java Secure Socket Extension（[JSSE]）框架实现了由国家标准GB/T 38636-2020规定的TLCP协议，并遵循[RFC 8998]规范将国密算法应用于TLS 1.3协议。
 
-为了提供上述特性，`KonaSSL`实现了JDK定义的CertificateFactorySpi，KeyStoreSpi，CertPathBuilderSpi，SignatureSpi，KeyAgreementSpi和SSLContextSpi等Service Provider Interface（SPI）。
+为了提供上述特性，`KonaSSL`实现了JDK定义的SSLContextSpi等Service Provider Interface（SPI）。
 
 ## 使用
 由于`KonaSSL`是基于JDK定义的标准SPI，所以在使用风格上，与使用JDK自带的同等特性（如SSLContext）是完全相同的。了解JDK的JSSE的编程风格，对于应用`KonaSSL`是非常在帮助的。请阅读官方的[参考指南]。

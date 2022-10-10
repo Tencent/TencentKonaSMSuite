@@ -12,7 +12,7 @@
 ## 系统要求
 
 ### 操作系统
-腾讯Kona国密套件为纯Java语言编写，可以运行在任何支持OpenJDK的操作系统上。
+腾讯Kona国密套件为纯Java语言编写，可以运行在任何支持JDK的操作系统上。
 
 ### JDK版本
 腾讯Kona国密套件支持OpenJDK的全部三个长期支持（LTS）版本，即8，11和17。
@@ -60,10 +60,10 @@ gradle :kona-pkix:build
 ```
 
 ## 贡献
-非常欢迎与我们一起改进和维护腾讯Kona国密套件，请阅读[CONTRIBUTING.md]以了解如何报告缺陷，提出需求和贡献代码。
+非常欢迎与我们一起改进和维护腾讯Kona国密套件，请阅读[CONTRIBUTING.md]以了解如何报告缺陷，安全漏洞，提出需求和贡献代码。
 
 ## 许可协议
-腾讯Kona国密套件使用的许可协议是GNU GPL v2.0 license with classpath exception，请详见本项目附带的该许可协议[文本]。
+腾讯Kona国密套件使用的许可协议是GNU GPL v2.0 license with classpath exception，请详见附带的许可协议[文本]。
 
 
 [JCA]:

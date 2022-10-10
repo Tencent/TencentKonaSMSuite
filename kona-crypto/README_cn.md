@@ -285,6 +285,8 @@ Cipher cipher = Cipher.getInstance(transformation);
 - SM4/CBC/NoPadding：使用CBC分组操作模式，不使用填充。明文或密文的长度必须是16字节的整数倍。
 - SM4/CBC/PKCS7Padding：使用CBC分组操作模式，且使用PKCS#7填充。明文或密文的长度可以不是16字节的整数倍。
 - SM4/CTR/NoPadding：使用CTR分组操作模式，不使用填充。明文或密文的长度可以不是16字节的整数倍。
+- SM4/ECB/NoPadding：使用ECB分组操作模式，不使用填充。明文或密文的长度必须是16字节的整数倍。
+- SM4/ECB/PKCS7Padding：使用ECB分组操作模式，且使用PKCS#7填充。明文或密文的长度可以不是16字节的整数倍。
 - SM4/GCM/NoPadding：使用GCM分组操作模式，不使用填充。明文或密文的长度可以不是16字节的整数倍。
 
 构建算法参数。
@@ -333,7 +335,7 @@ byte[] output1 = cipher.update(input1);
 byte[] output2 = cipher.update(input2);
 
 // 生成最后部分的密文/明文片断
-byte[] outputFinal = hmac.doFinal();
+byte[] outputFinal = cipher.doFinal();
 ```
 
 关于加密算法API的更详细用法，请参考[Cipher]的官方文档。

@@ -285,6 +285,8 @@ The following transformations are supported:
 - SM4/CBC/NoPadding: The operation mode is CBC. No padding is needed. It requires the input must be 16x bytes.
 - SM4/CBC/PKCS7Padding: The operation mode is CBC. PKCS#7 padding is used. It doesn't require that the input must be 16x bytes.
 - SM4/CTR/NoPadding: The operation mode is CBC. No padding is needed. It doesn't require that the input must be 16x bytes.
+- SM4/ECB/NoPadding: The operation mode is ECB. No padding is needed. It requires the input must be 16x bytes.
+- SM4/ECB/PKCS7Padding: The operation mode is ECB. PKCS#7 padding is used. It doesn't require that the input must be 16x bytes.
 - SM4/GCM/NoPadding: The operation mode is GCM. No padding is needed. It doesn't require that the input must be 16x bytes.
 
 Create the algorithm parameters.
@@ -333,7 +335,7 @@ byte[] output1 = cipher.update(input1);
 byte[] output2 = cipher.update(input2);
 
 // Generate the ciphertext/plaintext segments
-byte[] outputFinal = hmac.doFinal();
+byte[] outputFinal = cipher.doFinal();
 ```
 
 For the detailed information about Cipher APIs, please refer to the official [Cipher] docs.

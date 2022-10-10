@@ -60,7 +60,7 @@ gradle :kona-pkix:build
 ```
 
 ## Contributing
-Welcome to evolve and maintain Tencent Kona SM Suite with us together. Please read [CONTRIBUTING.md] for the details on reporting bugs, raising requirements and contributing codes.
+Welcome to evolve and maintain Tencent Kona SM Suite with us together. Please read [CONTRIBUTING.md] for the details on reporting bugs, reporting security vulnerabilities, raising requirements and contributing codes.
 
 ## License
 Tencent Kona SM Suite is licensed under GNU GPL v2.0 license with classpath exception. For more details, please read the attached license [text].
