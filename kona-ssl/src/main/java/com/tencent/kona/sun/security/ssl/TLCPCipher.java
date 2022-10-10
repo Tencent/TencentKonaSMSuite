@@ -24,9 +24,9 @@ final class TLCPCipher {
 
         @Override
         public SSLCipher.SSLReadCipher createCipher(SSLCipher sslCipher,
-                                                    Authenticator authenticator, ProtocolVersion protocolVersion,
-                                                    String algorithm, Key key, AlgorithmParameterSpec params,
-                                                    SecureRandom random) throws GeneralSecurityException {
+                Authenticator authenticator, ProtocolVersion protocolVersion,
+                String algorithm, Key key, AlgorithmParameterSpec params,
+                SecureRandom random) throws GeneralSecurityException {
             return new BlockReadCipher(authenticator, protocolVersion,
                     sslCipher, algorithm, key, params, random);
         }
@@ -173,7 +173,7 @@ final class TLCPCipher {
                 int blockSize = cipher.getBlockSize();
                 if ((fragmentLen % blockSize) == 0) {
                     int minimal = tagLen + 1;
-                    minimal = (minimal >= blockSize) ? minimal : blockSize;
+                    minimal = Math.max(minimal, blockSize);
                     minimal += blockSize;
 
                     return (fragmentLen >= minimal);
@@ -189,9 +189,9 @@ final class TLCPCipher {
 
         @Override
         public SSLCipher.SSLWriteCipher createCipher(SSLCipher sslCipher,
-                                                     Authenticator authenticator, ProtocolVersion protocolVersion,
-                                                     String algorithm, Key key, AlgorithmParameterSpec params,
-                                                     SecureRandom random) throws GeneralSecurityException {
+                Authenticator authenticator, ProtocolVersion protocolVersion,
+                String algorithm, Key key, AlgorithmParameterSpec params,
+                SecureRandom random) throws GeneralSecurityException {
             return new BlockWriteCipher(authenticator, protocolVersion,
                     sslCipher, algorithm, key, params, random);
         }
@@ -320,10 +320,10 @@ final class TLCPCipher {
 
         @Override
         public SSLCipher.SSLReadCipher createCipher(SSLCipher sslCipher,
-                                                    Authenticator authenticator,
-                                                    ProtocolVersion protocolVersion, String algorithm,
-                                                    Key key, AlgorithmParameterSpec params,
-                                                    SecureRandom random) throws GeneralSecurityException {
+                Authenticator authenticator,
+                ProtocolVersion protocolVersion, String algorithm,
+                Key key, AlgorithmParameterSpec params,
+                SecureRandom random) throws GeneralSecurityException {
             return new GcmReadCipher(authenticator, protocolVersion, sslCipher,
                     algorithm, key, params, random);
         }
@@ -446,10 +446,10 @@ final class TLCPCipher {
 
         @Override
         public SSLCipher.SSLWriteCipher createCipher(SSLCipher sslCipher,
-                                                     Authenticator authenticator,
-                                                     ProtocolVersion protocolVersion, String algorithm,
-                                                     Key key, AlgorithmParameterSpec params,
-                                                     SecureRandom random) throws GeneralSecurityException {
+                Authenticator authenticator,
+                ProtocolVersion protocolVersion, String algorithm,
+                Key key, AlgorithmParameterSpec params,
+                SecureRandom random) throws GeneralSecurityException {
             return new GcmWriteCipher(authenticator, protocolVersion, sslCipher,
                     algorithm, key, params, random);
         }

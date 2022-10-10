@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021 THL A29 Limited, a Tencent company. All rights reserved.
+ * Copyright (C) 2021, 2022, THL A29 Limited, a Tencent company. All rights reserved.
  * DO NOT ALTER OR REMOVE NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify
@@ -91,7 +91,7 @@ public class Oid {
             pos += pack7Oid(components[0] * 40 + components[1], tmp, pos);
         } else {
             BigInteger big = BigInteger.valueOf(components[1]);
-            big = big.add(BigInteger.valueOf(components[0] * 40));
+            big = big.add(BigInteger.valueOf(components[0] * 40L));
             pos += pack7Oid(big, tmp, pos);
         }
 
@@ -109,17 +109,17 @@ public class Oid {
     private static byte[] encode(String oid) throws IOException {
         int ch = '.';
         int start = 0;
-        int end = 0;
+        int end;
 
         int pos = 0;
         byte[] tmp = new byte[oid.length()];
-        int first = 0, second;
+        int first = 0;
         int count = 0;
 
         try {
-            String comp = null;
+            String comp;
             do {
-                int length = 0; // length of one section
+                int length; // length of one section
                 end = oid.indexOf(ch,start);
                 if (end == -1) {
                     comp = oid.substring(start);
@@ -137,7 +137,7 @@ public class Oid {
                     } else {
                         if (count == 1) {
                             checkSecondComponent(first, bignum);
-                            bignum = bignum.add(BigInteger.valueOf(40*first));
+                            bignum = bignum.add(BigInteger.valueOf(40L * first));
                         } else {
                             checkOtherComponent(count, bignum);
                         }
@@ -172,7 +172,7 @@ public class Oid {
             throw ioe;
         } catch (Exception e) {
             throw new IOException("ObjectIdentifier() -- Invalid format: "
-                    + e.toString(), e);
+                    + e, e);
         }
     }
 
@@ -247,7 +247,7 @@ public class Oid {
      * @return the number of bytes pasted
      */
     private static int pack7Oid(byte[] in,
-                                int ioffset, int ilength, byte[] out, int ooffset) {
+            int ioffset, int ilength, byte[] out, int ooffset) {
         byte[] pack = pack(in, ioffset, ilength, 8, 7);
         int firstNonZero = pack.length-1;   // paste at least one byte
         for (int i=pack.length-2; i>=0; i--) {
