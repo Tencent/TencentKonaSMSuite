@@ -424,17 +424,6 @@ final class TLCPCipher {
             }
 
             @Override
-            void dispose() {
-                if (cipher != null) {
-                    try {
-                        cipher.doFinal();
-                    } catch (Exception e) {
-                        // swallow all types of exceptions.
-                    }
-                }
-            }
-
-            @Override
             int estimateFragmentSize(int packetSize, int headerSize) {
                 return packetSize - headerSize - recordIvSize - tagSize;
             }
@@ -546,17 +535,6 @@ final class TLCPCipher {
                 }
 
                 return len + nonce.length;
-            }
-
-            @Override
-            void dispose() {
-                if (cipher != null) {
-                    try {
-                        cipher.doFinal();
-                    } catch (Exception e) {
-                        // swallow all types of exceptions.
-                    }
-                }
             }
 
             @Override
