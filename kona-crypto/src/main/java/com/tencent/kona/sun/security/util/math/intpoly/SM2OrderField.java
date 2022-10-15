@@ -49,11 +49,11 @@ public final class SM2OrderField extends IntegerPolynomial {
     private static BigInteger evaluateModulus() {
         BigInteger result = BigInteger.valueOf(2).pow(256);
         result = result.add(BigInteger.valueOf(30753059));
-        result = result.subtract(BigInteger.valueOf(2).pow(26).multiply(BigInteger.valueOf(16973234)));
-        result = result.add(BigInteger.valueOf(2).pow(52).multiply(BigInteger.valueOf(5420348)));
-        result = result.add(BigInteger.valueOf(2).pow(78).multiply(BigInteger.valueOf(28083992)));
-        result = result.subtract(BigInteger.valueOf(2).pow(104).multiply(BigInteger.valueOf(9305121)));
-        result = result.subtract(BigInteger.valueOf(2).pow(208).multiply(BigInteger.valueOf(65536)));
+        result = result.subtract(BigInteger.valueOf(16973234).shiftLeft(26));
+        result = result.add(BigInteger.valueOf(5420348).shiftLeft(52));
+        result = result.add(BigInteger.valueOf(28083992).shiftLeft(78));
+        result = result.subtract(BigInteger.valueOf(9305121).shiftLeft(104));
+        result = result.subtract(BigInteger.valueOf(65536).shiftLeft(208));
         return result;
     }
     @Override

@@ -49,14 +49,14 @@ public final class Curve448OrderField extends IntegerPolynomial {
     private static BigInteger evaluateModulus() {
         BigInteger result = BigInteger.valueOf(2).pow(446);
         result = result.subtract(BigInteger.valueOf(78101261));
-        result = result.add(BigInteger.valueOf(2).pow(28).multiply(BigInteger.valueOf(126626091)));
-        result = result.add(BigInteger.valueOf(2).pow(56).multiply(BigInteger.valueOf(93279523)));
-        result = result.subtract(BigInteger.valueOf(2).pow(84).multiply(BigInteger.valueOf(64542500)));
-        result = result.add(BigInteger.valueOf(2).pow(112).multiply(BigInteger.valueOf(110109037)));
-        result = result.add(BigInteger.valueOf(2).pow(140).multiply(BigInteger.valueOf(77262179)));
-        result = result.subtract(BigInteger.valueOf(2).pow(168).multiply(BigInteger.valueOf(104575269)));
-        result = result.add(BigInteger.valueOf(2).pow(196).multiply(BigInteger.valueOf(130851391)));
-        result = result.subtract(BigInteger.valueOf(2).pow(224));
+        result = result.add(BigInteger.valueOf(126626091).shiftLeft(28));
+        result = result.add(BigInteger.valueOf(93279523).shiftLeft(56));
+        result = result.subtract(BigInteger.valueOf(64542500).shiftLeft(84));
+        result = result.add(BigInteger.valueOf(110109037).shiftLeft(112));
+        result = result.add(BigInteger.valueOf(77262179).shiftLeft(140));
+        result = result.subtract(BigInteger.valueOf(104575269).shiftLeft(168));
+        result = result.add(BigInteger.valueOf(130851391).shiftLeft(196));
+        result = result.subtract(BigInteger.valueOf(1).shiftLeft(224));
         return result;
     }
     @Override

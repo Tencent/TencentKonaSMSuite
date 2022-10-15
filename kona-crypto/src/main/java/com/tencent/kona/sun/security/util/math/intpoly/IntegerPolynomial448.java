@@ -47,7 +47,7 @@ public final class IntegerPolynomial448 extends IntegerPolynomial {
     //(224%nat,-1)::(0%nat,-1)::nil.
     private static BigInteger evaluateModulus() {
         BigInteger result = BigInteger.valueOf(2).pow(448);
-        result = result.subtract(BigInteger.valueOf(2).pow(224));
+        result = result.subtract(BigInteger.valueOf(1).shiftLeft(224));
         result = result.subtract(BigInteger.valueOf(1));
         return result;
     }

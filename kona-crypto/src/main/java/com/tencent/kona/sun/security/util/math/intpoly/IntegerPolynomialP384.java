@@ -48,9 +48,9 @@ public final class IntegerPolynomialP384 extends IntegerPolynomial {
     //(128%nat,-1)::(96%nat,-1)::(32%nat,1)::(0%nat,-1)::nil.
     private static BigInteger evaluateModulus() {
         BigInteger result = BigInteger.valueOf(2).pow(384);
-        result = result.subtract(BigInteger.valueOf(2).pow(128));
-        result = result.subtract(BigInteger.valueOf(2).pow(96));
-        result = result.add(BigInteger.valueOf(2).pow(32));
+        result = result.subtract(BigInteger.valueOf(1).shiftLeft(128));
+        result = result.subtract(BigInteger.valueOf(1).shiftLeft(96));
+        result = result.add(BigInteger.valueOf(1).shiftLeft(32));
         result = result.subtract(BigInteger.valueOf(1));
         return result;
     }
