@@ -49,15 +49,15 @@ public final class P521OrderField extends IntegerPolynomial {
     private static BigInteger evaluateModulus() {
         BigInteger result = BigInteger.valueOf(2).pow(521);
         result = result.add(BigInteger.valueOf(20472841));
-        result = result.add(BigInteger.valueOf(2).pow(28).multiply(BigInteger.valueOf(117141993)));
-        result = result.subtract(BigInteger.valueOf(2).pow(56).multiply(BigInteger.valueOf(62411077)));
-        result = result.subtract(BigInteger.valueOf(2).pow(84).multiply(BigInteger.valueOf(56915814)));
-        result = result.add(BigInteger.valueOf(2).pow(112).multiply(BigInteger.valueOf(97532854)));
-        result = result.add(BigInteger.valueOf(2).pow(140).multiply(BigInteger.valueOf(76509338)));
-        result = result.subtract(BigInteger.valueOf(2).pow(168).multiply(BigInteger.valueOf(75510783)));
-        result = result.subtract(BigInteger.valueOf(2).pow(196).multiply(BigInteger.valueOf(67962521)));
-        result = result.add(BigInteger.valueOf(2).pow(224).multiply(BigInteger.valueOf(25593732)));
-        result = result.subtract(BigInteger.valueOf(2).pow(252).multiply(BigInteger.valueOf(91)));
+        result = result.add(BigInteger.valueOf(117141993).shiftLeft(28));
+        result = result.subtract(BigInteger.valueOf(62411077).shiftLeft(56));
+        result = result.subtract(BigInteger.valueOf(56915814).shiftLeft(84));
+        result = result.add(BigInteger.valueOf(97532854).shiftLeft(112));
+        result = result.add(BigInteger.valueOf(76509338).shiftLeft(140));
+        result = result.subtract(BigInteger.valueOf(75510783).shiftLeft(168));
+        result = result.subtract(BigInteger.valueOf(67962521).shiftLeft(196));
+        result = result.add(BigInteger.valueOf(25593732).shiftLeft(224));
+        result = result.subtract(BigInteger.valueOf(91).shiftLeft(252));
         return result;
     }
     @Override

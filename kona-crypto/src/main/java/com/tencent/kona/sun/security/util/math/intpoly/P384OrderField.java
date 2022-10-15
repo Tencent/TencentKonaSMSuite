@@ -49,12 +49,12 @@ public final class P384OrderField extends IntegerPolynomial {
     private static BigInteger evaluateModulus() {
         BigInteger result = BigInteger.valueOf(2).pow(384);
         result = result.subtract(BigInteger.valueOf(54187661));
-        result = result.subtract(BigInteger.valueOf(2).pow(28).multiply(BigInteger.valueOf(20867411)));
-        result = result.add(BigInteger.valueOf(2).pow(56).multiply(BigInteger.valueOf(10975981)));
-        result = result.add(BigInteger.valueOf(2).pow(84).multiply(BigInteger.valueOf(14361739)));
-        result = result.subtract(BigInteger.valueOf(2).pow(112).multiply(BigInteger.valueOf(35694566)));
-        result = result.subtract(BigInteger.valueOf(2).pow(140).multiply(BigInteger.valueOf(132168845)));
-        result = result.subtract(BigInteger.valueOf(2).pow(168).multiply(BigInteger.valueOf(3710130)));
+        result = result.subtract(BigInteger.valueOf(20867411).shiftLeft(28));
+        result = result.add(BigInteger.valueOf(10975981).shiftLeft(56));
+        result = result.add(BigInteger.valueOf(14361739).shiftLeft(84));
+        result = result.subtract(BigInteger.valueOf(35694566).shiftLeft(112));
+        result = result.subtract(BigInteger.valueOf(132168845).shiftLeft(140));
+        result = result.subtract(BigInteger.valueOf(3710130).shiftLeft(168));
         return result;
     }
     @Override

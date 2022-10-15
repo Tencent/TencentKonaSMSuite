@@ -48,9 +48,9 @@ public final class IntegerPolynomialP256 extends IntegerPolynomial {
     //(224%nat,-1)::(192%nat,1)::(96%nat,1)::(0%nat,-1)::nil.
     private static BigInteger evaluateModulus() {
         BigInteger result = BigInteger.valueOf(2).pow(256);
-        result = result.subtract(BigInteger.valueOf(2).pow(224));
-        result = result.add(BigInteger.valueOf(2).pow(192));
-        result = result.add(BigInteger.valueOf(2).pow(96));
+        result = result.subtract(BigInteger.valueOf(1).shiftLeft(224));
+        result = result.add(BigInteger.valueOf(1).shiftLeft(192));
+        result = result.add(BigInteger.valueOf(1).shiftLeft(96));
         result = result.subtract(BigInteger.valueOf(1));
         return result;
     }

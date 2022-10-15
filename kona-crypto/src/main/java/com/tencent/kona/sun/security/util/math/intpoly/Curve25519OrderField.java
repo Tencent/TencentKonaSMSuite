@@ -49,10 +49,10 @@ public final class Curve25519OrderField extends IntegerPolynomial {
     private static BigInteger evaluateModulus() {
         BigInteger result = BigInteger.valueOf(2).pow(252);
         result = result.add(BigInteger.valueOf(16110573));
-        result = result.add(BigInteger.valueOf(2).pow(26).multiply(BigInteger.valueOf(10012311)));
-        result = result.add(BigInteger.valueOf(2).pow(52).multiply(BigInteger.valueOf(30238081)));
-        result = result.subtract(BigInteger.valueOf(2).pow(78).multiply(BigInteger.valueOf(8746018)));
-        result = result.add(BigInteger.valueOf(2).pow(104).multiply(BigInteger.valueOf(1367802)));
+        result = result.add(BigInteger.valueOf(10012311).shiftLeft(26));
+        result = result.add(BigInteger.valueOf(30238081).shiftLeft(52));
+        result = result.subtract(BigInteger.valueOf(8746018).shiftLeft(78));
+        result = result.add(BigInteger.valueOf(1367802).shiftLeft(104));
         return result;
     }
     @Override

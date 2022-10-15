@@ -350,25 +350,19 @@ public class ECOperations {
         p.getY().setValue(t2).setProduct(b);
         p.getY().setDifference(p.getZ());
 
-        p.getX().setValue(p.getY()).setProduct(two);
-        p.getY().setSum(p.getX());
-        p.getY().setReduced();
+        p.getY().setProduct(three);
         p.getX().setValue(t1).setDifference(p.getY());
 
         p.getY().setSum(t1);
         p.getY().setProduct(p.getX());
         p.getX().setProduct(t3);
 
-        t3.setValue(t2).setProduct(two);
-        t2.setSum(t3);
+        t2.setProduct(three);
         p.getZ().setProduct(b);
 
-        t2.setReduced();
         p.getZ().setDifference(t2);
         p.getZ().setDifference(t0);
-        t3.setValue(p.getZ()).setProduct(two);
-        p.getZ().setReduced();
-        p.getZ().setSum(t3);
+        p.getZ().setProduct(three);
         t0.setProduct(three);
 
         t0.setDifference(t2);
@@ -459,8 +453,8 @@ public class ECOperations {
         p.getX().setDifference(t1);
 
         p.getZ().setProduct(t4);
-        t1.setValue(t3).setProduct(t0);
-        p.getZ().setSum(t1);
+        t3.setProduct(t0);
+        p.getZ().setSum(t3);
 
     }
 
@@ -530,9 +524,9 @@ public class ECOperations {
 
         p.getX().setDifference(t1);
         p.getZ().setProduct(t4);
-        t1.setValue(t3).setProduct(t0);
 
-        p.getZ().setSum(t1);
+        t3.setProduct(t0);
+        p.getZ().setSum(t3);
 
     }
 
@@ -547,7 +541,7 @@ public class ECOperations {
             random.nextBytes(seedArr);
             try {
                 return seedToScalar(seedArr);
-            } catch (ECOperations.IntermediateValueException ex) {
+            } catch (IntermediateValueException ex) {
                 // try again in the next iteration
             }
         }

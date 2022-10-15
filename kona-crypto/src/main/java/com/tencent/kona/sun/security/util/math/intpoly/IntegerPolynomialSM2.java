@@ -48,9 +48,9 @@ public final class IntegerPolynomialSM2 extends IntegerPolynomial {
     //(224%nat,-1)::(96%nat,-1)::(64%nat,1)::(0%nat,-1)::nil.
     private static BigInteger evaluateModulus() {
         BigInteger result = BigInteger.valueOf(2).pow(256);
-        result = result.subtract(BigInteger.valueOf(2).pow(224));
-        result = result.subtract(BigInteger.valueOf(2).pow(96));
-        result = result.add(BigInteger.valueOf(2).pow(64));
+        result = result.subtract(BigInteger.valueOf(1).shiftLeft(224));
+        result = result.subtract(BigInteger.valueOf(1).shiftLeft(96));
+        result = result.add(BigInteger.valueOf(1).shiftLeft(64));
         result = result.subtract(BigInteger.valueOf(1));
         return result;
     }
