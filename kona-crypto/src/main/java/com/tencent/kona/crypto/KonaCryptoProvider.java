@@ -43,9 +43,9 @@ public class KonaCryptoProvider extends Provider {
         provider.put("AlgorithmParameters.SM4",
                 "org.bouncycastle.jcajce.provider.symmetric.SM4$AlgParams");
         provider.put("AlgorithmParameterGenerator.SM4",
-                "org.bouncycastle.jcajce.provider.symmetric.SM4$AlgParams$AlgParamGen");
+                "org.bouncycastle.jcajce.provider.symmetric.SM4$AlgParamGen");
         provider.put("KeyGenerator.SM4",
-                "org.bouncycastle.jcajce.provider.symmetric.SM4$KeyGen");
+                "com.tencent.kona.crypto.provider.SM4KeyGenerator");
 
         provider.put("Alg.Alias.MessageDigest.OID.1.2.156.10197.1.401", "SM3");
         provider.put("MessageDigest.SM3",
