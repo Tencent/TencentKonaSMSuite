@@ -30,6 +30,7 @@ import com.tencent.kona.sun.security.ec.point.AffinePoint;
 import com.tencent.kona.sun.security.ec.point.MutablePoint;
 import com.tencent.kona.sun.security.ec.point.Point;
 import com.tencent.kona.sun.security.ec.point.ProjectivePoint;
+import com.tencent.kona.sun.security.util.ArrayUtil;
 import com.tencent.kona.sun.security.util.math.ImmutableIntegerModuloP;
 import com.tencent.kona.sun.security.util.math.IntegerFieldModuloP;
 import com.tencent.kona.sun.security.util.math.IntegerModuloP;
@@ -528,6 +529,20 @@ public class ECOperations {
         t3.setProduct(t0);
         p.getZ().setSum(t3);
 
+    }
+
+    // The extra step in the Full Public key validation as described in
+    // NIST SP 800-186 Appendix D.1.1.2
+    public boolean checkOrder(ECPoint point) {
+        BigInteger x = point.getAffineX();
+        BigInteger y = point.getAffineY();
+
+        // Verify that n Q = INFINITY. Output REJECT if verification fails.
+        IntegerFieldModuloP field = this.getField();
+        AffinePoint ap = new AffinePoint(field.getElement(x), field.getElement(y));
+        byte[] scalar = this.orderField.getSize().toByteArray();
+        ArrayUtil.reverse(scalar);
+        return isNeutral(this.multiply(ap, scalar));
     }
 
     public byte[] generatePrivateScalar(SecureRandom random) {
