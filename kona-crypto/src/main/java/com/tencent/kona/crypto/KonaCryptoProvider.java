@@ -41,7 +41,7 @@ public class KonaCryptoProvider extends Provider {
         provider.put("Cipher.SM4 SupportedModes", "CBC|CTR|ECB|GCM");
         provider.put("Cipher.SM4 SupportedPaddings", "NOPADDING|PKCS7PADDING");
         provider.put("AlgorithmParameters.SM4",
-                "org.bouncycastle.jcajce.provider.symmetric.SM4$AlgParams");
+                "com.tencent.kona.crypto.provider.SM4Parameters");
         provider.put("AlgorithmParameterGenerator.SM4",
                 "org.bouncycastle.jcajce.provider.symmetric.SM4$AlgParamGen");
         provider.put("KeyGenerator.SM4",
