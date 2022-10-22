@@ -37,8 +37,8 @@ public final class SM4Parameters extends AlgorithmParametersSpi {
     @Override
     protected void engineInit(AlgorithmParameterSpec paramSpec)
             throws InvalidParameterSpecException {
-        if (!(paramSpec instanceof IvParameterSpec) &&
-                !(paramSpec instanceof  GCMParameterSpec) ) {
+        if (!(paramSpec instanceof IvParameterSpec)
+                && !(paramSpec instanceof  GCMParameterSpec)) {
             throw new InvalidParameterSpecException(
                     "Only IvParameterSpec and GCMParameterSpec are supported");
         }
@@ -60,7 +60,7 @@ public final class SM4Parameters extends AlgorithmParametersSpi {
             int tmpTagLen = ((GCMParameterSpec) paramSpec).getTLen() >> 3;
             if (tmpTagLen != SM4_GCM_TAG_LEN) {
                 throw new InvalidParameterSpecException(
-                        "GCM tag must be 16-bytes: " + tmpIv.length);
+                        "GCM tag must be 16-bytes: " + tmpTagLen);
             }
             tagLen = tmpTagLen;
         }
