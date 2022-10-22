@@ -16,7 +16,7 @@ import static com.tencent.kona.crypto.CryptoUtils.toBytes;
 import static com.tencent.kona.crypto.CryptoUtils.toHex;
 
 /**
- * The test for the AlgorithmParameters for SM4.
+ * The test for the AlgorithmParameters on SM4.
  */
 public class SM4ParametersTest {
 
@@ -32,15 +32,15 @@ public class SM4ParametersTest {
 
     @Test
     public void testEncode() throws Exception {
-        AlgorithmParameters algoParams = AlgorithmParameters.getInstance("SM4");
-        algoParams.init(new IvParameterSpec(IV));
-        byte[] encodedParams = algoParams.getEncoded();
+        AlgorithmParameters params = AlgorithmParameters.getInstance("SM4");
+        params.init(new IvParameterSpec(IV));
+        byte[] encodedParams = params.getEncoded();
         System.out.println(toHex(encodedParams));
         Assertions.assertArrayEquals(ENCODED_PARAMS, encodedParams);
 
-        algoParams = AlgorithmParameters.getInstance("SM4");
-        algoParams.init(new GCMParameterSpec(Constants.SM4_GCM_TAG_LEN << 3, GCM_IV));
-        encodedParams = algoParams.getEncoded();
+        params = AlgorithmParameters.getInstance("SM4");
+        params.init(new GCMParameterSpec(Constants.SM4_GCM_TAG_LEN << 3, GCM_IV));
+        encodedParams = params.getEncoded();
         System.out.println(toHex(encodedParams));
         Assertions.assertArrayEquals(GCM_ENCODED_PARAMS, encodedParams);
     }
