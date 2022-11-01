@@ -152,6 +152,34 @@ signing {
     sign(publishing.publications["kona"])
 }
 
+task<Exec>("signJar") {
+    var javaHome = System.getProperty("java.home")
+
+    // java.home is <JAVA_HOME>/jre for JDK 8
+    if(JavaVersion.current() == JavaVersion.VERSION_1_8) {
+        javaHome = "$javaHome/.."
+    }
+
+    val type = System.getProperty("ks.type", "PKCS12")
+    val keystore = System.getProperty("ks.path")
+    val storepass = System.getProperty("ks.storepass")
+    val keypass = System.getProperty("ks.keypass")
+    val alias = System.getProperty("ks.alias")
+
+    if (keystore != null) {
+        commandLine(
+            "${javaHome}/bin/jarsigner",
+            "-J-Duser.language=en_US",
+            "-storetype", type,
+            "-keystore", keystore,
+            "-storepass", storepass,
+            "-keypass", keypass,
+            "build/libs/${project.name}-${project.version}.jar",
+            alias
+        )
+    }
+}
+
 // Determine if BabaSSL is available
 fun isBabaSSLAvailable(babasslPath: String): Boolean {
     var exitCode : Int = -1

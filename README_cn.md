@@ -15,9 +15,9 @@
 腾讯Kona国密套件为纯Java语言编写，可以运行在任何支持JDK的操作系统上。
 
 ### JDK版本
-腾讯Kona国密套件支持OpenJDK的全部三个长期支持（LTS）版本，即8，11和17。
+腾讯Kona国密套件支持JDK的全部三个长期支持（LTS）版本，即8，11和17。
 
-注意：由于Oracle JDK要求运行在其上的JCE实现需要获得Oracle公司颁发的[证书]，而腾讯Kona国密套件目前还没有申请该证书，所以该套组件暂时无法运行在Oracle JDK上。推荐使用腾讯的OpenJDK发行版，即Tencent Kona JDK，提供[8]，[11]和[17]三大版本，支持Linux，macOS和Windows等主流操作系统平台。
+注意：已经使用Oracle颁发的JCE代码签名[证书]对本套组件的jar文件签名，所以它们也可以运行在Oracle JDK上。另外，欢迎使用腾讯的OpenJDK发行版，即Tencent Kona JDK，提供[8]，[11]和[17]三大版本，支持Linux，macOS和Windows等主流操作系统以及x86_64和aarch64等主流CPU架构。
 
 ## 安装
 腾讯Kona国密套件的所有制品（jar文件）都已经上传到了[Maven中央仓库]。一般地，只需要在项目的构建脚本中把它们声明为依赖就可以了。比如，在[Gradle]的构建脚本中可以有如下的依赖声明，
@@ -28,10 +28,10 @@ repositories {
 }
 
 dependencies {
-    implementation("com.tencent.kona:kona-crypto:1.0.2")
-    implementation("com.tencent.kona:kona-pkix:1.0.2")
-    implementation("com.tencent.kona:kona-ssl:1.0.2")
-    implementation("com.tencent.kona:kona-provider:1.0.2")
+    implementation("com.tencent.kona:kona-crypto:1.0.3")
+    implementation("com.tencent.kona:kona-pkix:1.0.3")
+    implementation("com.tencent.kona:kona-ssl:1.0.3")
+    implementation("com.tencent.kona:kona-provider:1.0.3")
 }
 ```
 
@@ -39,8 +39,8 @@ dependencies {
 
 ```
 dependencies {
-    implementation("com.tencent.kona:kona-crypto:1.0.2")
-    implementation("com.tencent.kona:kona-provider:1.0.2")
+    implementation("com.tencent.kona:kona-crypto:1.0.3")
+    implementation("com.tencent.kona:kona-provider:1.0.3")
 }
 ```
 
