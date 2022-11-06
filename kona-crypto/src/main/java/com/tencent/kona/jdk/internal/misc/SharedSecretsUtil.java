@@ -81,7 +81,7 @@ public class SharedSecretsUtil {
                     secSpecAccessClass = Class.forName("jdk.internal.access.JavaSecuritySpecAccess");
                 }
             } catch (ClassNotFoundException e) {
-                throw new InternalError("Cannot get SharedSecrets", e);
+                throw new InternalError("Cannot get SharedSecrets class", e);
             }
         }
 
