@@ -23,9 +23,9 @@ import static com.tencent.kona.crypto.util.Constants.SM4_IV_LEN;
  *
  * - GCM mode (RFC 5084)
  *   GCMParameters ::= SEQUENCE {
- *     aes-iv      OCTET STRING, -- the size is 12 or 16-bytes
- *     aes-tLen    AES-GCM-ICVlen DEFAULT 12 }
- *   AES-GCM-ICVlen ::= INTEGER (16)
+ *     sm4-iv      OCTET STRING, -- the size is 12 or 16-bytes
+ *     sm4-tLen    SM4-GCM-ICVlen DEFAULT 12 }
+ *   SM4-GCM-ICVlen ::= INTEGER (16)
  */
 public final class SM4Parameters extends AlgorithmParametersSpi {
 

@@ -37,9 +37,11 @@ public class KonaCryptoProvider extends Provider {
         SunRsaSignEntries.putEntries(provider);
 
         provider.put("Cipher.SM4",
-                "org.bouncycastle.jcajce.provider.symmetric.SM4$ECB");
-        provider.put("Cipher.SM4 SupportedModes", "CBC|CTR|ECB|GCM");
+                "com.tencent.kona.crypto.provider.SM4Cipher$General");
+        provider.put("Cipher.SM4 SupportedModes", "CBC|CTR|ECB");
         provider.put("Cipher.SM4 SupportedPaddings", "NOPADDING|PKCS7PADDING");
+        provider.put("Cipher.SM4/GCM/NoPadding",
+                "com.tencent.kona.crypto.provider.GaloisCounterMode$SM4");
         provider.put("AlgorithmParameters.SM4",
                 "com.tencent.kona.crypto.provider.SM4Parameters");
         provider.put("AlgorithmParameterGenerator.SM4",

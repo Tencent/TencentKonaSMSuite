@@ -56,10 +56,8 @@ public class SM4Test {
 
     @Test
     public void testSpec() throws Exception {
-        byte[] key = toBytes("0123456789abcdef0123456789abcdef");
-
-        SecretKey secretKey = new SecretKeySpec(key, "SM4");
-        Assertions.assertArrayEquals(key, secretKey.getEncoded());
+        SecretKey secretKey = new SecretKeySpec(KEY, "SM4");
+        Assertions.assertArrayEquals(KEY, secretKey.getEncoded());
 
         Cipher.getInstance("SM4/CBC/NoPadding", PROVIDER);
         Cipher.getInstance("SM4/CBC/PKCS7Padding", PROVIDER);
@@ -78,9 +76,9 @@ public class SM4Test {
         Cipher cipherCBC = Cipher.getInstance("SM4/CBC/PKCS7Padding", PROVIDER);
         cipherCBC.init(Cipher.ENCRYPT_MODE, secretKey,
                 new IvParameterSpec(iv_16));
-//        Assertions.assertThrows(InvalidAlgorithmParameterException.class,
-//                () -> cipherCBC.init(Cipher.ENCRYPT_MODE, secretKey,
-//                        new IvParameterSpec(iv_12)));
+        Assertions.assertThrows(InvalidAlgorithmParameterException.class,
+                () -> cipherCBC.init(Cipher.ENCRYPT_MODE, secretKey,
+                        new IvParameterSpec(iv_12)));
 
         Cipher cipherGCM = Cipher.getInstance("SM4/GCM/NoPadding", PROVIDER);
         cipherGCM.init(Cipher.ENCRYPT_MODE, secretKey,
@@ -499,9 +497,9 @@ public class SM4Test {
 
     @Test
     public void testUpdateAADExceptionEncUpdate() {
-//        checkISE(() -> testUpdateAADException(Cipher.ENCRYPT_MODE, true));
+        checkISE(() -> testUpdateAADException(Cipher.ENCRYPT_MODE, true));
         checkISE(() -> testUpdateAADException(Cipher.ENCRYPT_MODE, false));
-//        checkISE(() -> testUpdateAADException(Cipher.DECRYPT_MODE, true));
+        checkISE(() -> testUpdateAADException(Cipher.DECRYPT_MODE, true));
 //        checkISE(() -> testUpdateAADException(Cipher.DECRYPT_MODE, false));
     }
 
