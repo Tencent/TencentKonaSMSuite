@@ -110,8 +110,8 @@ public class CertificateExtensions implements CertAttrSet<Extension> {
 
             Object[] passed = new Object[] {Boolean.valueOf(ext.isCritical()),
                     ext.getExtensionValue()};
-            CertAttrSet<?> certExt = (CertAttrSet<?>) cons.newInstance(passed);
-            if (map.put(certExt.getName(), (Extension)certExt) != null) {
+            Extension certExt = (Extension) cons.newInstance(passed);
+            if (map.put(certExt.getName(), certExt) != null) {
                 throw new IOException("Duplicate extensions not allowed");
             }
         } catch (InvocationTargetException invk) {
@@ -239,14 +239,6 @@ public class CertificateExtensions implements CertAttrSet<Extension> {
     }
 
     /**
-     * Return an enumeration of names of attributes existing within this
-     * attribute.
-     */
-    public Enumeration<Extension> getElements() {
-        return Collections.enumeration(map.values());
-    }
-
-    /**
      * Return a collection view of the extensions.
      * @return a collection view of the extensions in this Certificate.
      */
@@ -257,13 +249,6 @@ public class CertificateExtensions implements CertAttrSet<Extension> {
     public Map<String,Extension> getUnparseableExtensions() {
         return (unparseableExtensions == null) ?
                 Collections.emptyMap() : unparseableExtensions;
-    }
-
-    /**
-     * Return the name of this attribute.
-     */
-    public String getName() {
-        return NAME;
     }
 
     /**
@@ -290,22 +275,16 @@ public class CertificateExtensions implements CertAttrSet<Extension> {
             return true;
         if (!(other instanceof CertificateExtensions))
             return false;
-        Collection<Extension> otherC =
-                ((CertificateExtensions)other).getAllExtensions();
-        Object[] objs = otherC.toArray();
 
-        int len = objs.length;
-        if (len != map.size())
+        CertificateExtensions otherCX = (CertificateExtensions) other;
+        Collection<Extension> otherX = otherCX.getAllExtensions();
+        if (otherX.size() != map.size())
             return false;
 
-        Extension otherExt, thisExt;
-        String key = null;
-        for (int i = 0; i < len; i++) {
-            if (objs[i] instanceof CertAttrSet)
-                key = ((CertAttrSet)objs[i]).getName();
-            otherExt = (Extension)objs[i];
-            if (key == null)
-                key = otherExt.getExtensionId().toString();
+        Extension thisExt;
+        String key;
+        for (Extension otherExt : otherX) {
+            key = otherExt.getName();
             thisExt = map.get(key);
             if (thisExt == null)
                 return false;
@@ -313,7 +292,7 @@ public class CertificateExtensions implements CertAttrSet<Extension> {
                 return false;
         }
         return this.getUnparseableExtensions().equals(
-                ((CertificateExtensions)other).getUnparseableExtensions());
+                otherCX.getUnparseableExtensions());
     }
 
     /**

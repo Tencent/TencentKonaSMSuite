@@ -27,7 +27,6 @@ package com.tencent.kona.sun.security.x509;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Enumeration;
 import java.util.List;
 import java.util.Vector;
 
@@ -240,33 +239,9 @@ public class ExtendedKeyUsageExtension extends Extension
     }
 
     /**
-     * Delete the attribute value.
-     */
-    public void delete(String name) throws IOException {
-        if (name.equalsIgnoreCase(USAGES)) {
-            keyUsages = null;
-        } else {
-            throw new IOException("Attribute name [" + name +
-                    "] not recognized by " +
-                    "CertAttrSet:ExtendedKeyUsageExtension.");
-        }
-        encodeThis();
-    }
-
-    /**
-     * Return an enumeration of names of attributes existing within this
-     * attribute.
-     */
-    public Enumeration<String> getElements() {
-        AttributeNameEnumeration elements = new AttributeNameEnumeration();
-        elements.addElement(USAGES);
-
-        return (elements.elements());
-    }
-
-    /**
      * Return the name of this attribute.
      */
+    @Override
     public String getName() {
         return (NAME);
     }

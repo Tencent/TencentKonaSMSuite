@@ -221,14 +221,6 @@ public class NetscapeCertTypeExtension extends Extension
     }
 
     /**
-     * Delete the attribute value.
-     */
-    public void delete(String name) throws IOException {
-        set(getPosition(name), false);
-        encodeThis();
-    }
-
-    /**
      * Returns a printable representation of the NetscapeCertType.
      */
     public String toString() {
@@ -279,16 +271,9 @@ public class NetscapeCertTypeExtension extends Extension
     }
 
     /**
-     * Return an enumeration of names of attributes existing within this
-     * attribute.
-     */
-    public Enumeration<String> getElements() {
-        return mAttributeNames.elements();
-    }
-
-    /**
      * Return the name of this attribute.
      */
+    @Override
     public String getName() {
         return (NAME);
     }

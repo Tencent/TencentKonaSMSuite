@@ -27,8 +27,6 @@ package com.tencent.kona.sun.security.x509;
 
 import java.io.IOException;
 
-import java.util.*;
-
 import com.tencent.kona.sun.security.util.DerInputStream;
 import com.tencent.kona.sun.security.util.DerOutputStream;
 import com.tencent.kona.sun.security.util.DerValue;
@@ -222,6 +220,7 @@ public class IssuingDistributionPointExtension extends Extension
     /**
      * Returns the name of this attribute.
      */
+    @Override
     public String getName() {
         return NAME;
     }
@@ -324,51 +323,6 @@ public class IssuingDistributionPointExtension extends Extension
                     "] not recognized by " +
                     "CertAttrSet:IssuingDistributionPointExtension.");
         }
-    }
-
-    /**
-     * Deletes the attribute value.
-     */
-    public void delete(String name) throws IOException {
-        if (name.equalsIgnoreCase(POINT)) {
-            distributionPoint = null;
-
-        } else if (name.equalsIgnoreCase(INDIRECT_CRL)) {
-            isIndirectCRL = false;
-
-        } else if (name.equalsIgnoreCase(REASONS)) {
-            revocationReasons = null;
-
-        } else if (name.equalsIgnoreCase(ONLY_USER_CERTS)) {
-            hasOnlyUserCerts = false;
-
-        } else if (name.equalsIgnoreCase(ONLY_CA_CERTS)) {
-            hasOnlyCACerts = false;
-
-        } else if (name.equalsIgnoreCase(ONLY_ATTRIBUTE_CERTS)) {
-            hasOnlyAttributeCerts = false;
-
-        } else {
-            throw new IOException("Attribute name [" + name +
-                    "] not recognized by " +
-                    "CertAttrSet:IssuingDistributionPointExtension.");
-        }
-        encodeThis();
-    }
-
-    /**
-     * Returns an enumeration of names of attributes existing within this
-     * attribute.
-     */
-    public Enumeration<String> getElements() {
-        AttributeNameEnumeration elements = new AttributeNameEnumeration();
-        elements.addElement(POINT);
-        elements.addElement(REASONS);
-        elements.addElement(ONLY_USER_CERTS);
-        elements.addElement(ONLY_CA_CERTS);
-        elements.addElement(ONLY_ATTRIBUTE_CERTS);
-        elements.addElement(INDIRECT_CRL);
-        return elements.elements();
     }
 
     // Encodes this extension value

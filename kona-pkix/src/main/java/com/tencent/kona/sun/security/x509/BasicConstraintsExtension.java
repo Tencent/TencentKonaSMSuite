@@ -26,7 +26,6 @@
 package com.tencent.kona.sun.security.x509;
 
 import java.io.IOException;
-import java.util.Enumeration;
 
 import com.tencent.kona.sun.security.util.DerOutputStream;
 import com.tencent.kona.sun.security.util.DerValue;
@@ -233,33 +232,6 @@ public class BasicConstraintsExtension extends Extension
             throw new IOException("Attribute name not recognized by " +
                     "CertAttrSet:BasicConstraints.");
         }
-    }
-
-    /**
-     * Delete the attribute value.
-     */
-    public void delete(String name) throws IOException {
-        if (name.equalsIgnoreCase(IS_CA)) {
-            ca = false;
-        } else if (name.equalsIgnoreCase(PATH_LEN)) {
-            pathLen = -1;
-        } else {
-            throw new IOException("Attribute name not recognized by " +
-                    "CertAttrSet:BasicConstraints.");
-        }
-        encodeThis();
-    }
-
-    /**
-     * Return an enumeration of names of attributes existing within this
-     * attribute.
-     */
-    public Enumeration<String> getElements() {
-        AttributeNameEnumeration elements = new AttributeNameEnumeration();
-        elements.addElement(IS_CA);
-        elements.addElement(PATH_LEN);
-
-        return (elements.elements());
     }
 
     /**

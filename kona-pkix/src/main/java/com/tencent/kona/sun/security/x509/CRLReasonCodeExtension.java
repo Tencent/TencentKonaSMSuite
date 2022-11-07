@@ -27,7 +27,6 @@ package com.tencent.kona.sun.security.x509;
 
 import java.io.IOException;
 import java.security.cert.CRLReason;
-import java.util.Enumeration;
 
 import com.tencent.kona.sun.security.util.DerOutputStream;
 import com.tencent.kona.sun.security.util.DerValue;
@@ -133,19 +132,6 @@ public class CRLReasonCodeExtension extends Extension
     }
 
     /**
-     * Delete the attribute value.
-     */
-    public void delete(String name) throws IOException {
-        if (name.equalsIgnoreCase(REASON)) {
-            reasonCode = 0;
-        } else {
-            throw new IOException
-                    ("Name not supported by CRLReasonCodeExtension");
-        }
-        encodeThis();
-    }
-
-    /**
      * Returns a printable representation of the Reason code.
      */
     public String toString() {
@@ -169,19 +155,9 @@ public class CRLReasonCodeExtension extends Extension
     }
 
     /**
-     * Return an enumeration of names of attributes existing within this
-     * attribute.
-     */
-    public Enumeration<String> getElements() {
-        AttributeNameEnumeration elements = new AttributeNameEnumeration();
-        elements.addElement(REASON);
-
-        return elements.elements();
-    }
-
-    /**
      * Return the name of this attribute.
      */
+    @Override
     public String getName() {
         return NAME;
     }
