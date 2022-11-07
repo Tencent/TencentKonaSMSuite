@@ -25,7 +25,6 @@
 package com.tencent.kona.sun.security.x509;
 
 import java.io.IOException;
-import java.util.Enumeration;
 
 import com.tencent.kona.sun.security.util.DerOutputStream;
 import com.tencent.kona.sun.security.util.DerValue;
@@ -150,21 +149,6 @@ public class CertificateIssuerExtension extends Extension
     }
 
     /**
-     * Deletes the attribute value.
-     *
-     * @throws IOException on error
-     */
-    public void delete(String name) throws IOException {
-        if (name.equalsIgnoreCase(ISSUER)) {
-            names = null;
-        } else {
-            throw new IOException("Attribute name not recognized by " +
-                    "CertAttrSet:CertificateIssuer");
-        }
-        encodeThis();
-    }
-
-    /**
      * Returns a printable representation of the certificate issuer.
      */
     public String toString() {
@@ -189,18 +173,9 @@ public class CertificateIssuerExtension extends Extension
     }
 
     /**
-     * Return an enumeration of names of attributes existing within this
-     * attribute.
-     */
-    public Enumeration<String> getElements() {
-        AttributeNameEnumeration elements = new AttributeNameEnumeration();
-        elements.addElement(ISSUER);
-        return elements.elements();
-    }
-
-    /**
      * Return the name of this attribute.
      */
+    @Override
     public String getName() {
         return NAME;
     }

@@ -123,8 +123,8 @@ public class CRLExtensions {
             Constructor<?> cons = extClass.getConstructor(PARAMS);
             Object[] passed = new Object[] {Boolean.valueOf(ext.isCritical()),
                     ext.getExtensionValue()};
-            CertAttrSet<?> crlExt = (CertAttrSet<?>)cons.newInstance(passed);
-            if (map.put(crlExt.getName(), (Extension)crlExt) != null) {
+            Extension crlExt = (Extension)cons.newInstance(passed);
+            if (map.put(crlExt.getName(), crlExt) != null) {
                 throw new CRLException("Duplicate extensions not allowed");
             }
         } catch (InvocationTargetException invk) {
@@ -242,22 +242,16 @@ public class CRLExtensions {
             return true;
         if (!(other instanceof CRLExtensions))
             return false;
-        Collection<Extension> otherC =
-                ((CRLExtensions)other).getAllExtensions();
-        Object[] objs = otherC.toArray();
 
-        int len = objs.length;
-        if (len != map.size())
+        CRLExtensions otherCX = (CRLExtensions) other;
+        Collection<Extension> otherX = otherCX.getAllExtensions();
+        if (otherX.size() != map.size())
             return false;
 
-        Extension otherExt, thisExt;
-        String key = null;
-        for (int i = 0; i < len; i++) {
-            if (objs[i] instanceof CertAttrSet)
-                key = ((CertAttrSet)objs[i]).getName();
-            otherExt = (Extension)objs[i];
-            if (key == null)
-                key = otherExt.getExtensionId().toString();
+        Extension thisExt;
+        String key;
+        for (Extension otherExt : otherX) {
+            key = otherExt.getName();
             thisExt = map.get(key);
             if (thisExt == null)
                 return false;

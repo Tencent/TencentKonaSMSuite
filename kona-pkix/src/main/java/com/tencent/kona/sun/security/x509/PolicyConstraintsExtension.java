@@ -26,8 +26,6 @@
 package com.tencent.kona.sun.security.x509;
 
 import java.io.IOException;
-import java.io.OutputStream;
-import java.util.Enumeration;
 
 import com.tencent.kona.sun.security.util.DerInputStream;
 import com.tencent.kona.sun.security.util.DerOutputStream;
@@ -247,35 +245,9 @@ public class PolicyConstraintsExtension extends Extension
     }
 
     /**
-     * Delete the attribute value.
-     */
-    public void delete(String name) throws IOException {
-        if (name.equalsIgnoreCase(REQUIRE)) {
-            require = -1;
-        } else if (name.equalsIgnoreCase(INHIBIT)) {
-            inhibit = -1;
-        } else {
-            throw new IOException("Attribute name not recognized by " +
-                    "CertAttrSet:PolicyConstraints.");
-        }
-        encodeThis();
-    }
-
-    /**
-     * Return an enumeration of names of attributes existing within this
-     * attribute.
-     */
-    public Enumeration<String> getElements() {
-        AttributeNameEnumeration elements = new AttributeNameEnumeration();
-        elements.addElement(REQUIRE);
-        elements.addElement(INHIBIT);
-
-        return (elements.elements());
-    }
-
-    /**
      * Return the name of this attribute.
      */
+    @Override
     public String getName() {
         return (NAME);
     }

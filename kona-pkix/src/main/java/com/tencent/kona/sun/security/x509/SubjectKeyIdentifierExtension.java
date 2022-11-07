@@ -26,7 +26,6 @@
 package com.tencent.kona.sun.security.x509;
 
 import java.io.IOException;
-import java.util.Enumeration;
 
 import com.tencent.kona.sun.security.util.DerOutputStream;
 import com.tencent.kona.sun.security.util.DerValue;
@@ -165,32 +164,9 @@ public class SubjectKeyIdentifierExtension extends Extension
     }
 
     /**
-     * Delete the attribute value.
-     */
-    public void delete(String name) throws IOException {
-        if (name.equalsIgnoreCase(KEY_ID)) {
-            id = null;
-        } else {
-            throw new IOException("Attribute name not recognized by " +
-                    "CertAttrSet:SubjectKeyIdentifierExtension.");
-        }
-        encodeThis();
-    }
-
-    /**
-     * Return an enumeration of names of attributes existing within this
-     * attribute.
-     */
-    public Enumeration<String> getElements() {
-        AttributeNameEnumeration elements = new AttributeNameEnumeration();
-        elements.addElement(KEY_ID);
-
-        return (elements.elements());
-    }
-
-    /**
      * Return the name of this attribute.
      */
+    @Override
     public String getName() {
         return (NAME);
     }
