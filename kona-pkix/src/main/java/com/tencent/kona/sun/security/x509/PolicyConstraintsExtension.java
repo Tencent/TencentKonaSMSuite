@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1997, 2015, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997, 2022, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -203,15 +203,14 @@ public class PolicyConstraintsExtension extends Extension
      * @param out the DerOutputStream to write the extension to.
      * @exception IOException on encoding errors.
      */
-    public void encode(OutputStream out) throws IOException {
-        DerOutputStream tmp = new DerOutputStream();
+    @Override
+    public void encode(DerOutputStream out) throws IOException {
         if (extensionValue == null) {
-            extensionId = PKIXExtensions.PolicyConstraints_Id;
-            critical = true;
-            encodeThis();
+          extensionId = PKIXExtensions.PolicyConstraints_Id;
+          critical = true;
+          encodeThis();
         }
-        super.encode(tmp);
-        out.write(tmp.toByteArray());
+        super.encode(out);
     }
 
     /**

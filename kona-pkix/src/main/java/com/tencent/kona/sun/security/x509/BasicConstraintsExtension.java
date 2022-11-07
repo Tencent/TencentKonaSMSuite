@@ -26,7 +26,6 @@
 package com.tencent.kona.sun.security.x509;
 
 import java.io.IOException;
-import java.io.OutputStream;
 import java.util.Enumeration;
 
 import com.tencent.kona.sun.security.util.DerOutputStream;
@@ -191,16 +190,14 @@ public class BasicConstraintsExtension extends Extension
      *
      * @param out the DerOutputStream to encode the extension to.
      */
-    public void encode(OutputStream out) throws IOException {
-        DerOutputStream tmp = new DerOutputStream();
+    @Override
+    public void encode(DerOutputStream out) throws IOException {
         if (extensionValue == null) {
-            this.extensionId = PKIXExtensions.BasicConstraints_Id;
-            critical = ca;
-            encodeThis();
-        }
-        super.encode(tmp);
-
-        out.write(tmp.toByteArray());
+             this.extensionId = PKIXExtensions.BasicConstraints_Id;
+             critical = ca;
+             encodeThis();
+         }
+         super.encode(out);
     }
 
     /**

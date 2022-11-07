@@ -26,7 +26,6 @@
 package com.tencent.kona.sun.security.x509;
 
 import java.io.IOException;
-import java.io.OutputStream;
 import java.util.*;
 
 import com.tencent.kona.sun.security.util.DerOutputStream;
@@ -177,15 +176,14 @@ public class CertificatePoliciesExtension extends Extension
      * @param out the DerOutputStream to write the extension to.
      * @exception IOException on encoding errors.
      */
-    public void encode(OutputStream out) throws IOException {
-        DerOutputStream tmp = new DerOutputStream();
+    @Override
+    public void encode(DerOutputStream out) throws IOException {
         if (extensionValue == null) {
-            extensionId = PKIXExtensions.CertificatePolicies_Id;
-            critical = false;
-            encodeThis();
+          extensionId = PKIXExtensions.CertificatePolicies_Id;
+          critical = false;
+          encodeThis();
         }
-        super.encode(tmp);
-        out.write(tmp.toByteArray());
+        super.encode(out);
     }
 
     /**

@@ -26,7 +26,6 @@
 package com.tencent.kona.sun.security.x509;
 
 import java.io.IOException;
-import java.io.OutputStream;
 
 import java.util.*;
 import java.util.Collections;
@@ -199,7 +198,8 @@ public class CRLDistributionPointsExtension extends Extension
      * @param out the DerOutputStream to write the extension to.
      * @exception IOException on encoding errors.
      */
-    public void encode(OutputStream out) throws IOException {
+    @Override
+    public void encode(DerOutputStream out) throws IOException {
         encode(out, PKIXExtensions.CRLDistributionPoints_Id, false);
     }
 
@@ -207,17 +207,15 @@ public class CRLDistributionPointsExtension extends Extension
      * Write the extension to the DerOutputStream.
      * (Also called by the subclass)
      */
-    protected void encode(OutputStream out, ObjectIdentifier extensionId,
-                          boolean isCritical) throws IOException {
+    protected void encode(DerOutputStream out, ObjectIdentifier extensionId,
+            boolean isCritical) throws IOException {
 
-        DerOutputStream tmp = new DerOutputStream();
         if (this.extensionValue == null) {
             this.extensionId = extensionId;
             this.critical = isCritical;
             encodeThis();
         }
-        super.encode(tmp);
-        out.write(tmp.toByteArray());
+        super.encode(out);
     }
 
     /**
