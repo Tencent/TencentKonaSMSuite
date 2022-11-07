@@ -39,7 +39,6 @@ import javax.crypto.*;
  * @see CipherBlockChaining
  * @see CipherFeedback
  * @see OutputFeedback
- * @see PCBC
  */
 abstract class FeedbackCipher {
 

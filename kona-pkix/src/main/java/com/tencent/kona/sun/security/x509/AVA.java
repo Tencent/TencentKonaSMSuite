@@ -27,7 +27,6 @@ package com.tencent.kona.sun.security.x509;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.io.Reader;
 import java.security.AccessController;
 import java.text.Normalizer;
@@ -647,14 +646,13 @@ public class AVA implements DerEncoder {
      *
      * @exception IOException on encoding error.
      */
-    public void derEncode(OutputStream out) throws IOException {
+    public void derEncode(DerOutputStream out) throws IOException {
         DerOutputStream         tmp = new DerOutputStream();
         DerOutputStream         tmp2 = new DerOutputStream();
 
         tmp.putOID(oid);
         value.encode(tmp);
-        tmp2.write(DerValue.tag_Sequence, tmp);
-        out.write(tmp2.toByteArray());
+        out.write(DerValue.tag_Sequence, tmp);
     }
 
     private String toKeyword(int format, Map<String, String> oidMap) {
