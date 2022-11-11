@@ -1022,12 +1022,8 @@ public class X509CRLImpl extends X509CRL implements DerEncoder {
 
             if (extAlias == null) { // may be unknown
                 ObjectIdentifier findOID = Oid.of(oid);
-                Extension ex;
-                ObjectIdentifier inCertOID;
-                for (Enumeration<Extension> e = extensions.getElements();
-                     e.hasMoreElements();) {
-                    ex = e.nextElement();
-                    inCertOID = ex.getExtensionId();
+                for (Extension ex : extensions.getAllExtensions()) {
+                    ObjectIdentifier inCertOID = ex.getExtensionId();
                     if (inCertOID.equals((Object) findOID)) {
                         crlExt = ex;
                         break;
