@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2002, 2021, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2002, 2022, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -51,17 +51,17 @@ import java.util.Arrays;
  *
  * @author Valerie Peng
  *
- *
  * @see SM4Crypt
  */
 
-abstract class SM4Cipher extends CipherSpi {
+class SM4Cipher extends CipherSpi {
     public static final class General extends SM4Cipher {
         public General() {
             super(-1);
         }
     }
-    abstract static class OidImpl extends SM4Cipher {
+
+    static class OidImpl extends SM4Cipher {
         protected OidImpl(int keySize, String mode, String padding) {
             super(keySize);
             try {
@@ -85,7 +85,7 @@ abstract class SM4Cipher extends CipherSpi {
 //    }
 
     // utility method used by SM4Cipher and SM4WrapCipher
-    static final void checkKeySize(Key key, int fixedKeySize)
+    static void checkKeySize(Key key, int fixedKeySize)
         throws InvalidKeyException {
         if (fixedKeySize != -1) {
             if (key == null) {
@@ -107,7 +107,7 @@ abstract class SM4Cipher extends CipherSpi {
     /*
      * internal CipherCore object which does the real work.
      */
-    private CipherCore core = null;
+    private final CipherCore core;
 
     /*
      * needed to support SM4 oids which associates a fixed key size
@@ -133,6 +133,7 @@ abstract class SM4Cipher extends CipherSpi {
      * @exception NoSuchAlgorithmException if the requested cipher mode does
      * not exist
      */
+    @Override
     protected void engineSetMode(String mode)
         throws NoSuchAlgorithmException {
         core.setMode(mode);
@@ -146,6 +147,7 @@ abstract class SM4Cipher extends CipherSpi {
      * @exception NoSuchPaddingException if the requested padding mechanism
      * does not exist
      */
+    @Override
     protected void engineSetPadding(String paddingScheme)
         throws NoSuchPaddingException {
         core.setPadding(paddingScheme);
@@ -157,6 +159,7 @@ abstract class SM4Cipher extends CipherSpi {
      * @return the block size (in bytes), or 0 if the underlying algorithm is
      * not a block cipher
      */
+    @Override
     protected int engineGetBlockSize() {
         return Constants.SM4_BLOCK_SIZE;
     }
@@ -178,6 +181,7 @@ abstract class SM4Cipher extends CipherSpi {
      *
      * @return the required output buffer size (in bytes)
      */
+    @Override
     protected int engineGetOutputSize(int inputLen) {
         return core.getOutputSize(inputLen);
     }
@@ -194,6 +198,7 @@ abstract class SM4Cipher extends CipherSpi {
      * underlying algorithm does not use an IV, or if the IV has not yet
      * been set.
      */
+    @Override
     protected byte[] engineGetIV() {
         return core.getIV();
     }
@@ -211,6 +216,7 @@ abstract class SM4Cipher extends CipherSpi {
      * @return the parameters used with this cipher, or null if this cipher
      * does not use any parameters.
      */
+    @Override
     protected AlgorithmParameters engineGetParameters() {
         return core.getParameters("SM4");
     }
@@ -245,6 +251,7 @@ abstract class SM4Cipher extends CipherSpi {
      * @exception InvalidKeyException if the given key is inappropriate for
      * initializing this cipher
      */
+    @Override
     protected void engineInit(int opmode, Key key, SecureRandom random)
         throws InvalidKeyException {
         checkKeySize(key, fixedKeySize);
@@ -275,6 +282,7 @@ abstract class SM4Cipher extends CipherSpi {
      * @exception InvalidAlgorithmParameterException if the given algorithm
      * parameters are inappropriate for this cipher
      */
+    @Override
     protected void engineInit(int opmode, Key key,
                               AlgorithmParameterSpec params,
                               SecureRandom random)
@@ -283,6 +291,7 @@ abstract class SM4Cipher extends CipherSpi {
         core.init(opmode, key, params, random);
     }
 
+    @Override
     protected void engineInit(int opmode, Key key,
                               AlgorithmParameters params,
                               SecureRandom random)
@@ -310,6 +319,7 @@ abstract class SM4Cipher extends CipherSpi {
      * @exception IllegalStateException if this cipher is in a wrong state
      * (e.g., has not been initialized)
      */
+    @Override
     protected byte[] engineUpdate(byte[] input, int inputOffset,
                                   int inputLen) {
         return core.update(input, inputOffset, inputLen);
@@ -338,6 +348,7 @@ abstract class SM4Cipher extends CipherSpi {
      * @exception ShortBufferException if the given output buffer is too small
      * to hold the result
      */
+    @Override
     protected int engineUpdate(byte[] input, int inputOffset, int inputLen,
                                byte[] output, int outputOffset)
         throws ShortBufferException {
@@ -376,10 +387,10 @@ abstract class SM4Cipher extends CipherSpi {
      * and (un)padding has been requested, but the decrypted data is not
      * bounded by the appropriate padding bytes
      */
+    @Override
     protected byte[] engineDoFinal(byte[] input, int inputOffset, int inputLen)
         throws IllegalBlockSizeException, BadPaddingException {
-        byte[] out = core.doFinal(input, inputOffset, inputLen);
-        return out;
+        return core.doFinal(input, inputOffset, inputLen);
     }
 
     /**
@@ -418,13 +429,13 @@ abstract class SM4Cipher extends CipherSpi {
      * and (un)padding has been requested, but the decrypted data is not
      * bounded by the appropriate padding bytes
      */
+    @Override
     protected int engineDoFinal(byte[] input, int inputOffset, int inputLen,
                                 byte[] output, int outputOffset)
         throws IllegalBlockSizeException, ShortBufferException,
                BadPaddingException {
-        int outLen = core.doFinal(input, inputOffset, inputLen, output,
+        return core.doFinal(input, inputOffset, inputLen, output,
                                   outputOffset);
-        return outLen;
     }
 
     /**
@@ -436,6 +447,7 @@ abstract class SM4Cipher extends CipherSpi {
      *
      * @exception InvalidKeyException if <code>key</code> is invalid.
      */
+    @Override
     protected int engineGetKeySize(Key key) throws InvalidKeyException {
         byte[] encoded = key.getEncoded();
         Arrays.fill(encoded, (byte)0);
@@ -462,6 +474,7 @@ abstract class SM4Cipher extends CipherSpi {
      * wrap the key with this cipher (e.g., a hardware protected key is
      * being passed to a software only cipher).
      */
+    @Override
     protected byte[] engineWrap(Key key)
         throws IllegalBlockSizeException, InvalidKeyException {
         return core.wrap(key);
@@ -488,6 +501,7 @@ abstract class SM4Cipher extends CipherSpi {
      * represent a wrapped key of type <code>wrappedKeyType</code> for
      * the <code>wrappedKeyAlgorithm</code>.
      */
+    @Override
     protected Key engineUnwrap(byte[] wrappedKey,
                                      String wrappedKeyAlgorithm,
                                      int wrappedKeyType)
