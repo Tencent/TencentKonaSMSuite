@@ -48,7 +48,6 @@ import com.tencent.kona.sun.security.pkcs.EncryptedPrivateKeyInfo;
  *
  * @see KeyProtector
  * @see java.security.KeyStoreSpi
- * @see KeyTool
  *
  * @since 1.2
  */
@@ -463,9 +462,9 @@ public abstract class JavaKeyStore extends KeyStoreSpi {
     public String engineGetCertificateAlias(Certificate cert) {
         Certificate certElem;
 
-        for (Enumeration<String> e = entries.keys(); e.hasMoreElements(); ) {
-            String alias = e.nextElement();
-            Object entry = entries.get(alias);
+        for (Map.Entry<String, Object> e : entries.entrySet()) {
+            String alias = e.getKey();
+            Object entry = e.getValue();
             if (entry instanceof TrustedCertEntry) {
                 certElem = ((TrustedCertEntry)entry).cert;
             } else if (((KeyEntry)entry).chain != null) {
@@ -546,10 +545,9 @@ public abstract class JavaKeyStore extends KeyStoreSpi {
 
             dos.writeInt(entries.size());
 
-            for (Enumeration<String> e = entries.keys(); e.hasMoreElements();) {
-
-                String alias = e.nextElement();
-                Object entry = entries.get(alias);
+            for (Map.Entry<String, Object> e : entries.entrySet()) {
+                String alias = e.getKey();
+                Object entry = e.getValue();
 
                 if (entry instanceof KeyEntry) {
 
