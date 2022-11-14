@@ -59,7 +59,6 @@ import com.tencent.kona.sun.security.util.HexDumpEncoder;
  *
  * @author Amit Kapoor
  * @author Hemma Prafullchandra
- * @see CertAttrSet
  * @see X509CertImpl
  */
 public class X509CertInfo {

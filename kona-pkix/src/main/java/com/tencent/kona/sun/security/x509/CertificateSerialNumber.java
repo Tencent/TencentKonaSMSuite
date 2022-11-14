@@ -29,6 +29,7 @@ import java.io.InputStream;
 import java.math.BigInteger;
 import java.util.Random;
 
+import com.tencent.kona.sun.security.util.DerEncoder;
 import com.tencent.kona.sun.security.util.DerInputStream;
 import com.tencent.kona.sun.security.util.DerOutputStream;
 import com.tencent.kona.sun.security.util.DerValue;
@@ -38,9 +39,8 @@ import com.tencent.kona.sun.security.util.DerValue;
  *
  * @author Amit Kapoor
  * @author Hemma Prafullchandra
- * @see CertAttrSet
  */
-public class CertificateSerialNumber implements CertAttrSet {
+public class CertificateSerialNumber implements DerEncoder {
 
     public static final String NAME = "serialNumber";
 

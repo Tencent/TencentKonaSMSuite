@@ -25,7 +25,6 @@
 
 package com.tencent.kona.sun.security.pkcs;
 
-import java.io.OutputStream;
 import java.io.IOException;
 import java.math.BigInteger;
 import java.security.cert.CertificateException;
@@ -234,11 +233,6 @@ public class SignerInfo implements DerEncoder {
         }
     }
 
-    public void encode(DerOutputStream out) throws IOException {
-
-        derEncode(out);
-    }
-
     /**
      * DER encode this object onto an output stream.
      * Implements the {@code DerEncoder} interface.
@@ -248,7 +242,8 @@ public class SignerInfo implements DerEncoder {
      *
      * @exception IOException on encoding error.
      */
-    public void derEncode(DerOutputStream out) throws IOException {
+    @Override
+    public void encode(DerOutputStream out) throws IOException {
         DerOutputStream seq = new DerOutputStream();
         seq.putInteger(version);
         DerOutputStream issuerAndSerialNumber = new DerOutputStream();

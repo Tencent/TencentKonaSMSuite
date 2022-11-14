@@ -29,6 +29,7 @@ import java.security.PublicKey;
 import java.io.InputStream;
 import java.io.IOException;
 
+import com.tencent.kona.sun.security.util.DerEncoder;
 import com.tencent.kona.sun.security.util.DerInputStream;
 import com.tencent.kona.sun.security.util.DerOutputStream;
 import com.tencent.kona.sun.security.util.DerValue;
@@ -38,9 +39,8 @@ import com.tencent.kona.sun.security.util.DerValue;
  *
  * @author Amit Kapoor
  * @author Hemma Prafullchandra
- * @see CertAttrSet
  */
-public class CertificateX509Key implements CertAttrSet {
+public class CertificateX509Key implements DerEncoder {
 
     public static final String NAME = "key";
 

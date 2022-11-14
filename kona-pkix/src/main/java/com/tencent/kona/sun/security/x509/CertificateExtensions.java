@@ -28,10 +28,10 @@ package com.tencent.kona.sun.security.x509;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
-import java.security.cert.CertificateException;
 import java.util.*;
 
 import com.tencent.kona.sun.security.util.Debug;
+import com.tencent.kona.sun.security.util.DerEncoder;
 import com.tencent.kona.sun.security.util.DerInputStream;
 import com.tencent.kona.sun.security.util.DerOutputStream;
 import com.tencent.kona.sun.security.util.DerValue;
@@ -43,9 +43,8 @@ import com.tencent.kona.sun.security.util.ObjectIdentifier;
  *
  * @author Amit Kapoor
  * @author Hemma Prafullchandra
- * @see CertAttrSet
  */
-public class CertificateExtensions implements CertAttrSet {
+public class CertificateExtensions implements DerEncoder {
 
     public static final String NAME = "extensions";
 

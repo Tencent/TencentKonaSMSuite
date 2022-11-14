@@ -28,6 +28,7 @@ import java.io.IOException;
 import java.security.cert.*;
 import java.util.Date;
 
+import com.tencent.kona.sun.security.util.DerEncoder;
 import com.tencent.kona.sun.security.util.DerInputStream;
 import com.tencent.kona.sun.security.util.DerOutputStream;
 import com.tencent.kona.sun.security.util.DerValue;
@@ -37,9 +38,8 @@ import com.tencent.kona.sun.security.util.DerValue;
  *
  * @author Amit Kapoor
  * @author Hemma Prafullchandra
- * @see CertAttrSet
  */
-public class CertificateValidity implements CertAttrSet {
+public class CertificateValidity implements DerEncoder {
 
     public static final String NAME = "validity";
     /**
@@ -144,7 +144,7 @@ public class CertificateValidity implements CertAttrSet {
         // in cases where default constructor is used check for
         // null values
         if (notBefore == null || notAfter == null) {
-            throw new IOException("CertAttrSet:CertificateValidity:" +
+            throw new IOException("CertificateValidity:" +
                     " null values to encode.\n");
         }
         DerOutputStream pair = new DerOutputStream();

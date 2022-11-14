@@ -28,6 +28,7 @@ package com.tencent.kona.sun.security.x509;
 import java.io.IOException;
 import java.io.InputStream;
 
+import com.tencent.kona.sun.security.util.DerEncoder;
 import com.tencent.kona.sun.security.util.DerInputStream;
 import com.tencent.kona.sun.security.util.DerOutputStream;
 import com.tencent.kona.sun.security.util.DerValue;
@@ -37,9 +38,8 @@ import com.tencent.kona.sun.security.util.DerValue;
  *
  * @author Amit Kapoor
  * @author Hemma Prafullchandra
- * @see CertAttrSet
  */
-public class CertificateVersion implements CertAttrSet {
+public class CertificateVersion implements DerEncoder {
     /**
      * X509Certificate Version 1
      */

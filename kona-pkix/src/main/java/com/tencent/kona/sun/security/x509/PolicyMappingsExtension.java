@@ -48,10 +48,8 @@ import com.tencent.kona.sun.security.util.DerValue;
  * @author Amit Kapoor
  * @author Hemma Prafullchandra
  * @see Extension
- * @see CertAttrSet
  */
-public class PolicyMappingsExtension extends Extension
-        implements CertAttrSet {
+public class PolicyMappingsExtension extends Extension {
 
     public static final String NAME = "PolicyMappings";
 

@@ -1365,7 +1365,7 @@ public class SimpleOCSPServer {
             basicORItemStream.write(tbsResponseBytes);
 
             try {
-                sigAlgId.derEncode(basicORItemStream);
+                sigAlgId.encode(basicORItemStream);
                 String sigAlgName = sigAlgId.getName();
 
                 // Create the signature

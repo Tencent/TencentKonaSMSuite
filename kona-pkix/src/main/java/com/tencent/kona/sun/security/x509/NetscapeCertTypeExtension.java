@@ -49,11 +49,9 @@ import com.tencent.kona.sun.security.util.Oid;
  *
  * @author Hemma Prafullchandra
  * @see Extension
- * @see CertAttrSet
  */
 
-public class NetscapeCertTypeExtension extends Extension
-        implements CertAttrSet {
+public class NetscapeCertTypeExtension extends Extension {
 
     public static final String NAME = "NetscapeCertType";
     public static final String SSL_CLIENT = "ssl_client";
@@ -106,7 +104,7 @@ public class NetscapeCertTypeExtension extends Extension
                 return mMapData[i].mPosition;
         }
         throw new IOException("Attribute name [" + name
-                + "] not recognized by CertAttrSet:NetscapeCertType.");
+                + "] not recognized by NetscapeCertType.");
     }
 
     // Encode this extension value
