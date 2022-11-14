@@ -53,17 +53,8 @@ import com.tencent.kona.sun.security.util.Oid;
  */
 
 public class NetscapeCertTypeExtension extends Extension
-        implements CertAttrSet<String> {
+        implements CertAttrSet {
 
-    /**
-     * Identifier for this attribute, to be used with the
-     * get, set, delete methods of Certificate, x509 type.
-     */
-    public static final String IDENT = "x509.info.extensions.NetscapeCertType";
-
-    /**
-     * Attribute names.
-     */
     public static final String NAME = "NetscapeCertType";
     public static final String SSL_CLIENT = "ssl_client";
     public static final String SSL_SERVER = "ssl_server";
@@ -204,11 +195,7 @@ public class NetscapeCertTypeExtension extends Extension
     /**
      * Set the attribute value.
      */
-    public void set(String name, Object obj) throws IOException {
-        if (!(obj instanceof Boolean))
-            throw new IOException("Attribute must be of type Boolean.");
-
-        boolean val = ((Boolean)obj).booleanValue();
+    public void set(String name, Boolean val) throws IOException {
         set(getPosition(name), val);
         encodeThis();
     }
@@ -216,8 +203,8 @@ public class NetscapeCertTypeExtension extends Extension
     /**
      * Get the attribute value.
      */
-    public Boolean get(String name) throws IOException {
-        return Boolean.valueOf(isSet(getPosition(name)));
+    public boolean get(String name) throws IOException {
+        return isSet(getPosition(name));
     }
 
     /**
@@ -271,11 +258,11 @@ public class NetscapeCertTypeExtension extends Extension
     }
 
     /**
-     * Return the name of this attribute.
+     * Return the name of this extension.
      */
     @Override
     public String getName() {
-        return (NAME);
+        return NAME;
     }
 
     /**
