@@ -76,8 +76,7 @@ import com.tencent.kona.sun.security.util.ObjectIdentifier;
  *
  * @since       1.4
  */
-public class ExtendedKeyUsageExtension extends Extension
-        implements CertAttrSet {
+public class ExtendedKeyUsageExtension extends Extension {
 
     public static final String NAME = "ExtendedKeyUsage";
 

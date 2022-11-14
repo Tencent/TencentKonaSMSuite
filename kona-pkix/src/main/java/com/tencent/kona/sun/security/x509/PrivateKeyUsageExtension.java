@@ -57,10 +57,8 @@ import com.tencent.kona.sun.security.util.DerValue;
  * @author Amit Kapoor
  * @author Hemma Prafullchandra
  * @see Extension
- * @see CertAttrSet
  */
-public class PrivateKeyUsageExtension extends Extension
-        implements CertAttrSet {
+public class PrivateKeyUsageExtension extends Extension {
 
     public static final String NAME = "PrivateKeyUsage";
 

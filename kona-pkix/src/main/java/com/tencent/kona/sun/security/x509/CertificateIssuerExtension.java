@@ -56,10 +56,8 @@ import com.tencent.kona.sun.security.util.DerValue;
  * @author Sean Mullan
  * @since 1.5
  * @see Extension
- * @see CertAttrSet
  */
-public class CertificateIssuerExtension extends Extension
-        implements CertAttrSet {
+public class CertificateIssuerExtension extends Extension {
 
     public static final String NAME = "CertificateIssuer";
 

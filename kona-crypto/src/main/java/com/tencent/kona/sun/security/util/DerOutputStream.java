@@ -407,7 +407,7 @@ extends ByteArrayOutputStream implements DerEncoder {
 
         for (int i = 0; i < set.length; i++) {
             streams[i] = new DerOutputStream();
-            set[i].derEncode(streams[i]);
+            set[i].encode(streams[i]);
         }
 
         // order the element encodings
@@ -585,7 +585,7 @@ extends ByteArrayOutputStream implements DerEncoder {
      *
      *  @exception IOException on output error.
      */
-    public void derEncode(DerOutputStream out) throws IOException {
+    public void encode(DerOutputStream out) throws IOException {
         out.write(toByteArray());
     }
 
@@ -595,7 +595,7 @@ extends ByteArrayOutputStream implements DerEncoder {
      * @throws IOException on output error
      */
     public DerOutputStream write(DerEncoder encoder) throws IOException {
-        encoder.derEncode(this);
+        encoder.encode(this);
         return this;
     }
 

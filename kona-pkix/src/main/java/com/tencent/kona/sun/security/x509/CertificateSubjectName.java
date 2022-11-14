@@ -30,6 +30,7 @@ import java.io.InputStream;
 
 import javax.security.auth.x500.X500Principal;
 
+import com.tencent.kona.sun.security.util.DerEncoder;
 import com.tencent.kona.sun.security.util.DerInputStream;
 import com.tencent.kona.sun.security.util.DerOutputStream;
 import com.tencent.kona.sun.security.util.DerValue;
@@ -39,9 +40,8 @@ import com.tencent.kona.sun.security.util.DerValue;
  *
  * @author Amit Kapoor
  * @author Hemma Prafullchandra
- * @see CertAttrSet
  */
-public class CertificateSubjectName implements CertAttrSet {
+public class CertificateSubjectName implements DerEncoder {
 
     public static final String NAME = "subject";
 

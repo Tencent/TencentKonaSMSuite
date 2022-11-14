@@ -49,10 +49,8 @@ import com.tencent.kona.sun.security.util.DerValue;
  * @author Amit Kapoor
  * @author Hemma Prafullchandra
  * @see Extension
- * @see CertAttrSet
  */
-public class SubjectKeyIdentifierExtension extends Extension
-        implements CertAttrSet {
+public class SubjectKeyIdentifierExtension extends Extension {
 
     public static final String NAME = "SubjectKeyIdentifier";
 
