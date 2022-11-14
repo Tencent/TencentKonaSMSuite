@@ -25,7 +25,6 @@
 
 package com.tencent.kona.sun.security.provider.certpath;
 
-import java.io.IOException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 
@@ -125,15 +124,8 @@ public class Vertex {
         return certToString() + throwableToString() + indexToString();
     }
 
-    /**
-     * Return string representation of this vertex's
-     * certificate information.
-     *
-     * @return String representation of certificate info
-     */
     public String certToString() {
         StringBuilder sb = new StringBuilder();
-
         X509CertImpl x509Cert;
         try {
             x509Cert = X509CertImpl.toImpl(cert);
@@ -169,26 +161,17 @@ public class Vertex {
             }
             sb.append("\n");
         }
-        try {
-            SubjectKeyIdentifierExtension sKeyID =
-                    x509Cert.getSubjectKeyIdentifierExtension();
-            if (sKeyID != null) {
-                KeyIdentifier keyID = sKeyID.get(
-                        SubjectKeyIdentifierExtension.KEY_ID);
-                sb.append("SubjKeyID:  ").append(keyID.toString());
-            }
-            AuthorityKeyIdentifierExtension aKeyID =
-                    x509Cert.getAuthorityKeyIdentifierExtension();
-            if (aKeyID != null) {
-                KeyIdentifier keyID = (KeyIdentifier)aKeyID.get(
-                        AuthorityKeyIdentifierExtension.KEY_ID);
-                sb.append("AuthKeyID:  ").append(keyID.toString());
-            }
-        } catch (IOException e) {
-            if (debug != null) {
-                debug.println("Vertex.certToString() unexpected exception");
-                e.printStackTrace();
-            }
+        SubjectKeyIdentifierExtension sKeyID =
+                x509Cert.getSubjectKeyIdentifierExtension();
+        if (sKeyID != null) {
+            KeyIdentifier keyID = sKeyID.getKeyIdentifier();
+            sb.append("SubjKeyID:  ").append(keyID.toString());
+        }
+        AuthorityKeyIdentifierExtension aKeyID =
+                x509Cert.getAuthorityKeyIdentifierExtension();
+        if (aKeyID != null) {
+            KeyIdentifier keyID = aKeyID.getKeyIdentifier();
+            sb.append("AuthKeyID:  ").append(keyID.toString());
         }
         return sb.toString();
     }

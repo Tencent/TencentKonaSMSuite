@@ -229,7 +229,7 @@ public class SSLLogger {
         }
 
         public boolean isLoggable(Level level) {
-            return (level != Level.OFF);
+            return level != Level.OFF;
         }
 
         @Override
@@ -470,11 +470,8 @@ public class SSLLogger {
             try {
                 X509CertImpl x509 =
                         X509CertImpl.toImpl((X509Certificate)certificate);
-                X509CertInfo certInfo =
-                        (X509CertInfo)x509.get(X509CertImpl.NAME + "." +
-                                X509CertImpl.INFO);
-                CertificateExtensions certExts = (CertificateExtensions)
-                        certInfo.get(X509CertInfo.EXTENSIONS);
+                X509CertInfo certInfo = x509.getInfo();
+                CertificateExtensions certExts = certInfo.getExtensions();
                 if (certExts == null) {
                     Object[] certFields = {
                             x509.getVersion(),

@@ -625,11 +625,7 @@ public class PKCS9Attribute implements DerEncoder {
             {
                 DerOutputStream temp2 = new DerOutputStream();
                 CertificateExtensions exts = (CertificateExtensions)value;
-                try {
-                    exts.encode(temp2, true);
-                } catch (CertificateException ex) {
-                    throw new IOException(ex.toString());
-                }
+                exts.encode(temp2, true);
                 temp.write(DerValue.tag_Set, temp2.toByteArray());
             }
             break;
@@ -695,7 +691,7 @@ public class PKCS9Attribute implements DerEncoder {
     public String getName() {
         String n = oid.toString();
         KnownOIDs os = KnownOIDs.findMatch(n);
-        return (os == null? n : os.stdName());
+        return os == null ? n : os.stdName();
     }
 
     /**

@@ -47,13 +47,9 @@ import com.tencent.kona.sun.security.util.ObjectIdentifier;
  * @see CertAttrSet
  */
 public class CRLNumberExtension extends Extension
-        implements CertAttrSet<String> {
+        implements CertAttrSet {
 
-    /**
-     * Attribute name.
-     */
     public static final String NAME = "CRLNumber";
-    public static final String NUMBER = "value";
 
     private static final String LABEL = "CRL Number";
 
@@ -138,31 +134,10 @@ public class CRLNumberExtension extends Extension
     }
 
     /**
-     * Set the attribute value.
+     * Get the crlNumber value.
      */
-    public void set(String name, Object obj) throws IOException {
-        if (name.equalsIgnoreCase(NUMBER)) {
-            if (!(obj instanceof BigInteger)) {
-                throw new IOException("Attribute must be of type BigInteger.");
-            }
-            crlNumber = (BigInteger)obj;
-        } else {
-            throw new IOException("Attribute name not recognized by" +
-                    " CertAttrSet:" + extensionName + '.');
-        }
-        encodeThis();
-    }
-
-    /**
-     * Get the attribute value.
-     */
-    public BigInteger get(String name) throws IOException {
-        if (name.equalsIgnoreCase(NUMBER)) {
-            return crlNumber;
-        } else {
-            throw new IOException("Attribute name not recognized by" +
-                    " CertAttrSet:" + extensionName + '.');
-        }
+    public BigInteger getCrlNumber() {
+        return crlNumber;
     }
 
     /**

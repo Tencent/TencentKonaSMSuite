@@ -59,13 +59,9 @@ import com.tencent.kona.sun.security.util.DerValue;
  * @see CertAttrSet
  */
 public class CertificateIssuerExtension extends Extension
-        implements CertAttrSet<String> {
+        implements CertAttrSet {
 
-    /**
-     * Attribute names.
-     */
     public static final String NAME = "CertificateIssuer";
-    public static final String ISSUER = "issuer";
 
     private GeneralNames names;
 
@@ -115,37 +111,8 @@ public class CertificateIssuerExtension extends Extension
         this.names = new GeneralNames(val);
     }
 
-    /**
-     * Set the attribute value.
-     *
-     * @throws IOException on error
-     */
-    public void set(String name, Object obj) throws IOException {
-        if (name.equalsIgnoreCase(ISSUER)) {
-            if (!(obj instanceof GeneralNames)) {
-                throw new IOException("Attribute value must be of type " +
-                        "GeneralNames");
-            }
-            this.names = (GeneralNames)obj;
-        } else {
-            throw new IOException("Attribute name not recognized by " +
-                    "CertAttrSet:CertificateIssuer");
-        }
-        encodeThis();
-    }
-
-    /**
-     * Gets the attribute value.
-     *
-     * @throws IOException on error
-     */
-    public GeneralNames get(String name) throws IOException {
-        if (name.equalsIgnoreCase(ISSUER)) {
-            return names;
-        } else {
-            throw new IOException("Attribute name not recognized by " +
-                    "CertAttrSet:CertificateIssuer");
-        }
+    public GeneralNames getNames() {
+        return names;
     }
 
     /**
@@ -173,7 +140,7 @@ public class CertificateIssuerExtension extends Extension
     }
 
     /**
-     * Return the name of this attribute.
+     * Return the name of this extension.
      */
     @Override
     public String getName() {

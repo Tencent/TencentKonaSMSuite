@@ -79,20 +79,9 @@ import com.tencent.kona.sun.security.util.ObjectIdentifier;
  * @see CertAttrSet
  */
 public class CRLDistributionPointsExtension extends Extension
-        implements CertAttrSet<String> {
+        implements CertAttrSet {
 
-    /**
-     * Identifier for this attribute, to be used with the
-     * get, set, delete methods of Certificate, x509 type.
-     */
-    public static final String IDENT =
-            "x509.info.extensions.CRLDistributionPoints";
-
-    /**
-     * Attribute name.
-     */
     public static final String NAME = "CRLDistributionPoints";
-    public static final String POINTS = "points";
 
     /**
      * The List of DistributionPoint objects.
@@ -123,7 +112,7 @@ public class CRLDistributionPointsExtension extends Extension
      * @throws IOException on error
      */
     public CRLDistributionPointsExtension(boolean isCritical,
-                                          List<DistributionPoint> distributionPoints) throws IOException {
+            List<DistributionPoint> distributionPoints) throws IOException {
 
         this(PKIXExtensions.CRLDistributionPoints_Id, isCritical,
                 distributionPoints, NAME);
@@ -133,8 +122,8 @@ public class CRLDistributionPointsExtension extends Extension
      * Creates the extension (also called by the subclass).
      */
     protected CRLDistributionPointsExtension(ObjectIdentifier extensionId,
-                                             boolean isCritical, List<DistributionPoint> distributionPoints,
-                                             String extensionName) throws IOException {
+            boolean isCritical, List<DistributionPoint> distributionPoints,
+            String extensionName) throws IOException {
 
         this.extensionId = extensionId;
         this.critical = isCritical;
@@ -185,7 +174,7 @@ public class CRLDistributionPointsExtension extends Extension
     }
 
     /**
-     * Return the name of this attribute.
+     * Return the name of this extension.
      */
     public String getName() {
         return extensionName;
@@ -218,34 +207,10 @@ public class CRLDistributionPointsExtension extends Extension
     }
 
     /**
-     * Set the attribute value.
+     * Get the DistributionPoint value.
      */
-    @SuppressWarnings("unchecked") // Checked with instanceof
-    public void set(String name, Object obj) throws IOException {
-        if (name.equalsIgnoreCase(POINTS)) {
-            if (!(obj instanceof List)) {
-                throw new IOException("Attribute value should be of type List.");
-            }
-            distributionPoints = (List<DistributionPoint>)obj;
-        } else {
-            throw new IOException("Attribute name [" + name +
-                    "] not recognized by " +
-                    "CertAttrSet:" + extensionName + '.');
-        }
-        encodeThis();
-    }
-
-    /**
-     * Get the attribute value.
-     */
-    public List<DistributionPoint> get(String name) throws IOException {
-        if (name.equalsIgnoreCase(POINTS)) {
-            return distributionPoints;
-        } else {
-            throw new IOException("Attribute name [" + name +
-                    "] not recognized by " +
-                    "CertAttrSet:" + extensionName + '.');
-        }
+    public List<DistributionPoint> getDistributionPoints() {
+        return distributionPoints;
     }
 
     // Encode this extension value

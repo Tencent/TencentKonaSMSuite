@@ -62,15 +62,7 @@ import com.tencent.kona.sun.security.util.Oid;
  * @see Extension
  */
 public class InhibitAnyPolicyExtension extends Extension
-        implements CertAttrSet<String> {
-
-    private static final Debug debug = Debug.getInstance("certpath");
-
-    /**
-     * Identifier for this attribute, to be used with the
-     * get, set, delete methods of Certificate, x509 type.
-     */
-    public static final String IDENT = "x509.info.extensions.InhibitAnyPolicy";
+        implements CertAttrSet {
 
     /**
      * Object identifier for "any-policy"
@@ -78,11 +70,7 @@ public class InhibitAnyPolicyExtension extends Extension
     public static ObjectIdentifier AnyPolicy_Id =
             Oid.of(KnownOIDs.CE_CERT_POLICIES_ANY);
 
-    /**
-     * Attribute names.
-     */
     public static final String NAME = "InhibitAnyPolicy";
-    public static final String SKIP_CERTS = "skip_certs";
 
     // Private data members
     private int skipCerts = Integer.MAX_VALUE;
@@ -165,62 +153,24 @@ public class InhibitAnyPolicyExtension extends Extension
     @Override
     public void encode(DerOutputStream out) throws IOException {
         if (extensionValue == null) {
-             this.extensionId = PKIXExtensions.InhibitAnyPolicy_Id;
-             critical = true;
-             encodeThis();
-         }
-         super.encode(out);
+            this.extensionId = PKIXExtensions.InhibitAnyPolicy_Id;
+            critical = true;
+            encodeThis();
+        }
+        super.encode(out);
+    }
+
+    public int getSkipCerts() {
+        return skipCerts;
     }
 
     /**
-     * Set the attribute value.
+     * Return the name of this extension.
      *
-     * @param name name of attribute to set. Must be SKIP_CERTS.
-     * @param obj  value to which attribute is to be set.  Must be Integer
-     *             type.
-     * @throws IOException on error
-     */
-    public void set(String name, Object obj) throws IOException {
-        if (name.equalsIgnoreCase(SKIP_CERTS)) {
-            if (!(obj instanceof Integer))
-                throw new IOException("Attribute value should be of type Integer.");
-            int skipCertsValue = ((Integer)obj).intValue();
-            if (skipCertsValue < -1)
-                throw new IOException("Invalid value for skipCerts");
-            if (skipCertsValue == -1) {
-                skipCerts = Integer.MAX_VALUE;
-            } else {
-                skipCerts = skipCertsValue;
-            }
-        } else
-            throw new IOException("Attribute name not recognized by " +
-                    "CertAttrSet:InhibitAnyPolicy.");
-        encodeThis();
-    }
-
-    /**
-     * Get the attribute value.
-     *
-     * @param name name of attribute to get.  Must be SKIP_CERTS.
-     * @return value of the attribute.  In this case it will be of type
-     *          Integer.
-     * @throws IOException on error
-     */
-    public Integer get(String name) throws IOException {
-        if (name.equalsIgnoreCase(SKIP_CERTS))
-            return (skipCerts);
-        else
-            throw new IOException("Attribute name not recognized by " +
-                    "CertAttrSet:InhibitAnyPolicy.");
-    }
-
-    /**
-     * Return the name of this attribute.
-     *
-     * @return name of attribute.
+     * @return name of extension.
      */
     @Override
     public String getName() {
-        return (NAME);
+        return NAME;
     }
 }
