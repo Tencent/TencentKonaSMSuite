@@ -26,6 +26,7 @@
 package com.tencent.kona.sun.security.x509;
 
 import java.io.IOException;
+import java.util.Objects;
 
 import com.tencent.kona.sun.security.util.DerInputStream;
 import com.tencent.kona.sun.security.util.DerOutputStream;
@@ -64,7 +65,7 @@ public class EDIPartyName implements GeneralNameInterface {
      */
     public EDIPartyName(String assignerName, String partyName) {
         this.assigner = assignerName;
-        this.party = partyName;
+        this.party = Objects.requireNonNull(partyName);
     }
 
     /**
@@ -73,7 +74,7 @@ public class EDIPartyName implements GeneralNameInterface {
      * @param partyName the name of the EDI party.
      */
     public EDIPartyName(String partyName) {
-        this.party = partyName;
+        this(null, partyName);
     }
 
     /**
@@ -109,6 +110,9 @@ public class EDIPartyName implements GeneralNameInterface {
                 party = opt.getAsString();
             }
         }
+        if (party == null) {
+            throw new IOException("party cannot be missing");
+        }
     }
 
     /**
@@ -135,8 +139,6 @@ public class EDIPartyName implements GeneralNameInterface {
             tagged.write(DerValue.createTag(DerValue.TAG_CONTEXT,
                     false, TAG_ASSIGNER), tmp2);
         }
-        if (party == null)
-            throw  new IOException("Cannot have null partyName");
 
         // XXX - shd check is chars fit into PrintableString
         tmp.putPrintableString(party);
