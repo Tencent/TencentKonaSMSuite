@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
+import javax.crypto.AEADBadTagException;
 import javax.crypto.Cipher;
 import javax.crypto.CipherInputStream;
 import javax.crypto.CipherOutputStream;
@@ -22,6 +23,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.nio.ByteBuffer;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.security.InvalidAlgorithmParameterException;
@@ -31,10 +33,10 @@ import java.security.KeyPairGenerator;
 import java.security.PrivateKey;
 import java.security.spec.AlgorithmParameterSpec;
 
+import static com.tencent.kona.crypto.CryptoUtils.toBytes;
 import static com.tencent.kona.crypto.TestUtils.PROVIDER;
 import static com.tencent.kona.crypto.TestUtils.checkISE;
 import static com.tencent.kona.crypto.util.Constants.SM4_GCM_TAG_LEN;
-import static com.tencent.kona.crypto.CryptoUtils.toBytes;
 
 /**
  * The test for SM4 cipher.
@@ -56,8 +58,10 @@ public class SM4Test {
 
     @Test
     public void testSpec() throws Exception {
-        SecretKey secretKey = new SecretKeySpec(KEY, "SM4");
-        Assertions.assertArrayEquals(KEY, secretKey.getEncoded());
+        byte[] key = toBytes("0123456789abcdef0123456789abcdef");
+
+        SecretKey secretKey = new SecretKeySpec(key, "SM4");
+        Assertions.assertArrayEquals(key, secretKey.getEncoded());
 
         Cipher.getInstance("SM4/CBC/NoPadding", PROVIDER);
         Cipher.getInstance("SM4/CBC/PKCS7Padding", PROVIDER);
@@ -299,6 +303,147 @@ public class SM4Test {
         byte[] cleartext = cipher.doFinal(ciphertext);
 
         Assertions.assertArrayEquals(MESSAGE, cleartext);
+    }
+
+    @Test
+    public void testGCMModeWithByteBuffer() throws Exception {
+        SecretKey secretKey = new SecretKeySpec(KEY, "SM4");
+        GCMParameterSpec paramSpec = new GCMParameterSpec(
+                SM4_GCM_TAG_LEN * 8, GCM_IV);
+        Cipher cipher = Cipher.getInstance("SM4/GCM/NoPadding", PROVIDER);
+        cipher.init(Cipher.ENCRYPT_MODE, secretKey, paramSpec);
+
+        ByteBuffer messageBuf = ByteBuffer.allocate(MESSAGE.length);
+        messageBuf.put(MESSAGE);
+        messageBuf.flip();
+        ByteBuffer ciphertextBuf = ByteBuffer.allocate(128);
+        cipher.doFinal(messageBuf, ciphertextBuf);
+        ciphertextBuf.flip();
+
+        ByteBuffer cleartextBuf = ByteBuffer.allocate(MESSAGE.length);
+        cipher.init(Cipher.DECRYPT_MODE, secretKey, paramSpec);
+        cipher.doFinal(ciphertextBuf, cleartextBuf);
+
+        Assertions.assertArrayEquals(MESSAGE, cleartextBuf.array());
+    }
+
+    @Test
+    public void testGCMModeWithReadonlyByteBuffer() throws Exception {
+        SecretKey secretKey = new SecretKeySpec(KEY, "SM4");
+        GCMParameterSpec paramSpec = new GCMParameterSpec(
+                SM4_GCM_TAG_LEN * 8, GCM_IV);
+        Cipher cipher = Cipher.getInstance("SM4/GCM/NoPadding", PROVIDER);
+        cipher.init(Cipher.ENCRYPT_MODE, secretKey, paramSpec);
+
+        ByteBuffer messageBuf = ByteBuffer.allocate(MESSAGE.length);
+        messageBuf.put(MESSAGE);
+        messageBuf.flip();
+        messageBuf = messageBuf.asReadOnlyBuffer();
+        ByteBuffer ciphertextBuf = ByteBuffer.allocate(128);
+        cipher.doFinal(messageBuf, ciphertextBuf);
+        ciphertextBuf.flip();
+        ciphertextBuf = ciphertextBuf.asReadOnlyBuffer();
+
+        ByteBuffer cleartextBuf = ByteBuffer.allocate(MESSAGE.length);
+        cipher.init(Cipher.DECRYPT_MODE, secretKey, paramSpec);
+        cipher.doFinal(ciphertextBuf, cleartextBuf);
+
+        Assertions.assertArrayEquals(MESSAGE, cleartextBuf.array());
+    }
+
+    @Test
+    public void testGCMModeWithSameByteBuffer() throws Exception {
+        SecretKey secretKey = new SecretKeySpec(KEY, "SM4");
+        GCMParameterSpec paramSpec = new GCMParameterSpec(
+                SM4_GCM_TAG_LEN * 8, GCM_IV);
+        Cipher cipher = Cipher.getInstance("SM4/GCM/NoPadding", PROVIDER);
+        cipher.init(Cipher.ENCRYPT_MODE, secretKey, paramSpec);
+
+        ByteBuffer encryptBuf = ByteBuffer.allocate(512);
+        Assertions.assertThrows(IllegalArgumentException.class,
+                () -> cipher.doFinal(encryptBuf, encryptBuf));
+
+        ByteBuffer decryptBuf = ByteBuffer.allocate(MESSAGE.length);
+        cipher.init(Cipher.DECRYPT_MODE, secretKey, paramSpec);
+        Assertions.assertThrows(IllegalArgumentException.class,
+                () -> cipher.doFinal(decryptBuf, decryptBuf));
+    }
+
+    @Test
+    public void testGCMModeWithSameByteArray() throws Exception {
+        SecretKey secretKey = new SecretKeySpec(KEY, "SM4");
+        GCMParameterSpec paramSpec = new GCMParameterSpec(
+                SM4_GCM_TAG_LEN * 8, GCM_IV);
+        Cipher cipher = Cipher.getInstance("SM4/GCM/NoPadding");
+        cipher.init(Cipher.ENCRYPT_MODE, secretKey, paramSpec);
+
+        byte[] hbArray = new byte[512];
+
+        ByteBuffer messageBuf = ByteBuffer.wrap(hbArray);
+        messageBuf.put(MESSAGE);
+        int messageLength = messageBuf.position();
+        messageBuf.flip();
+
+        ByteBuffer ciphertextBuf = ByteBuffer.wrap(hbArray);
+        ciphertextBuf.position(messageLength);
+        cipher.doFinal(messageBuf, ciphertextBuf);
+        int ciphertextLength = ciphertextBuf.position() - messageLength;
+        ciphertextBuf.limit(ciphertextBuf.position());
+        ciphertextBuf.position(messageLength);
+
+        ByteBuffer cleartextBuf = ByteBuffer.wrap(hbArray);
+        cleartextBuf.position(messageLength + ciphertextLength);
+
+        cipher.init(Cipher.DECRYPT_MODE, secretKey, paramSpec);
+        cipher.doFinal(ciphertextBuf, cleartextBuf);
+        int cleartextLength = cleartextBuf.position() - messageLength - ciphertextLength;
+        cleartextBuf.limit(cleartextBuf.position() );
+        cleartextBuf.position(messageLength + ciphertextLength);
+
+        byte[] cleartext = new byte[cleartextLength];
+        cleartextBuf.get(cleartext);
+        Assertions.assertArrayEquals(MESSAGE, cleartext);
+    }
+
+    @Test
+    public void testGCMModeWithDirectByteBuffer() throws Exception {
+        SecretKey secretKey = new SecretKeySpec(KEY, "SM4");
+        GCMParameterSpec paramSpec = new GCMParameterSpec(
+                SM4_GCM_TAG_LEN * 8, GCM_IV);
+        Cipher cipher = Cipher.getInstance("SM4/GCM/NoPadding", PROVIDER);
+        cipher.init(Cipher.ENCRYPT_MODE, secretKey, paramSpec);
+
+        ByteBuffer messageBuf = ByteBuffer.allocateDirect(MESSAGE.length);
+        messageBuf.put(MESSAGE);
+        messageBuf.flip();
+        ByteBuffer ciphertextBuf = ByteBuffer.allocateDirect(128);
+        cipher.doFinal(messageBuf, ciphertextBuf);
+        ciphertextBuf.flip();
+
+        ByteBuffer cleartextBuf = ByteBuffer.allocateDirect(MESSAGE.length);
+        cipher.init(Cipher.DECRYPT_MODE, secretKey, paramSpec);
+        cipher.doFinal(ciphertextBuf, cleartextBuf);
+
+        int length = cleartextBuf.position();
+        cleartextBuf.flip();
+
+        byte[] cleartext = new byte[length];
+        cleartextBuf.get(cleartext, 0, length);
+        Assertions.assertArrayEquals(MESSAGE, cleartext);
+    }
+
+    @Test
+    public void testGCMModeTagMismatchWithDirectByteBuffer() throws Exception {
+        SecretKey secretKey = new SecretKeySpec(KEY, "SM4");
+        GCMParameterSpec paramSpec = new GCMParameterSpec(
+                SM4_GCM_TAG_LEN * 8, GCM_IV);
+        Cipher cipher = Cipher.getInstance("SM4/GCM/NoPadding", PROVIDER);
+        cipher.init(Cipher.DECRYPT_MODE, secretKey, paramSpec);
+
+        ByteBuffer ciphertextBuf = ByteBuffer.allocateDirect(32);
+        ByteBuffer cleartextBuf = ByteBuffer.allocateDirect(32);
+        Assertions.assertThrows(AEADBadTagException.class,
+                () -> cipher.doFinal(ciphertextBuf, cleartextBuf));
     }
 
     @Test
