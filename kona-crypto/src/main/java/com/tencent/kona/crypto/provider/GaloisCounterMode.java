@@ -27,8 +27,8 @@ package com.tencent.kona.crypto.provider;
 
 import com.tencent.kona.crypto.CryptoInsts;
 import com.tencent.kona.crypto.util.Constants;
+import com.tencent.kona.java.nio.DirectBufferUtil;
 import com.tencent.kona.jdk.internal.misc.UnsafeUtil;
-import sun.nio.ch.DirectBuffer;
 import com.tencent.kona.sun.security.jca.JCAUtil;
 import com.tencent.kona.sun.security.util.ArrayUtil;
 
@@ -925,6 +925,41 @@ abstract class GaloisCounterMode extends CipherSpi {
          * If so, make a copy to put the dst data in.
          */
         ByteBuffer overlapDetection(ByteBuffer src, ByteBuffer dst) {
+            if (!src.isDirect() && !dst.isDirect()) {
+                // if src is read only, then we need a copy
+                if (!src.isReadOnly()) {
+                    // If using the heap, check underlying byte[] address.
+                    if (src.array() != dst.array()) {
+                        return dst;
+                    }
+
+                    // Position plus arrayOffset() will give us the true offset
+                    // from the underlying byte[] address.
+                    // If during encryption and the input offset is behind or
+                    // the same as the output offset, the same buffer can be
+                    // used.  But during decryption always create a new
+                    // buffer in case of a bad auth tag.
+                    if (encryption && src.position() + src.arrayOffset() >=
+                        dst.position() + dst.arrayOffset()) {
+                        return dst;
+                    }
+                }
+            }
+
+            // Create a copy
+            ByteBuffer tmp = dst.duplicate();
+            // We can use a heap buffer for internal use, save on alloc cost
+            ByteBuffer bb = ByteBuffer.allocate(dst.remaining());
+            tmp.limit(dst.limit());
+            tmp.position(dst.position());
+            bb.put(tmp);
+            bb.flip();
+            originalDst = dst;
+            return bb;
+        }
+
+        /* ==========
+        ByteBuffer overlapDetection(ByteBuffer src, ByteBuffer dst) {
             if (src.isDirect() && dst.isDirect()) {
                 DirectBuffer dsrc = (DirectBuffer) src;
                 DirectBuffer ddst = (DirectBuffer) dst;
@@ -999,6 +1034,7 @@ abstract class GaloisCounterMode extends CipherSpi {
             originalDst = dst;
             return bb;
         }
+        ========== */
 
         /**
          * This is used for both overlap detection for the data or  decryption
@@ -1602,8 +1638,8 @@ abstract class GaloisCounterMode extends CipherSpi {
                     int ofs = dst.arrayOffset() + dst.position();
                     Arrays.fill(dst.array(), ofs , ofs + len, (byte)0);
                 } else {
-                    UnsafeUtil.setMemory(((DirectBuffer)dst).address(),
-                        len + dst.position(), (byte)0);
+                    UnsafeUtil.setMemory(DirectBufferUtil.address(dst),
+                            len + dst.position(), (byte) 0);
                 }
                 throw new AEADBadTagException("Tag mismatch");
             }
