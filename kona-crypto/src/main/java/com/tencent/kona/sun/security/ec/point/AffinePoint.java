@@ -25,7 +25,9 @@
 package com.tencent.kona.sun.security.ec.point;
 
 import com.tencent.kona.sun.security.util.math.ImmutableIntegerModuloP;
+import com.tencent.kona.sun.security.util.math.IntegerFieldModuloP;
 
+import java.security.spec.ECPoint;
 import java.util.Objects;
 
 /**
@@ -42,6 +44,17 @@ public class AffinePoint {
     public AffinePoint(ImmutableIntegerModuloP x, ImmutableIntegerModuloP y) {
         this.x = x;
         this.y = y;
+    }
+
+    public static AffinePoint fromECPoint(
+            ECPoint ecPoint, IntegerFieldModuloP field) {
+        return new AffinePoint(
+                field.getElement(ecPoint.getAffineX()),
+                field.getElement(ecPoint.getAffineY()));
+    }
+
+    public ECPoint toECPoint() {
+        return new ECPoint(x.asBigInteger(), y.asBigInteger());
     }
 
     public ImmutableIntegerModuloP getX() {
