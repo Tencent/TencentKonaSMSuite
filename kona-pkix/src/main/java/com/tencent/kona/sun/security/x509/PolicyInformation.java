@@ -29,6 +29,7 @@ import java.io.IOException;
 import java.security.cert.PolicyQualifierInfo;
 import java.util.Collections;
 import java.util.LinkedHashSet;
+import java.util.Objects;
 import java.util.Set;
 
 import com.tencent.kona.sun.security.util.DerOutputStream;
@@ -88,7 +89,7 @@ public class PolicyInformation {
         }
         this.policyQualifiers =
                 new LinkedHashSet<>(policyQualifiers);
-        this.policyIdentifier = policyIdentifier;
+        this.policyIdentifier = Objects.requireNonNull(policyIdentifier);
     }
 
     /**

@@ -26,6 +26,7 @@
 package com.tencent.kona.sun.security.x509;
 
 import java.io.IOException;
+import java.util.Objects;
 
 import com.tencent.kona.sun.security.util.DerOutputStream;
 import com.tencent.kona.sun.security.util.DerValue;
@@ -46,7 +47,7 @@ public class CertificatePolicyId {
      * @param id the ObjectIdentifier for the policy id.
      */
     public CertificatePolicyId(ObjectIdentifier id) {
-        this.id = id;
+        this.id = Objects.requireNonNull(id);
     }
 
     /**

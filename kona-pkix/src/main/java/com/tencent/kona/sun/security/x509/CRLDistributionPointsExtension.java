@@ -106,7 +106,8 @@ public class CRLDistributionPointsExtension extends Extension {
      * DistributionPoint.
      *
      * @param isCritical the criticality setting.
-     * @param distributionPoints the list of distribution points
+     * @param distributionPoints the list of distribution points,
+     *                           cannot be null or empty.
      * @throws IOException on error
      */
     public CRLDistributionPointsExtension(boolean isCritical,
@@ -122,6 +123,11 @@ public class CRLDistributionPointsExtension extends Extension {
     protected CRLDistributionPointsExtension(ObjectIdentifier extensionId,
             boolean isCritical, List<DistributionPoint> distributionPoints,
             String extensionName) throws IOException {
+
+        if (distributionPoints == null || distributionPoints.isEmpty()) {
+            throw new IllegalArgumentException(
+                    "distribution points cannot be null or empty");
+        }
 
         this.extensionId = extensionId;
         this.critical = isCritical;
@@ -146,7 +152,7 @@ public class CRLDistributionPointsExtension extends Extension {
      * Creates the extension (also called by the subclass).
      */
     protected CRLDistributionPointsExtension(ObjectIdentifier extensionId,
-                                             Boolean critical, Object value, String extensionName)
+            Boolean critical, Object value, String extensionName)
             throws IOException {
 
         this.extensionId = extensionId;

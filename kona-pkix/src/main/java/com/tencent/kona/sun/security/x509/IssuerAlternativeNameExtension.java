@@ -71,10 +71,7 @@ public class IssuerAlternativeNameExtension extends Extension {
      */
     public IssuerAlternativeNameExtension(GeneralNames names)
             throws IOException {
-        this.names = names;
-        this.extensionId = PKIXExtensions.IssuerAlternativeName_Id;
-        this.critical = false;
-        encodeThis();
+        this(false, names);
     }
 
     /**
@@ -82,24 +79,18 @@ public class IssuerAlternativeNameExtension extends Extension {
      * and GeneralNames.
      *
      * @param critical true if the extension is to be treated as critical.
-     * @param names the GeneralNames for the issuer.
+     * @param names the GeneralNames for the issuer, cannot be null or empty.
      * @exception IOException on error.
      */
     public IssuerAlternativeNameExtension(Boolean critical, GeneralNames names)
             throws IOException {
+        if (names == null || names.isEmpty()) {
+            throw new IllegalArgumentException("names cannot be null or empty");
+        }
         this.names = names;
         this.extensionId = PKIXExtensions.IssuerAlternativeName_Id;
         this.critical = critical.booleanValue();
         encodeThis();
-    }
-
-    /**
-     * Create a default IssuerAlternativeNameExtension.
-     */
-    public IssuerAlternativeNameExtension() {
-        extensionId = PKIXExtensions.IssuerAlternativeName_Id;
-        critical = false;
-        names = new GeneralNames();
     }
 
     /**

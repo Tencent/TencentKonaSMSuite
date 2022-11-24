@@ -26,6 +26,7 @@
 package com.tencent.kona.sun.security.x509;
 
 import java.io.IOException;
+import java.util.Objects;
 
 import com.tencent.kona.sun.security.util.DerOutputStream;
 import com.tencent.kona.sun.security.util.DerValue;
@@ -48,8 +49,8 @@ public class CertificatePolicyMap {
      */
     public CertificatePolicyMap(CertificatePolicyId issuer,
                                 CertificatePolicyId subject) {
-        this.issuerDomain = issuer;
-        this.subjectDomain = subject;
+        this.issuerDomain = Objects.requireNonNull(issuer);
+        this.subjectDomain = Objects.requireNonNull(subject);
     }
 
     /**
