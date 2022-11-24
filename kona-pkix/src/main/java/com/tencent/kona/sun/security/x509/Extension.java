@@ -28,6 +28,7 @@ package com.tencent.kona.sun.security.x509;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Arrays;
+import java.util.Objects;
 
 import com.tencent.kona.sun.security.util.DerEncoder;
 import com.tencent.kona.sun.security.util.DerInputStream;
@@ -177,10 +178,10 @@ public class Extension implements java.security.cert.Extension, DerEncoder {
     @Override
     public void encode(DerOutputStream out) throws IOException {
 
-        if (extensionId == null)
-            throw new IOException("Null OID to encode for the extension!");
-        if (extensionValue == null)
-            throw new IOException("No value to encode for the extension!");
+        Objects.requireNonNull(extensionId,
+                "No OID to encode for the extension");
+        Objects.requireNonNull(extensionValue,
+                "No value to encode for the extension");
 
         DerOutputStream dos = new DerOutputStream();
 

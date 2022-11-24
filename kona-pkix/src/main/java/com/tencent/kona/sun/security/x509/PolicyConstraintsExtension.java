@@ -104,7 +104,7 @@ public class PolicyConstraintsExtension extends Extension {
     /**
      * Create a PolicyConstraintsExtension object with specified
      * criticality and both require explicit policy and inhibit
-     * policy mapping.
+     * policy mapping. At least one should be provided (not -1).
      *
      * @param critical true if the extension is to be treated as critical.
      * @param require require explicit policy (-1 for optional).
@@ -112,6 +112,10 @@ public class PolicyConstraintsExtension extends Extension {
      */
     public PolicyConstraintsExtension(Boolean critical, int require, int inhibit)
             throws IOException {
+        if (require == -1 && inhibit == -1) {
+            throw new IllegalArgumentException(
+                    "require and inhibit cannot both be -1");
+        }
         this.require = require;
         this.inhibit = inhibit;
         this.extensionId = PKIXExtensions.PolicyConstraints_Id;
