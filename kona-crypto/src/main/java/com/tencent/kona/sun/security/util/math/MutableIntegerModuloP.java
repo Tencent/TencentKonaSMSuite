@@ -150,12 +150,4 @@ public interface MutableIntegerModuloP extends IntegerModuloP {
      * @return this
      */
     MutableIntegerModuloP setAdditiveInverse();
-
-    /**
-     * Some implementations required reduction operations to be requested
-     * by the client at certain times. This method reduces the representation.
-     *
-     * @return this
-     */
-    MutableIntegerModuloP setReduced();
 }
