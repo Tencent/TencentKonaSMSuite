@@ -39,9 +39,7 @@ import java.util.Arrays;
 /**
  * A large number polynomial representation using sparse limbs of signed
  * long (64-bit) values. Limb values will always fit within a long, so inputs
- * to multiplication must be less than 32 bits. All IntegerPolynomial
- * implementations allow at most one addition before multiplication. Additions
- * after that will result in an ArithmeticException.
+ * to multiplication must be less than 32 bits.
  *
  * The following element operations are branch-free for all subclasses:
  *
@@ -550,16 +548,22 @@ public abstract class IntegerPolynomial implements IntegerFieldModuloP {
             return new MutableElement(limbs.clone(), numAdds);
         }
 
-        protected boolean isSummand() {
-            return numAdds < maxAdds;
-        }
-
         @Override
         public ImmutableElement add(IntegerModuloP genB) {
             assert IntegerPolynomial.this == genB.getField();
-            Element b = (Element) genB;
-            if (!(isSummand() && b.isSummand())) {
-                throw new ArithmeticException("Not a valid summand");
+            Element b = (Element)genB;
+
+            // Reduce if required.
+            // if (numAdds >= maxAdds) {
+            if (numAdds > 32 - bitsPerLimb) {
+               reduce(limbs);
+               numAdds = 0;
+            }
+
+            // if (b.numAdds >= maxAdds) {
+            if (b.numAdds > 32 - bitsPerLimb) {
+                reduce(b.limbs);
+                b.numAdds = 0;
             }
 
             long[] newLimbs = new long[limbs.length];
@@ -594,7 +598,18 @@ public abstract class IntegerPolynomial implements IntegerFieldModuloP {
         @Override
         public ImmutableElement multiply(IntegerModuloP genB) {
             assert IntegerPolynomial.this == genB.getField();
-            Element b = (Element) genB;
+            Element b = (Element)genB;
+
+            // Reduce if required.
+            if (numAdds > maxAdds) {
+                reduce(limbs);
+                numAdds = 0;
+            }
+
+            if (b.numAdds > maxAdds) {
+                reduce(b.limbs);
+                b.numAdds = 0;
+            }
 
             long[] newLimbs = new long[limbs.length];
             mult(limbs, b.limbs, newLimbs);
@@ -603,6 +618,12 @@ public abstract class IntegerPolynomial implements IntegerFieldModuloP {
 
         @Override
         public ImmutableElement square() {
+            // Reduce if required.
+            if (numAdds > maxAdds) {
+                reduce(limbs);
+                numAdds = 0;
+            }
+
             long[] newLimbs = new long[limbs.length];
             IntegerPolynomial.this.square(limbs, newLimbs);
             return new ImmutableElement(newLimbs, 0);
@@ -610,16 +631,27 @@ public abstract class IntegerPolynomial implements IntegerFieldModuloP {
 
         public void addModPowerTwo(IntegerModuloP arg, byte[] result) {
             assert IntegerPolynomial.this == arg.getField();
-            Element other = (Element) arg;
-            if (!(isSummand() && other.isSummand())) {
-                throw new ArithmeticException("Not a valid summand");
+            Element other = (Element)arg;
+
+            // Reduce if required.
+            if (numAdds > 32 - bitsPerLimb) {
+                reduce(limbs);
+                numAdds = 0;
             }
+
+            if (other.numAdds > 32 - bitsPerLimb) {
+                reduce(other.limbs);
+                other.numAdds = 0;
+            }
+
             addLimbsModPowerTwo(limbs, other.limbs, result);
         }
 
         public void asByteArray(byte[] result) {
-            if (!isSummand()) {
-                throw new ArithmeticException("Not a valid summand");
+            // Reduce if required.
+            if (numAdds != 0) {
+                reduce(limbs);
+                numAdds = 0;
             }
             limbsToByteArray(limbs, result);
         }
@@ -691,7 +723,19 @@ public abstract class IntegerPolynomial implements IntegerFieldModuloP {
         @Override
         public MutableElement setProduct(IntegerModuloP genB) {
             assert IntegerPolynomial.this == genB.getField();
-            Element b = (Element) genB;
+            Element b = (Element)genB;
+
+            // Reduce if required.
+            if (numAdds > maxAdds) {
+                reduce(limbs);
+                numAdds = 0;
+            }
+
+            if (b.numAdds > maxAdds) {
+                reduce(b.limbs);
+                b.numAdds = 0;
+            }
+
             mult(limbs, b.limbs, limbs);
             numAdds = 0;
             return this;
@@ -699,7 +743,13 @@ public abstract class IntegerPolynomial implements IntegerFieldModuloP {
 
         @Override
         public MutableElement setProduct(SmallValue v) {
-            int value = ((Limb) v).value;
+            // Reduce if required.
+            if (numAdds > maxAdds) {
+                reduce(limbs);
+                numAdds = 0;
+            }
+
+            int value = ((Limb)v).value;
             multByInt(limbs, value);
             numAdds = 0;
             return this;
@@ -708,9 +758,19 @@ public abstract class IntegerPolynomial implements IntegerFieldModuloP {
         @Override
         public MutableElement setSum(IntegerModuloP genB) {
             assert IntegerPolynomial.this == genB.getField();
-            Element b = (Element) genB;
-            if (!(isSummand() && b.isSummand())) {
-                throw new ArithmeticException("Not a valid summand");
+            Element b = (Element)genB;
+
+            // Reduce if required.
+            // if (numAdds >= maxAdds) {
+            if (numAdds > 32 - bitsPerLimb) {
+               reduce(limbs);
+               numAdds = 0;
+            }
+
+            // if (b.numAdds >= maxAdds) {
+            if (b.numAdds > 32 - bitsPerLimb) {
+                reduce(b.limbs);
+                b.numAdds = 0;
             }
 
             for (int i = 0; i < limbs.length; i++) {
@@ -724,9 +784,19 @@ public abstract class IntegerPolynomial implements IntegerFieldModuloP {
         @Override
         public MutableElement setDifference(IntegerModuloP genB) {
             assert IntegerPolynomial.this == genB.getField();
-            Element b = (Element) genB;
-            if (!(isSummand() && b.isSummand())) {
-                throw new ArithmeticException("Not a valid summand");
+            Element b = (Element)genB;
+
+            // Reduce if required.
+            // if (numAdds >= maxAdds) {
+            if (numAdds > 32 - bitsPerLimb) {
+               reduce(limbs);
+               numAdds = 0;
+            }
+
+            // if (b.numAdds >= maxAdds) {
+            if (b.numAdds > 32 - bitsPerLimb) {
+                reduce(b.limbs);
+                b.numAdds = 0;
             }
 
             for (int i = 0; i < limbs.length; i++) {
@@ -739,6 +809,12 @@ public abstract class IntegerPolynomial implements IntegerFieldModuloP {
 
         @Override
         public MutableElement setSquare() {
+            // Reduce if required.
+            if (numAdds > maxAdds) {
+                reduce(limbs);
+                numAdds = 0;
+            }
+
             IntegerPolynomial.this.square(limbs, limbs);
             numAdds = 0;
             return this;
@@ -749,13 +825,6 @@ public abstract class IntegerPolynomial implements IntegerFieldModuloP {
             for (int i = 0; i < limbs.length; i++) {
                 limbs[i] = -limbs[i];
             }
-            return this;
-        }
-
-        @Override
-        public MutableElement setReduced() {
-            reduce(limbs);
-            numAdds = 0;
             return this;
         }
     }
@@ -788,6 +857,4 @@ public abstract class IntegerPolynomial implements IntegerFieldModuloP {
             this.value = value;
         }
     }
-
-
 }

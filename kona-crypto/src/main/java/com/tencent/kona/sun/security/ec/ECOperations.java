@@ -336,7 +336,6 @@ public class ECOperations {
         t1.setValue(p.getY()).setProduct(p2.getY());
         t3.setValue(p2.getX()).setSum(p2.getY());
         t4.setValue(p.getX()).setSum(p.getY());
-        p.getX().setReduced();
         t3.setProduct(t4);
         t4.setValue(t0).setSum(t1);
 
@@ -350,26 +349,19 @@ public class ECOperations {
         p.getZ().setProduct(b);
 
         p.getX().setValue(p.getY()).setDifference(p.getZ());
-        p.getX().setReduced();
-        p.getZ().setValue(p.getX()).setProduct(two);
-        p.getX().setSum(p.getZ());
+        p.getX().setProduct(three);
 
         p.getZ().setValue(t1).setDifference(p.getX());
         p.getX().setSum(t1);
         p.getY().setProduct(b);
 
-        t1.setValue(t2).setProduct(two);
-        t2.setSum(t1);
-        t2.setReduced();
+        t2.setProduct(three);
         p.getY().setDifference(t2);
 
         p.getY().setDifference(t0);
-        p.getY().setReduced();
-        t1.setValue(p.getY()).setProduct(two);
-        p.getY().setSum(t1);
+        p.getY().setProduct(three);
 
-        t1.setValue(t0).setProduct(two);
-        t0.setSum(t1);
+        t0.setProduct(three);
         t0.setDifference(t2);
 
         t1.setValue(t4).setProduct(p.getY());
@@ -383,7 +375,6 @@ public class ECOperations {
         p.getZ().setProduct(t4);
         t3.setProduct(t0);
         p.getZ().setSum(t3);
-
     }
 
     /*
@@ -417,30 +408,23 @@ public class ECOperations {
         p.getX().setProduct(p.getY());
         p.getY().setValue(t0).setSum(t2);
         p.getY().setAdditiveInverse().setSum(p.getX());
-        p.getY().setReduced();
 
         p.getZ().setValue(t2).setProduct(b);
         p.getX().setValue(p.getY()).setDifference(p.getZ());
-        p.getZ().setValue(p.getX()).setProduct(two);
 
-        p.getX().setSum(p.getZ());
-        p.getX().setReduced();
+        p.getX().setProduct(three);
+
         p.getZ().setValue(t1).setDifference(p.getX());
         p.getX().setSum(t1);
 
         p.getY().setProduct(b);
-        t1.setValue(t2).setSum(t2);
-        t2.setSum(t1);
-        t2.setReduced();
+        t2.setProduct(three);
 
         p.getY().setDifference(t2);
         p.getY().setDifference(t0);
-        p.getY().setReduced();
-        t1.setValue(p.getY()).setSum(p.getY());
+        p.getY().setProduct(three);
 
-        p.getY().setSum(t1);
-        t1.setValue(t0).setProduct(two);
-        t0.setSum(t1);
+        t0.setProduct(three);
 
         t0.setDifference(t2);
         t1.setValue(t4).setProduct(p.getY());
