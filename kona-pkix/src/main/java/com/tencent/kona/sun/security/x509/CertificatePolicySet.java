@@ -30,6 +30,7 @@ import java.util.Vector;
 import java.util.List;
 import java.util.Collections;
 
+import com.tencent.kona.sun.security.util.DerEncoder;
 import com.tencent.kona.sun.security.util.DerInputStream;
 import com.tencent.kona.sun.security.util.DerOutputStream;
 import com.tencent.kona.sun.security.util.DerValue;
@@ -40,7 +41,7 @@ import com.tencent.kona.sun.security.util.DerValue;
  * @author Amit Kapoor
  * @author Hemma Prafullchandra
  */
-public class CertificatePolicySet {
+public class CertificatePolicySet implements DerEncoder {
 
     private final Vector<CertificatePolicyId> ids;
 
@@ -83,7 +84,8 @@ public class CertificatePolicySet {
      *
      * @param out the DerOutputStream to encode the data to.
      */
-    public void encode(DerOutputStream out) throws IOException {
+    @Override
+    public void encode(DerOutputStream out) {
         DerOutputStream tmp = new DerOutputStream();
 
         for (int i = 0; i < ids.size(); i++) {

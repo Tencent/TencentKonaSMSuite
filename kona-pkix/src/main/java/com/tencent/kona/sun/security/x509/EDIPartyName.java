@@ -126,9 +126,8 @@ public class EDIPartyName implements GeneralNameInterface {
      * Encode the EDI party name into the DerOutputStream.
      *
      * @param out the DER stream to encode the EDIPartyName to.
-     * @exception IOException on encoding errors.
      */
-    public void encode(DerOutputStream out) throws IOException {
+    public void encode(DerOutputStream out) {
         DerOutputStream tagged = new DerOutputStream();
         DerOutputStream tmp = new DerOutputStream();
 

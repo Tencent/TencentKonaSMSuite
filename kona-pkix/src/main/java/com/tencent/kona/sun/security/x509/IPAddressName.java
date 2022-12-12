@@ -227,9 +227,8 @@ public class IPAddressName implements GeneralNameInterface {
      * Encode the IPAddress name into the DerOutputStream.
      *
      * @param out the DER stream to encode the IPAddressName to.
-     * @exception IOException on encoding errors.
      */
-    public void encode(DerOutputStream out) throws IOException {
+    public void encode(DerOutputStream out) {
         out.putOctetString(address);
     }
 

@@ -28,6 +28,7 @@ package com.tencent.kona.sun.security.x509;
 import java.io.IOException;
 import java.util.Objects;
 
+import com.tencent.kona.sun.security.util.DerEncoder;
 import com.tencent.kona.sun.security.util.DerOutputStream;
 import com.tencent.kona.sun.security.util.DerValue;
 
@@ -37,7 +38,7 @@ import com.tencent.kona.sun.security.util.DerValue;
  * @author Amit Kapoor
  * @author Hemma Prafullchandra
  */
-public class CertificatePolicyMap {
+public class CertificatePolicyMap implements DerEncoder {
     private final CertificatePolicyId issuerDomain;
     private final CertificatePolicyId subjectDomain;
 
@@ -96,7 +97,8 @@ public class CertificatePolicyMap {
      * @param out the DerOutputStream to write the object to.
      * @exception IOException on errors.
      */
-    public void encode(DerOutputStream out) throws IOException {
+    @Override
+    public void encode(DerOutputStream out) {
         DerOutputStream tmp = new DerOutputStream();
 
         issuerDomain.encode(tmp);

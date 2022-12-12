@@ -27,6 +27,7 @@ package com.tencent.kona.sun.security.pkcs;
 
 import java.io.*;
 
+import com.tencent.kona.sun.security.util.DerEncoder;
 import com.tencent.kona.sun.security.util.DerInputStream;
 import com.tencent.kona.sun.security.util.DerOutputStream;
 import com.tencent.kona.sun.security.util.DerValue;
@@ -40,7 +41,7 @@ import com.tencent.kona.sun.security.util.Oid;
  * @author Benjamin Renaud
  */
 
-public class ContentInfo {
+public class ContentInfo implements DerEncoder {
 
     // pkcs7 pre-defined content types
     public static final ObjectIdentifier PKCS7_OID =
@@ -171,7 +172,8 @@ public class ContentInfo {
         throw new IOException("content type is not DATA: " + contentType);
     }
 
-    public void encode(DerOutputStream out) throws IOException {
+    @Override
+    public void encode(DerOutputStream out) {
         DerOutputStream contentDerCode;
         DerOutputStream seq;
 

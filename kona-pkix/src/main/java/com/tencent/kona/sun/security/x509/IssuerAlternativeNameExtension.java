@@ -53,7 +53,7 @@ public class IssuerAlternativeNameExtension extends Extension {
     GeneralNames names;
 
     // Encode this extension
-    private void encodeThis() throws IOException {
+    private void encodeThis() {
         if (names == null || names.isEmpty()) {
             this.extensionValue = null;
             return;
@@ -67,10 +67,8 @@ public class IssuerAlternativeNameExtension extends Extension {
      * Create a IssuerAlternativeNameExtension with the passed GeneralNames.
      *
      * @param names the GeneralNames for the issuer.
-     * @exception IOException on error.
      */
-    public IssuerAlternativeNameExtension(GeneralNames names)
-            throws IOException {
+    public IssuerAlternativeNameExtension(GeneralNames names) {
         this(false, names);
     }
 
@@ -80,10 +78,8 @@ public class IssuerAlternativeNameExtension extends Extension {
      *
      * @param critical true if the extension is to be treated as critical.
      * @param names the GeneralNames for the issuer, cannot be null or empty.
-     * @exception IOException on error.
      */
-    public IssuerAlternativeNameExtension(Boolean critical, GeneralNames names)
-            throws IOException {
+    public IssuerAlternativeNameExtension(Boolean critical, GeneralNames names) {
         if (names == null || names.isEmpty()) {
             throw new IllegalArgumentException("names cannot be null or empty");
         }
@@ -139,10 +135,9 @@ public class IssuerAlternativeNameExtension extends Extension {
      * Write the extension to the OutputStream.
      *
      * @param out the DerOutputStream to write the extension to.
-     * @exception IOException on encoding error.
      */
     @Override
-    public void encode(DerOutputStream out) throws IOException {
+    public void encode(DerOutputStream out) {
         if (extensionValue == null) {
             extensionId = PKIXExtensions.IssuerAlternativeName_Id;
             critical = false;

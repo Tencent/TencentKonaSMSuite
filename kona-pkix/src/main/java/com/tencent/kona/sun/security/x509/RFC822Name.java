@@ -115,9 +115,8 @@ public class RFC822Name implements GeneralNameInterface
      * Encode the RFC822 name into the DerOutputStream.
      *
      * @param out the DER stream to encode the RFC822Name to.
-     * @exception IOException on encoding errors.
      */
-    public void encode(DerOutputStream out) throws IOException {
+    public void encode(DerOutputStream out) {
         out.putIA5String(name);
     }
 

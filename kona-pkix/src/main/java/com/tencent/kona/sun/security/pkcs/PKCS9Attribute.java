@@ -26,7 +26,6 @@
 package com.tencent.kona.sun.security.pkcs;
 
 import java.io.IOException;
-import java.security.cert.CertificateException;
 import java.util.Date;
 
 import com.tencent.kona.sun.security.util.Debug;
@@ -538,12 +537,13 @@ public class PKCS9Attribute implements DerEncoder {
      * should be encoded as <code>T61String</code>s.
      */
     @Override
-    public void encode(DerOutputStream out) throws IOException {
+    public void encode(DerOutputStream out) {
         DerOutputStream temp = new DerOutputStream();
         temp.putOID(oid);
         switch (index) {
             case -1:    // Unknown
-                temp.write((byte[])value);
+                byte[] bytes = (byte[]) value;
+                temp.write(bytes, 0, bytes.length);
                 break;
             case 1:     // email address
             case 2:     // unstructured name

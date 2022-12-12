@@ -26,7 +26,6 @@
 package com.tencent.kona.sun.security.pkcs;
 
 import java.io.IOException;
-import java.io.OutputStream;
 import java.util.Hashtable;
 
 import com.tencent.kona.sun.security.util.DerEncoder;
@@ -232,15 +231,13 @@ public class PKCS9Attributes {
      *
      * @param tag the implicit tag to use in the DER encoding.
      * @param out the output stream on which to put the DER encoding.
-     *
-     * @exception IOException  on output error.
      */
-    public void encode(byte tag, OutputStream out) throws IOException {
+    public void encode(byte tag, DerOutputStream out) {
         out.write(tag);
         out.write(derEncoding, 1, derEncoding.length -1);
     }
 
-    private byte[] generateDerEncoding() throws IOException {
+    private byte[] generateDerEncoding() {
         DerOutputStream out = new DerOutputStream();
         DerEncoder[] attribVals = attributes.values().toArray(new DerEncoder[0]);
         out.putOrderedSetOf(DerValue.tag_SetOf, attribVals);
@@ -251,7 +248,7 @@ public class PKCS9Attributes {
      * Return the DER encoding of this attribute set, tagged with
      * DerValue.tag_SetOf.
      */
-    public byte[] getDerEncoding() throws IOException {
+    public byte[] getDerEncoding() {
         return derEncoding.clone();
 
     }

@@ -25,7 +25,6 @@
 
 package com.tencent.kona.sun.security.util;
 
-import java.io.IOException;
 import java.math.BigInteger;
 
 import java.security.spec.*;
@@ -58,11 +57,7 @@ public final class NamedCurve extends ECParameterSpec {
         this.oid = ko.value();
 
         DerOutputStream out = new DerOutputStream();
-        try {
-            out.putOID(Oid.of(ko));
-        } catch (IOException e) {
-            throw new RuntimeException("Internal error", e);
-        }
+        out.putOID(Oid.of(ko));
         encoded = out.toByteArray();
     }
 

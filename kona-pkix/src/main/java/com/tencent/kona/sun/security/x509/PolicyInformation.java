@@ -32,6 +32,7 @@ import java.util.LinkedHashSet;
 import java.util.Objects;
 import java.util.Set;
 
+import com.tencent.kona.sun.security.util.DerEncoder;
 import com.tencent.kona.sun.security.util.DerOutputStream;
 import com.tencent.kona.sun.security.util.DerValue;
 
@@ -60,7 +61,7 @@ import com.tencent.kona.sun.security.util.DerValue;
  * @author Anne Anderson
  * @since       1.4
  */
-public class PolicyInformation {
+public class PolicyInformation implements DerEncoder {
 
     // Attribute names
     public static final String NAME       = "PolicyInformation";
@@ -180,15 +181,15 @@ public class PolicyInformation {
      * Write the PolicyInformation to the DerOutputStream.
      *
      * @param out the DerOutputStream to write the extension to.
-     * @exception IOException on encoding errors.
      */
-    public void encode(DerOutputStream out) throws IOException {
+    public void encode(DerOutputStream out) {
         DerOutputStream tmp = new DerOutputStream();
         policyIdentifier.encode(tmp);
         if (!policyQualifiers.isEmpty()) {
             DerOutputStream tmp2 = new DerOutputStream();
             for (PolicyQualifierInfo pq : policyQualifiers) {
-                tmp2.write(pq.getEncoded());
+                byte[] bufBytes = pq.getEncoded();
+                tmp2.write(bufBytes, 0, bufBytes.length);
             }
             tmp.write(DerValue.tag_Sequence, tmp2);
         }

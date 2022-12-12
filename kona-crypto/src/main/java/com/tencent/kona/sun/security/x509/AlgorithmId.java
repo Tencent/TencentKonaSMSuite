@@ -162,7 +162,7 @@ public class AlgorithmId implements Serializable, DerEncoder {
      * @exception IOException on encoding error.
      */
     @Override
-    public void encode(DerOutputStream out) throws IOException {
+    public void encode(DerOutputStream out) {
         DerOutputStream bytes = new DerOutputStream();
 
         bytes.putOID(algid);
@@ -223,7 +223,7 @@ public class AlgorithmId implements Serializable, DerEncoder {
                 bytes.putNull();
             }
         } else {
-            bytes.write(encodedParams);
+            bytes.write(encodedParams, 0, encodedParams.length);
         }
         out.write(DerValue.tag_Sequence, bytes);
     }
@@ -232,7 +232,7 @@ public class AlgorithmId implements Serializable, DerEncoder {
     /**
      * Returns the DER-encoded X.509 AlgorithmId as a byte array.
      */
-    public final byte[] encode() throws IOException {
+    public final byte[] encode() {
         DerOutputStream out = new DerOutputStream();
         encode(out);
         return out.toByteArray();

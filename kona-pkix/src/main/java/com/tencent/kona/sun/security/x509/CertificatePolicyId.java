@@ -28,6 +28,7 @@ package com.tencent.kona.sun.security.x509;
 import java.io.IOException;
 import java.util.Objects;
 
+import com.tencent.kona.sun.security.util.DerEncoder;
 import com.tencent.kona.sun.security.util.DerOutputStream;
 import com.tencent.kona.sun.security.util.DerValue;
 import com.tencent.kona.sun.security.util.ObjectIdentifier;
@@ -38,7 +39,7 @@ import com.tencent.kona.sun.security.util.ObjectIdentifier;
  * @author Amit Kapoor
  * @author Hemma Prafullchandra
  */
-public class CertificatePolicyId {
+public class CertificatePolicyId implements DerEncoder {
     private final ObjectIdentifier id;
 
     /**
@@ -79,9 +80,9 @@ public class CertificatePolicyId {
      * Write the CertificatePolicyId to the DerOutputStream.
      *
      * @param out the DerOutputStream to write the object to.
-     * @exception IOException on errors.
      */
-    public void encode(DerOutputStream out) throws IOException {
+    @Override
+    public void encode(DerOutputStream out) {
         out.putOID(id);
     }
 
