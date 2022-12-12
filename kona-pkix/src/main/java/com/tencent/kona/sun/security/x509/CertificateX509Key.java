@@ -90,11 +90,11 @@ public class CertificateX509Key implements DerEncoder {
      * Encode the key in DER form to the stream.
      *
      * @param out the DerOutputStream to marshal the contents to.
-     * @exception IOException on errors.
      */
     @Override
-    public void encode(DerOutputStream out) throws IOException {
-        out.write(key.getEncoded());
+    public void encode(DerOutputStream out) {
+        byte[] bytes = key.getEncoded();
+        out.write(bytes, 0, bytes.length);
     }
 
     /**

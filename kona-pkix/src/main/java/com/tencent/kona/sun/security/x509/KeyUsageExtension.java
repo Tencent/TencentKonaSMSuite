@@ -61,7 +61,7 @@ public class KeyUsageExtension extends Extension {
     private boolean[] bitString;
 
     // Encode this extension value
-    private void encodeThis() throws IOException {
+    private void encodeThis() {
         DerOutputStream os = new DerOutputStream();
         os.putTruncatedUnalignedBitString(new BitArray(this.bitString));
         this.extensionValue = os.toByteArray();
@@ -96,7 +96,7 @@ public class KeyUsageExtension extends Extension {
      *
      * @param bitString the bits to be set for the extension.
      */
-    public KeyUsageExtension(byte[] bitString) throws IOException {
+    public KeyUsageExtension(byte[] bitString) {
         this.bitString =
                 new BitArray(bitString.length*8,bitString).toBooleanArray();
         this.extensionId = PKIXExtensions.KeyUsage_Id;
@@ -110,7 +110,7 @@ public class KeyUsageExtension extends Extension {
      *
      * @param bitString the bits to be set for the extension.
      */
-    public KeyUsageExtension(boolean[] bitString) throws IOException {
+    public KeyUsageExtension(boolean[] bitString) {
         this.bitString = bitString;
         this.extensionId = PKIXExtensions.KeyUsage_Id;
         this.critical = true;
@@ -123,7 +123,7 @@ public class KeyUsageExtension extends Extension {
      *
      * @param bitString the bits to be set for the extension.
      */
-    public KeyUsageExtension(BitArray bitString) throws IOException {
+    public KeyUsageExtension(BitArray bitString) {
         this.bitString = bitString.toBooleanArray();
         this.extensionId = PKIXExtensions.KeyUsage_Id;
         this.critical = true;
@@ -273,10 +273,9 @@ public class KeyUsageExtension extends Extension {
      * Write the extension to the DerOutputStream.
      *
      * @param out the DerOutputStream to write the extension to.
-     * @exception IOException on encoding errors.
      */
     @Override
-    public void encode(DerOutputStream out) throws IOException {
+    public void encode(DerOutputStream out) {
         if (this.extensionValue == null) {
            this.extensionId = PKIXExtensions.KeyUsage_Id;
            this.critical = true;

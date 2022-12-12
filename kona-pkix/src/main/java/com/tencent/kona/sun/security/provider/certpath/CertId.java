@@ -35,6 +35,7 @@ import java.util.Arrays;
 import javax.security.auth.x500.X500Principal;
 
 import com.tencent.kona.crypto.CryptoInsts;
+import com.tencent.kona.sun.security.util.DerEncoder;
 import com.tencent.kona.sun.security.util.DerInputStream;
 import com.tencent.kona.sun.security.util.DerOutputStream;
 import com.tencent.kona.sun.security.util.DerValue;
@@ -60,7 +61,7 @@ import com.tencent.kona.sun.security.x509.SerialNumber;
  * @author      Ram Marti
  */
 
-public class CertId {
+public class CertId implements DerEncoder {
 
     private static final boolean debug = false;
     private static final AlgorithmId SHA1_ALGID
@@ -159,7 +160,8 @@ public class CertId {
      * Encode the CertId using ASN.1 DER.
      * The hash algorithm used is SHA-1.
      */
-    public void encode(DerOutputStream out) throws IOException {
+    @Override
+    public void encode(DerOutputStream out) {
 
         DerOutputStream tmp = new DerOutputStream();
         hashAlgId.encode(tmp);

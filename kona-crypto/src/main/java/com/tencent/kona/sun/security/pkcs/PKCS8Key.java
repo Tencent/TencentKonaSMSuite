@@ -199,8 +199,7 @@ public class PKCS8Key implements PrivateKey {
      * or {@code null} if an encoding error occurs.
      */
     public byte[] getEncoded() {
-        byte[] b = getEncodedInternal();
-        return (b == null) ? null : b.clone();
+        return getEncodedInternal().clone();
     }
 
     /**
@@ -218,17 +217,13 @@ public class PKCS8Key implements PrivateKey {
      */
     private synchronized byte[] getEncodedInternal() {
         if (encodedKey == null) {
-            try {
-                DerOutputStream tmp = new DerOutputStream();
-                tmp.putInteger(V1);
-                algid.encode(tmp);
-                tmp.putOctetString(key);
-                DerValue out = DerValue.wrap(DerValue.tag_Sequence, tmp);
-                encodedKey = out.toByteArray();
-                out.clear();
-            } catch (IOException e) {
-                // encodedKey is still null
-            }
+            DerOutputStream tmp = new DerOutputStream();
+            tmp.putInteger(V1);
+            algid.encode(tmp);
+            tmp.putOctetString(key);
+            DerValue out = DerValue.wrap(DerValue.tag_Sequence, tmp);
+            encodedKey = out.toByteArray();
+            out.clear();
         }
         return encodedKey;
     }

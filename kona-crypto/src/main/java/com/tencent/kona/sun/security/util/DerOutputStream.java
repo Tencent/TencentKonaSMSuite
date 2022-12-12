@@ -26,7 +26,6 @@
 package com.tencent.kona.sun.security.util;
 
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.math.BigInteger;
 import java.nio.charset.Charset;
 import java.text.SimpleDateFormat;
@@ -55,8 +54,8 @@ import static java.nio.charset.StandardCharsets.UTF_8;
  * @author Amit Kapoor
  * @author Hemma Prafullchandra
  */
-public class DerOutputStream
-extends ByteArrayOutputStream implements DerEncoder {
+public final class DerOutputStream
+        extends ByteArrayOutputStream implements DerEncoder {
     /**
      * Construct a DER output stream.
      *
@@ -78,7 +77,7 @@ extends ByteArrayOutputStream implements DerEncoder {
      *          <em>DerValue.tag_Sequence</em>
      * @param buf buffered data, which must be DER-encoded
      */
-    public DerOutputStream write(byte tag, byte[] buf) throws IOException {
+    public DerOutputStream write(byte tag, byte[] buf) {
         write(tag);
         putLength(buf.length);
         write(buf, 0, buf.length);
@@ -94,7 +93,7 @@ extends ByteArrayOutputStream implements DerEncoder {
      *          <em>DerValue.tag_Sequence</em>
      * @param out buffered data
      */
-    public DerOutputStream write(byte tag, DerOutputStream out) throws IOException {
+    public DerOutputStream write(byte tag, DerOutputStream out) {
         write(tag);
         putLength(out.count);
         write(out.buf, 0, out.count);
@@ -118,8 +117,7 @@ extends ByteArrayOutputStream implements DerEncoder {
      * explicit tagging the form is always constructed.
      * @param value original value being implicitly tagged
      */
-    public DerOutputStream writeImplicit(byte tag, DerOutputStream value)
-    throws IOException {
+    public DerOutputStream writeImplicit(byte tag, DerOutputStream value) {
         write(tag);
         write(value.buf, 1, value.count-1);
         return this;
@@ -128,7 +126,7 @@ extends ByteArrayOutputStream implements DerEncoder {
     /**
      * Marshals pre-encoded DER value onto the output stream.
      */
-    public DerOutputStream putDerValue(DerValue val) throws IOException {
+    public DerOutputStream putDerValue(DerValue val) {
         val.encode(this);
         return this;
     }
@@ -144,7 +142,7 @@ extends ByteArrayOutputStream implements DerEncoder {
     /**
      * Marshals a DER boolean on the output stream.
      */
-    public DerOutputStream putBoolean(boolean val) throws IOException {
+    public DerOutputStream putBoolean(boolean val) {
         write(DerValue.tag_Boolean);
         putLength(1);
         if (val) {
@@ -159,7 +157,7 @@ extends ByteArrayOutputStream implements DerEncoder {
      * Marshals a DER enumerated on the output stream.
      * @param i the enumerated value.
      */
-    public DerOutputStream putEnumerated(int i) throws IOException {
+    public DerOutputStream putEnumerated(int i) {
         write(DerValue.tag_Enumerated);
         putIntegerContents(i);
         return this;
@@ -170,7 +168,7 @@ extends ByteArrayOutputStream implements DerEncoder {
      *
      * @param i the integer in the form of a BigInteger.
      */
-    public DerOutputStream putInteger(BigInteger i) throws IOException {
+    public DerOutputStream putInteger(BigInteger i) {
         write(DerValue.tag_Integer);
         byte[]    buf = i.toByteArray(); // least number  of bytes
         putLength(buf.length);
@@ -183,7 +181,7 @@ extends ByteArrayOutputStream implements DerEncoder {
      *
      * @param buf the integer in bytes, equivalent to BigInteger::toByteArray.
      */
-    public DerOutputStream putInteger(byte[] buf) throws IOException {
+    public DerOutputStream putInteger(byte[] buf) {
         write(DerValue.tag_Integer);
         putLength(buf.length);
         write(buf, 0, buf.length);
@@ -194,7 +192,7 @@ extends ByteArrayOutputStream implements DerEncoder {
      * Marshals a DER integer on the output stream.
      * @param i the integer in the form of an Integer.
      */
-    public DerOutputStream putInteger(Integer i) throws IOException {
+    public DerOutputStream putInteger(Integer i) {
         putInteger(i.intValue());
         return this;
     }
@@ -203,13 +201,13 @@ extends ByteArrayOutputStream implements DerEncoder {
      * Marshals a DER integer on the output stream.
      * @param i the integer.
      */
-    public DerOutputStream putInteger(int i) throws IOException {
+    public DerOutputStream putInteger(int i) {
         write(DerValue.tag_Integer);
         putIntegerContents(i);
         return this;
     }
 
-    private void putIntegerContents(int i) throws IOException {
+    private void putIntegerContents(int i) {
 
         byte[] bytes = new byte[4];
         int start = 0;
@@ -259,11 +257,11 @@ extends ByteArrayOutputStream implements DerEncoder {
      *
      * @param bits the bit string, MSB first
      */
-    public DerOutputStream putBitString(byte[] bits) throws IOException {
+    public DerOutputStream putBitString(byte[] bits) {
         write(DerValue.tag_BitString);
         putLength(bits.length + 1);
         write(0);               // all of last octet is used
-        write(bits);
+        write(bits, 0, bits.length);
         return this;
     }
 
@@ -273,13 +271,13 @@ extends ByteArrayOutputStream implements DerEncoder {
      *
      * @param ba the bit string, MSB first
      */
-    public DerOutputStream putUnalignedBitString(BitArray ba) throws IOException {
+    public DerOutputStream putUnalignedBitString(BitArray ba) {
         byte[] bits = ba.toByteArray();
 
         write(DerValue.tag_BitString);
         putLength(bits.length + 1);
         write(bits.length*8 - ba.length()); // excess bits in last octet
-        write(bits);
+        write(bits, 0, bits.length);
         return this;
     }
 
@@ -289,7 +287,7 @@ extends ByteArrayOutputStream implements DerEncoder {
      *
      * @param ba the bit string, MSB first
      */
-    public DerOutputStream putTruncatedUnalignedBitString(BitArray ba) throws IOException {
+    public DerOutputStream putTruncatedUnalignedBitString(BitArray ba) {
         putUnalignedBitString(ba.truncate());
         return this;
     }
@@ -299,7 +297,7 @@ extends ByteArrayOutputStream implements DerEncoder {
      *
      * @param octets the octet string
      */
-    public DerOutputStream putOctetString(byte[] octets) throws IOException {
+    public DerOutputStream putOctetString(byte[] octets) {
         write(DerValue.tag_OctetString, octets);
         return this;
     }
@@ -308,7 +306,7 @@ extends ByteArrayOutputStream implements DerEncoder {
      * Marshals a DER "null" value on the output stream.  These are
      * often used to indicate optional values which have been omitted.
      */
-    public DerOutputStream putNull() throws IOException {
+    public DerOutputStream putNull() {
         write(DerValue.tag_Null);
         putLength(0);
         return this;
@@ -318,7 +316,7 @@ extends ByteArrayOutputStream implements DerEncoder {
      * Marshals an object identifier (OID) on the output stream.
      * Corresponds to the ASN.1 "OBJECT IDENTIFIER" construct.
      */
-    public DerOutputStream putOID(ObjectIdentifier oid) throws IOException {
+    public DerOutputStream putOID(ObjectIdentifier oid) {
         oid.encode(this);
         return this;
     }
@@ -328,7 +326,7 @@ extends ByteArrayOutputStream implements DerEncoder {
      * the ASN.1 "SEQUENCE" (zero to N values) and "SEQUENCE OF"
      * (one to N values) constructs.
      */
-    public DerOutputStream putSequence(DerValue[] seq) throws IOException {
+    public DerOutputStream putSequence(DerValue[] seq) {
         DerOutputStream bytes = new DerOutputStream();
         int i;
 
@@ -345,7 +343,7 @@ extends ByteArrayOutputStream implements DerEncoder {
      *
      * For DER encoding, use orderedPutSet() or orderedPutSetOf().
      */
-    public DerOutputStream putSet(DerValue[] set) throws IOException {
+    public DerOutputStream putSet(DerValue[] set) {
         DerOutputStream bytes = new DerOutputStream();
         int i;
 
@@ -365,7 +363,7 @@ extends ByteArrayOutputStream implements DerEncoder {
      * This method supports the ASN.1 "SET OF" construct, but not
      * "SET", which uses a different order.
      */
-    public DerOutputStream putOrderedSetOf(byte tag, DerEncoder[] set) throws IOException {
+    public DerOutputStream putOrderedSetOf(byte tag, DerEncoder[] set) {
         return putOrderedSet(tag, set, lexOrder);
     }
 
@@ -379,7 +377,7 @@ extends ByteArrayOutputStream implements DerEncoder {
      * This method supports the ASN.1 "SET" construct, but not
      * "SET OF", which uses a different order.
      */
-    public DerOutputStream putOrderedSet(byte tag, DerEncoder[] set) throws IOException {
+    public DerOutputStream putOrderedSet(byte tag, DerEncoder[] set) {
         return putOrderedSet(tag, set, tagOrder);
     }
 
@@ -402,7 +400,7 @@ extends ByteArrayOutputStream implements DerEncoder {
      * @param order the order to use when sorting encodings of components.
      */
     private DerOutputStream putOrderedSet(byte tag, DerEncoder[] set,
-                               Comparator<byte[]> order) throws IOException {
+                               Comparator<byte[]> order) {
         DerOutputStream[] streams = new DerOutputStream[set.length];
 
         for (int i = 0; i < set.length; i++) {
@@ -419,7 +417,7 @@ extends ByteArrayOutputStream implements DerEncoder {
 
         DerOutputStream bytes = new DerOutputStream();
         for (int i = 0; i < streams.length; i++) {
-            bytes.write(bufs[i]);
+            bytes.write(bufs[i], 0, bufs[i].length);
         }
         return write(tag, bytes);
     }
@@ -427,21 +425,21 @@ extends ByteArrayOutputStream implements DerEncoder {
     /**
      * Marshals a string as a DER encoded UTF8String.
      */
-    public DerOutputStream putUTF8String(String s) throws IOException {
+    public DerOutputStream putUTF8String(String s) {
         return writeString(s, DerValue.tag_UTF8String, UTF_8);
     }
 
     /**
      * Marshals a string as a DER encoded PrintableString.
      */
-    public DerOutputStream putPrintableString(String s) throws IOException {
+    public DerOutputStream putPrintableString(String s) {
         return writeString(s, DerValue.tag_PrintableString, US_ASCII);
     }
 
     /**
      * Marshals a string as a DER encoded T61String.
      */
-    public DerOutputStream putT61String(String s) throws IOException {
+    public DerOutputStream putT61String(String s) {
         /*
          * Works for characters that are defined in both ASCII and
          * T61.
@@ -452,21 +450,21 @@ extends ByteArrayOutputStream implements DerEncoder {
     /**
      * Marshals a string as a DER encoded IA5String.
      */
-    public DerOutputStream putIA5String(String s) throws IOException {
+    public DerOutputStream putIA5String(String s) {
         return writeString(s, DerValue.tag_IA5String, US_ASCII);
     }
 
     /**
      * Marshals a string as a DER encoded BMPString.
      */
-    public DerOutputStream putBMPString(String s) throws IOException {
+    public DerOutputStream putBMPString(String s) {
         return writeString(s, DerValue.tag_BMPString, UTF_16BE);
     }
 
     /**
      * Marshals a string as a DER encoded GeneralString.
      */
-    public DerOutputStream putGeneralString(String s) throws IOException {
+    public DerOutputStream putGeneralString(String s) {
         return writeString(s, DerValue.tag_GeneralString, US_ASCII);
     }
 
@@ -478,13 +476,12 @@ extends ByteArrayOutputStream implements DerEncoder {
      * @param charset the charset that should be used corresponding to
      * the above tag.
      */
-    private DerOutputStream writeString(String s, byte stringTag, Charset charset)
-        throws IOException {
+    private DerOutputStream writeString(String s, byte stringTag, Charset charset) {
 
         byte[] data = s.getBytes(charset);
         write(stringTag);
         putLength(data.length);
-        write(data);
+        write(data, 0, data.length);
         return this;
     }
 
@@ -494,7 +491,7 @@ extends ByteArrayOutputStream implements DerEncoder {
      * <P>YYMMDDhhmmss{Z|+hhmm|-hhmm} ... emits only using Zulu time
      * and with seconds (even if seconds=0) as per RFC 5280.
      */
-    public DerOutputStream putUTCTime(Date d) throws IOException {
+    public DerOutputStream putUTCTime(Date d) {
         return putTime(d, DerValue.tag_UtcTime);
     }
 
@@ -504,7 +501,7 @@ extends ByteArrayOutputStream implements DerEncoder {
      * <P>YYYYMMDDhhmmss{Z|+hhmm|-hhmm} ... emits only using Zulu time
      * and with seconds (even if seconds=0) as per RFC 5280.
      */
-    public DerOutputStream putGeneralizedTime(Date d) throws IOException {
+    public DerOutputStream putGeneralizedTime(Date d) {
         return putTime(d, DerValue.tag_GeneralizedTime);
     }
 
@@ -515,7 +512,7 @@ extends ByteArrayOutputStream implements DerEncoder {
      * @param d the date to be marshalled
      * @param tag the tag for UTC Time or Generalized Time
      */
-    private DerOutputStream putTime(Date d, byte tag) throws IOException {
+    private DerOutputStream putTime(Date d, byte tag) {
 
         /*
          * Format the date.
@@ -541,7 +538,7 @@ extends ByteArrayOutputStream implements DerEncoder {
 
         write(tag);
         putLength(time.length);
-        write(time);
+        write(time, 0, time.length);
         return this;
     }
 
@@ -549,9 +546,8 @@ extends ByteArrayOutputStream implements DerEncoder {
      * Put the encoding of the length in the stream.
      *
      * @param len the length of the attribute.
-     * @exception IOException on writing errors.
      */
-    public void putLength(int len) throws IOException {
+    public void putLength(int len) {
         if (len < 128) {
             write((byte)len);
 
@@ -582,19 +578,17 @@ extends ByteArrayOutputStream implements DerEncoder {
     /**
      *  Write the current contents of this <code>DerOutputStream</code>
      *  to an <code>OutputStream</code>.
-     *
-     *  @exception IOException on output error.
      */
-    public void encode(DerOutputStream out) throws IOException {
-        out.write(toByteArray());
+    public void encode(DerOutputStream out) {
+        byte[] bytes = toByteArray();
+        out.write(bytes, 0, bytes.length);
     }
 
     /**
      * Write a DerEncoder onto the output stream.
      * @param encoder the DerEncoder
-     * @throws IOException on output error
      */
-    public DerOutputStream write(DerEncoder encoder) throws IOException {
+    public DerOutputStream write(DerEncoder encoder) {
         encoder.encode(this);
         return this;
     }

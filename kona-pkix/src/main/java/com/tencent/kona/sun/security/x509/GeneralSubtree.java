@@ -28,6 +28,7 @@ package com.tencent.kona.sun.security.x509;
 import java.io.*;
 import java.util.Objects;
 
+import com.tencent.kona.sun.security.util.DerEncoder;
 import com.tencent.kona.sun.security.util.DerOutputStream;
 import com.tencent.kona.sun.security.util.DerValue;
 
@@ -44,7 +45,7 @@ import com.tencent.kona.sun.security.util.DerValue;
  * @author Amit Kapoor
  * @author Hemma Prafullchandra
  */
-public class GeneralSubtree {
+public class GeneralSubtree implements DerEncoder {
     private static final byte TAG_MIN = 0;
     private static final byte TAG_MAX = 1;
     private static final int  MIN_DEFAULT = 0;
@@ -196,7 +197,8 @@ public class GeneralSubtree {
      *
      * @param out the DerOutputStream to encode this object to.
      */
-    public void encode(DerOutputStream out) throws IOException {
+    @Override
+    public void encode(DerOutputStream out) {
         DerOutputStream seq = new DerOutputStream();
 
         name.encode(seq);

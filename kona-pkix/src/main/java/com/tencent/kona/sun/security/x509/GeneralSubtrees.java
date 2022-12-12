@@ -28,6 +28,7 @@ package com.tencent.kona.sun.security.x509;
 import java.io.*;
 import java.util.*;
 
+import com.tencent.kona.sun.security.util.DerEncoder;
 import com.tencent.kona.sun.security.util.DerOutputStream;
 import com.tencent.kona.sun.security.util.DerValue;
 import com.tencent.kona.sun.security.util.ObjectIdentifier;
@@ -45,7 +46,7 @@ import com.tencent.kona.sun.security.util.ObjectIdentifier;
  * @author Hemma Prafullchandra
  * @author Andreas Sterbenz
  */
-public class GeneralSubtrees implements Cloneable {
+public class GeneralSubtrees implements Cloneable, DerEncoder {
 
     private final List<GeneralSubtree> trees;
 
@@ -134,7 +135,7 @@ public class GeneralSubtrees implements Cloneable {
      *
      * @param out the DerOutputStream to encode this object to.
      */
-    public void encode(DerOutputStream out) throws IOException {
+    public void encode(DerOutputStream out) {
         DerOutputStream seq = new DerOutputStream();
 
         for (int i = 0, n = size(); i < n; i++) {

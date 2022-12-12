@@ -103,7 +103,7 @@ public class NameConstraintsExtension extends Extension
     }
 
     // Encode this extension value.
-    private void encodeThis() throws IOException {
+    private void encodeThis() {
         minMaxValid = false;
         if (permitted == null && excluded == null) {
             this.extensionValue = null;
@@ -137,8 +137,7 @@ public class NameConstraintsExtension extends Extension
      * @param excluded the excluded GeneralSubtrees (null for optional).
      */
     public NameConstraintsExtension(GeneralSubtrees permitted,
-                                    GeneralSubtrees excluded)
-            throws IOException {
+                                    GeneralSubtrees excluded) {
         if (permitted == null && excluded == null) {
             throw new IllegalArgumentException(
                     "permitted and excluded cannot both be null");
@@ -228,10 +227,9 @@ public class NameConstraintsExtension extends Extension
      * Write the extension to the OutputStream.
      *
      * @param out the DerOutputStream to write the extension to.
-     * @exception IOException on encoding errors.
      */
     @Override
-    public void encode(DerOutputStream out) throws IOException {
+    public void encode(DerOutputStream out) {
         if (this.extensionValue == null) {
             this.extensionId = PKIXExtensions.NameConstraints_Id;
             this.critical = true;

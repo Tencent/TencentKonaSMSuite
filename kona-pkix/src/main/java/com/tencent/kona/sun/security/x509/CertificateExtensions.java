@@ -139,12 +139,9 @@ public class CertificateExtensions implements DerEncoder {
     /**
      * Encode the extensions in DER form to the stream, setting
      * the context specific tag as needed in the X.509 v3 certificate.
-     *
-     * @param out the DerOutputStream to marshal the contents to.
-     * @exception IOException on errors.
      */
     @Override
-    public void encode(DerOutputStream out) throws IOException {
+    public void encode(DerOutputStream out) {
         encode(out, false);
     }
 
@@ -153,11 +150,9 @@ public class CertificateExtensions implements DerEncoder {
      *
      * @param out the DerOutputStream to marshal the contents to.
      * @param isCertReq if true then no context specific tag is added.
-     * @exception IOException on errors.
      */
-    public void encode(DerOutputStream out, boolean isCertReq)
-            throws IOException {
-                DerOutputStream extOut = new DerOutputStream();
+    public void encode(DerOutputStream out, boolean isCertReq) {
+        DerOutputStream extOut = new DerOutputStream();
         for (Extension ext : map.values()) {
             ext.encode(extOut);
         }

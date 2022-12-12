@@ -28,6 +28,7 @@ package com.tencent.kona.sun.security.x509;
 import java.io.IOException;
 
 import com.tencent.kona.sun.security.util.BitArray;
+import com.tencent.kona.sun.security.util.DerEncoder;
 import com.tencent.kona.sun.security.util.DerInputStream;
 import com.tencent.kona.sun.security.util.DerOutputStream;
 import com.tencent.kona.sun.security.util.DerValue;
@@ -53,7 +54,7 @@ import com.tencent.kona.sun.security.util.DerValue;
  *
  * @author Hemma Prafullchandra
  */
-public class ReasonFlags {
+public class ReasonFlags implements DerEncoder {
 
     /**
      * Reasons
@@ -231,9 +232,8 @@ public class ReasonFlags {
      * Write the extension to the DerOutputStream.
      *
      * @param out the DerOutputStream to write the extension to.
-     * @exception IOException on encoding errors.
      */
-    public void encode(DerOutputStream out) throws IOException {
+    public void encode(DerOutputStream out) {
         out.putTruncatedUnalignedBitString(new BitArray(this.bitString));
     }
 }

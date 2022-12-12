@@ -634,15 +634,11 @@ public class AVA implements DerEncoder {
      * DER encode this object onto an output stream.
      * Implements the <code>DerEncoder</code> interface.
      *
-     * @param out
-     * the output stream on which to write the DER encoding.
-     *
-     * @exception IOException on encoding error.
+     * @param out the output stream on which to write the DER encoding.
      */
     @Override
-    public void encode(DerOutputStream out) throws IOException {
-        DerOutputStream         tmp = new DerOutputStream();
-        DerOutputStream         tmp2 = new DerOutputStream();
+    public void encode(DerOutputStream out) {
+        DerOutputStream tmp = new DerOutputStream();
 
         tmp.putOID(oid);
         value.encode(tmp);
@@ -720,12 +716,7 @@ public class AVA implements DerEncoder {
         if ((typeAndValue.charAt(0) >= '0' && typeAndValue.charAt(0) <= '9') ||
                 !isDerString(value, false))
         {
-            byte[] data;
-            try {
-                data = value.toByteArray();
-            } catch (IOException ie) {
-                throw new IllegalArgumentException("DER Value conversion");
-            }
+            byte[] data = value.toByteArray();
             typeAndValue.append('#');
             HexFormat.of().formatHex(typeAndValue, data);
         } else {
@@ -737,12 +728,7 @@ public class AVA implements DerEncoder {
              * NOTE: this implementation only emits DirectoryStrings of the
              * types returned by isDerString().
              */
-            String valStr;
-            try {
-                valStr = new String(value.getDataBytes(), UTF_8);
-            } catch (IOException ie) {
-                throw new IllegalArgumentException("DER Value conversion");
-            }
+            String valStr = new String(value.getDataBytes(), UTF_8);
 
             /*
              * 2.4 (cont): If the UTF-8 string does not have any of the
@@ -855,12 +841,7 @@ public class AVA implements DerEncoder {
         if ((typeAndValue.charAt(0) >= '0' && typeAndValue.charAt(0) <= '9') ||
                 !isDerString(value, true))
         {
-            byte[] data;
-            try {
-                data = value.toByteArray();
-            } catch (IOException ie) {
-                throw new IllegalArgumentException("DER Value conversion");
-            }
+            byte[] data = value.toByteArray();
             typeAndValue.append('#');
             HexFormat.of().formatHex(typeAndValue, data);
         } else {
@@ -872,12 +853,7 @@ public class AVA implements DerEncoder {
              * NOTE: this implementation only emits DirectoryStrings of the
              * types returned by isDerString().
              */
-            String valStr;
-            try {
-                valStr = new String(value.getDataBytes(), UTF_8);
-            } catch (IOException ie) {
-                throw new IllegalArgumentException("DER Value conversion");
-            }
+            String valStr = new String(value.getDataBytes(), UTF_8);
 
             /*
              * 2.4 (cont): If the UTF-8 string does not have any of the

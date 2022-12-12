@@ -76,10 +76,9 @@ public class AuthorityInfoAccessExtension extends Extension {
      *
      * @param accessDescriptions the List of AccessDescription,
      *                           cannot be null or empty.
-     * @throws IOException on error
      */
     public AuthorityInfoAccessExtension(
-            List<AccessDescription> accessDescriptions) throws IOException {
+            List<AccessDescription> accessDescriptions) {
         if (accessDescriptions == null || accessDescriptions.isEmpty()) {
             throw new IllegalArgumentException("accessDescriptions is null or empty");
         }
@@ -137,10 +136,9 @@ public class AuthorityInfoAccessExtension extends Extension {
      * Write the extension to the DerOutputStream.
      *
      * @param out the DerOutputStream to write the extension to.
-     * @exception IOException on encoding errors.
      */
     @Override
-    public void encode(DerOutputStream out) throws IOException {
+    public void encode(DerOutputStream out) {
         if (this.extensionValue == null) {
             this.extensionId = PKIXExtensions.AuthInfoAccess_Id;
             this.critical = false;
@@ -150,7 +148,7 @@ public class AuthorityInfoAccessExtension extends Extension {
     }
 
     // Encode this extension value
-    private void encodeThis() throws IOException {
+    private void encodeThis() {
         if (accessDescriptions.isEmpty()) {
             this.extensionValue = null;
         } else {

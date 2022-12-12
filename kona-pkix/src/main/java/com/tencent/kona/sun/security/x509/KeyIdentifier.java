@@ -125,9 +125,8 @@ public class KeyIdentifier {
      * Write the KeyIdentifier to the DerOutputStream.
      *
      * @param out the DerOutputStream to write the object to.
-     * @exception IOException
      */
-    void encode(DerOutputStream out) throws IOException {
+    void encode(DerOutputStream out) {
         out.putOctetString(octetString);
     }
 

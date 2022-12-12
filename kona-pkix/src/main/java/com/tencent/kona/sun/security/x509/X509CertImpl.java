@@ -300,12 +300,11 @@ public class X509CertImpl extends X509Certificate
      * Implements the <code>DerEncoder</code> interface.
      *
      * @param out the output stream on which to write the DER encoding.
-     *
-     * @exception IOException on encoding error.
      */
     @Override
-    public void encode(DerOutputStream out) throws IOException {
-        out.write(signedCert.clone());
+    public void encode(DerOutputStream out) {
+        byte[] bytes = signedCert.clone();
+        out.write(bytes, 0, bytes.length);
     }
 
     /**
@@ -516,33 +515,31 @@ public class X509CertImpl extends X509Certificate
     public static X509CertImpl newSigned(X509CertInfo info, PrivateKey key, String algorithm, String provider)
             throws CertificateException, NoSuchAlgorithmException,
             InvalidKeyException, NoSuchProviderException, SignatureException {
-        try {
-            Signature sigEngine = SignatureUtil.fromKey(
-                    algorithm, key, provider);
-            AlgorithmId algId = SignatureUtil.fromSignature(sigEngine, key);
+        Signature sigEngine = SignatureUtil.fromKey(
+                algorithm, key, provider);
+        AlgorithmId algId = SignatureUtil.fromSignature(sigEngine, key);
 
-            DerOutputStream out = new DerOutputStream();
-            DerOutputStream tmp = new DerOutputStream();
-            // encode certificate info
-            info.setAlgorithmId(new CertificateAlgorithmId(algId));
-            info.encode(tmp);
-            byte[] rawCert = tmp.toByteArray();
-            // encode algorithm identifier
-            algId.encode(tmp);
+        DerOutputStream out = new DerOutputStream();
+        DerOutputStream tmp = new DerOutputStream();
 
-            // Create and encode the signature itself.
-            sigEngine.update(rawCert, 0, rawCert.length);
-            byte[] signature = sigEngine.sign();
-            tmp.putBitString(signature);
+        // encode certificate info
+        info.setAlgorithmId(new CertificateAlgorithmId(algId));
+        info.encode(tmp);
+        byte[] rawCert = tmp.toByteArray();
 
-            // Wrap the signed data in a SEQUENCE { data, algorithm, sig }
-            out.write(DerValue.tag_Sequence, tmp);
-            byte[] signedCert = out.toByteArray();
+        // encode algorithm identifier
+        algId.encode(tmp);
 
-            return new X509CertImpl(info, algId, signature, signedCert);
-        } catch (IOException e) {
-            throw new CertificateEncodingException(e.toString());
-        }
+        // Create and encode the signature itself.
+        sigEngine.update(rawCert, 0, rawCert.length);
+        byte[] signature = sigEngine.sign();
+        tmp.putBitString(signature);
+
+        // Wrap the signed data in a SEQUENCE { data, algorithm, sig }
+        out.write(DerValue.tag_Sequence, tmp);
+        byte[] signedCert = out.toByteArray();
+
+        return new X509CertImpl(info, algId, signature, signedCert);
     }
 
     /**
@@ -1297,13 +1294,7 @@ public class X509CertImpl extends X509Certificate
                 default:
                     // add DER encoded form
                     DerOutputStream derOut = new DerOutputStream();
-                    try {
-                        name.encode(derOut);
-                    } catch (IOException ioe) {
-                        // should not occur since name has already been decoded
-                        // from cert (this would indicate a bug in our code)
-                        throw new RuntimeException("name cannot be encoded", ioe);
-                    }
+                    name.encode(derOut);
                     nameEntry.add(derOut.toByteArray());
                     if (name.getType() == GeneralNameInterface.NAME_ANY
                         && name instanceof OtherName) {

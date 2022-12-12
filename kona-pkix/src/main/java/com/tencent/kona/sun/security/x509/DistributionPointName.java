@@ -28,6 +28,7 @@ package com.tencent.kona.sun.security.x509;
 import java.io.IOException;
 import java.util.*;
 
+import com.tencent.kona.sun.security.util.DerEncoder;
 import com.tencent.kona.sun.security.util.DerOutputStream;
 import com.tencent.kona.sun.security.util.DerValue;
 
@@ -78,7 +79,7 @@ import com.tencent.kona.sun.security.util.DerValue;
  * @see IssuingDistributionPointExtension
  * @since 1.6
  */
-public class DistributionPointName {
+public class DistributionPointName implements DerEncoder {
 
     // ASN.1 context specific tag values
     private static final byte TAG_FULL_NAME = 0;
@@ -164,9 +165,8 @@ public class DistributionPointName {
      * Encodes the distribution point name and writes it to the DerOutputStream.
      *
      * @param out the output stream.
-     * @exception IOException on encoding error.
      */
-    public void encode(DerOutputStream out) throws IOException {
+    public void encode(DerOutputStream out) {
 
         DerOutputStream theChoice = new DerOutputStream();
 

@@ -837,38 +837,6 @@ public final class PKCS12KeyStore extends KeyStoreSpi {
     }
 
     /*
-     * parse Algorithm Parameters
-     */
-    private AlgorithmParameters parseAlgParameters(ObjectIdentifier algorithm,
-                                                   DerInputStream in) throws IOException
-    {
-        AlgorithmParameters algParams = null;
-        try {
-            DerValue params;
-            if (in.available() == 0) {
-                params = null;
-            } else {
-                params = in.getDerValue();
-                if (params.tag == DerValue.tag_Null) {
-                    params = null;
-                }
-            }
-            if (params != null) {
-                if (algorithm.equals((Object) pbes2_OID)) {
-                    algParams = CryptoInsts.getAlgorithmParameters("PBES2");
-                } else {
-                    algParams = CryptoInsts.getAlgorithmParameters("PBE");
-                }
-                algParams.init(params.toByteArray());
-            }
-        } catch (Exception e) {
-            throw new IOException("parseAlgParameters failed: " +
-                    e.getMessage(), e);
-        }
-        return algParams;
-    }
-
-    /*
      * Generate PBE key
      */
     private SecretKey getPBEKey(char[] password) throws IOException
@@ -1215,7 +1183,7 @@ public final class PKCS12KeyStore extends KeyStoreSpi {
         DerOutputStream version = new DerOutputStream();
         version.putInteger(VERSION_3);
         byte[] pfxVersion = version.toByteArray();
-        pfx.write(pfxVersion);
+        pfx.write(pfxVersion, 0, pfxVersion.length);
 
         // -- Create AuthSafe
         DerOutputStream authSafe = new DerOutputStream();
