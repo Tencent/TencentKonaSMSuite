@@ -51,9 +51,9 @@ public class SM2SignaturePerfTest {
         public void setup() throws Exception {
             KeyPair keyPair = keyPair();
             signer = Signature.getInstance("SM2", PROVIDER);
-            signer.initSign(keyPair.getPrivate());
             signer.setParameter(new SM2SignatureParameterSpec(
                     USER_ID, (ECPublicKey) keyPair.getPublic()));
+            signer.initSign(keyPair.getPrivate());
         }
 
         private KeyPair keyPair() throws Exception {
@@ -76,9 +76,9 @@ public class SM2SignaturePerfTest {
             signature = signature(keyPair);
 
             verifier = Signature.getInstance("SM2", PROVIDER);
-            verifier.initVerify(keyPair.getPublic());
             verifier.setParameter(new SM2SignatureParameterSpec(
                     USER_ID, (ECPublicKey) keyPair.getPublic()));
+            verifier.initVerify(keyPair.getPublic());
         }
 
         private KeyPair keyPair() throws Exception {
@@ -89,9 +89,9 @@ public class SM2SignaturePerfTest {
 
         private byte[] signature(KeyPair keyPair) throws Exception {
             Signature signer = Signature.getInstance("SM2", PROVIDER);
-            signer.initSign(keyPair.getPrivate());
             signer.setParameter(new SM2SignatureParameterSpec(
                     USER_ID, (ECPublicKey) keyPair.getPublic()));
+            signer.initSign(keyPair.getPrivate());
             signer.update(MESSAGE);
             return signer.sign();
         }

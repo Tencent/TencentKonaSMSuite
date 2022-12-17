@@ -418,8 +418,8 @@ public class SM2Test {
                 = new SM2SignatureParameterSpec(ID, (ECPublicKey) pubKey);
 
         Signature signer = Signature.getInstance("SM2", PROVIDER);
-        signer.initSign(priKey);
         signer.setParameter(paramSpec);
+        signer.initSign(priKey);
 
         signer.update(MESSAGE, 0, MESSAGE.length / 2);
         signer.update(MESSAGE, MESSAGE.length / 2,
@@ -430,8 +430,8 @@ public class SM2Test {
         signature = signer.sign();
 
         Signature verifier = Signature.getInstance("SM2", PROVIDER);
-        verifier.initVerify(pubKey);
         verifier.setParameter(paramSpec);
+        verifier.initVerify(pubKey);
 
         verifier.update(MESSAGE);
         Assertions.assertTrue(verifier.verify(signature));
@@ -468,15 +468,15 @@ public class SM2Test {
                 ID, (ECPublicKey) keyPair.getPublic());
 
         Signature signer = Signature.getInstance("SM2", PROVIDER);
-        signer.initSign(keyPair.getPrivate());
         signer.setParameter(paramSpec);
+        signer.initSign(keyPair.getPrivate());
 
         signer.update(MESSAGE);
         byte[] signature = signer.sign();
 
         Signature verifier = Signature.getInstance("SM2", PROVIDER);
-        verifier.initVerify(keyPair.getPublic());
         verifier.setParameter(paramSpec);
+        verifier.initVerify(keyPair.getPublic());
         verifier.update(MESSAGE);
         boolean verified = verifier.verify(signature);
 
