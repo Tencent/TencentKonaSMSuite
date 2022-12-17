@@ -26,6 +26,7 @@ import java.security.interfaces.ECPublicKey;
 import static com.tencent.kona.crypto.util.Constants.SM2_PRIKEY_LEN;
 import static com.tencent.kona.crypto.util.Constants.SM2_PUBKEY_LEN;
 import static com.tencent.kona.crypto.CryptoUtils.toBytes;
+import static com.tencent.kona.TestUtils.PROVIDER;
 
 /**
  * The test for SM2 cipher, signature and key agreement.
@@ -49,7 +50,7 @@ public class SM2Test {
     @Test
     public void testKeyPairGen() throws Exception {
         KeyPairGenerator keyPairGenerator
-                = KeyPairGenerator.getInstance("SM2", TestUtils.PROVIDER);
+                = KeyPairGenerator.getInstance("SM2", PROVIDER);
         KeyPair keyPair = keyPairGenerator.generateKeyPair();
         ECPublicKey pubKey = (ECPublicKey) keyPair.getPublic();
         ECPrivateKey priKey = (ECPrivateKey) keyPair.getPrivate();
@@ -59,13 +60,13 @@ public class SM2Test {
 
     @Test
     public void testCipher() throws Exception {
-        KeyFactory keyFactory = KeyFactory.getInstance("SM2", TestUtils.PROVIDER);
+        KeyFactory keyFactory = KeyFactory.getInstance("SM2", PROVIDER);
         SM2PublicKeySpec pubKeySpec = new SM2PublicKeySpec(toBytes(PUB_KEY));
         PublicKey pubKey = keyFactory.generatePublic(pubKeySpec);
         SM2PrivateKeySpec privateKeySpec = new SM2PrivateKeySpec(toBytes(PRI_KEY));
         PrivateKey priKey = keyFactory.generatePrivate(privateKeySpec);
 
-        Cipher cipher = Cipher.getInstance("SM2", TestUtils.PROVIDER);
+        Cipher cipher = Cipher.getInstance("SM2", PROVIDER);
 
         cipher.init(Cipher.ENCRYPT_MODE, pubKey);
         byte[] ciphertext = cipher.doFinal(MESSAGE);
@@ -78,7 +79,7 @@ public class SM2Test {
 
     @Test
     public void testSignature() throws Exception {
-        KeyFactory keyFactory = KeyFactory.getInstance("SM2", TestUtils.PROVIDER);
+        KeyFactory keyFactory = KeyFactory.getInstance("SM2", PROVIDER);
         SM2PublicKeySpec publicKeySpec = new SM2PublicKeySpec(toBytes(PUB_KEY));
         PublicKey pubKey = keyFactory.generatePublic(publicKeySpec);
         SM2PrivateKeySpec privateKeySpec = new SM2PrivateKeySpec(toBytes(PRI_KEY));
@@ -87,14 +88,14 @@ public class SM2Test {
         SM2SignatureParameterSpec paramSpec
                 = new SM2SignatureParameterSpec(USER_ID, (ECPublicKey) pubKey);
 
-        Signature signer = Signature.getInstance("SM2", TestUtils.PROVIDER);
+        Signature signer = Signature.getInstance("SM2", PROVIDER);
         signer.setParameter(paramSpec);
         signer.initSign(priKey);
 
         signer.update(MESSAGE);
         byte[] signature = signer.sign();
 
-        Signature verifier = Signature.getInstance("SM2", TestUtils.PROVIDER);
+        Signature verifier = Signature.getInstance("SM2", PROVIDER);
         verifier.setParameter(paramSpec);
         verifier.initVerify(pubKey);
         verifier.update(MESSAGE);
@@ -104,11 +105,11 @@ public class SM2Test {
     }
 
     @Test
-    public void testSM2KeyAgreement() throws Exception {
-        testSM2KeyAgreementKeySize(16, toBytes("6C89347354DE2484C60B4AB1FDE4C6E5"));
+    public void testKeyAgreement() throws Exception {
+        testKeyAgreementKeySize(16, toBytes("6C89347354DE2484C60B4AB1FDE4C6E5"));
     }
 
-    private void testSM2KeyAgreementKeySize(int keySize, byte[] expectedSharedKey)
+    private void testKeyAgreementKeySize(int keySize, byte[] expectedSharedKey)
             throws Exception {
         String idHex = "31323334353637383132333435363738";
         String priKeyHex = "81EB26E941BB5AF16DF116495F90695272AE2CD63D6C4AE1678418BE48230029";
@@ -131,7 +132,7 @@ public class SM2Test {
                 new SM2PublicKey(toBytes(peerPubKeyHex)),
                 true,
                 keySize);
-        KeyAgreement keyAgreement = KeyAgreement.getInstance("SM2", TestUtils.PROVIDER);
+        KeyAgreement keyAgreement = KeyAgreement.getInstance("SM2", PROVIDER);
         keyAgreement.init(new SM2PrivateKey(toBytes(tmpPriKeyHex)), paramSpec);
         keyAgreement.doPhase(new SM2PublicKey(toBytes(peerTmpPubKeyHex)), true);
         SecretKey sharedKey = keyAgreement.generateSecret("SM2SharedSecret");
@@ -150,7 +151,7 @@ public class SM2Test {
                 new SM2PublicKey(toBytes(pubKeyHex)),
                 false,
                 keySize);
-        KeyAgreement peerKeyAgreement = KeyAgreement.getInstance("SM2", TestUtils.PROVIDER);
+        KeyAgreement peerKeyAgreement = KeyAgreement.getInstance("SM2", PROVIDER);
         peerKeyAgreement.init(new SM2PrivateKey(toBytes(peerTmpPriKeyHex)), peerParamSpec);
         peerKeyAgreement.doPhase(new SM2PublicKey(toBytes(tmpPubKeyHex)), true);
         SecretKey peerSharedKey = peerKeyAgreement.generateSecret("SM2SharedSecret");
