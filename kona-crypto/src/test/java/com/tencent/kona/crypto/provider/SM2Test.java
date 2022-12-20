@@ -322,15 +322,15 @@ public class SM2Test {
         // privateKey = order - 1
         // Per the specification, the private key cannot be (order - 1)
         // on generating the signature.
-        TestUtils.checkThrowable(ArithmeticException.class,
+        TestUtils.checkThrowable(InvalidKeyException.class,
                 () -> testSignatureOnKeyRange(1));
 
         // privateKey = order
-        TestUtils.checkThrowable(IllegalArgumentException.class,
+        TestUtils.checkThrowable(InvalidKeyException.class,
                 () -> testSignatureOnKeyRange(0));
 
         // privateKey = order + 1
-        TestUtils.checkThrowable(IllegalArgumentException.class,
+        TestUtils.checkThrowable(InvalidKeyException.class,
                 () -> testSignatureOnKeyRange(-1));
     }
 

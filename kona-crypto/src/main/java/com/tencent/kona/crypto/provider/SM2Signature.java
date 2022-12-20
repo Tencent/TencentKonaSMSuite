@@ -1,87 +1,114 @@
 package com.tencent.kona.crypto.provider;
 
+import com.tencent.kona.crypto.spec.SM2ParameterSpec;
 import com.tencent.kona.crypto.spec.SM2SignatureParameterSpec;
-import org.bouncycastle.jcajce.provider.asymmetric.ec.GMSignatureSpi;
-import org.bouncycastle.jcajce.spec.SM2ParameterSpec;
+import com.tencent.kona.sun.security.ec.ECOperations;
+import com.tencent.kona.sun.security.ec.point.MutablePoint;
+import com.tencent.kona.sun.security.jca.JCAUtil;
+import com.tencent.kona.sun.security.util.ArrayUtil;
+import com.tencent.kona.sun.security.util.DerInputStream;
+import com.tencent.kona.sun.security.util.DerOutputStream;
+import com.tencent.kona.sun.security.util.DerValue;
+import com.tencent.kona.sun.security.util.ECUtil;
 
+import java.io.IOException;
+import java.math.BigInteger;
+import java.nio.ByteBuffer;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.InvalidParameterException;
+import java.security.MessageDigest;
 import java.security.PrivateKey;
+import java.security.ProviderException;
 import java.security.PublicKey;
+import java.security.SecureRandom;
 import java.security.SignatureException;
+import java.security.SignatureSpi;
 import java.security.interfaces.ECPrivateKey;
 import java.security.interfaces.ECPublicKey;
 import java.security.spec.AlgorithmParameterSpec;
+import java.security.spec.ECPoint;
 import java.util.Arrays;
 import java.util.Objects;
 
+import static com.tencent.kona.crypto.CryptoUtils.intToBytes32;
+import static com.tencent.kona.crypto.CryptoUtils.toByteArrayLE;
+import static com.tencent.kona.crypto.spec.SM2ParameterSpec.CURVE;
+import static com.tencent.kona.crypto.spec.SM2ParameterSpec.GENERATOR;
+import static com.tencent.kona.crypto.spec.SM2ParameterSpec.ORDER;
 import static com.tencent.kona.crypto.util.Constants.defaultId;
+import static com.tencent.kona.sun.security.ec.ECOperations.INFINITY;
+import static com.tencent.kona.sun.security.ec.ECOperations.SM2OPS;
+import static com.tencent.kona.sun.security.ec.ECOperations.toECPoint;
+import static java.math.BigInteger.ONE;
+import static java.math.BigInteger.ZERO;
 
-public class SM2Signature extends GMSignatureSpi.sm3WithSM2 {
+public class SM2Signature extends SignatureSpi {
 
     private static final String PARAM_ID = "id";
     private static final String PARAM_PUBLIC_KEY = "publicKey";
 
     private SM2PrivateKey privateKey;
     private SM2PublicKey publicKey;
-    private byte[] id = null;
+    private byte[] id;
+
+    private final MessageDigest sm3MD = new SM3MessageDigest();
+
+    private static final int SEED_SIZE = ORDER.bitLength() + 64;
+    private static final int NUM_ATTEMPTS = 128;
+    private SecureRandom random;
+
+    private byte[] z;
+
+    @Override
+    protected void engineInitSign(PrivateKey privateKey, SecureRandom random)
+            throws InvalidKeyException {
+        this.privateKey = null;
+        z = null;
+
+        if (!(privateKey instanceof ECPrivateKey)) {
+            throw new InvalidKeyException("Only ECPrivateKey accepted!");
+        }
+
+        ECPrivateKey ecPrivateKey = (ECPrivateKey) privateKey;
+
+        BigInteger s = ecPrivateKey.getS();
+        if (s.compareTo(ZERO) <= 0 || s.compareTo(ORDER.subtract(ONE)) >= 0) {
+            throw new InvalidKeyException("The private key must be " +
+                    "within the range [1, n - 2]");
+        }
+
+        this.privateKey = new SM2PrivateKey(ecPrivateKey);
+
+        if (publicKey == null) {
+            publicKey = new SM2PublicKey(toECPoint(
+                    SM2OPS.multiply(GENERATOR,
+                            toByteArrayLE((ecPrivateKey.getS())))));
+        }
+
+        resetDigest();
+    }
+
+    @Override
+    protected void engineInitSign(PrivateKey privateKey)
+            throws InvalidKeyException {
+        engineInitSign(privateKey, null);
+    }
 
     @Override
     protected void engineInitVerify(PublicKey publicKey)
             throws InvalidKeyException {
+        this.privateKey = null;
         this.publicKey = null;
+        z = null;
 
         if (!(publicKey instanceof ECPublicKey)) {
             throw new InvalidKeyException("Only ECPublicKey accepted!");
         }
 
         this.publicKey = new SM2PublicKey((ECPublicKey) publicKey);
-        setParamId();
-        super.engineInitVerify(publicKey);
-    }
 
-    @Override
-    protected void engineInitSign(PrivateKey privateKey)
-            throws InvalidKeyException {
-        this.privateKey = null;
-
-        if (!(privateKey instanceof ECPrivateKey)) {
-            throw new InvalidKeyException("Only ECPrivateKey accepted!");
-        }
-
-        this.privateKey = new SM2PrivateKey((ECPrivateKey) privateKey);
-        setParamId();
-        super.engineInitSign(privateKey);
-    }
-
-    @Override
-    protected void engineUpdate(byte b) throws SignatureException {
-        super.engineUpdate(b);
-    }
-
-    @Override
-    protected void engineUpdate(byte[] b, int off, int len)
-            throws SignatureException {
-        super.engineUpdate(b, off, len);
-    }
-
-    @Override
-    protected byte[] engineSign() throws SignatureException {
-        if (privateKey == null) {
-            throw new SignatureException("Private Key not initialized");
-        }
-
-        return super.engineSign();
-    }
-
-    @Override
-    protected boolean engineVerify(byte[] sigBytes) throws SignatureException {
-        if (publicKey == null) {
-            throw new SignatureException("Public Key not initialized");
-        }
-
-        return super.engineVerify(sigBytes);
+        resetDigest();
     }
 
     @Override
@@ -138,24 +165,225 @@ public class SM2Signature extends GMSignatureSpi.sm3WithSM2 {
         }
     }
 
-    private void setParamId() throws InvalidParameterException {
-        if (id == null) {
-            // Just use the default ID
-            id = defaultId();
-        }
-
-        try {
-            super.engineSetParameter(new SM2ParameterSpec(id));
-        } catch (InvalidAlgorithmParameterException e) {
-            throw new InvalidParameterException("set id of parameter failed");
-        }
-    }
-
     private static boolean isParamId(String paramName) {
-        return paramName.equalsIgnoreCase(PARAM_ID);
+        return PARAM_ID.equalsIgnoreCase(paramName);
     }
 
     private static boolean isParamPublicKey(String paramName) {
-        return paramName.equalsIgnoreCase(PARAM_PUBLIC_KEY);
+        return PARAM_PUBLIC_KEY.equalsIgnoreCase(paramName);
+    }
+
+    private void resetDigest() {
+        sm3MD.reset();
+        if (z == null) {
+            z = z();
+        }
+        sm3MD.update(z);
+    }
+
+    private byte[] getDigestValue() {
+        byte[] digest = sm3MD.digest();
+        resetDigest();
+        return digest;
+    }
+
+    @Override
+    protected void engineUpdate(byte b) throws SignatureException {
+        sm3MD.update(b);
+    }
+
+    @Override
+    protected void engineUpdate(byte[] b, int off, int len)
+            throws SignatureException {
+        sm3MD.update(b, off, len);
+    }
+
+    @Override
+    protected void engineUpdate(ByteBuffer byteBuffer) {
+        int len = byteBuffer.remaining();
+        if (len <= 0) {
+            return;
+        }
+
+        sm3MD.update(byteBuffer);
+    }
+
+    @Override
+    protected byte[] engineSign() throws SignatureException {
+        if (privateKey == null) {
+            throw new SignatureException("Private Key not initialized");
+        }
+
+        if (random == null) {
+            random = JCAUtil.getSecureRandom();
+        }
+
+        BigInteger d = privateKey.getS();
+
+        byte[] eHash = getDigestValue();
+
+        // A2
+        BigInteger e = new BigInteger(1, eHash);
+
+        BigInteger r;
+        BigInteger s;
+        do {
+            BigInteger k;
+            do {
+                // A3
+                byte[] kArr = nextK();
+
+                // A4
+                MutablePoint p = SM2OPS.multiply(GENERATOR, kArr);
+
+                // Little-Endian bytes to Big-Endian BigInteger
+                ArrayUtil.reverse(kArr);
+                k = new BigInteger(1, kArr);
+
+                // A5
+                r = e.add(p.asAffine().toECPoint().getAffineX()).mod(ORDER);
+            } while (r.equals(ZERO) || r.add(k).equals(ORDER));
+
+            // A6
+            s = d.add(ONE).modInverse(ORDER)
+                    .multiply(k.subtract(r.multiply(d)).mod(ORDER))
+                    .mod(ORDER);
+        } while (s.equals(ZERO));
+
+        // A7
+        return encodeSignature(r, s);
+    }
+
+    private byte[] nextK() {
+        byte[] seedBytes = new byte[(SEED_SIZE + 7) / 8];
+        for (int i = 0; i < NUM_ATTEMPTS; i++) {
+            random.nextBytes(seedBytes);
+            try {
+                return SM2OPS.seedToScalar(seedBytes);
+            } catch (ECOperations.IntermediateValueException ex) {
+                // try again in the next iteration
+            }
+        }
+
+        throw new ProviderException("Unable to produce k after "
+                + NUM_ATTEMPTS + " attempts");
+    }
+
+    private byte[] encodeSignature(BigInteger r, BigInteger s)
+            throws SignatureException {
+        try {
+            DerOutputStream out = new DerOutputStream();
+            out.putInteger(r);
+            out.putInteger(s);
+            DerValue result = new DerValue(
+                    DerValue.tag_Sequence, out.toByteArray());
+            return result.toByteArray();
+        } catch (Exception e) {
+            throw new SignatureException("Could not encode signature", e);
+        }
+    }
+
+    @Override
+    protected boolean engineVerify(byte[] sigBytes) throws SignatureException {
+        if (publicKey == null) {
+            throw new SignatureException("Public Key not initialized");
+        }
+
+        ECPoint publicPoint = publicKey.getW();
+
+        // Partial public key validation
+        try {
+            ECUtil.validatePublicKey(publicPoint, SM2ParameterSpec.instance());
+        } catch (InvalidKeyException e) {
+            return false;
+        }
+
+        BigInteger[] values = decodeSignature(sigBytes);
+        BigInteger r = values[0];
+        BigInteger s = values[1];
+
+        // B1
+        if (r.compareTo(ONE) < 0 || r.compareTo(ORDER) >= 0) {
+            return false;
+        }
+
+        // B2
+        if (s.compareTo(ONE) < 0 || s.compareTo(ORDER) >= 0) {
+            return false;
+        }
+
+        // B3
+        byte[] eHash = getDigestValue();
+
+        // B4
+        BigInteger e = new BigInteger(1, eHash);
+
+        // B5
+        BigInteger t = r.add(s).mod(ORDER);
+        if (t.equals(ZERO)) {
+            return false;
+        }
+
+        // B6: p = S'G + tPA
+        MutablePoint p = SM2OPS.multiply(GENERATOR, toByteArrayLE(s));
+        MutablePoint p2 = SM2OPS.multiply(publicPoint, toByteArrayLE(t));
+        SM2OPS.setSum(p, p2.asAffine());
+        ECPoint point = toECPoint(p);
+        if (point.equals(INFINITY)) {
+            return false;
+        }
+
+        // B7
+        BigInteger expectedR = e.add(point.getAffineX()).mod(ORDER);
+        return expectedR.equals(r);
+    }
+
+    private BigInteger[] decodeSignature(byte[] signature)
+            throws SignatureException {
+        try {
+            // Enforce strict DER checking for signatures
+            DerInputStream in = new DerInputStream(signature, 0, signature.length, false);
+            DerValue[] values = in.getSequence(2);
+
+            // check number of components in the read sequence
+            // and trailing data
+            if ((values.length != 2) || (in.available() != 0)) {
+                throw new IOException("Invalid encoding for signature");
+            }
+
+            BigInteger r = values[0].getPositiveBigInteger();
+            BigInteger s = values[1].getPositiveBigInteger();
+
+            return new BigInteger[] { r, s };
+        } catch (Exception e) {
+            throw new SignatureException("Could not decode signature", e);
+        }
+    }
+
+    private static final byte[] A = intToBytes32(CURVE.getA());
+    private static final byte[] B = intToBytes32(CURVE.getB());
+    private static final byte[] GEN_X = intToBytes32(GENERATOR.getAffineX());
+    private static final byte[] GEN_Y = intToBytes32(GENERATOR.getAffineY());
+
+    private byte[] z() {
+        MessageDigest md = new SM3MessageDigest();
+
+        byte[] userId = id == null ? defaultId() : id;
+        int userIdLen = userId.length << 3;
+        md.update((byte)(userIdLen >>> 8));
+        md.update((byte)userIdLen);
+        md.update(userId);
+
+        md.update(A);
+        md.update(B);
+
+        md.update(GEN_X);
+        md.update(GEN_Y);
+
+        ECPoint pubPoint = publicKey.getW();
+        md.update(intToBytes32(pubPoint.getAffineX()));
+        md.update(intToBytes32(pubPoint.getAffineY()));
+
+        return md.digest();
     }
 }
