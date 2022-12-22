@@ -345,7 +345,7 @@ final class KeyShareExtension {
             List<SSLCredentials> credentials = new LinkedList<>();
             for (KeyShareEntry entry : spec.clientShares) {
                 NamedGroup ng = NamedGroup.valueOf(entry.namedGroupId);
-                if (ng == null || !SupportedGroupsExtension.SupportedGroups.isActivatable(
+                if (ng == null || !NamedGroup.isActivatable(shc.sslConfig,
                         shc.algorithmConstraints, ng)) {
                     if (SSLLogger.isOn &&
                             SSLLogger.isOn("ssl,handshake")) {
@@ -648,7 +648,7 @@ final class KeyShareExtension {
             SHKeyShareSpec spec = new SHKeyShareSpec(chc, buffer);
             KeyShareEntry keyShare = spec.serverShare;
             NamedGroup ng = NamedGroup.valueOf(keyShare.namedGroupId);
-            if (ng == null || !SupportedGroupsExtension.SupportedGroups.isActivatable(
+            if (ng == null || !NamedGroup.isActivatable(chc.sslConfig,
                     chc.algorithmConstraints, ng)) {
                 throw chc.conContext.fatal(Alert.UNEXPECTED_MESSAGE,
                         "Unsupported named group: " +
@@ -802,7 +802,7 @@ final class KeyShareExtension {
 
             NamedGroup selectedGroup = null;
             for (NamedGroup ng : shc.clientRequestedNamedGroups) {
-                if (SupportedGroupsExtension.SupportedGroups.isActivatable(
+                if (NamedGroup.isActivatable(shc.sslConfig,
                         shc.algorithmConstraints, ng)) {
                     if (SSLLogger.isOn && SSLLogger.isOn("ssl,handshake")) {
                         SSLLogger.fine(

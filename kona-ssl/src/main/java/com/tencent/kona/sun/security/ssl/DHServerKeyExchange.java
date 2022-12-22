@@ -125,6 +125,7 @@ final class DHServerKeyExchange {
                 if (useExplicitSigAlgorithm) {
                     Map.Entry<SignatureScheme, Signature> schemeAndSigner =
                             SignatureScheme.getSignerOfPreferableAlgorithm(
+                                    shc.sslConfig,
                                     shc.algorithmConstraints,
                                     shc.peerRequestedSignatureSchemes,
                                     x509Possession,

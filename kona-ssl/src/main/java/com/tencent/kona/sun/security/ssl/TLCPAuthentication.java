@@ -425,7 +425,7 @@ final class TLCPAuthentication implements SSLAuthentication {
                 ((ECPublicKey) publicKey).getParams();
         NamedGroup namedGroup = NamedGroup.valueOf(params);
         if (namedGroup != NamedGroup.CURVESM2  // Only accept curveSM2
-                || (!SupportedGroupsExtension.SupportedGroups.isSupported(namedGroup))
+                || (!NamedGroup.isEnabled(hc.sslConfig, namedGroup))
                 || ((hc.clientRequestedNamedGroups != null)
                         && !hc.clientRequestedNamedGroups.contains(namedGroup))) {
 

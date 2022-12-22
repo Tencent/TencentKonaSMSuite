@@ -43,7 +43,7 @@ import javax.crypto.spec.DHPublicKeySpec;
 
 import com.tencent.kona.crypto.CryptoInsts;
 import com.tencent.kona.sun.security.action.GetPropertyAction;
-import com.tencent.kona.sun.security.ssl.SupportedGroupsExtension.SupportedGroups;
+import com.tencent.kona.sun.security.ssl.NamedGroup.NamedGroupSpec;
 import com.tencent.kona.sun.security.util.KeyUtil;
 
 final class DHKeyExchange {
@@ -314,12 +314,13 @@ final class DHKeyExchange {
             if (!useLegacyEphemeralDHKeys &&
                     (context.clientRequestedNamedGroups != null) &&
                     (!context.clientRequestedNamedGroups.isEmpty())) {
-                preferableNamedGroup =
-                        SupportedGroups.getPreferredGroup(context.negotiatedProtocol,
-                                context.algorithmConstraints,
-                                new NamedGroup.NamedGroupSpec[] {
-                                    NamedGroup.NamedGroupSpec.NAMED_GROUP_FFDHE },
-                                context.clientRequestedNamedGroups);
+                preferableNamedGroup = NamedGroup.getPreferredGroup(
+                        context.sslConfig,
+                        context.negotiatedProtocol,
+                        context.algorithmConstraints,
+                        new NamedGroupSpec [] {
+                            NamedGroupSpec.NAMED_GROUP_FFDHE },
+                        context.clientRequestedNamedGroups);
                 if (preferableNamedGroup != null) {
                     return new DHEPossession(preferableNamedGroup,
                                 context.sslContext.getSecureRandom());

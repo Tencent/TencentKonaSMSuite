@@ -237,14 +237,16 @@ final class ECDHKeyExchange {
             // Find most preferred EC or XEC groups
             if ((context.clientRequestedNamedGroups != null) &&
                     (!context.clientRequestedNamedGroups.isEmpty())) {
-                preferableNamedGroup = SupportedGroupsExtension.SupportedGroups.getPreferredGroup(
+                preferableNamedGroup = NamedGroup.getPreferredGroup(
+                        context.sslConfig,
                         context.negotiatedProtocol,
                         context.algorithmConstraints,
                         new NamedGroup.NamedGroupSpec[] {
                             NamedGroup.NamedGroupSpec.NAMED_GROUP_ECDHE },
                         context.clientRequestedNamedGroups);
             } else {
-                preferableNamedGroup = SupportedGroupsExtension.SupportedGroups.getPreferredGroup(
+                preferableNamedGroup = NamedGroup.getPreferredGroup(
+                        context.sslConfig,
                         context.negotiatedProtocol,
                         context.algorithmConstraints,
                         new NamedGroup.NamedGroupSpec[] {

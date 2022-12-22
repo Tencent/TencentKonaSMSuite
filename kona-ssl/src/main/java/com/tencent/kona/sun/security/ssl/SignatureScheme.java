@@ -45,7 +45,6 @@ import java.util.Set;
 import com.tencent.kona.crypto.CryptoInsts;
 import com.tencent.kona.crypto.spec.SM2SignatureParameterSpec;
 import com.tencent.kona.crypto.util.Constants;
-import com.tencent.kona.sun.security.ssl.SupportedGroupsExtension.SupportedGroups;
 import com.tencent.kona.sun.security.ssl.X509Authentication.X509Possession;
 import com.tencent.kona.sun.security.util.KeyUtil;
 import com.tencent.kona.sun.security.util.SignatureUtil;
@@ -483,12 +482,13 @@ enum SignatureScheme {
     }
 
     static Map.Entry<SignatureScheme, Signature> getSignerOfPreferableAlgorithm(
+            SSLConfiguration sslConfig,
             AlgorithmConstraints constraints,
             List<SignatureScheme> schemes,
             X509Possession x509Possession,
             ProtocolVersion version) {
         return getSignerOfPreferableAlgorithm(
-                constraints, schemes,
+                sslConfig, constraints, schemes,
                 x509Possession.popPrivateKey,
                 x509Possession.popCerts[0].getPublicKey(),
                 x509Possession.getECParameterSpec(),
@@ -496,6 +496,7 @@ enum SignatureScheme {
     }
 
     static Map.Entry<SignatureScheme, Signature> getSignerOfPreferableAlgorithm(
+            SSLConfiguration sslConfig,
             AlgorithmConstraints constraints,
             List<SignatureScheme> schemes,
             PrivateKey signingKey,
@@ -553,11 +554,14 @@ enum SignatureScheme {
                     // against the local supported named groups.  The risk
                     // should be minimal as applications should not use
                     // unsupported named groups for its certificates.
-                    if (namedGroup != null &&
-                            SupportedGroups.isSupported(namedGroup)) {
-                        Signature signer = ss.getSigner(signingKey);
-                        if (signer != null) {
-                            return new SimpleImmutableEntry<>(ss, signer);
+                    if (params != null) {
+                        NamedGroup keyGroup = NamedGroup.valueOf(params);
+                        if (keyGroup != null &&
+                                NamedGroup.isEnabled(sslConfig, keyGroup)) {
+                            Signature signer = ss.getSigner(signingKey);
+                            if (signer != null) {
+                                return new SimpleImmutableEntry<>(ss, signer);
+                            }
                         }
                     }
 

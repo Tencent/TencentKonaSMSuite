@@ -590,23 +590,13 @@ final class SSLKeyExchange implements SSLKeyAgreementGenerator,
 
     private static final class T13KeyAgreement implements SSLKeyAgreement {
         private final NamedGroup namedGroup;
-        static final Map<NamedGroup, T13KeyAgreement>
-                supportedKeyShares = new HashMap<>();
-
-        static {
-            for (NamedGroup namedGroup :
-                    SupportedGroupsExtension.SupportedGroups.supportedNamedGroups) {
-                supportedKeyShares.put(
-                        namedGroup, new T13KeyAgreement(namedGroup));
-            }
-        }
 
         private T13KeyAgreement(NamedGroup namedGroup) {
             this.namedGroup = namedGroup;
         }
 
         static T13KeyAgreement valueOf(NamedGroup namedGroup) {
-            return supportedKeyShares.get(namedGroup);
+            return new T13KeyAgreement(namedGroup);
         }
 
         @Override
