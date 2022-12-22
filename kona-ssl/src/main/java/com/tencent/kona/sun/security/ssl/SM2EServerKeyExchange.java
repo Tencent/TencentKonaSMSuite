@@ -111,6 +111,7 @@ public class SM2EServerKeyExchange {
             if (useExplicitSigAlgorithm) {
                 Map.Entry<SignatureScheme, Signature> schemeAndSigner =
                         SignatureScheme.getSignerOfPreferableAlgorithm(
+                            shc.sslConfig,
                             shc.algorithmConstraints,
                             shc.peerRequestedSignatureSchemes,
                             sm2ePossession.popEncPrivateKey,
@@ -185,7 +186,7 @@ public class SM2EServerKeyExchange {
                     "Unknown named group ID: " + namedGroupId);
             }
 
-            if (!SupportedGroupsExtension.SupportedGroups.isSupported(namedGroup)) {
+            if (!NamedGroup.isEnabled(chc.sslConfig, namedGroup)) {
                 throw chc.conContext.fatal(Alert.ILLEGAL_PARAMETER,
                     "Unsupported named group: " + namedGroup);
             }

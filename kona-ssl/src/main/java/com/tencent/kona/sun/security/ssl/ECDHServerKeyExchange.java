@@ -137,6 +137,7 @@ final class ECDHServerKeyExchange {
                 if (useExplicitSigAlgorithm) {
                     Map.Entry<SignatureScheme, Signature> schemeAndSigner =
                             SignatureScheme.getSignerOfPreferableAlgorithm(
+                                shc.sslConfig,
                                 shc.algorithmConstraints,
                                 shc.peerRequestedSignatureSchemes,
                                 x509Possession,
@@ -202,7 +203,7 @@ final class ECDHServerKeyExchange {
                     "Unknown named group ID: " + namedGroupId);
             }
 
-            if (!SupportedGroupsExtension.SupportedGroups.isSupported(namedGroup)) {
+            if (!NamedGroup.isEnabled(chc.sslConfig, namedGroup)) {
                 throw chc.conContext.fatal(Alert.ILLEGAL_PARAMETER,
                     "Unsupported named group: " + namedGroup);
             }

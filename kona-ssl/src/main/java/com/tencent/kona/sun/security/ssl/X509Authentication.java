@@ -315,7 +315,7 @@ enum X509Authentication implements SSLAuthentication {
                         ((ECPublicKey) serverPublicKey).getParams();
                 NamedGroup namedGroup = NamedGroup.valueOf(params);
                 if ((namedGroup == null) ||
-                        (!SupportedGroupsExtension.SupportedGroups.isSupported(namedGroup)) ||
+                        (!NamedGroup.isEnabled(shc.sslConfig, namedGroup)) ||
                         ((shc.clientRequestedNamedGroups != null) &&
                                 !shc.clientRequestedNamedGroups.contains(namedGroup))) {
 
