@@ -2,7 +2,6 @@ package com.tencent.kona.crypto.provider;
 
 import com.tencent.kona.crypto.spec.SM2ParameterSpec;
 import com.tencent.kona.crypto.spec.SM2SignatureParameterSpec;
-import com.tencent.kona.sun.security.ec.ECOperations;
 import com.tencent.kona.sun.security.ec.point.MutablePoint;
 import com.tencent.kona.sun.security.jca.JCAUtil;
 import com.tencent.kona.sun.security.util.ArrayUtil;
@@ -19,7 +18,6 @@ import java.security.InvalidKeyException;
 import java.security.InvalidParameterException;
 import java.security.MessageDigest;
 import java.security.PrivateKey;
-import java.security.ProviderException;
 import java.security.PublicKey;
 import java.security.SecureRandom;
 import java.security.SignatureException;
@@ -52,13 +50,11 @@ public class SM2Signature extends SignatureSpi {
     private SM2PublicKey publicKey;
     private byte[] id;
 
-    private final MessageDigest sm3MD = new SM3MessageDigest();
-
-    private static final int SEED_SIZE = ORDER.bitLength() + 64;
-    private static final int NUM_ATTEMPTS = 128;
     private SecureRandom random;
 
     private byte[] z;
+
+    private final MessageDigest sm3MD = new SM3MessageDigest();
 
     @Override
     protected void engineInitSign(PrivateKey privateKey, SecureRandom random)
@@ -79,6 +75,7 @@ public class SM2Signature extends SignatureSpi {
         }
 
         this.privateKey = new SM2PrivateKey(ecPrivateKey);
+        this.random = random != null ? random : JCAUtil.getSecureRandom();
 
         if (publicKey == null) {
             publicKey = new SM2PublicKey(toECPoint(
@@ -214,10 +211,6 @@ public class SM2Signature extends SignatureSpi {
             throw new SignatureException("Private Key not initialized");
         }
 
-        if (random == null) {
-            random = JCAUtil.getSecureRandom();
-        }
-
         BigInteger d = privateKey.getS();
 
         byte[] eHash = getDigestValue();
@@ -255,18 +248,7 @@ public class SM2Signature extends SignatureSpi {
     }
 
     private byte[] nextK() {
-        byte[] seedBytes = new byte[(SEED_SIZE + 7) / 8];
-        for (int i = 0; i < NUM_ATTEMPTS; i++) {
-            random.nextBytes(seedBytes);
-            try {
-                return SM2OPS.seedToScalar(seedBytes);
-            } catch (ECOperations.IntermediateValueException ex) {
-                // try again in the next iteration
-            }
-        }
-
-        throw new ProviderException("Unable to produce k after "
-                + NUM_ATTEMPTS + " attempts");
+        return SM2OPS.generatePrivateScalar(random);
     }
 
     private byte[] encodeSignature(BigInteger r, BigInteger s)
