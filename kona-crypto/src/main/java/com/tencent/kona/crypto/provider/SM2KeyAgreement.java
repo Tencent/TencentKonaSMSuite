@@ -11,7 +11,6 @@ import java.math.BigInteger;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.Key;
-import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.security.interfaces.ECPrivateKey;
@@ -41,7 +40,7 @@ public class SM2KeyAgreement extends KeyAgreementSpi {
     private ECPrivateKey ephemeralPrivateKey;
     private ECPublicKey peerEphemeralPublicKey;
 
-    private final MessageDigest sm3MD = new SM3MessageDigest();
+    private final SM3Engine sm3 = new SM3Engine();
 
     @Override
     protected void engineInit(Key key, SecureRandom random) {
@@ -142,7 +141,8 @@ public class SM2KeyAgreement extends KeyAgreementSpi {
         byte[] zA = z(paramSpec.id, paramSpec.publicKey.getW());
         byte[] zB = z(paramSpec.peerId, paramSpec.peerPublicKey.getW());
 
-        return kdf(vX, vY, zA, zB);
+        byte[] combined = combine(vX, vY, zA, zB);
+        return kdf(combined);
     }
 
     @Override
@@ -177,34 +177,34 @@ public class SM2KeyAgreement extends KeyAgreementSpi {
     private byte[] z(byte[] origId, ECPoint pubPoint) {
         byte[] id = origId == null ? defaultId() : origId;
         int idLen = id.length << 3;
-        sm3MD.update((byte)(idLen >>> 8));
-        sm3MD.update((byte)idLen);
-        sm3MD.update(id);
+        sm3.update((byte)(idLen >>> 8));
+        sm3.update((byte)idLen);
+        sm3.update(id);
 
-        sm3MD.update(A);
-        sm3MD.update(B);
+        sm3.update(A);
+        sm3.update(B);
 
-        sm3MD.update(GEN_X);
-        sm3MD.update(GEN_Y);
+        sm3.update(GEN_X);
+        sm3.update(GEN_Y);
 
-        sm3MD.update(intToBytes32(pubPoint.getAffineX()));
-        sm3MD.update(intToBytes32(pubPoint.getAffineY()));
+        sm3.update(intToBytes32(pubPoint.getAffineX()));
+        sm3.update(intToBytes32(pubPoint.getAffineY()));
 
-        return sm3MD.digest();
+        return sm3.doFinal();
     }
 
-    private byte[] kdf(byte[] vX, byte[] vY, byte[] zA, byte[] zB) {
-        byte[] combined = combine(vX, vY, zA, zB);
+    private byte[] kdf(byte[] input) {
         byte[] derivedKey = new byte[paramSpec.sharedKeyLength];
+        byte[] digest = new byte[SM3_DIGEST_LEN];
 
-        int reminder = paramSpec.sharedKeyLength % SM3_DIGEST_LEN;
-        int count = paramSpec.sharedKeyLength / SM3_DIGEST_LEN + (reminder == 0 ? 0 : 1);
+        int remainder = paramSpec.sharedKeyLength % SM3_DIGEST_LEN;
+        int count = paramSpec.sharedKeyLength / SM3_DIGEST_LEN + (remainder == 0 ? 0 : 1);
         for (int i = 1; i <= count; i++) {
-            int length = i == count && reminder != 0 ? reminder : SM3_DIGEST_LEN;
+            sm3.update(input);
+            sm3.update(intToBytes4(i));
+            sm3.doFinal(digest);
 
-            sm3MD.update(combined);
-            sm3MD.update(intToBytes4(i));
-            byte[] digest = sm3MD.digest();
+            int length = i == count && remainder != 0 ? remainder : SM3_DIGEST_LEN;
             System.arraycopy(digest, 0, derivedKey, (i - 1) * SM3_DIGEST_LEN, length);
         }
 
