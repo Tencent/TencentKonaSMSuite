@@ -2,6 +2,7 @@ package com.tencent.kona.crypto.provider;
 
 import static com.tencent.kona.crypto.CryptoUtils.circularLeftShift;
 import static com.tencent.kona.crypto.CryptoUtils.intsToBytes;
+import static com.tencent.kona.crypto.util.Constants.SM3_DIGEST_LEN;
 
 /**
  * SM3 engine in compliance with China's GB/T 32905-2016.
@@ -56,7 +57,7 @@ public final class SM3Engine {
     private int[] v;
 
     // W0..W67
-    private int[] w = new int[68];
+    private final int[] w = new int[68];
 
     // A word is 4-bytes or 1-integer.
     private final byte[] word = new byte[4];
@@ -119,6 +120,12 @@ public final class SM3Engine {
         intsToBytes(v, 0, out, offset, v.length);
 
         reset();
+    }
+
+    public byte[] doFinal() {
+        byte[] digest = new byte[SM3_DIGEST_LEN];
+        doFinal(digest);
+        return digest;
     }
 
     private void processWord() {
