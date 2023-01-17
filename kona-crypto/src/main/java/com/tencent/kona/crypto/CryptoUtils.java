@@ -4,7 +4,6 @@ import java.math.BigInteger;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.security.spec.ECPoint;
-import java.util.Arrays;
 
 import com.tencent.kona.crypto.util.RangeUtil;
 import com.tencent.kona.java.util.HexFormat;
@@ -129,7 +128,7 @@ public final class CryptoUtils {
         return dest;
     }
 
-    public static void intToBytes32(BigInteger value, byte[] dest, int offset) {
+    public static void bigIntToBytes32(BigInteger value, byte[] dest, int offset) {
         byte[] byteArr = value.toByteArray();
 
         if (byteArr.length == 32) {
@@ -147,13 +146,13 @@ public final class CryptoUtils {
         }
     }
 
-    public static void intToBytes32(BigInteger value, byte[] dest) {
-        intToBytes32(value, dest, 0);
+    public static void bigIntToBytes32(BigInteger value, byte[] dest) {
+        bigIntToBytes32(value, dest, 0);
     }
 
-    public static byte[] intToBytes32(BigInteger value) {
+    public static byte[] bigIntToBytes32(BigInteger value) {
         byte[] bytes32 = new byte[32];
-        intToBytes32(value, bytes32);
+        bigIntToBytes32(value, bytes32);
         return bytes32;
     }
 
@@ -184,20 +183,6 @@ public final class CryptoUtils {
 
     public static byte[] concat(byte[] data1, byte[] data2) {
         return concat(data1, 0, data1.length, data2, 0, data2.length);
-    }
-
-    public static void reset(byte[] bytes, int offset, int length) {
-        if (bytes != null && bytes.length > 0) {
-            Arrays.fill(bytes, offset, length, (byte) 0x00);
-        }
-    }
-
-    public static void reset(byte[] bytes) {
-        reset(bytes, 0, bytes.length);
-    }
-
-    public static int ciphertextLen(int plaintextLen) {
-        return plaintextLen + Constants.SM4_BLOCK_SIZE - plaintextLen % Constants.SM4_BLOCK_SIZE;
     }
 
     public static void checkKey(byte[] key) {
@@ -237,8 +222,8 @@ public final class CryptoUtils {
     }
 
     public static byte[] pubKey(ECPoint pubKeyPoint) {
-        byte[] x = coordinate(pubKeyPoint.getAffineX().toByteArray());
-        byte[] y = coordinate(pubKeyPoint.getAffineY().toByteArray());
+        byte[] x = bigIntToBytes32(pubKeyPoint.getAffineX());
+        byte[] y = bigIntToBytes32(pubKeyPoint.getAffineY());
 
         byte[] pubKey = new byte[Constants.SM2_PUBKEY_LEN];
         byte[] flag = toBytes("04");
@@ -248,33 +233,8 @@ public final class CryptoUtils {
         return pubKey;
     }
 
-    private static byte[] coordinate(byte[] coordinate) {
-        return adjustBytes(coordinate, Constants.SM2_PUBKEY_AFFINE_LEN);
-    }
-
     public static byte[] priKey(BigInteger priKeyValue) {
-        return adjustBytes(priKeyValue.toByteArray(), Constants.SM2_PRIKEY_LEN);
-    }
-
-    private static byte[] adjustBytes(byte[] origBytes, int length) {
-        byte[] adjusted = origBytes;
-
-        if (origBytes.length < length) {
-            adjusted = new byte[length];
-            System.arraycopy(
-                    origBytes, 0,
-                    adjusted, adjusted.length - origBytes.length,
-                    origBytes.length);
-        } else if (origBytes.length == length + 1
-                && origBytes[0] == 0x00) {
-            adjusted = new byte[length];
-            System.arraycopy(
-                    origBytes, 1,
-                    adjusted, 0,
-                    origBytes.length - 1);
-        }
-
-        return adjusted;
+        return bigIntToBytes32(priKeyValue);
     }
 
     private CryptoUtils() { }

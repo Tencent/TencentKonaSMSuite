@@ -1,14 +1,8 @@
 package com.tencent.kona.crypto.util;
 
 import com.tencent.kona.crypto.CryptoUtils;
-import com.tencent.kona.crypto.spec.SM2ParameterSpec;
-import org.bouncycastle.crypto.params.ECDomainParameters;
-import org.bouncycastle.math.ec.ECCurve;
-import org.bouncycastle.math.ec.ECPoint;
 
 import java.math.BigInteger;
-import java.security.spec.ECFieldFp;
-import java.security.spec.EllipticCurve;
 
 public class Constants {
 
@@ -29,6 +23,8 @@ public class Constants {
     // The length of the affine coordinate.
     public static final int SM2_PUBKEY_AFFINE_LEN = 32;
 
+    public static final int SM2_CURVE_FIELD_SIZE = 32;
+
     public static final int SM2_PRIKEY_LEN = 32;
 
     public static final int SM3_BLOCK_SIZE = 64;
@@ -47,25 +43,5 @@ public class Constants {
 
     public static byte[] defaultId() {
         return DEFAULT_ID.clone();
-    }
-
-    public static final ECDomainParameters SM2_DOMAIN = sm2DomainParams();
-
-    private static ECDomainParameters sm2DomainParams() {
-        SM2ParameterSpec sm2ParamSpec = SM2ParameterSpec.instance();
-        EllipticCurve sm2Curve = sm2ParamSpec.getCurve();
-        ECFieldFp sm2Filed = (ECFieldFp) sm2Curve.getField();
-        BigInteger order = sm2ParamSpec.getOrder();
-        ECCurve curve = new ECCurve.Fp(
-                sm2Filed.getP(),
-                sm2Curve.getA(),
-                sm2Curve.getB(),
-                order,
-                BigInteger.valueOf(sm2ParamSpec.getCofactor()));
-
-        java.security.spec.ECPoint sm2Generator = sm2ParamSpec.getGenerator();
-        ECPoint generator = curve.createPoint(
-                sm2Generator.getAffineX(), sm2Generator.getAffineY());
-        return new ECDomainParameters(curve, generator, order);
     }
 }

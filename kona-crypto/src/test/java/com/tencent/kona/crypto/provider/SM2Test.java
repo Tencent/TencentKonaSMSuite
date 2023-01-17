@@ -151,11 +151,11 @@ public class SM2Test {
         testCipherOnKeyRange(1);
 
         // privateKey = order
-        TestUtils.checkThrowable(IllegalArgumentException.class,
+        TestUtils.checkThrowable(InvalidKeyException.class,
                 () -> testCipherOnKeyRange(0));
 
         // privateKey = order + 1
-        TestUtils.checkThrowable(IllegalArgumentException.class,
+        TestUtils.checkThrowable(InvalidKeyException.class,
                 () -> testCipherOnKeyRange(-1));
     }
 

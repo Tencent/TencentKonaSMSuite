@@ -24,7 +24,7 @@ import static com.tencent.kona.crypto.spec.SM2ParameterSpec.GENERATOR;
 import static com.tencent.kona.crypto.spec.SM2ParameterSpec.ORDER;
 import static com.tencent.kona.crypto.util.Constants.defaultId;
 import static com.tencent.kona.crypto.util.Constants.SM3_DIGEST_LEN;
-import static com.tencent.kona.crypto.CryptoUtils.intToBytes32;
+import static com.tencent.kona.crypto.CryptoUtils.bigIntToBytes32;
 import static com.tencent.kona.crypto.CryptoUtils.intToBytes4;
 import static com.tencent.kona.crypto.CryptoUtils.toByteArrayLE;
 import static com.tencent.kona.sun.security.ec.ECOperations.INFINITY;
@@ -135,8 +135,8 @@ public class SM2KeyAgreement extends KeyAgreementSpi {
             throw new IllegalStateException("Generate secret failed");
         }
 
-        byte[] vX = intToBytes32(uPoint.getAffineX());
-        byte[] vY = intToBytes32(uPoint.getAffineY());
+        byte[] vX = bigIntToBytes32(uPoint.getAffineX());
+        byte[] vY = bigIntToBytes32(uPoint.getAffineY());
 
         byte[] zA = z(paramSpec.id, paramSpec.publicKey.getW());
         byte[] zB = z(paramSpec.peerId, paramSpec.peerPublicKey.getW());
@@ -169,10 +169,10 @@ public class SM2KeyAgreement extends KeyAgreementSpi {
         return new SecretKeySpec(engineGenerateSecret(), algorithm);
     }
 
-    private static final byte[] A = intToBytes32(CURVE.getA());
-    private static final byte[] B = intToBytes32(CURVE.getB());
-    private static final byte[] GEN_X = intToBytes32(GENERATOR.getAffineX());
-    private static final byte[] GEN_Y = intToBytes32(GENERATOR.getAffineY());
+    private static final byte[] A = bigIntToBytes32(CURVE.getA());
+    private static final byte[] B = bigIntToBytes32(CURVE.getB());
+    private static final byte[] GEN_X = bigIntToBytes32(GENERATOR.getAffineX());
+    private static final byte[] GEN_Y = bigIntToBytes32(GENERATOR.getAffineY());
 
     private byte[] z(byte[] origId, ECPoint pubPoint) {
         byte[] id = origId == null ? defaultId() : origId;
@@ -187,8 +187,8 @@ public class SM2KeyAgreement extends KeyAgreementSpi {
         sm3.update(GEN_X);
         sm3.update(GEN_Y);
 
-        sm3.update(intToBytes32(pubPoint.getAffineX()));
-        sm3.update(intToBytes32(pubPoint.getAffineY()));
+        sm3.update(bigIntToBytes32(pubPoint.getAffineX()));
+        sm3.update(bigIntToBytes32(pubPoint.getAffineY()));
 
         return sm3.doFinal();
     }
