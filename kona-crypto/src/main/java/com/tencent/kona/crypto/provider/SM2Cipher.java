@@ -1,24 +1,35 @@
 package com.tencent.kona.crypto.provider;
 
-import org.bouncycastle.jcajce.provider.asymmetric.ec.GMCipherSpi;
+import com.tencent.kona.sun.security.jca.JCAUtil;
 
 import javax.crypto.BadPaddingException;
+import javax.crypto.Cipher;
+import javax.crypto.CipherSpi;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.ShortBufferException;
+import java.io.ByteArrayOutputStream;
+import java.math.BigInteger;
 import java.security.AlgorithmParameters;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.Key;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
+import java.security.interfaces.ECPrivateKey;
+import java.security.interfaces.ECPublicKey;
 import java.security.spec.AlgorithmParameterSpec;
+import java.util.Arrays;
 
-public class SM2Cipher extends GMCipherSpi {
+import static com.tencent.kona.crypto.spec.SM2ParameterSpec.ORDER;
+import static com.tencent.kona.crypto.util.Constants.SM2_CURVE_FIELD_SIZE;
+import static com.tencent.kona.crypto.util.Constants.SM3_DIGEST_LEN;
+import static java.math.BigInteger.ZERO;
 
-    public SM2Cipher() {
-        super(new SM2Engine());
-    }
+public class SM2Cipher extends CipherSpi {
+
+    private final SM2Engine engine = new SM2Engine();
+    private final Buffer buffer = new Buffer();
 
     @Override
     public void engineSetMode(String mode) throws NoSuchAlgorithmException {
@@ -38,47 +49,89 @@ public class SM2Cipher extends GMCipherSpi {
     @Override
     public void engineInit(int opmode, Key key, SecureRandom random)
             throws InvalidKeyException {
-        super.engineInit(opmode, key, random);
+        buffer.reset();
+
+        SecureRandom rand = random != null ? random : JCAUtil.getSecureRandom();
+
+        if (opmode == Cipher.ENCRYPT_MODE || opmode == Cipher.WRAP_MODE) {
+            if (key instanceof ECPublicKey) {
+                SM2PublicKey publicKey = new SM2PublicKey((ECPublicKey) key);
+                engine.init(true, publicKey, rand);
+            } else {
+                throw new InvalidKeyException(
+                        "Only accept ECPublicKey for encryption");
+            }
+        } else if (opmode == Cipher.DECRYPT_MODE || opmode == Cipher.UNWRAP_MODE) {
+            if (key instanceof ECPrivateKey) {
+                SM2PrivateKey privateKey = new SM2PrivateKey((ECPrivateKey) key);
+
+                BigInteger s = privateKey.getS();
+                if (s.compareTo(ZERO) <= 0 || s.compareTo(ORDER) >= 0) {
+                    throw new InvalidKeyException("The private key must be " +
+                            "within the range [1, n - 1]");
+                }
+
+                engine.init(false, privateKey, rand);
+            } else {
+                throw new InvalidKeyException(
+                        "Only accept ECPrivateKey for decryption");
+            }
+        }
     }
 
     @Override
     public void engineInit(int opmode, Key key,
             AlgorithmParameterSpec params, SecureRandom random)
             throws InvalidKeyException, InvalidAlgorithmParameterException {
-        super.engineInit(opmode, key, params, random);
+        engineInit(opmode, key, random);
     }
 
     @Override
     public void engineInit(int opmode, Key key,
             AlgorithmParameters params, SecureRandom random)
             throws InvalidKeyException, InvalidAlgorithmParameterException {
-        super.engineInit(opmode, key, params, random);
+        if (params != null) {
+            throw new InvalidAlgorithmParameterException(
+                    "Not need AlgorithmParameters");
+        }
+
+        engineInit(opmode, key, random);
     }
 
     @Override
-    public byte[] engineUpdate(byte[] in, int inOfs, int inLen) {
-        throw new UnsupportedOperationException(
-                "update() is not supported yet, please use doFinal() instead.");
+    public byte[] engineUpdate(byte[] input, int inputOffset, int inputLen) {
+        buffer.write(input, inputOffset, inputLen);
+        return null;
     }
 
     @Override
-    public int engineUpdate(byte[] in, int inOfs, int inLen, byte[] out,
-            int outOfs) {
-        throw new UnsupportedOperationException(
-                "update() is not supported yet, please use doFinal() instead.");
+    public int engineUpdate(byte[] input, int inputOffset, int inputLen,
+                            byte[] output, int outputOffset) {
+        buffer.write(input, inputOffset, inputLen);
+        return 0;
     }
 
     @Override
-    public byte[] engineDoFinal(byte[] in, int inOfs, int inLen)
+    public byte[] engineDoFinal(byte[] input, int inputOffset, int inputLen)
             throws IllegalBlockSizeException, BadPaddingException {
-        return super.engineDoFinal(in, inOfs, inLen);
+        update(input, inputOffset, inputLen);
+        return doFinal();
     }
 
     @Override
-    public int engineDoFinal(byte[] in, int inOfs, int inLen, byte[] out,
-            int outOfs) throws ShortBufferException, IllegalBlockSizeException,
+    public int engineDoFinal(byte[] input, int inputOffset, int inputLen,
+            byte[] output, int outputOffset)
+            throws ShortBufferException, IllegalBlockSizeException,
             BadPaddingException {
-        return super.engineDoFinal(in, inOfs, inLen, out, outOfs);
+        int outputSize = engineGetOutputSize(buffer.size());
+        if (outputSize > output.length - outputOffset) {
+            throw new ShortBufferException(
+                    "Need " + outputSize + " bytes for output");
+        }
+
+        update(input, inputOffset, inputLen);
+        byte[] result = doFinal();
+        return result.length;
     }
 
     @Override
@@ -93,6 +146,8 @@ public class SM2Cipher extends GMCipherSpi {
             return engineDoFinal(encoded, 0, encoded.length);
         } catch (BadPaddingException e) {
             throw new InvalidKeyException("Wrap key failed", e);
+        } finally {
+            Arrays.fill(encoded, (byte)0);
         }
     }
 
@@ -113,28 +168,53 @@ public class SM2Cipher extends GMCipherSpi {
         return ConstructKeys.constructKey(encoded, algorithm, type);
     }
 
+    private void update(byte[] input, int inputOffset, int inputLen) {
+        if (input == null || inputLen == 0) {
+            return;
+        }
+
+        buffer.write(input, inputOffset, inputLen);
+    }
+
+    private byte[] doFinal() throws BadPaddingException, IllegalBlockSizeException {
+        try {
+            byte[] input = buffer.toByteArray();
+            return engine.processBlock(input, 0, input.length);
+        } finally {
+            buffer.reset();
+        }
+    }
+
     @Override
     public AlgorithmParameters engineGetParameters() {
-        return super.engineGetParameters();
+        return null;
     }
 
     @Override
     public byte[] engineGetIV() {
-        return super.engineGetIV();
+        return null;
     }
 
     @Override
     public int engineGetBlockSize() {
-        return super.engineGetBlockSize();
+        return 0;
     }
 
     @Override
     public int engineGetOutputSize(int inputLen) {
-        return super.engineGetOutputSize(inputLen);
+        return (1 + 2 * SM2_CURVE_FIELD_SIZE) + SM3_DIGEST_LEN + inputLen;
     }
 
     @Override
     public int engineGetKeySize(Key key) {
-        return super.engineGetKeySize(key);
+        return SM2_CURVE_FIELD_SIZE << 3;
+    }
+
+    private static final class Buffer extends ByteArrayOutputStream {
+
+        public void reset() {
+            Arrays.fill(buf, (byte)0);
+            super.reset();
+        }
     }
 }

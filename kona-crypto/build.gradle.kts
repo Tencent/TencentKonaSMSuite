@@ -3,5 +3,5 @@ plugins {
 }
 
 dependencies {
-    implementation("org.bouncycastle:bcprov-jdk18on:1.72")
+    testImplementation("org.bouncycastle:bcprov-jdk18on:1.72")
 }

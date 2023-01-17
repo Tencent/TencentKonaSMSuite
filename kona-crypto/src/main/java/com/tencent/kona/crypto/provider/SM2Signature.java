@@ -29,7 +29,7 @@ import java.security.spec.ECPoint;
 import java.util.Arrays;
 import java.util.Objects;
 
-import static com.tencent.kona.crypto.CryptoUtils.intToBytes32;
+import static com.tencent.kona.crypto.CryptoUtils.bigIntToBytes32;
 import static com.tencent.kona.crypto.CryptoUtils.toByteArrayLE;
 import static com.tencent.kona.crypto.spec.SM2ParameterSpec.CURVE;
 import static com.tencent.kona.crypto.spec.SM2ParameterSpec.GENERATOR;
@@ -342,10 +342,10 @@ public class SM2Signature extends SignatureSpi {
         }
     }
 
-    private static final byte[] A = intToBytes32(CURVE.getA());
-    private static final byte[] B = intToBytes32(CURVE.getB());
-    private static final byte[] GEN_X = intToBytes32(GENERATOR.getAffineX());
-    private static final byte[] GEN_Y = intToBytes32(GENERATOR.getAffineY());
+    private static final byte[] A = bigIntToBytes32(CURVE.getA());
+    private static final byte[] B = bigIntToBytes32(CURVE.getB());
+    private static final byte[] GEN_X = bigIntToBytes32(GENERATOR.getAffineX());
+    private static final byte[] GEN_Y = bigIntToBytes32(GENERATOR.getAffineY());
 
     private byte[] z() {
         MessageDigest md = new SM3MessageDigest();
@@ -363,8 +363,8 @@ public class SM2Signature extends SignatureSpi {
         md.update(GEN_Y);
 
         ECPoint pubPoint = publicKey.getW();
-        md.update(intToBytes32(pubPoint.getAffineX()));
-        md.update(intToBytes32(pubPoint.getAffineY()));
+        md.update(bigIntToBytes32(pubPoint.getAffineX()));
+        md.update(bigIntToBytes32(pubPoint.getAffineY()));
 
         return md.digest();
     }
