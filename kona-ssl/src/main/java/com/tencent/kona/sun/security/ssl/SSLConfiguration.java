@@ -115,6 +115,9 @@ final class SSLConfiguration implements Cloneable {
     static final int maxCertificateChainLength = Utilities.privilegedGetIntegerProperty(
             "com.tencent.kona.ssl.maxCertificateChainLength", 10);
 
+    static final boolean enableDtlsResumeCookie = Utilities.getBooleanProperty(
+            "jdk.tls.enableDtlsResumeCookie", true);
+
     // To switch off the supported_groups extension for DHE cipher suite.
     static final boolean enableFFDHE =
             Utilities.getBooleanProperty("jsse.enableFFDHE", true);
