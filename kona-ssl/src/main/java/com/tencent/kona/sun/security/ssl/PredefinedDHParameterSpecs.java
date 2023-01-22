@@ -25,6 +25,8 @@
 
 package com.tencent.kona.sun.security.ssl;
 
+import com.tencent.kona.sun.security.util.SafeDHParameterSpec;
+
 import java.math.BigInteger;
 import java.security.*;
 import java.util.Collections;
@@ -33,8 +35,6 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.crypto.spec.DHParameterSpec;
-
-import static com.tencent.kona.sun.security.util.SecurityProviderConstants.getDefDHPrivateExpSize;
 
 /**
  * Predefined default DH ephemeral parameters.
@@ -283,8 +283,7 @@ final class PredefinedDHParameterSpecs {
                     BigInteger g = new BigInteger(baseGenerator, 16);
 
                     int primeLen = p.bitLength();
-                    DHParameterSpec spec = new DHParameterSpec(p, g,
-                            getDefDHPrivateExpSize(primeLen));
+                    DHParameterSpec spec = new DHParameterSpec(p, g);
                     defaultParams.put(primeLen, spec);
                 }
             } else if (SSLLogger.isOn && SSLLogger.isOn("sslctx")) {
@@ -296,8 +295,7 @@ final class PredefinedDHParameterSpecs {
         Map<Integer,DHParameterSpec> tempFFDHEs = new HashMap<>();
         for (BigInteger p : ffdhePrimes) {
             int primeLen = p.bitLength();
-            DHParameterSpec dhps = new DHParameterSpec(p, Utilities.BIG_TWO,
-                    getDefDHPrivateExpSize(primeLen));
+            DHParameterSpec dhps = new DHParameterSpec(p, Utilities.BIG_TWO);
             tempFFDHEs.put(primeLen, dhps);
             defaultParams.putIfAbsent(primeLen, dhps);
         }
@@ -306,7 +304,7 @@ final class PredefinedDHParameterSpecs {
             int primeLen = p.bitLength();
             if (defaultParams.get(primeLen) == null) {
                 defaultParams.put(primeLen, new DHParameterSpec(p,
-                        Utilities.BIG_TWO, getDefDHPrivateExpSize(primeLen)));
+                        Utilities.BIG_TWO));
             }
         }
 
