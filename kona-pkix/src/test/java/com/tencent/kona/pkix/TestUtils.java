@@ -2,9 +2,9 @@ package com.tencent.kona.pkix;
 
 import com.tencent.kona.crypto.CryptoInsts;
 import com.tencent.kona.crypto.KonaCryptoProvider;
+import com.tencent.kona.javax.crypto.EncryptedPrivateKeyInfo;
 
 import javax.crypto.Cipher;
-import javax.crypto.EncryptedPrivateKeyInfo;
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
 import java.io.ByteArrayInputStream;
@@ -15,6 +15,7 @@ import java.net.ServerSocket;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.security.AlgorithmParameters;
 import java.security.Key;
 import java.security.KeyFactory;
 import java.security.KeyStore;
@@ -214,23 +215,36 @@ public class TestUtils {
                 "EC", keyStr(encryptedKeyFileName), passphrase);
     }
 
+    public static PrivateKey encryptedECPrivateKeyAsFile(
+            String pbeAlg, String keyAlg, String encryptedKeyFileName,
+            String passphrase) throws Exception {
+        return encryptedPrivateKey(
+                pbeAlg, keyAlg, keyStr(encryptedKeyFileName), passphrase);
+    }
+
     public static PrivateKey encryptedPrivateKey(
             String keyAlg, String encryptedKeyPEM, String passphrase)
+            throws Exception {
+        // It cannot get SecretKeyFactory by EncryptedPrivateKeyInfo::getAlgName
+        // with OID 1.2.840.113549.1.5.13 due to JDK-8226824. So it has to apply
+        // the algorithm PBEWithHmacSHA256AndAES_256 explicitly.
+        return encryptedPrivateKey("PBEWithHmacSHA256AndAES_256",
+                keyAlg, encryptedKeyPEM, passphrase);
+    }
+
+    public static PrivateKey encryptedPrivateKey(
+            String pbeAlg, String keyAlg, String encryptedKeyPEM, String passphrase)
             throws Exception {
         EncryptedPrivateKeyInfo encryptedPrivateKeyInfo
                 = new EncryptedPrivateKeyInfo(
                         Base64.getMimeDecoder().decode(encryptedKeyPEM));
+        AlgorithmParameters params = encryptedPrivateKeyInfo.getAlgParameters();
 
-        // It cannot get SecretKeyFactory by EncryptedPrivateKeyInfo::getAlgName
-        // with OID 1.2.840.113549.1.5.13 due to JDK-8226824. So it has to apply
-        // the algorithm PBEWithHmacSHA256AndAES_256 explicitly.
-        String algorithm = "PBEWithHmacSHA256AndAES_256";
-        SecretKeyFactory pbeKeyFactory = SecretKeyFactory.getInstance(algorithm);
+        SecretKeyFactory pbeKeyFactory = SecretKeyFactory.getInstance(pbeAlg);
         Key pbeKey = pbeKeyFactory.generateSecret(new PBEKeySpec(
                 passphrase.toCharArray()));
-        Cipher cipher = CryptoInsts.getCipher(algorithm);
-        cipher.init(Cipher.DECRYPT_MODE, pbeKey,
-                encryptedPrivateKeyInfo.getAlgParameters());
+        Cipher cipher = CryptoInsts.getCipher(pbeAlg);
+        cipher.init(Cipher.DECRYPT_MODE, pbeKey, params);
         // Cannot directly get PKCS8EncodedKeySpec due to the changes for
         // EncryptedPrivateKeyInfo::checkPKCS8Encoding on JDK 11+.
 //        PKCS8EncodedKeySpec pkcs8EncodedKeySpec =
