@@ -215,7 +215,8 @@ final class CipherCore {
         }
         if (paddingScheme.equalsIgnoreCase("NoPadding")) {
             padding = null;
-        } else if (paddingScheme.equalsIgnoreCase("PKCS7Padding")) {
+        } else if (paddingScheme.equalsIgnoreCase("PKCS7Padding")
+                || paddingScheme.equalsIgnoreCase("PKCS5Padding")) {
             padding = new PKCS5Padding(blockSize);
         } else {
             throw new NoSuchPaddingException("Padding: " + paddingScheme

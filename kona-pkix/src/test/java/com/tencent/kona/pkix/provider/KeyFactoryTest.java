@@ -100,6 +100,9 @@ public class KeyFactoryTest {
                 "ca-sm2ecdsa_enc.key", PASSPHRASE));
         testGeneratePrivateKey(TestUtils.encryptedECPrivateKeyAsFile(
                 "ca-sm2sm2_enc.key", PASSPHRASE));
+        testGeneratePrivateKey(TestUtils.encryptedECPrivateKeyAsFile(
+                "PBEWithHmacSM3AndSM4", "EC",
+                "ca-sm2sm2_enc-sm4.key", PASSPHRASE));
     }
 
     private void testGeneratePrivateKey(PrivateKey privateKey)

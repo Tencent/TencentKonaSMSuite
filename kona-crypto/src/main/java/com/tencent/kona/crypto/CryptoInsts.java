@@ -24,7 +24,7 @@ public class CryptoInsts {
             "com.tencent.kona.crypto.provider.name", KonaCryptoProvider.NAME);
 
     private static final Set<String> ALGO_PARAMS_ALGOS
-            = new HashSet<>(Arrays.asList("EC", "SM4", "RSASSA-PSS"));
+            = new HashSet<>(Arrays.asList("EC", "SM4", "RSASSA-PSS", "PBES2"));
 
     public static AlgorithmParameters getAlgorithmParameters(String algorithm)
             throws NoSuchAlgorithmException {
