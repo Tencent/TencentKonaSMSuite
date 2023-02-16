@@ -15,6 +15,24 @@ import java.security.interfaces.ECPrivateKey;
  */
 public class PKIXUtilsTest {
 
+    private static final String PRIVATE_KEY =
+            "-----BEGIN PRIVATE KEY-----\n" +
+            "MIGHAgEAMBMGByqGSM49AgEGCCqBHM9VAYItBG0wawIBAQQgqiXZE9IGb/jccQdf\n" +
+            "2WYJNk+KVWk8/pPwWx5giD06FX+hRANCAATNugcb6WBQNmZE7VS+Mg54zU07g3m+\n" +
+            "GLAtjsccD0eQ7SwXpjP4nNokax6YIzK5lJ6mrM6Y2GV5AvjaImWbuidW" +
+            "-----END PRIVATE KEY-----";
+
+    private static final String PRIVATE_KEY_WITHOUT_BE =
+            "MIGHAgEAMBMGByqGSM49AgEGCCqBHM9VAYItBG0wawIBAQQgqiXZE9IGb/jccQdf\n" +
+            "2WYJNk+KVWk8/pPwWx5giD06FX+hRANCAATNugcb6WBQNmZE7VS+Mg54zU07g3m+\n" +
+            "GLAtjsccD0eQ7SwXpjP4nNokax6YIzK5lJ6mrM6Y2GV5AvjaImWbuidW";
+
+    private static final String PUBLIC_KEY =
+            "-----BEGIN PUBLIC KEY-----\n" +
+            "MFkwEwYHKoZIzj0CAQYIKoEcz1UBgi0DQgAE8BHoyDr91ptaoN0QRxvYElxdgxzI\n" +
+            "WBTynLUqHouCbT2WD03776IFiEWSi1RdmIq7VvE7f8rpvwosDc/timPkcg==\n" +
+            "-----END PUBLIC KEY-----";
+
     /* The CA certificate.
      *
      * Certificate:
@@ -69,18 +87,6 @@ public class PKIXUtilsTest {
             "hNeTAiEAumIvXbvNbp0rjDmXvYK4B1oRKhLCz1VQAqOcChecilE=\n" +
             "-----END CERTIFICATE-----";
 
-    private static final String KEY =
-            "-----BEGIN PRIVATE KEY-----\n" +
-            "MIGHAgEAMBMGByqGSM49AgEGCCqBHM9VAYItBG0wawIBAQQgqiXZE9IGb/jccQdf\n" +
-            "2WYJNk+KVWk8/pPwWx5giD06FX+hRANCAATNugcb6WBQNmZE7VS+Mg54zU07g3m+\n" +
-            "GLAtjsccD0eQ7SwXpjP4nNokax6YIzK5lJ6mrM6Y2GV5AvjaImWbuidW" +
-            "-----END PRIVATE KEY-----";
-
-    private static final String KEY_WITHOUT_BE =
-            "MIGHAgEAMBMGByqGSM49AgEGCCqBHM9VAYItBG0wawIBAQQgqiXZE9IGb/jccQdf\n" +
-            "2WYJNk+KVWk8/pPwWx5giD06FX+hRANCAATNugcb6WBQNmZE7VS+Mg54zU07g3m+\n" +
-            "GLAtjsccD0eQ7SwXpjP4nNokax6YIzK5lJ6mrM6Y2GV5AvjaImWbuidW";
-
     @BeforeAll
     public static void setup() {
         TestUtils.addProviders();
@@ -88,12 +94,12 @@ public class PKIXUtilsTest {
 
     @Test
     public void testGetPrivateKey() throws Exception {
-        testGetPrivateKey(KEY);
+        testGetPrivateKey(PRIVATE_KEY);
     }
 
     @Test
     public void testGetPrivateKeyWithoutBELines() throws Exception {
-        testGetPrivateKey(KEY_WITHOUT_BE);
+        testGetPrivateKey(PRIVATE_KEY_WITHOUT_BE);
     }
 
     private void testGetPrivateKey(String keyStr) throws Exception {
@@ -103,6 +109,12 @@ public class PKIXUtilsTest {
 
     @Test
     public void testGetPublicKey() throws Exception {
+        PublicKey key = PKIXUtils.getPublicKey("EC", PUBLIC_KEY);
+        Assertions.assertEquals(key.getAlgorithm(), "EC");
+    }
+
+    @Test
+    public void testGetPublicKeyFromCert() throws Exception {
         PublicKey key = PKIXUtils.getPublicKey(CERT);
         Assertions.assertEquals(key.getAlgorithm(), "EC");
     }
