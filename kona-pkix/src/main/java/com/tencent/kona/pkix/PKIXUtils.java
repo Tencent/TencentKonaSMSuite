@@ -17,6 +17,7 @@ import java.security.cert.X509Certificate;
 import java.security.interfaces.ECPublicKey;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
+import java.security.spec.X509EncodedKeySpec;
 import java.util.Base64;
 import java.util.Set;
 
@@ -25,8 +26,11 @@ import java.util.Set;
  */
 public class PKIXUtils {
 
-    public static final String PKCS8_KEY_BEGIN = "-----BEGIN PRIVATE KEY-----";
-    public static final String PKCS8_KEY_END = "-----END PRIVATE KEY-----";
+    private static final String PUBLIC_KEY_BEGIN = "-----BEGIN PUBLIC KEY-----";
+    private static final String PUBLIC_KEY_END = "-----END PUBLIC KEY-----";
+
+    private static final String PRIVATE_KEY_BEGIN = "-----BEGIN PRIVATE KEY-----";
+    private static final String PRIVATE_KEY_END = "-----END PRIVATE KEY-----";
 
     public static boolean isSM3withSM2(String algName) {
         return "SM3withSM2".equalsIgnoreCase(algName)
@@ -36,12 +40,23 @@ public class PKIXUtils {
     // Create a PrivateKey from a PKCS#8-encoded PEM.
     public static PrivateKey getPrivateKey(String keyAlgo, String pkcs8Key)
             throws NoSuchAlgorithmException, InvalidKeySpecException {
-        String keyPem = pkcs8Key.replace(PKCS8_KEY_BEGIN, "")
-                .replace(PKCS8_KEY_END, "");
+        String keyPem = pkcs8Key.replace(PRIVATE_KEY_BEGIN, "")
+                .replace(PRIVATE_KEY_END, "");
         PKCS8EncodedKeySpec privateKeySpec = new PKCS8EncodedKeySpec(
                 Base64.getMimeDecoder().decode(keyPem));
         KeyFactory keyFactory = CryptoInsts.getKeyFactory(keyAlgo);
         return keyFactory.generatePrivate(privateKeySpec);
+    }
+
+    // Create a PublicKey from an X.509-encoded PEM.
+    public static PublicKey getPublicKey(String keyAlgo, String keyPEM)
+            throws NoSuchAlgorithmException, InvalidKeySpecException {
+        String keyPem = keyPEM.replace(PUBLIC_KEY_BEGIN, "")
+                .replace(PUBLIC_KEY_END, "");
+        X509EncodedKeySpec publicKeySpec = new X509EncodedKeySpec(
+                Base64.getMimeDecoder().decode(keyPem));
+        KeyFactory keyFactory = CryptoInsts.getKeyFactory(keyAlgo);
+        return keyFactory.generatePublic(publicKeySpec);
     }
 
     public static PublicKey getPublicKey(Certificate cert)
