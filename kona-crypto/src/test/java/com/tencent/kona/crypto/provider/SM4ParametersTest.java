@@ -35,13 +35,11 @@ public class SM4ParametersTest {
         AlgorithmParameters params = AlgorithmParameters.getInstance("SM4");
         params.init(new IvParameterSpec(IV));
         byte[] encodedParams = params.getEncoded();
-        System.out.println(toHex(encodedParams));
         Assertions.assertArrayEquals(ENCODED_PARAMS, encodedParams);
 
         params = AlgorithmParameters.getInstance("SM4");
         params.init(new GCMParameterSpec(Constants.SM4_GCM_TAG_LEN << 3, GCM_IV));
         encodedParams = params.getEncoded();
-        System.out.println(toHex(encodedParams));
         Assertions.assertArrayEquals(GCM_ENCODED_PARAMS, encodedParams);
     }
 

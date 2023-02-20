@@ -1,25 +1,40 @@
 package com.tencent.kona.pkix.util;
 
-import com.tencent.kona.pkix.TestUtils;
+import com.tencent.kona.crypto.CryptoUtils;
 import com.tencent.kona.pkix.PKIXUtils;
+import com.tencent.kona.pkix.TestUtils;
+import com.tencent.kona.sun.security.util.KnownOIDs;
+import com.tencent.kona.sun.security.util.NamedCurve;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import java.security.PublicKey;
 import java.security.cert.X509Certificate;
 import java.security.interfaces.ECPrivateKey;
+import java.security.interfaces.ECPublicKey;
+
+import static com.tencent.kona.crypto.CryptoUtils.toBigInt;
 
 /**
  * The test for Utils.
  */
 public class PKIXUtilsTest {
 
+    private static final String EC_PARAMS =
+            "-----BEGIN EC PARAMETERS-----\n" +
+            "BggqgRzPVQGCLQ==\n" +
+            "-----END EC PARAMETERS-----";
+
+    private static final String EC_PARAMS_WITHOUT_BE =
+            "BggqgRzPVQGCLQ==";
+
+    /* ***** PKCS#8 Private Key ***** */
+
     private static final String PRIVATE_KEY =
             "-----BEGIN PRIVATE KEY-----\n" +
             "MIGHAgEAMBMGByqGSM49AgEGCCqBHM9VAYItBG0wawIBAQQgqiXZE9IGb/jccQdf\n" +
             "2WYJNk+KVWk8/pPwWx5giD06FX+hRANCAATNugcb6WBQNmZE7VS+Mg54zU07g3m+\n" +
-            "GLAtjsccD0eQ7SwXpjP4nNokax6YIzK5lJ6mrM6Y2GV5AvjaImWbuidW" +
+            "GLAtjsccD0eQ7SwXpjP4nNokax6YIzK5lJ6mrM6Y2GV5AvjaImWbuidW\n" +
             "-----END PRIVATE KEY-----";
 
     private static final String PRIVATE_KEY_WITHOUT_BE =
@@ -27,11 +42,31 @@ public class PKIXUtilsTest {
             "2WYJNk+KVWk8/pPwWx5giD06FX+hRANCAATNugcb6WBQNmZE7VS+Mg54zU07g3m+\n" +
             "GLAtjsccD0eQ7SwXpjP4nNokax6YIzK5lJ6mrM6Y2GV5AvjaImWbuidW";
 
+    /* ***** RFC 5915 Private Key ***** */
+
+    private static final String RFC5915_KEY =
+            "-----BEGIN EC PRIVATE KEY-----\n" +
+            "MHcCAQEEINAwndUYWVaX1N9MRoYmn+5f+Wvl7EmOz6yHnRkHsWPFoAoGCCqBHM9V\n" +
+            "AYItoUQDQgAEEd8Dsf32cEr/jHWYN8EgGHCFh5qu8AyTpdscNUvtx5H1D1mW8kJa\n" +
+            "lvIpfGjy54xSg5RS6taPjDKqfEK89CJUqQ==\n" +
+            "-----END EC PRIVATE KEY-----";
+
+    private static final String RFC5915_KEY_WITHOUT_BE =
+            "MHcCAQEEINAwndUYWVaX1N9MRoYmn+5f+Wvl7EmOz6yHnRkHsWPFoAoGCCqBHM9V\n" +
+            "AYItoUQDQgAEEd8Dsf32cEr/jHWYN8EgGHCFh5qu8AyTpdscNUvtx5H1D1mW8kJa\n" +
+            "lvIpfGjy54xSg5RS6taPjDKqfEK89CJUqQ==";
+
+    /* ***** X.509 Public Key ***** */
+
     private static final String PUBLIC_KEY =
             "-----BEGIN PUBLIC KEY-----\n" +
             "MFkwEwYHKoZIzj0CAQYIKoEcz1UBgi0DQgAE8BHoyDr91ptaoN0QRxvYElxdgxzI\n" +
             "WBTynLUqHouCbT2WD03776IFiEWSi1RdmIq7VvE7f8rpvwosDc/timPkcg==\n" +
             "-----END PUBLIC KEY-----";
+
+    private static final String PUBLIC_KEY_WITHOUT_BE =
+            "MFkwEwYHKoZIzj0CAQYIKoEcz1UBgi0DQgAE8BHoyDr91ptaoN0QRxvYElxdgxzI\n" +
+            "WBTynLUqHouCbT2WD03776IFiEWSi1RdmIq7VvE7f8rpvwosDc/timPkcg==";
 
     /* The CA certificate.
      *
@@ -93,8 +128,20 @@ public class PKIXUtilsTest {
     }
 
     @Test
+    public void testGetNamedCurveId() throws Exception {
+        testGetNamedCurveId(EC_PARAMS);
+        testGetNamedCurveId(EC_PARAMS_WITHOUT_BE);
+    }
+
+    private void testGetNamedCurveId(String ecParams) throws Exception {
+        String namedCurveId = PKIXUtils.getNamedCurveId(ecParams);
+        Assertions.assertEquals(namedCurveId, KnownOIDs.curveSM2.value());
+    }
+
+    @Test
     public void testGetPrivateKey() throws Exception {
         testGetPrivateKey(PRIVATE_KEY);
+        testGetPrivateKey(PRIVATE_KEY_WITHOUT_BE);
     }
 
     @Test
@@ -108,14 +155,49 @@ public class PKIXUtilsTest {
     }
 
     @Test
+    public void testGetRFC5915PrivateKey() throws Exception {
+        testGetRFC5915PrivateKey(RFC5915_KEY);
+        testGetRFC5915PrivateKey(RFC5915_KEY_WITHOUT_BE);
+    }
+
+    private void testGetRFC5915PrivateKey(String privateKey) throws Exception {
+        ECPrivateKey key = (ECPrivateKey) PKIXUtils.getRFC5915PrivateKey(
+                privateKey);
+        Assertions.assertEquals(key.getAlgorithm(), "EC");
+        Assertions.assertEquals(
+                KnownOIDs.curveSM2.value(),
+                ((NamedCurve) key.getParams()).getObjectId());
+        Assertions.assertEquals(
+                toBigInt("D0309DD518595697D4DF4C4686269FEE5FF96BE5EC498ECFAC879D1907B163C5"),
+                key.getS());
+    }
+
+    @Test
+    public void testEncodeRFC5915PrivateKey() throws Exception {
+        ECPrivateKey key = (ECPrivateKey) PKIXUtils.getRFC5915PrivateKey(
+                RFC5915_KEY);
+        byte[] encodedKey = key.getEncoded();
+        // Just ignore public key
+        Assertions.assertEquals(
+                "30250201010420d0309dd518595697d4df4c4686269fee5ff96be5ec498ecfac879d1907b163c5",
+                CryptoUtils.toHex(encodedKey));
+    }
+
+    @Test
     public void testGetPublicKey() throws Exception {
-        PublicKey key = PKIXUtils.getPublicKey("EC", PUBLIC_KEY);
+        testGetPublicKey(PUBLIC_KEY);
+        testGetPublicKey(PUBLIC_KEY_WITHOUT_BE);
+    }
+
+    private void testGetPublicKey(String publicKeyStr) throws Exception {
+        ECPublicKey key = (ECPublicKey) PKIXUtils.getPublicKey(
+                "EC", publicKeyStr);
         Assertions.assertEquals(key.getAlgorithm(), "EC");
     }
 
     @Test
     public void testGetPublicKeyFromCert() throws Exception {
-        PublicKey key = PKIXUtils.getPublicKey(CERT);
+        ECPublicKey key = (ECPublicKey) PKIXUtils.getPublicKey(CERT);
         Assertions.assertEquals(key.getAlgorithm(), "EC");
     }
 

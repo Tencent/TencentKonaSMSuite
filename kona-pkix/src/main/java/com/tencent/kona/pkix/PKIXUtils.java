@@ -1,10 +1,14 @@
 package com.tencent.kona.pkix;
 
 import com.tencent.kona.crypto.CryptoInsts;
+import com.tencent.kona.crypto.spec.RFC5915EncodedKeySpec;
+import com.tencent.kona.sun.security.util.DerInputStream;
 import com.tencent.kona.sun.security.util.KnownOIDs;
 import com.tencent.kona.sun.security.util.NamedCurve;
+import com.tencent.kona.sun.security.util.ObjectIdentifier;
 
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;
 import java.security.KeyFactory;
@@ -26,11 +30,17 @@ import java.util.Set;
  */
 public class PKIXUtils {
 
-    private static final String PUBLIC_KEY_BEGIN = "-----BEGIN PUBLIC KEY-----";
-    private static final String PUBLIC_KEY_END = "-----END PUBLIC KEY-----";
-
     private static final String PRIVATE_KEY_BEGIN = "-----BEGIN PRIVATE KEY-----";
     private static final String PRIVATE_KEY_END = "-----END PRIVATE KEY-----";
+
+    private static final String EC_PARAMS_BEGIN = "-----BEGIN EC PARAMETERS-----";
+    private static final String EC_PARAMS_END = "-----END EC PARAMETERS-----";
+
+    private static final String RFC5915_KEY_BEGIN = "-----BEGIN EC PRIVATE KEY-----";
+    private static final String RFC5915_KEY_END = "-----END EC PRIVATE KEY-----";
+
+    private static final String PUBLIC_KEY_BEGIN = "-----BEGIN PUBLIC KEY-----";
+    private static final String PUBLIC_KEY_END = "-----END PUBLIC KEY-----";
 
     public static boolean isSM3withSM2(String algName) {
         return "SM3withSM2".equalsIgnoreCase(algName)
@@ -48,10 +58,33 @@ public class PKIXUtils {
         return keyFactory.generatePrivate(privateKeySpec);
     }
 
-    // Create a PublicKey from an X.509-encoded PEM.
-    public static PublicKey getPublicKey(String keyAlgo, String keyPEM)
+    // Parse named curve from an EC parameter PEM.
+    // This PEM contains an object identifier representing a named curve,
+    // e.g. 06 08 2A 81 1C CF 55 01 82 2D -- 1.2.156.10197.1.301, SM2 curve
+    public static String getNamedCurveId(String ecParams)
+            throws IOException {
+        String keyPem = ecParams.replace(EC_PARAMS_BEGIN, "")
+                .replace(EC_PARAMS_END, "");
+        DerInputStream derIn = new DerInputStream(
+                Base64.getMimeDecoder().decode(keyPem));
+        return derIn.getOID().toString();
+    }
+
+    // Create an ECPrivateKey from a RFC5915-encoded PEM.
+    public static PrivateKey getRFC5915PrivateKey(String rfc5915Key)
             throws NoSuchAlgorithmException, InvalidKeySpecException {
-        String keyPem = keyPEM.replace(PUBLIC_KEY_BEGIN, "")
+        String keyPem = rfc5915Key.replace(RFC5915_KEY_BEGIN, "")
+                .replace(RFC5915_KEY_END, "");
+        RFC5915EncodedKeySpec privateKeySpec = new RFC5915EncodedKeySpec(
+                Base64.getMimeDecoder().decode(keyPem));
+        KeyFactory keyFactory = CryptoInsts.getKeyFactory("EC");
+        return keyFactory.generatePrivate(privateKeySpec);
+    }
+
+    // Create a PublicKey from an X.509-encoded PEM.
+    public static PublicKey getPublicKey(String keyAlgo, String x509Key)
+            throws NoSuchAlgorithmException, InvalidKeySpecException {
+        String keyPem = x509Key.replace(PUBLIC_KEY_BEGIN, "")
                 .replace(PUBLIC_KEY_END, "");
         X509EncodedKeySpec publicKeySpec = new X509EncodedKeySpec(
                 Base64.getMimeDecoder().decode(keyPem));
