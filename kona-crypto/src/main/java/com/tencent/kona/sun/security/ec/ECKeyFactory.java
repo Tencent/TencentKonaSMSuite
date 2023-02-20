@@ -25,6 +25,8 @@
 
 package com.tencent.kona.sun.security.ec;
 
+import com.tencent.kona.crypto.spec.RFC5915EncodedKeySpec;
+
 import java.security.*;
 import java.security.interfaces.*;
 import java.security.spec.*;
@@ -244,12 +246,21 @@ public final class ECKeyFactory extends KeyFactorySpi {
             } finally {
                 Arrays.fill(encoded, (byte) 0);
             }
+        } else if (keySpec instanceof RFC5915EncodedKeySpec) {
+            RFC5915EncodedKeySpec rfc5915Spec = (RFC5915EncodedKeySpec)keySpec;
+            byte[] encoded = rfc5915Spec.getEncoded();
+            try {
+                return new RFC5915Key(encoded);
+            } finally {
+                Arrays.fill(encoded, (byte) 0);
+            }
         } else if (keySpec instanceof ECPrivateKeySpec) {
             ECPrivateKeySpec ecSpec = (ECPrivateKeySpec)keySpec;
             return new ECPrivateKeyImpl(ecSpec.getS(), ecSpec.getParams());
         } else {
-            throw new InvalidKeySpecException("Only ECPrivateKeySpec "
-                + "and PKCS8EncodedKeySpec supported for EC private keys");
+            throw new InvalidKeySpecException("Only ECPrivateKeySpec, "
+                + "PKCS8EncodedKeySpec and RFC5915EncodedKeySpec "
+                + "supported for EC private keys");
         }
     }
 
