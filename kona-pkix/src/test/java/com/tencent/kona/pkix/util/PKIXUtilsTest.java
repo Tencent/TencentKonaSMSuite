@@ -1,10 +1,9 @@
 package com.tencent.kona.pkix.util;
 
-import com.tencent.kona.crypto.CryptoUtils;
+import com.tencent.kona.crypto.spec.SM2ParameterSpec;
 import com.tencent.kona.pkix.PKIXUtils;
 import com.tencent.kona.pkix.TestUtils;
 import com.tencent.kona.sun.security.util.KnownOIDs;
-import com.tencent.kona.sun.security.util.NamedCurve;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -12,6 +11,7 @@ import org.junit.jupiter.api.Test;
 import java.security.cert.X509Certificate;
 import java.security.interfaces.ECPrivateKey;
 import java.security.interfaces.ECPublicKey;
+import java.util.Base64;
 
 import static com.tencent.kona.crypto.CryptoUtils.toBigInt;
 
@@ -165,8 +165,8 @@ public class PKIXUtilsTest {
                 privateKey);
         Assertions.assertEquals(key.getAlgorithm(), "EC");
         Assertions.assertEquals(
-                KnownOIDs.curveSM2.value(),
-                ((NamedCurve) key.getParams()).getObjectId());
+                SM2ParameterSpec.instance().getCurve(),
+                key.getParams().getCurve());
         Assertions.assertEquals(
                 toBigInt("D0309DD518595697D4DF4C4686269FEE5FF96BE5EC498ECFAC879D1907B163C5"),
                 key.getS());
@@ -177,10 +177,9 @@ public class PKIXUtilsTest {
         ECPrivateKey key = (ECPrivateKey) PKIXUtils.getRFC5915PrivateKey(
                 RFC5915_KEY);
         byte[] encodedKey = key.getEncoded();
-        // Just ignore public key
-        Assertions.assertEquals(
-                "30250201010420d0309dd518595697d4df4c4686269fee5ff96be5ec498ecfac879d1907b163c5",
-                CryptoUtils.toHex(encodedKey));
+        Assertions.assertArrayEquals(
+                Base64.getMimeDecoder().decode(RFC5915_KEY_WITHOUT_BE),
+                encodedKey);
     }
 
     @Test

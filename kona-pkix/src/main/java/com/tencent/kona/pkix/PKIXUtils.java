@@ -5,7 +5,6 @@ import com.tencent.kona.crypto.spec.RFC5915EncodedKeySpec;
 import com.tencent.kona.sun.security.util.DerInputStream;
 import com.tencent.kona.sun.security.util.KnownOIDs;
 import com.tencent.kona.sun.security.util.NamedCurve;
-import com.tencent.kona.sun.security.util.ObjectIdentifier;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -47,17 +46,6 @@ public class PKIXUtils {
                 || "sm2sig_sm3".equalsIgnoreCase(algName);
     }
 
-    // Create a PrivateKey from a PKCS#8-encoded PEM.
-    public static PrivateKey getPrivateKey(String keyAlgo, String pkcs8Key)
-            throws NoSuchAlgorithmException, InvalidKeySpecException {
-        String keyPem = pkcs8Key.replace(PRIVATE_KEY_BEGIN, "")
-                .replace(PRIVATE_KEY_END, "");
-        PKCS8EncodedKeySpec privateKeySpec = new PKCS8EncodedKeySpec(
-                Base64.getMimeDecoder().decode(keyPem));
-        KeyFactory keyFactory = CryptoInsts.getKeyFactory(keyAlgo);
-        return keyFactory.generatePrivate(privateKeySpec);
-    }
-
     // Parse named curve from an EC parameter PEM.
     // This PEM contains an object identifier representing a named curve,
     // e.g. 06 08 2A 81 1C CF 55 01 82 2D -- 1.2.156.10197.1.301, SM2 curve
@@ -68,6 +56,17 @@ public class PKIXUtils {
         DerInputStream derIn = new DerInputStream(
                 Base64.getMimeDecoder().decode(keyPem));
         return derIn.getOID().toString();
+    }
+
+    // Create a PrivateKey from a PKCS#8-encoded PEM.
+    public static PrivateKey getPrivateKey(String keyAlgo, String pkcs8Key)
+            throws NoSuchAlgorithmException, InvalidKeySpecException {
+        String keyPem = pkcs8Key.replace(PRIVATE_KEY_BEGIN, "")
+                .replace(PRIVATE_KEY_END, "");
+        PKCS8EncodedKeySpec privateKeySpec = new PKCS8EncodedKeySpec(
+                Base64.getMimeDecoder().decode(keyPem));
+        KeyFactory keyFactory = CryptoInsts.getKeyFactory(keyAlgo);
+        return keyFactory.generatePrivate(privateKeySpec);
     }
 
     // Create an ECPrivateKey from a RFC5915-encoded PEM.
