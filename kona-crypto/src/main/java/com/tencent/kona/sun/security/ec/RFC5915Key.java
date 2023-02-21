@@ -29,9 +29,12 @@ import com.tencent.kona.crypto.CryptoInsts;
 import com.tencent.kona.crypto.spec.RFC5915EncodedKeySpec;
 import com.tencent.kona.jdk.internal.misc.SharedSecretsUtil;
 import com.tencent.kona.sun.security.util.ArrayUtil;
+import com.tencent.kona.sun.security.util.CurveDB;
 import com.tencent.kona.sun.security.util.DerOutputStream;
 import com.tencent.kona.sun.security.util.DerValue;
+import com.tencent.kona.sun.security.util.ECParameters;
 import com.tencent.kona.sun.security.util.ECUtil;
+import com.tencent.kona.sun.security.util.Oid;
 import com.tencent.kona.sun.security.x509.AlgorithmId;
 
 import java.io.ByteArrayInputStream;
@@ -48,6 +51,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.interfaces.ECPrivateKey;
 import java.security.spec.ECParameterSpec;
+import java.security.spec.ECPoint;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.InvalidParameterSpecException;
 import java.util.Arrays;
@@ -80,6 +84,7 @@ public final class RFC5915Key implements ECPrivateKey {
     private byte[] arrayS;      // private value as a little-endian array
 
     private ECParameterSpec params;
+    private ECPoint pubPoint;        // the optional public key
 
     /**
      * Another constructor. Constructors in subclasses that create a new key
@@ -112,10 +117,21 @@ public final class RFC5915Key implements ECPrivateKey {
                 return;
             }
             next = val.data.getDerValue();
-            algid = new AlgorithmId(AlgorithmId.EC_oid, next.data.getDerValue());
 
-            // Just ignore public key
             if (next.isContextSpecific((byte)0)) {
+                algid = new AlgorithmId(AlgorithmId.EC_oid, next.data.getDerValue());
+
+                AlgorithmParameters algParams = algid.getParameters();
+                if (algParams == null) {
+                    throw new InvalidKeyException("EC domain parameters must be "
+                        + "encoded in the algorithm identifier");
+                }
+                try {
+                    params = algParams.getParameterSpec(ECParameterSpec.class);
+                } catch (InvalidParameterSpecException e) {
+                    throw new InvalidKeyException("Invalid EC private key", e);
+                }
+
                 if (val.data.available() == 0) {
                     return;
                 }
@@ -123,6 +139,10 @@ public final class RFC5915Key implements ECPrivateKey {
             }
 
             if (next.isContextSpecific((byte)1)) {
+                pubPoint = ECUtil.decodePoint(
+                        next.data.getUnalignedBitString().toByteArray(),
+                        params.getCurve());
+
                 if (val.data.available() == 0) {
                     return;
                 }
@@ -137,50 +157,42 @@ public final class RFC5915Key implements ECPrivateKey {
         }
     }
 
-    RFC5915Key(BigInteger s, ECParameterSpec params)
+    RFC5915Key(BigInteger s, ECPoint pubPoint, ECParameterSpec params)
             throws InvalidKeyException {
         this.s = s;
         this.params = params;
+        this.pubPoint = pubPoint;
         makeEncoding(s);
     }
 
     private void makeEncoding(BigInteger s) throws InvalidKeyException {
+        algid = new AlgorithmId(AlgorithmId.EC_oid,
+                ECParameters.getAlgorithmParameters(params));
         byte[] sArr = s.toByteArray();
         // convert to fixed-length array
         int numOctets = (params.getOrder().bitLength() + 7) / 8;
-        byte[] sOctets = new byte[numOctets];
-        int inPos = Math.max(sArr.length - sOctets.length, 0);
-        int outPos = Math.max(sOctets.length - sArr.length, 0);
-        int length = Math.min(sArr.length, sOctets.length);
-        System.arraycopy(sArr, inPos, sOctets, outPos, length);
+        key = new byte[numOctets];
+        int inPos = Math.max(sArr.length - key.length, 0);
+        int outPos = Math.max(key.length - sArr.length, 0);
+        int length = Math.min(sArr.length, key.length);
+        System.arraycopy(sArr, inPos, key, outPos, length);
         Arrays.fill(sArr, (byte) 0);
-
-        DerOutputStream out = new DerOutputStream();
-        out.putInteger(1); // version 1
-        out.putOctetString(sOctets);
-        Arrays.fill(sOctets, (byte) 0);
-        DerValue val = DerValue.wrap(DerValue.tag_Sequence, out);
-        key = val.toByteArray();
-        val.clear();
     }
 
-    RFC5915Key(byte[] s, ECParameterSpec params)
+    // s is little-endian
+    RFC5915Key(byte[] s, ECPoint pubPoint, ECParameterSpec params)
             throws InvalidKeyException {
         this.arrayS = s.clone();
         this.params = params;
+        this.pubPoint = pubPoint;
         makeEncoding(s);
     }
 
     private void makeEncoding(byte[] s) throws InvalidKeyException {
-        DerOutputStream out = new DerOutputStream();
-        out.putInteger(1); // version 1
-        byte[] privBytes = s.clone();
-        ArrayUtil.reverse(privBytes);
-        out.putOctetString(privBytes);
-        Arrays.fill(privBytes, (byte) 0);
-        DerValue val = DerValue.wrap(DerValue.tag_Sequence, out);
-        key = val.toByteArray();
-        val.clear();
+        algid = new AlgorithmId(AlgorithmId.EC_oid,
+                ECParameters.getAlgorithmParameters(params));
+        key = s.clone();
+        ArrayUtil.reverse(key);
     }
 
     /**
@@ -197,7 +209,7 @@ public final class RFC5915Key implements ECPrivateKey {
      * @param encoded the DER-encoded SubjectPublicKeyInfo value
      * @exception IOException on data format errors
      */
-    public static PrivateKey parseKey(byte[] encoded) throws IOException {
+    static PrivateKey parseKey(byte[] encoded) throws IOException {
         try {
             RFC5915Key rawKey = new RFC5915Key(encoded);
             byte[] internal = rawKey.getEncodedInternal();
@@ -246,17 +258,6 @@ public final class RFC5915Key implements ECPrivateKey {
         byte[] clonedKey = key.clone();
         ArrayUtil.reverse(clonedKey);
         arrayS = clonedKey;
-
-        AlgorithmParameters algParams = this.algid.getParameters();
-        if (algParams == null) {
-            throw new InvalidKeyException("EC domain parameters must be "
-                + "encoded in the algorithm identifier");
-        }
-        try {
-            params = algParams.getParameterSpec(ECParameterSpec.class);
-        } catch (InvalidParameterSpecException e) {
-            throw new InvalidKeyException("Invalid EC private key", e);
-        }
     }
 
     // see JCA doc
@@ -293,6 +294,19 @@ public final class RFC5915Key implements ECPrivateKey {
             DerOutputStream tmp = new DerOutputStream();
             tmp.putInteger(V1);
             tmp.putOctetString(key);
+            if (algid != null) {
+                DerOutputStream algidDer = new DerOutputStream();
+                algidDer.putOID(Oid.of(CurveDB.lookup(params).getObjectId()));
+                tmp.write(DerValue.createTag(DerValue.TAG_CONTEXT,
+                        true, (byte) 0x00), algidDer);
+            }
+            if (pubPoint != null) {
+                DerOutputStream pubPointDer = new DerOutputStream();
+                pubPointDer.putBitString(ECUtil.encodePoint(
+                        pubPoint, params.getCurve()));
+                tmp.write(DerValue.createTag(DerValue.TAG_CONTEXT,
+                        true, (byte) 0x01), pubPointDer);
+            }
             DerValue out = DerValue.wrap(DerValue.tag_Sequence, tmp);
             encodedKey = out.toByteArray();
             out.clear();
