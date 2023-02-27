@@ -1,3 +1,4 @@
+import org.apache.tools.ant.taskdefs.condition.Os
 import org.gradle.api.tasks.testing.logging.TestExceptionFormat
 import org.gradle.api.tasks.testing.logging.TestLogEvent
 
@@ -38,6 +39,13 @@ tasks {
         filter {
             includeTestsMatching("*Test")
             includeTestsMatching("*Demo")
+
+            // The TLCP and TLS interop tests are not stable on Windows
+            if (Os.isFamily(Os.FAMILY_WINDOWS)) {
+                excludeTestsMatching("com.tencent.kona.ssl.hybrid.*")
+                excludeTestsMatching("com.tencent.kona.ssl.tlcp.*")
+                excludeTestsMatching("com.tencent.kona.ssl.tls.*")
+            }
 
             val babasslPathProp = "test.babassl.path"
             val babasslPath = System.getProperty(babasslPathProp, "babassl")
