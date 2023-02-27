@@ -113,17 +113,17 @@ publishing {
             val pomName: String?
             val pomDescription: String?
             if (project.name.contains("crypto")) {
-                pomName = "Tencent Kona Crypto Provider";
-                pomDescription = "A Java security provider for supporting ShangMi algorithms SM2, SM3 and SM4.";
+                pomName = "Tencent Kona Crypto Provider"
+                pomDescription = "A Java security provider for supporting ShangMi algorithms SM2, SM3 and SM4."
             } else if (project.name.contains("pkix")) {
-                pomName = "Tencent Kona PKIX Provider";
-                pomDescription = "A Java security provider for supporting ShangMi algorithms in public key infrastructure";
+                pomName = "Tencent Kona PKIX Provider"
+                pomDescription = "A Java security provider for supporting ShangMi algorithms in public key infrastructure"
             } else if (project.name.contains("ssl")) {
-                pomName = "Tencent Kona SSL Provider";
-                pomDescription = "A Java security provider for supporting protocols TLCP, TLS 1.3 (RFC 8998) and TLS 1.2";
+                pomName = "Tencent Kona SSL Provider"
+                pomDescription = "A Java security provider for supporting protocols TLCP, TLS 1.3 (RFC 8998) and TLS 1.2"
             } else {
-                pomName = "Tencent Kona Provider";
-                pomDescription = "A Java security provider for supporting ShangMi features";
+                pomName = "Tencent Kona Provider"
+                pomDescription = "A Java security provider for supporting ShangMi features"
             }
 
             pom {
