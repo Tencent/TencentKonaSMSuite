@@ -36,7 +36,6 @@ import java.security.interfaces.ECPublicKey;
 import java.security.spec.ECFieldFp;
 import java.security.spec.ECGenParameterSpec;
 
-import static com.tencent.kona.crypto.CryptoUtils.toBytes;
 import static com.tencent.kona.crypto.TestUtils.PROVIDER;
 import static com.tencent.kona.crypto.spec.SM2ParameterSpec.COFACTOR;
 import static com.tencent.kona.crypto.spec.SM2ParameterSpec.CURVE;
@@ -70,7 +69,7 @@ public class SM2WithBCTest {
         testCipher(keyPair, keyPairBC);
     }
 
-    public void testCipher(KeyPair keyPair, KeyPair keyPairBC)
+    private void testCipher(KeyPair keyPair, KeyPair keyPairBC)
             throws Exception {
         Cipher cipher = Cipher.getInstance("SM2", PROVIDER);
         cipher.init(Cipher.ENCRYPT_MODE, keyPair.getPublic());
@@ -141,11 +140,11 @@ public class SM2WithBCTest {
         // Signature produced by BC
         byte[] signBC = signatureBC.sign();
 
-//        signature.setParameter(paramSpec);
-//        signature.initVerify(keyPair.getPublic());
-//        signature.update(MESSAGE);
-//        // Kona verifies the signature produced by BC
-//        Assertions.assertTrue(signature.verify(signBC));
+        signature.setParameter(paramSpec);
+        signature.initVerify(keyPair.getPublic());
+        signature.update(MESSAGE);
+        // Kona verifies the signature produced by BC
+        Assertions.assertTrue(signature.verify(signBC));
 
         signatureBC.setParameter(paramSpecBC);
         signatureBC.initVerify(keyPairBC.getPublic());
@@ -187,7 +186,7 @@ public class SM2WithBCTest {
         KeyAgreement keyAgreement = KeyAgreement.getInstance("SM2", PROVIDER);
         keyAgreement.init(tmpECPrivateKeyA, paramSpec);
         keyAgreement.doPhase(tmpECPublicKeyB, true);
-        byte[] sharedKey = keyAgreement.generateSecret("SM2SharedSecret").getEncoded();
+        byte[] sharedKey = keyAgreement.generateSecret();
 
         ECCurve ecCurve = new ECCurve.Fp(
                 ((ECFieldFp) CURVE.getField()).getP(),

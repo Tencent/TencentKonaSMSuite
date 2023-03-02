@@ -1,6 +1,7 @@
 package com.tencent.kona.crypto.perf;
 
 import com.tencent.kona.crypto.TestUtils;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.BenchmarkMode;
 import org.openjdk.jmh.annotations.Fork;
@@ -16,7 +17,7 @@ import org.openjdk.jmh.annotations.Warmup;
 
 import javax.crypto.Cipher;
 import java.security.KeyPair;
-import java.security.KeyPairGenerator;
+import java.security.Security;
 import java.util.concurrent.TimeUnit;
 
 import static com.tencent.kona.crypto.TestUtils.PROVIDER;
@@ -32,10 +33,16 @@ import static com.tencent.kona.crypto.TestUtils.PROVIDER;
 @OutputTimeUnit(TimeUnit.SECONDS)
 public class SM2CipherPerfTest {
 
+    private final static String PUB_KEY
+            = "041D9E2952A06C913BAD21CCC358905ADB3A8097DB6F2F87EB5F393284EC2B7208C30B4D9834D0120216D6F1A73164FDA11A87B0A053F63D992BFB0E4FC1C5D9AD";
+    private final static String PRI_KEY
+            = "3B03B35C2F26DBC56F6D33677F1B28AF15E45FE9B594A6426BDCAD4A69FF976B";
+    private final static KeyPair KEY_PAIR = TestUtils.keyPair(PUB_KEY, PRI_KEY);
     private static final byte[] MESSAGE = TestUtils.dataKB(1);
 
     static {
         TestUtils.addProviders();
+        Security.addProvider(new BouncyCastleProvider());
     }
 
     @State(Scope.Benchmark)
@@ -46,13 +53,19 @@ public class SM2CipherPerfTest {
         @Setup(Level.Trial)
         public void setup() throws Exception {
             encrypter = Cipher.getInstance("SM2", PROVIDER);
-            encrypter.init(Cipher.ENCRYPT_MODE, keyPair().getPublic());
+            encrypter.init(Cipher.ENCRYPT_MODE, KEY_PAIR.getPublic());
         }
+    }
 
-        private KeyPair keyPair() throws Exception {
-            KeyPairGenerator keyPairGenerator
-                    = KeyPairGenerator.getInstance("SM2", PROVIDER);
-            return keyPairGenerator.generateKeyPair();
+    @State(Scope.Benchmark)
+    public static class EncrypterHolderBC {
+
+        Cipher encrypter;
+
+        @Setup(Level.Trial)
+        public void setup() throws Exception {
+            encrypter = Cipher.getInstance("SM2", "BC");
+            encrypter.init(Cipher.ENCRYPT_MODE, KEY_PAIR.getPublic());
         }
     }
 
@@ -64,22 +77,34 @@ public class SM2CipherPerfTest {
 
         @Setup(Level.Trial)
         public void setup() throws Exception {
-            KeyPair keyPair = keyPair();
-            ciphertext = ciphertext(keyPair);
-
+            ciphertext = ciphertext();
             decrypter = Cipher.getInstance("SM2", PROVIDER);
-            decrypter.init(Cipher.DECRYPT_MODE, keyPair.getPrivate());
+            decrypter.init(Cipher.DECRYPT_MODE, KEY_PAIR.getPrivate());
         }
 
-        private KeyPair keyPair() throws Exception {
-            KeyPairGenerator keyPairGenerator
-                    = KeyPairGenerator.getInstance("SM2", PROVIDER);
-            return keyPairGenerator.generateKeyPair();
-        }
-
-        private byte[] ciphertext(KeyPair keyPair) throws Exception {
+        private byte[] ciphertext() throws Exception {
             Cipher cipher = Cipher.getInstance("SM2", PROVIDER);
-            cipher.init(Cipher.ENCRYPT_MODE, keyPair.getPublic());
+            cipher.init(Cipher.ENCRYPT_MODE, KEY_PAIR.getPublic());
+            return cipher.doFinal(MESSAGE);
+        }
+    }
+
+    @State(Scope.Benchmark)
+    public static class DecrypterHolderBC {
+
+        byte[] ciphertext;
+        Cipher decrypter;
+
+        @Setup(Level.Trial)
+        public void setup() throws Exception {
+            ciphertext = ciphertext();
+            decrypter = Cipher.getInstance("SM2", "BC");
+            decrypter.init(Cipher.DECRYPT_MODE, KEY_PAIR.getPrivate());
+        }
+
+        private byte[] ciphertext() throws Exception {
+            Cipher cipher = Cipher.getInstance("SM2", "BC");
+            cipher.init(Cipher.ENCRYPT_MODE, KEY_PAIR.getPublic());
             return cipher.doFinal(MESSAGE);
         }
     }
@@ -90,7 +115,17 @@ public class SM2CipherPerfTest {
     }
 
     @Benchmark
+    public byte[] encryptBC(EncrypterHolderBC holder) throws Exception {
+        return holder.encrypter.doFinal(MESSAGE);
+    }
+
+    @Benchmark
     public byte[] decrypt(DecrypterHolder holder) throws Exception {
+        return holder.decrypter.doFinal(holder.ciphertext);
+    }
+
+    @Benchmark
+    public byte[] decryptBC(DecrypterHolderBC holder) throws Exception {
         return holder.decrypter.doFinal(holder.ciphertext);
     }
 }

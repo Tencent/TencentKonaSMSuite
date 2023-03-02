@@ -1,6 +1,7 @@
 package com.tencent.kona.crypto.perf;
 
 import com.tencent.kona.crypto.TestUtils;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.BenchmarkMode;
 import org.openjdk.jmh.annotations.Fork;
@@ -18,6 +19,7 @@ import javax.crypto.Mac;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 
+import java.security.Security;
 import java.util.concurrent.TimeUnit;
 
 import static com.tencent.kona.crypto.TestUtils.PROVIDER;
@@ -40,6 +42,7 @@ public class SM3HMacPerfTest {
 
     static {
         TestUtils.addProviders();
+        Security.addProvider(new BouncyCastleProvider());
     }
 
     @State(Scope.Benchmark)
@@ -54,8 +57,25 @@ public class SM3HMacPerfTest {
         }
     }
 
+    @State(Scope.Benchmark)
+    public static class MacHolderBC {
+
+        Mac mac;
+
+        @Setup(Level.Trial)
+        public void setup() throws Exception {
+            mac = Mac.getInstance("HMACSM3", PROVIDER);
+            mac.init(SECRET_KEY);
+        }
+    }
+
     @Benchmark
     public byte[] mac(MacHolder holder) throws Exception {
+        return holder.mac.doFinal(MESSAGE);
+    }
+
+    @Benchmark
+    public byte[] macBC(MacHolderBC holder) throws Exception {
         return holder.mac.doFinal(MESSAGE);
     }
 }

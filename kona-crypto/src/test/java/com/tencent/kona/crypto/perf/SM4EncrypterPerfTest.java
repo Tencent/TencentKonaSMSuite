@@ -2,6 +2,7 @@ package com.tencent.kona.crypto.perf;
 
 import com.tencent.kona.crypto.TestUtils;
 import com.tencent.kona.crypto.util.Constants;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.BenchmarkMode;
 import org.openjdk.jmh.annotations.Fork;
@@ -21,6 +22,7 @@ import javax.crypto.spec.GCMParameterSpec;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
+import java.security.Security;
 import java.util.concurrent.TimeUnit;
 
 import static com.tencent.kona.crypto.TestUtils.PROVIDER;
@@ -50,6 +52,7 @@ public class SM4EncrypterPerfTest {
 
     static {
         TestUtils.addProviders();
+        Security.addProvider(new BouncyCastleProvider());
     }
 
     @State(Scope.Benchmark)
@@ -83,8 +86,44 @@ public class SM4EncrypterPerfTest {
         }
     }
 
+    @State(Scope.Benchmark)
+    public static class EncrypterHolderBC {
+        Cipher encrypterCBCPadding;
+        Cipher encrypterCBCNoPadding;
+        Cipher encrypterCTRNoPadding;
+        Cipher encrypterGCMNoPadding;
+
+        @Setup(Level.Invocation)
+        public void setup() throws Exception {
+            encrypterCBCPadding = Cipher.getInstance(
+                    "SM4/CBC/PKCS7Padding", "BC");
+            encrypterCBCPadding.init(
+                    Cipher.ENCRYPT_MODE, SECRET_KEY, IV_PARAM_SPEC);
+
+            encrypterCBCNoPadding = Cipher.getInstance(
+                    "SM4/CBC/NoPadding", "BC");
+            encrypterCBCNoPadding.init(
+                    Cipher.ENCRYPT_MODE, SECRET_KEY, IV_PARAM_SPEC);
+
+            encrypterCTRNoPadding = Cipher.getInstance(
+                    "SM4/CTR/NoPadding", "BC");
+            encrypterCTRNoPadding.init(
+                    Cipher.ENCRYPT_MODE, SECRET_KEY, IV_PARAM_SPEC);
+
+            encrypterGCMNoPadding = Cipher.getInstance(
+                    "SM4/GCM/NoPadding", "BC");
+            encrypterGCMNoPadding.init(
+                    Cipher.ENCRYPT_MODE, SECRET_KEY, GCM_PARAM_SPEC);
+        }
+    }
+
     @Benchmark
     public byte[] cbcPadding(EncrypterHolder holder) throws Exception {
+        return holder.encrypterCBCPadding.doFinal(DATA);
+    }
+
+    @Benchmark
+    public byte[] cbcPaddingBC(EncrypterHolderBC holder) throws Exception {
         return holder.encrypterCBCPadding.doFinal(DATA);
     }
 
@@ -94,12 +133,27 @@ public class SM4EncrypterPerfTest {
     }
 
     @Benchmark
+    public byte[] cbcNoPaddingBC(EncrypterHolderBC holder) throws Exception {
+        return holder.encrypterCBCNoPadding.doFinal(DATA);
+    }
+
+    @Benchmark
     public byte[] ctr(EncrypterHolder holder) throws Exception {
         return holder.encrypterCTRNoPadding.doFinal(DATA);
     }
 
     @Benchmark
+    public byte[] ctrBC(EncrypterHolderBC holder) throws Exception {
+        return holder.encrypterCTRNoPadding.doFinal(DATA);
+    }
+
+    @Benchmark
     public byte[] gcm(EncrypterHolder holder) throws Exception {
+        return holder.encrypterGCMNoPadding.doFinal(DATA);
+    }
+
+    @Benchmark
+    public byte[] gcmBC(EncrypterHolderBC holder) throws Exception {
         return holder.encrypterGCMNoPadding.doFinal(DATA);
     }
 }
