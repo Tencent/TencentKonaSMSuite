@@ -1,6 +1,7 @@
 package com.tencent.kona.crypto.perf;
 
 import com.tencent.kona.crypto.TestUtils;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.BenchmarkMode;
 import org.openjdk.jmh.annotations.Fork;
@@ -15,6 +16,7 @@ import org.openjdk.jmh.annotations.Threads;
 import org.openjdk.jmh.annotations.Warmup;
 
 import java.security.MessageDigest;
+import java.security.Security;
 import java.util.concurrent.TimeUnit;
 
 import static com.tencent.kona.crypto.TestUtils.PROVIDER;
@@ -34,6 +36,7 @@ public class SM3MessageDigestPerfTest {
 
     static {
         TestUtils.addProviders();
+        Security.addProvider(new BouncyCastleProvider());
     }
 
     @State(Scope.Benchmark)
@@ -47,8 +50,24 @@ public class SM3MessageDigestPerfTest {
         }
     }
 
+    @State(Scope.Benchmark)
+    public static class MessageDigestHolderBC {
+
+        MessageDigest md;
+
+        @Setup(Level.Trial)
+        public void setup() throws Exception {
+            md = MessageDigest.getInstance("SM3", "BC");
+        }
+    }
+
     @Benchmark
     public byte[] digest(MessageDigestHolder holder) {
+        return holder.md.digest(MESSAGE);
+    }
+
+    @Benchmark
+    public byte[] digestBC(MessageDigestHolderBC holder) {
         return holder.md.digest(MESSAGE);
     }
 }

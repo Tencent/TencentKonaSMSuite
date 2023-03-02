@@ -2,6 +2,9 @@ package com.tencent.kona.crypto.perf;
 
 import com.tencent.kona.crypto.TestUtils;
 import com.tencent.kona.crypto.spec.SM2SignatureParameterSpec;
+import org.bouncycastle.asn1.gm.GMObjectIdentifiers;
+import org.bouncycastle.jcajce.spec.SM2ParameterSpec;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.BenchmarkMode;
 import org.openjdk.jmh.annotations.Fork;
@@ -16,7 +19,7 @@ import org.openjdk.jmh.annotations.Threads;
 import org.openjdk.jmh.annotations.Warmup;
 
 import java.security.KeyPair;
-import java.security.KeyPairGenerator;
+import java.security.Security;
 import java.security.Signature;
 import java.security.interfaces.ECPublicKey;
 import java.util.concurrent.TimeUnit;
@@ -35,11 +38,17 @@ import static com.tencent.kona.crypto.CryptoUtils.toBytes;
 @OutputTimeUnit(TimeUnit.SECONDS)
 public class SM2SignaturePerfTest {
 
-    private final static byte[] USER_ID = toBytes("01234567");
+    private final static String PUB_KEY
+            = "041D9E2952A06C913BAD21CCC358905ADB3A8097DB6F2F87EB5F393284EC2B7208C30B4D9834D0120216D6F1A73164FDA11A87B0A053F63D992BFB0E4FC1C5D9AD";
+    private final static String PRI_KEY
+            = "3B03B35C2F26DBC56F6D33677F1B28AF15E45FE9B594A6426BDCAD4A69FF976B";
+    private final static KeyPair KEY_PAIR = TestUtils.keyPair(PUB_KEY, PRI_KEY);
+    private final static byte[] ID = toBytes("01234567");
     private final static byte[] MESSAGE = TestUtils.dataKB(1);
 
     static {
         TestUtils.addProviders();
+        Security.addProvider(new BouncyCastleProvider());
     }
 
     @State(Scope.Benchmark)
@@ -49,17 +58,24 @@ public class SM2SignaturePerfTest {
 
         @Setup(Level.Trial)
         public void setup() throws Exception {
-            KeyPair keyPair = keyPair();
             signer = Signature.getInstance("SM2", PROVIDER);
             signer.setParameter(new SM2SignatureParameterSpec(
-                    USER_ID, (ECPublicKey) keyPair.getPublic()));
-            signer.initSign(keyPair.getPrivate());
+                    ID, (ECPublicKey) KEY_PAIR.getPublic()));
+            signer.initSign(KEY_PAIR.getPrivate());
         }
+    }
 
-        private KeyPair keyPair() throws Exception {
-            KeyPairGenerator keyPairGenerator
-                    = KeyPairGenerator.getInstance("SM2", PROVIDER);
-            return keyPairGenerator.generateKeyPair();
+    @State(Scope.Benchmark)
+    public static class SignerHolderBC {
+
+        Signature signer;
+
+        @Setup(Level.Trial)
+        public void setup() throws Exception {
+            signer = Signature.getInstance(
+                    GMObjectIdentifiers.sm2sign_with_sm3.toString(), "BC");
+            signer.setParameter(new SM2ParameterSpec(ID));
+            signer.initSign(KEY_PAIR.getPrivate());
         }
     }
 
@@ -71,28 +87,45 @@ public class SM2SignaturePerfTest {
 
         @Setup(Level.Trial)
         public void setup() throws Exception {
-            KeyPair keyPair = keyPair();
-
-            signature = signature(keyPair);
+            signature = signature();
 
             verifier = Signature.getInstance("SM2", PROVIDER);
             verifier.setParameter(new SM2SignatureParameterSpec(
-                    USER_ID, (ECPublicKey) keyPair.getPublic()));
-            verifier.initVerify(keyPair.getPublic());
+                    ID, (ECPublicKey) KEY_PAIR.getPublic()));
+            verifier.initVerify(KEY_PAIR.getPublic());
         }
 
-        private KeyPair keyPair() throws Exception {
-            KeyPairGenerator keyPairGenerator
-                    = KeyPairGenerator.getInstance("SM2", PROVIDER);
-            return keyPairGenerator.generateKeyPair();
-        }
-
-        private byte[] signature(KeyPair keyPair) throws Exception {
+        private byte[] signature() throws Exception {
             Signature signer = Signature.getInstance("SM2", PROVIDER);
             signer.setParameter(new SM2SignatureParameterSpec(
-                    USER_ID, (ECPublicKey) keyPair.getPublic()));
-            signer.initSign(keyPair.getPrivate());
+                    ID, (ECPublicKey) KEY_PAIR.getPublic()));
+            signer.initSign(KEY_PAIR.getPrivate());
             signer.update(MESSAGE);
+            return signer.sign();
+        }
+    }
+
+    @State(Scope.Benchmark)
+    public static class VerifierHolderBC {
+
+        byte[] signature;
+        Signature verifier;
+
+        @Setup(Level.Trial)
+        public void setup() throws Exception {
+            signature = signature();
+
+            verifier = Signature.getInstance(
+                    GMObjectIdentifiers.sm2sign_with_sm3.toString(), "BC");
+            verifier.setParameter(new SM2ParameterSpec(ID));
+            verifier.initVerify(KEY_PAIR.getPublic());
+        }
+
+        private byte[] signature() throws Exception {
+            Signature signer = Signature.getInstance(
+                    GMObjectIdentifiers.sm2sign_with_sm3.toString(), "BC");
+            signer.setParameter(new SM2ParameterSpec(ID));
+            signer.initSign(KEY_PAIR.getPrivate());
             return signer.sign();
         }
     }
@@ -104,7 +137,19 @@ public class SM2SignaturePerfTest {
     }
 
     @Benchmark
+    public byte[] signBC(SignerHolderBC holder) throws Exception {
+        holder.signer.update(MESSAGE);
+        return holder.signer.sign();
+    }
+
+    @Benchmark
     public boolean verify(VerifierHolder holder) throws Exception {
+        holder.verifier.update(MESSAGE);
+        return holder.verifier.verify(holder.signature);
+    }
+
+    @Benchmark
+    public boolean verifyBC(VerifierHolderBC holder) throws Exception {
         holder.verifier.update(MESSAGE);
         return holder.verifier.verify(holder.signature);
     }

@@ -2,6 +2,7 @@ package com.tencent.kona.crypto.perf;
 
 import com.tencent.kona.crypto.TestUtils;
 import com.tencent.kona.crypto.util.Constants;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.BenchmarkMode;
 import org.openjdk.jmh.annotations.Fork;
@@ -21,6 +22,7 @@ import javax.crypto.spec.GCMParameterSpec;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
+import java.security.Security;
 import java.util.concurrent.TimeUnit;
 
 import static com.tencent.kona.crypto.TestUtils.PROVIDER;
@@ -50,6 +52,7 @@ public class SM4DecrypterPerfTest {
 
     static {
         TestUtils.addProviders();
+        Security.addProvider(new BouncyCastleProvider());
     }
 
     @State(Scope.Benchmark)
@@ -112,12 +115,83 @@ public class SM4DecrypterPerfTest {
         }
     }
 
+    @State(Scope.Benchmark)
+    public static class DecrypterHolderBC {
+
+        byte[] ciphertextCBCPadding;
+        byte[] ciphertextCBCNoPadding;
+        byte[] ciphertextCTRNoPadding;
+        byte[] ciphertextGCMNoPadding;
+
+        Cipher decrypterCBCPadding;
+        Cipher decrypterCBCNoPadding;
+        Cipher decrypterCTRNoPadding;
+        Cipher decrypterGCMNoPadding;
+
+        @Setup(Level.Invocation)
+        public void setup() throws Exception {
+            setupCiphertexts();
+            setupDecrypters();
+        }
+
+        private void setupCiphertexts() throws Exception {
+            Cipher cipher = Cipher.getInstance("SM4/CBC/PKCS7Padding", "BC");
+            cipher.init(Cipher.ENCRYPT_MODE, SECRET_KEY, IV_PARAM_SPEC);
+            ciphertextCBCPadding = cipher.doFinal(MESSAGE);
+
+            cipher = Cipher.getInstance("SM4/CBC/NoPadding", "BC");
+            cipher.init(Cipher.ENCRYPT_MODE, SECRET_KEY, IV_PARAM_SPEC);
+            ciphertextCBCNoPadding = cipher.doFinal(MESSAGE);
+
+            cipher = Cipher.getInstance("SM4/CTR/NoPadding", "BC");
+            cipher.init(Cipher.ENCRYPT_MODE, SECRET_KEY, IV_PARAM_SPEC);
+            ciphertextCTRNoPadding = cipher.doFinal(MESSAGE);
+
+            cipher = Cipher.getInstance("SM4/GCM/NoPadding", "BC");
+            cipher.init(Cipher.ENCRYPT_MODE, SECRET_KEY, GCM_PARAM_SPEC);
+            ciphertextGCMNoPadding = cipher.doFinal(MESSAGE);
+        }
+
+        private void setupDecrypters() throws Exception {
+            decrypterCBCPadding = Cipher.getInstance(
+                    "SM4/CBC/PKCS7Padding", "BC");
+            decrypterCBCPadding.init(
+                    Cipher.DECRYPT_MODE, SECRET_KEY, IV_PARAM_SPEC);
+
+            decrypterCBCNoPadding = Cipher.getInstance(
+                    "SM4/CBC/NoPadding", "BC");
+            decrypterCBCNoPadding.init(
+                    Cipher.DECRYPT_MODE, SECRET_KEY, IV_PARAM_SPEC);
+
+            decrypterCTRNoPadding = Cipher.getInstance(
+                    "SM4/CTR/NoPadding", "BC");
+            decrypterCTRNoPadding.init(
+                    Cipher.DECRYPT_MODE, SECRET_KEY, IV_PARAM_SPEC);
+
+            decrypterGCMNoPadding = Cipher.getInstance(
+                    "SM4/GCM/NoPadding", "BC");
+            decrypterGCMNoPadding.init(
+                    Cipher.DECRYPT_MODE, SECRET_KEY, GCM_PARAM_SPEC);
+        }
+    }
+
     @Benchmark
     public byte[] cbcPadding(DecrypterHolder holder) throws Exception {
         return holder.decrypterCBCPadding.doFinal(holder.ciphertextCBCPadding);
     }
+
+    @Benchmark
+    public byte[] cbcPaddingBC(DecrypterHolderBC holder) throws Exception {
+        return holder.decrypterCBCPadding.doFinal(holder.ciphertextCBCPadding);
+    }
+
     @Benchmark
     public byte[] cbcNoPadding(DecrypterHolder holder) throws Exception {
+        return holder.decrypterCBCNoPadding.doFinal(holder.ciphertextCBCNoPadding);
+    }
+
+    @Benchmark
+    public byte[] cbcNoPaddingBC(DecrypterHolderBC holder) throws Exception {
         return holder.decrypterCBCNoPadding.doFinal(holder.ciphertextCBCNoPadding);
     }
 
@@ -127,7 +201,17 @@ public class SM4DecrypterPerfTest {
     }
 
     @Benchmark
+    public byte[] ctrBC(DecrypterHolderBC holder) throws Exception {
+        return holder.decrypterCTRNoPadding.doFinal(holder.ciphertextCTRNoPadding);
+    }
+
+    @Benchmark
     public byte[] gcm(DecrypterHolder holder) throws Exception {
+        return holder.decrypterGCMNoPadding.doFinal(holder.ciphertextGCMNoPadding);
+    }
+
+    @Benchmark
+    public byte[] gcmBC(DecrypterHolderBC holder) throws Exception {
         return holder.decrypterGCMNoPadding.doFinal(holder.ciphertextGCMNoPadding);
     }
 }

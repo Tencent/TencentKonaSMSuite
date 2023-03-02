@@ -1,6 +1,7 @@
 package com.tencent.kona.crypto.perf;
 
 import com.tencent.kona.crypto.TestUtils;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.BenchmarkMode;
 import org.openjdk.jmh.annotations.Fork;
@@ -15,6 +16,8 @@ import org.openjdk.jmh.annotations.Warmup;
 
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
+import java.security.Security;
+import java.security.spec.ECGenParameterSpec;
 import java.util.concurrent.TimeUnit;
 
 import static com.tencent.kona.crypto.TestUtils.PROVIDER;
@@ -32,6 +35,7 @@ public class SM2KeyPairGenPerfTest {
 
     static {
         TestUtils.addProviders();
+        Security.addProvider(new BouncyCastleProvider());
     }
 
     @State(Scope.Benchmark)
@@ -45,8 +49,25 @@ public class SM2KeyPairGenPerfTest {
         }
     }
 
+    @State(Scope.Benchmark)
+    public static class KeyPairGenHolderBC {
+
+        KeyPairGenerator keyPairGenerator;
+
+        @Setup
+        public void setup() throws Exception {
+            keyPairGenerator = KeyPairGenerator.getInstance("EC", "BC");
+            keyPairGenerator.initialize(new ECGenParameterSpec("sm2p256v1"));
+        }
+    }
+
     @Benchmark
     public KeyPair genKeyPair(KeyPairGenHolder holder) {
+        return holder.keyPairGenerator.generateKeyPair();
+    }
+
+    @Benchmark
+    public KeyPair genKeyPairBC(KeyPairGenHolderBC holder) {
         return holder.keyPairGenerator.generateKeyPair();
     }
 }

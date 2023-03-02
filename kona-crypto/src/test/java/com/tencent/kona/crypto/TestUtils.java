@@ -1,5 +1,9 @@
 package com.tencent.kona.crypto;
 
+import com.tencent.kona.crypto.provider.SM2PrivateKey;
+import com.tencent.kona.crypto.provider.SM2PublicKey;
+
+import java.security.KeyPair;
 import java.security.Security;
 import java.util.ArrayList;
 import java.util.List;
@@ -8,6 +12,8 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+
+import static com.tencent.kona.crypto.CryptoUtils.toBytes;
 
 /**
  * The utilities for tests.
@@ -122,6 +128,13 @@ public class TestUtils {
 
     public static byte[] dataMB(int sizeInMB) {
         return dataKB(sizeInMB * 1024);
+    }
+
+    public static KeyPair keyPair(String publicKeyHex, String privateKeyHex) {
+        SM2PublicKey publicKeySpec = new SM2PublicKey(toBytes(publicKeyHex));
+        SM2PrivateKey privateKeySpec = new SM2PrivateKey(toBytes(privateKeyHex));
+
+        return new KeyPair(publicKeySpec, privateKeySpec);
     }
 
     @FunctionalInterface
