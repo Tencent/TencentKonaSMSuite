@@ -1,27 +1,47 @@
 package com.tencent.kona.crypto.provider;
 
 import com.tencent.kona.crypto.TestUtils;
+import com.tencent.kona.crypto.spec.SM2KeyAgreementParamSpec;
 import com.tencent.kona.crypto.spec.SM2SignatureParameterSpec;
 import com.tencent.kona.crypto.util.Constants;
 import com.tencent.kona.crypto.util.SM2Ciphertext;
 import org.bouncycastle.asn1.gm.GMObjectIdentifiers;
+import org.bouncycastle.crypto.agreement.SM2KeyExchange;
+import org.bouncycastle.crypto.params.ECDomainParameters;
+import org.bouncycastle.crypto.params.ECPrivateKeyParameters;
+import org.bouncycastle.crypto.params.ECPublicKeyParameters;
+import org.bouncycastle.crypto.params.ParametersWithID;
+import org.bouncycastle.crypto.params.SM2KeyExchangePrivateParameters;
+import org.bouncycastle.crypto.params.SM2KeyExchangePublicParameters;
 import org.bouncycastle.jcajce.provider.asymmetric.ec.BCECPrivateKey;
 import org.bouncycastle.jcajce.provider.asymmetric.ec.BCECPublicKey;
+import org.bouncycastle.jcajce.provider.asymmetric.util.EC5Util;
 import org.bouncycastle.jcajce.spec.SM2ParameterSpec;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
+import org.bouncycastle.math.ec.ECCurve;
+import org.bouncycastle.math.ec.ECPoint;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import javax.crypto.Cipher;
+import javax.crypto.KeyAgreement;
+import java.nio.charset.StandardCharsets;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.Security;
 import java.security.Signature;
+import java.security.interfaces.ECPrivateKey;
 import java.security.interfaces.ECPublicKey;
+import java.security.spec.ECFieldFp;
 import java.security.spec.ECGenParameterSpec;
 
+import static com.tencent.kona.crypto.CryptoUtils.toBytes;
 import static com.tencent.kona.crypto.TestUtils.PROVIDER;
+import static com.tencent.kona.crypto.spec.SM2ParameterSpec.COFACTOR;
+import static com.tencent.kona.crypto.spec.SM2ParameterSpec.CURVE;
+import static com.tencent.kona.crypto.spec.SM2ParameterSpec.GENERATOR;
+import static com.tencent.kona.crypto.spec.SM2ParameterSpec.ORDER;
 
 /**
  * The test for SM2 with BouncyCastle.
@@ -132,6 +152,71 @@ public class SM2WithBCTest {
         signatureBC.update(MESSAGE);
         // BC verifies the signature produced by Kona
         Assertions.assertTrue(signatureBC.verify(sign));
+    }
+
+    @Test
+    public void testKeyAgreement() throws Exception {
+        testKeyAgreement(true);
+        testKeyAgreement(false);
+    }
+
+    private void testKeyAgreement(boolean konaIsInitiator) throws Exception {
+        byte[] idA = "User A".getBytes(StandardCharsets.UTF_8);
+        byte[] idB = "B Part".getBytes(StandardCharsets.UTF_8);
+
+        KeyPair keyPairA = keyPair();
+        ECPrivateKey ecPrivateKeyA = (ECPrivateKey) keyPairA.getPrivate();
+        ECPublicKey ecPublicKeyA = (ECPublicKey) keyPairA.getPublic();
+
+        KeyPair tmpkeyPairA = keyPair();
+        ECPrivateKey tmpECPrivateKeyA = (ECPrivateKey) tmpkeyPairA.getPrivate();
+        ECPublicKey tmpECPublicKeyA = (ECPublicKey) tmpkeyPairA.getPublic();
+
+        KeyPair keyPairB = keyPair();
+        ECPrivateKey ecPrivateKeyB = (ECPrivateKey) keyPairB.getPrivate();
+        ECPublicKey ecPublicKeyB = (ECPublicKey) keyPairB.getPublic();
+
+        KeyPair tmpkeyPairB = keyPair();
+        ECPrivateKey tmpECPrivateKeyB = (ECPrivateKey) tmpkeyPairB.getPrivate();
+        ECPublicKey tmpECPublicKeyB = (ECPublicKey) tmpkeyPairB.getPublic();
+
+        SM2KeyAgreementParamSpec paramSpec = new SM2KeyAgreementParamSpec(
+                idA, ecPrivateKeyA, ecPublicKeyA,
+                idB, ecPublicKeyB,
+                konaIsInitiator, 16);
+        KeyAgreement keyAgreement = KeyAgreement.getInstance("SM2", PROVIDER);
+        keyAgreement.init(tmpECPrivateKeyA, paramSpec);
+        keyAgreement.doPhase(tmpECPublicKeyB, true);
+        byte[] sharedKey = keyAgreement.generateSecret("SM2SharedSecret").getEncoded();
+
+        ECCurve ecCurve = new ECCurve.Fp(
+                ((ECFieldFp) CURVE.getField()).getP(),
+                CURVE.getA(), CURVE.getB(), ORDER, COFACTOR);
+        ECPoint genPoint = ecCurve.createPoint(
+                GENERATOR.getAffineX(), GENERATOR.getAffineY());
+        ECDomainParameters ecDomainParams = new ECDomainParameters(
+                ecCurve, genPoint, ORDER);
+
+        ECPrivateKeyParameters privateKeyParamsB = new ECPrivateKeyParameters(
+                ecPrivateKeyB.getS(), ecDomainParams);
+        ECPrivateKeyParameters tmpPrivateKeyParamsB = new ECPrivateKeyParameters(
+                tmpECPrivateKeyB.getS(), ecDomainParams);
+        ECPublicKeyParameters publicKeyParamsA = new ECPublicKeyParameters(
+                EC5Util.convertPoint(ecCurve, ecPublicKeyA.getW()),
+                ecDomainParams);
+        ECPublicKeyParameters tmpPublicKeyParamsA = new ECPublicKeyParameters(
+                EC5Util.convertPoint(ecCurve, tmpECPublicKeyA.getW()),
+                ecDomainParams);
+        SM2KeyExchange keyAgreementBC = new SM2KeyExchange();
+        keyAgreementBC.init(new ParametersWithID(
+                new SM2KeyExchangePrivateParameters(
+                        !konaIsInitiator, privateKeyParamsB, tmpPrivateKeyParamsB),
+                idB));
+        byte[] sharedKeyBC = keyAgreementBC.calculateKey(128,
+                new ParametersWithID(new SM2KeyExchangePublicParameters(
+                        publicKeyParamsA, tmpPublicKeyParamsA), idA));
+
+        Assertions.assertArrayEquals(sharedKey, sharedKeyBC);
     }
 
     private KeyPair toKonaKeyPair(KeyPair keyPairBC) {
