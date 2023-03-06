@@ -1041,7 +1041,7 @@ final class SSLEngineImpl extends SSLEngine implements SSLTransport {
         }
    }
 
-    @Override
+//    @Override
     public String getApplicationProtocol() {
         engineLock.lock();
         try {
@@ -1051,7 +1051,7 @@ final class SSLEngineImpl extends SSLEngine implements SSLTransport {
         }
     }
 
-    @Override
+//    @Override
     public String getHandshakeApplicationProtocol() {
         engineLock.lock();
         try {
@@ -1062,7 +1062,7 @@ final class SSLEngineImpl extends SSLEngine implements SSLTransport {
         }
     }
 
-    @Override
+//    @Override
     public void setHandshakeApplicationProtocolSelector(
             BiFunction<SSLEngine, List<String>, String> selector) {
         engineLock.lock();
@@ -1073,7 +1073,7 @@ final class SSLEngineImpl extends SSLEngine implements SSLTransport {
         }
     }
 
-    @Override
+//    @Override
     public BiFunction<SSLEngine, List<String>, String>
             getHandshakeApplicationProtocolSelector() {
         engineLock.lock();

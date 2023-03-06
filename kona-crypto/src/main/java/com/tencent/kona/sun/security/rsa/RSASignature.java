@@ -37,6 +37,8 @@ import com.tencent.kona.sun.security.util.ObjectIdentifier;
 import com.tencent.kona.sun.security.x509.AlgorithmId;
 import com.tencent.kona.sun.security.rsa.RSAUtil.KeyType;
 
+import static com.tencent.kona.sun.security.rsa.RSAUtil.SUPPORT_PSS;
+
 /**
  * PKCS#1 v1.5 RSA signatures with the various message digest algorithms.
  * This file contains an abstract base class with all the logic plus
@@ -122,7 +124,8 @@ abstract class RSASignature extends SignatureSpi {
     private void initCommon(RSAKey rsaKey, SecureRandom random)
             throws InvalidKeyException {
         try {
-            RSAUtil.checkParamsAgainstType(KeyType.RSA, rsaKey.getParams());
+            RSAUtil.checkParamsAgainstType(KeyType.RSA,
+                    SUPPORT_PSS ? rsaKey.getParams() : null);
         } catch (ProviderException e) {
             throw new InvalidKeyException("Invalid key for RSA signatures", e);
         }
