@@ -206,4 +206,17 @@ public class RSAUtil {
         }
         return values[1].getOctetString();
     }
+
+    static final boolean SUPPORT_PSS = supportPSS();
+
+    private static boolean supportPSS() {
+        boolean supported;
+        try {
+            RSAPublicKeySpec.class.getMethod("getParams");
+            supported = true;
+        } catch (NoSuchMethodException e) {
+            supported = false;
+        }
+        return supported;
+    }
 }

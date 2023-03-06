@@ -37,6 +37,8 @@ import com.tencent.kona.sun.security.util.SecurityProviderConstants;
 import com.tencent.kona.sun.security.jca.JCAUtil;
 import com.tencent.kona.sun.security.rsa.RSAUtil.KeyType;
 
+import static com.tencent.kona.sun.security.rsa.RSAUtil.SUPPORT_PSS;
+
 /**
  * RSA keypair generation. Standard algorithm, minimum key length 512 bit.
  * We generate two random primes until we find two where phi is relative
@@ -97,7 +99,7 @@ abstract class RSAKeyPairGenerator extends KeyPairGeneratorSpi {
         RSAKeyGenParameterSpec rsaSpec = (RSAKeyGenParameterSpec)params;
         int tmpKeySize = rsaSpec.getKeysize();
         BigInteger tmpPubExp = rsaSpec.getPublicExponent();
-        AlgorithmParameterSpec tmpParams = rsaSpec.getKeyParams();
+        AlgorithmParameterSpec tmpParams = SUPPORT_PSS ? rsaSpec.getKeyParams() : null;
 
         // use the new approach for even key sizes >= 2048 AND when the
         // public exponent is within FIPS valid range

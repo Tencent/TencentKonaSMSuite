@@ -190,7 +190,7 @@ public final class RSAPublicKeyImpl extends X509Key implements RSAPublicKey {
     }
 
     // see JCA doc
-    @Override
+//    @Override
     public AlgorithmParameterSpec getParams() {
         return keyParams;
     }

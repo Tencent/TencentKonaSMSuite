@@ -46,6 +46,8 @@ import javax.net.ssl.SSLSocket;
 import com.tencent.kona.crypto.CryptoInsts;
 import com.tencent.kona.sun.security.action.GetPropertyAction;
 
+import static com.tencent.kona.sun.security.ssl.Utilities.SUPPORT_ALPN;
+
 /**
  * SSL/(D)TLS configuration.
  */
@@ -210,7 +212,9 @@ final class SSLConfiguration implements Cloneable {
             params.setSNIMatchers(this.sniMatchers);
         }
 
-        params.setApplicationProtocols(this.applicationProtocols);
+        if (SUPPORT_ALPN) {
+            params.setApplicationProtocols(this.applicationProtocols);
+        }
         params.setUseCipherSuitesOrder(this.preferLocalCipherSuites);
 //        params.setEnableRetransmissions(this.enableRetransmissions);
 //        params.setMaximumPacketSize(this.maximumPacketSize);
@@ -266,7 +270,7 @@ final class SSLConfiguration implements Cloneable {
             this.sniMatchers = matchers;
         }   // null if none has been set
 
-        sa = params.getApplicationProtocols();
+        sa = SUPPORT_ALPN ? params.getApplicationProtocols() : null;
         if (sa != null) {
             this.applicationProtocols = sa;
         }   // otherwise, use the default values
