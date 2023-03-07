@@ -1,7 +1,5 @@
 package com.tencent.kona.ssl;
 
-import com.tencent.kona.crypto.CryptoUtils;
-
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.security.Provider;
