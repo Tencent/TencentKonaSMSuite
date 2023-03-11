@@ -158,7 +158,7 @@ public final class SM2Engine {
         byte[] hArr = toByteArrayLE(COFACTOR);
         ECPoint s = SM2OPS.multiply(pC1, hArr).asAffine().toECPoint();
         if (!SM2OPS.checkOrder(s)) {
-            throw new IllegalArgumentException("The peer public point is invalid");
+            throw new BadPaddingException("The peer public point is invalid");
         }
 
         // B3
