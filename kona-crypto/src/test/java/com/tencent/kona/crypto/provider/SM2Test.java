@@ -179,6 +179,32 @@ public class SM2Test {
     }
 
     @Test
+    public void testCipherWithInvalidPubKey() throws Exception {
+        KeyFactory keyFactory = KeyFactory.getInstance("SM2", PROVIDER);
+        SM2PublicKeySpec pubKeySpec = new SM2PublicKeySpec(toBytes(PUB_KEY));
+        PublicKey pubKey = keyFactory.generatePublic(pubKeySpec);
+        SM2PrivateKeySpec privateKeySpec = new SM2PrivateKeySpec(toBytes(PRI_KEY));
+        PrivateKey priKey = keyFactory.generatePrivate(privateKeySpec);
+
+        Cipher cipher = Cipher.getInstance("SM2", PROVIDER);
+
+        cipher.init(Cipher.ENCRYPT_MODE, pubKey);
+
+        byte[] ciphertext = cipher.doFinal(MESSAGE);
+        // Replace C1 with an invalid public key, exactly zero
+        for (int i = 5; i < 5 + 32; i++) {  // X bytes
+            ciphertext[i] = 0;
+        }
+        for (int i = 40; i < 38 + 32; i++) { // Y bytes
+            ciphertext[i] = 0;
+        }
+
+        cipher.init(Cipher.DECRYPT_MODE, priKey);
+        TestUtils.checkThrowable(BadPaddingException.class,
+                () -> cipher.doFinal(ciphertext));
+    }
+
+    @Test
     public void testCipherTwice() throws Exception {
         KeyFactory keyFactory = KeyFactory.getInstance("SM2", PROVIDER);
         SM2PublicKeySpec pubKeySpec = new SM2PublicKeySpec(toBytes(PUB_KEY));
