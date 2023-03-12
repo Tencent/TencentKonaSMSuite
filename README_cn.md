@@ -33,10 +33,10 @@ repositories {
 }
 
 dependencies {
-    implementation("com.tencent.kona:kona-crypto:1.0.7.1")
-    implementation("com.tencent.kona:kona-pkix:1.0.7.1")
-    implementation("com.tencent.kona:kona-ssl:1.0.7.1")
-    implementation("com.tencent.kona:kona-provider:1.0.7.1")
+    implementation("com.tencent.kona:kona-crypto:<version>")
+    implementation("com.tencent.kona:kona-pkix:<version>")
+    implementation("com.tencent.kona:kona-ssl:<version>")
+    implementation("com.tencent.kona:kona-provider:<version>")
 }
 ```
 
@@ -44,8 +44,8 @@ dependencies {
 
 ```
 dependencies {
-    implementation("com.tencent.kona:kona-crypto:1.0.7.1")
-    implementation("com.tencent.kona:kona-provider:1.0.7.1")
+    implementation("com.tencent.kona:kona-crypto:<version>")
+    implementation("com.tencent.kona:kona-provider:<version>")
 }
 ```
 
