@@ -291,8 +291,8 @@ public class CertPathValidatorTest {
         SimpleOCSPServer ocspServer = createOCSPServer(
                 issuerCertName, issuerKeyName);
         ocspServer.start();
-        while(!ocspServer.isServerReady()) {
-            TimeUnit.MILLISECONDS.sleep(100);
+        if (!ocspServer.awaitServerReady(5, TimeUnit.SECONDS)) {
+            throw new RuntimeException("OCSP server is not started");
         }
 
         X509Certificate eeCert = TestUtils.certAsFile(certName);
