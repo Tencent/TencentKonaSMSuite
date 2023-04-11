@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1996, 2022, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1996, 2023, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -25,24 +25,27 @@
 
 package com.tencent.kona.sun.security.pkcs;
 
-import java.io.*;
+import com.tencent.kona.crypto.CryptoInsts;
+import com.tencent.kona.jdk.internal.misc.SharedSecretsUtil;
+import com.tencent.kona.sun.security.util.DerOutputStream;
+import com.tencent.kona.sun.security.util.DerValue;
+import com.tencent.kona.sun.security.util.InternalPrivateKey;
+import com.tencent.kona.sun.security.x509.AlgorithmId;
+
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectStreamException;
+import java.security.InvalidKeyException;
 import java.security.Key;
 import java.security.KeyRep;
-import java.security.PrivateKey;
 import java.security.MessageDigest;
-import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.security.PrivateKey;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.util.Arrays;
-
-import com.tencent.kona.crypto.CryptoInsts;
-import com.tencent.kona.jdk.internal.misc.SharedSecretsUtil;
-
-//import jdk.internal.access.SharedSecrets;
-import com.tencent.kona.sun.security.util.DerOutputStream;
-import com.tencent.kona.sun.security.util.DerValue;
-import com.tencent.kona.sun.security.x509.AlgorithmId;
 
 /**
  * Holds a PKCS#8 key, for example a private key
@@ -61,7 +64,7 @@ import com.tencent.kona.sun.security.x509.AlgorithmId;
  *
  * We support this format but do not parse attributes and publicKey now.
  */
-public class PKCS8Key implements PrivateKey {
+public class PKCS8Key implements PrivateKey, InternalPrivateKey {
 
     /** use serialVersionUID from JDK 1.1. for interoperability */
     private static final long serialVersionUID = -3836890099307167124L;
@@ -228,7 +231,7 @@ public class PKCS8Key implements PrivateKey {
         return encodedKey;
     }
 
-    protected Object writeReplace() throws java.io.ObjectStreamException {
+    protected Object writeReplace() throws ObjectStreamException {
         return new KeyRep(KeyRep.Type.PRIVATE,
                 getAlgorithm(),
                 getFormat(),

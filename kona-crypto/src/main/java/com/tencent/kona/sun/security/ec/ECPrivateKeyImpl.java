@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006, 2021, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2006, 2023, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -25,14 +25,8 @@
 
 package com.tencent.kona.sun.security.ec;
 
-import java.io.IOException;
-import java.math.BigInteger;
-
-import java.security.*;
-import java.security.interfaces.*;
-import java.security.spec.*;
-import java.util.Arrays;
-
+import com.tencent.kona.sun.security.ec.point.AffinePoint;
+import com.tencent.kona.sun.security.ec.point.MutablePoint;
 import com.tencent.kona.sun.security.pkcs.PKCS8Key;
 import com.tencent.kona.sun.security.util.ArrayUtil;
 import com.tencent.kona.sun.security.util.DerInputStream;
@@ -41,6 +35,18 @@ import com.tencent.kona.sun.security.util.DerValue;
 import com.tencent.kona.sun.security.util.ECParameters;
 import com.tencent.kona.sun.security.util.ECUtil;
 import com.tencent.kona.sun.security.x509.AlgorithmId;
+
+import java.io.IOException;
+import java.math.BigInteger;
+import java.security.AlgorithmParameters;
+import java.security.InvalidKeyException;
+import java.security.ProviderException;
+import java.security.PublicKey;
+import java.security.interfaces.ECPrivateKey;
+import java.security.spec.ECParameterSpec;
+import java.security.spec.ECPoint;
+import java.security.spec.InvalidParameterSpecException;
+import java.util.Arrays;
 
 /**
  * Key implementation for EC private keys.
@@ -153,11 +159,15 @@ public final class ECPrivateKeyImpl extends PKCS8Key implements ECPrivateKey {
         return s;
     }
 
-    public byte[] getArrayS() {
+    private byte[] getArrayS0() {
         if (arrayS == null) {
             arrayS = ECUtil.sArray(getS(), params);
         }
-        return arrayS.clone();
+        return arrayS;
+    }
+
+    public byte[] getArrayS() {
+        return getArrayS0().clone();
     }
 
     // see JCA doc
@@ -200,6 +210,23 @@ public final class ECPrivateKeyImpl extends PKCS8Key implements ECPrivateKey {
             throw new InvalidKeyException("Invalid EC private key", e);
         } catch (InvalidParameterSpecException e) {
             throw new InvalidKeyException("Invalid EC private key", e);
+        }
+    }
+
+    @Override
+    public PublicKey calculatePublicKey() {
+        ECParameterSpec ecParams = getParams();
+        ECOperations ops = ECOperations.forParameters(ecParams)
+                .orElseThrow(ProviderException::new);
+        MutablePoint pub = ops.multiply(ecParams.getGenerator(), getArrayS0());
+        AffinePoint affPub = pub.asAffine();
+        ECPoint w = new ECPoint(affPub.getX().asBigInteger(),
+                affPub.getY().asBigInteger());
+        try {
+            return new ECPublicKeyImpl(w, ecParams);
+        } catch (InvalidKeyException e) {
+            throw new ProviderException(
+                    "Unexpected error calculating public key", e);
         }
     }
 }
