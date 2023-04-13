@@ -21,7 +21,7 @@
  * questions.
  */
 
-package com.tencent.kona.ssl.tls;
+package com.tencent.kona.ssl.perf;
 
 import com.tencent.kona.ssl.interop.CertTuple;
 import com.tencent.kona.ssl.interop.CipherSuite;

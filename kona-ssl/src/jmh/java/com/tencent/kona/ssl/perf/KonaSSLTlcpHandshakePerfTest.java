@@ -21,7 +21,7 @@
  * questions.
  */
 
-package com.tencent.kona.ssl.tlcp;
+package com.tencent.kona.ssl.perf;
 
 import com.tencent.kona.ssl.interop.ContextProtocol;
 import com.tencent.kona.ssl.interop.SmCertTuple;

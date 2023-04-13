@@ -1,6 +1,7 @@
-package com.tencent.kona.sun.security.ec;
+package com.tencent.kona.crypto.perf;
 
 import com.tencent.kona.crypto.CryptoUtils;
+import com.tencent.kona.sun.security.ec.ECOperator;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.BenchmarkMode;
 import org.openjdk.jmh.annotations.Fork;

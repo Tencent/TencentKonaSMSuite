@@ -16,12 +16,15 @@ java {
     withJavadocJar()
 }
 
+sourceSets.create("jmh") {
+    java.setSrcDirs(listOf("src/jmh/java"))
+}
+
 dependencies {
+    testImplementation("org.bouncycastle:bcprov-jdk18on:1.72")
+
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.8.2")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.8.2")
-
-    testImplementation("org.openjdk.jmh:jmh-core:1.35")
-    testAnnotationProcessor("org.openjdk.jmh:jmh-generator-annprocess:1.35")
 }
 
 tasks {
@@ -102,6 +105,11 @@ tasks {
     javadoc {
         options.locale = "en_US"
         isFailOnError = false
+    }
+
+    register("jmh", type=JavaExec::class) {
+        mainClass.set("org.openjdk.jmh.Main")
+        classpath(sourceSets["jmh"].runtimeClasspath)
     }
 }
 
