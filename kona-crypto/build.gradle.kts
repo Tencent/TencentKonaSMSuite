@@ -3,5 +3,7 @@ plugins {
 }
 
 dependencies {
-    testImplementation("org.bouncycastle:bcprov-jdk18on:1.72")
+    jmhImplementation("org.openjdk.jmh:jmh-core:1.35")
+    jmhAnnotationProcessor("org.openjdk.jmh:jmh-generator-annprocess:1.35")
+    jmhImplementation(sourceSets["test"].runtimeClasspath)
 }
