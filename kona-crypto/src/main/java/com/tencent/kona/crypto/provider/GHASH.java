@@ -30,9 +30,12 @@
 package com.tencent.kona.crypto.provider;
 
 import com.tencent.kona.crypto.util.Constants;
+import com.tencent.kona.sun.security.action.GetPropertyAction;
 
 import java.nio.ByteBuffer;
 import java.security.ProviderException;
+
+import static com.tencent.kona.crypto.CryptoUtils.longToBytes8;
 
 /**
  * This class represents the GHASH function defined in NIST 800-38D
@@ -46,6 +49,11 @@ import java.security.ProviderException;
  */
 
 final class GHASH implements Cloneable, GCM {
+
+    // preTableSize: ZERO, 32K
+    private static final String PRE_TABLE_SIZE
+            = GetPropertyAction.privilegedGetProperty(
+                    "com.tencent.kona.crypto.gcm.preTableSize", "32K");
 
     private static long getLong(byte[] buffer, int offset) {
         long result = 0;
@@ -69,66 +77,6 @@ final class GHASH implements Cloneable, GCM {
     // Maximum buffer size rotating ByteBuffer->byte[] intrinsic copy
     private static final int MAX_LEN = 1024;
 
-    // Multiplies state[0], state[1] by subkeyH[0], subkeyH[1].
-    private static void blockMult(long[] st, long[] subH) {
-        long Z0 = 0;
-        long Z1 = 0;
-        long V0 = subH[0];
-        long V1 = subH[1];
-        long X;
-
-        // Separate loops for processing state[0] and state[1].
-        X = st[0];
-        for (int i = 0; i < 64; i++) {
-            // Zi+1 = Zi if bit i of x is 0
-            long mask = X >> 63;
-            Z0 ^= V0 & mask;
-            Z1 ^= V1 & mask;
-
-            // Save mask for conditional reduction below.
-            mask = (V1 << 63) >> 63;
-
-            // V = rightshift(V)
-            long carry = V0 & 1;
-            V0 = V0 >>> 1;
-            V1 = (V1 >>> 1) | (carry << 63);
-
-            // Conditional reduction modulo P128.
-            V0 ^= 0xe100000000000000L & mask;
-            X <<= 1;
-        }
-
-        X = st[1];
-        for (int i = 64; i < 127; i++) {
-            // Zi+1 = Zi if bit i of x is 0
-            long mask = X >> 63;
-            Z0 ^= V0 & mask;
-            Z1 ^= V1 & mask;
-
-            // Save mask for conditional reduction below.
-            mask = (V1 << 63) >> 63;
-
-            // V = rightshift(V)
-            long carry = V0 & 1;
-            V0 = V0 >>> 1;
-            V1 = (V1 >>> 1) | (carry << 63);
-
-            // Conditional reduction.
-            V0 ^= 0xe100000000000000L & mask;
-            X <<= 1;
-        }
-
-        // calculate Z128
-        long mask = X >> 63;
-        Z0 ^= V0 & mask;
-        Z1 ^= V1 & mask;
-
-        // Save result.
-        st[0] = Z0;
-        st[1] = Z1;
-
-    }
-
     /* subkeyHtbl and state are stored in long[] for GHASH intrinsic use */
 
     // hashtable subkeyHtbl holds 2*9 powers of subkeyH computed using
@@ -140,6 +88,8 @@ final class GHASH implements Cloneable, GCM {
 
     // variables for save/restore calls
     private long stateSave0, stateSave1;
+
+    private final GFMultiplier multiplier;
 
     /**
      * Initializes the cipher in the specified mode with the given key
@@ -158,12 +108,27 @@ final class GHASH implements Cloneable, GCM {
         subkeyHtbl = new long[2*9];
         subkeyHtbl[0] = getLong(subkeyH, 0);
         subkeyHtbl[1] = getLong(subkeyH, 8);
+
+        multiplier = multiplier(subkeyH);
     }
 
     // Cloning constructor
     private GHASH(GHASH g) {
         state = g.state.clone();
         subkeyHtbl = g.subkeyHtbl.clone();
+
+        byte[] subkeyH = new byte[SM4_BLOCK_SIZE];
+        longToBytes8(subkeyHtbl[0], subkeyH, 0);
+        longToBytes8(subkeyHtbl[1], subkeyH, 8);
+        multiplier = multiplier(subkeyH);
+    }
+
+    private GFMultiplier multiplier(byte[] subkeyH) {
+        if ("32K".equalsIgnoreCase(PRE_TABLE_SIZE)) {
+            return GFMultipliers.gfmWith32KPreTable(subkeyH);
+        } else {
+            return GFMultipliers.gfmWithoutPreTable(subkeyH);
+        }
     }
 
     @Override
@@ -197,11 +162,10 @@ final class GHASH implements Cloneable, GCM {
         state[1] = stateSave1;
     }
 
-    private static void processBlock(byte[] data, int ofs, long[] st,
-        long[] subH) {
+    private void processBlock(byte[] data, int ofs, long[] st) {
         st[0] ^= getLong(data, ofs);
         st[1] ^= getLong(data, ofs + 8);
-        blockMult(st, subH);
+        multiplier.multiply(st);
     }
 
     int update(byte[] in) {
@@ -214,7 +178,7 @@ final class GHASH implements Cloneable, GCM {
         }
         int len = inLen - (inLen % SM4_BLOCK_SIZE);
         ghashRangeCheck(in, inOfs, len, state, subkeyHtbl);
-        processBlocks(in, inOfs, len / SM4_BLOCK_SIZE, state, subkeyHtbl);
+        processBlocks(in, inOfs, len / SM4_BLOCK_SIZE, state);
         return len;
     }
 
@@ -312,11 +276,10 @@ final class GHASH implements Cloneable, GCM {
      * the hotspot signature.  This method and methods called by it, cannot
      * throw exceptions or allocate arrays as it will breaking intrinsics
      */
-    private static void processBlocks(byte[] data, int inOfs, int blocks,
-        long[] st, long[] subH) {
+    private void processBlocks(byte[] data, int inOfs, int blocks, long[] st) {
         int offset = inOfs;
         while (blocks > 0) {
-            processBlock(data, offset, st, subH);
+            processBlock(data, offset, st);
             blocks--;
             offset += SM4_BLOCK_SIZE;
         }
@@ -327,15 +290,13 @@ final class GHASH implements Cloneable, GCM {
         byte[] data = new byte[Math.min(MAX_LEN, inLen)];
         while (inLen > MAX_LEN) {
             ct.get(data, 0, MAX_LEN);
-            processBlocks(data, 0, MAX_LEN / SM4_BLOCK_SIZE, state,
-                subkeyHtbl);
+            processBlocks(data, 0, MAX_LEN / SM4_BLOCK_SIZE, state);
             inLen -= MAX_LEN;
         }
         if (inLen >= SM4_BLOCK_SIZE) {
             int len = inLen - (inLen % SM4_BLOCK_SIZE);
             ct.get(data, 0, len);
-            processBlocks(data, 0, len / SM4_BLOCK_SIZE, state,
-                subkeyHtbl);
+            processBlocks(data, 0, len / SM4_BLOCK_SIZE, state);
         }
     }
 
