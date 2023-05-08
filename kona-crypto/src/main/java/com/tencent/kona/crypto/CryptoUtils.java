@@ -156,6 +156,17 @@ public final class CryptoUtils {
         return bytes32;
     }
 
+    public static void longToBytes8(long value, byte[] dest, int offset) {
+        intToBytes4((int)(value >>> 32), dest, offset);
+        intToBytes4((int)(value & 0xFFFFFFFFL), dest, offset + 4);
+    }
+
+    public static long bytes8ToLong(byte[] bytes8, int offset) {
+        int high = bytes4ToInt(bytes8, offset);
+        int low = bytes4ToInt(bytes8, offset + 4);
+        return ((high & 0xFFFFFFFFL) << 32) | (low & 0xFFFFFFFFL);
+    }
+
     public static byte[] copy(byte[] data, int offset, int length) {
         RangeUtil.nullAndBoundsCheck(data, offset, length);
 
