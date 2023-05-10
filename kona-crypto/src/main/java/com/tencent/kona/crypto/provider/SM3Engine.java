@@ -95,12 +95,32 @@ public final class SM3Engine {
     }
 
     public void update(byte[] message, int offset, int length) {
-        for (int i = offset; i < offset + length; i++) {
-            word[wordOffset++] = message[i];
+        int consumed = 0;
 
-            if (wordOffset >= word.length) {
-                processWord();
+        // Process the current word if any
+        if (wordOffset != 0) {
+            while (consumed < length) {
+                word[wordOffset++] = message[offset + consumed++];
+                if (wordOffset >= word.length) {
+                    processWord();
+                    break;
+                }
             }
+        }
+
+        // Process one word in each iteration
+        while (consumed < length - 3) {
+            word[0] = message[offset + consumed++];
+            word[1] = message[offset + consumed++];
+            word[2] = message[offset + consumed++];
+            word[3] = message[offset + consumed++];
+
+            processWord();
+        }
+
+        // Process the remainder bytes if any
+        while (consumed < length) {
+            word[wordOffset++] = message[offset + consumed++];
         }
 
         countOfBytes += length;
@@ -170,7 +190,9 @@ public final class SM3Engine {
     // Only W[i], but no W[i]' = W[i] ^ W[i+4]
     private void expand() {
         // W0..W15
-        System.arraycopy(block, 0, w, 0, block.length);
+        for (int i = 0; i < block.length; i++) { // Not use System.arraycopy due to performance concern
+            w[i] = block[i];
+        }
 
         // W16..W67
         for (int i = 16; i < 68; i++) {
