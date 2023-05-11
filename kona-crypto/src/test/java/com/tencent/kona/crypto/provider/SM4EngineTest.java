@@ -38,38 +38,38 @@ public class SM4EngineTest {
 
     @Test
     public void testEncryption() {
-        int[] encRoundKey = SM4Engine.expandKey(KEY, true);
+        SM4Engine engine = new SM4Engine(KEY, true);
         byte[] ciphertext = new byte[16];
-        SM4Engine.processBlock(encRoundKey, PLAINTEXT, 0, ciphertext, 0);
+        engine.processBlock(PLAINTEXT, 0, ciphertext, 0);
         Assertions.assertArrayEquals(CIPHERTEXT, ciphertext);
     }
 
     @Test
     public void testDecryption() {
-        int[] decRoundKey = SM4Engine.expandKey(KEY, false);
+        SM4Engine engine = new SM4Engine(KEY, false);
         byte[] cleartext = new byte[16];
-        SM4Engine.processBlock(decRoundKey, CIPHERTEXT, 0, cleartext, 0);
+        engine.processBlock(CIPHERTEXT, 0, cleartext, 0);
         Assertions.assertArrayEquals(PLAINTEXT, cleartext);
     }
 
     @Test
     public void testEncryptMillionTimes() {
-        int[] encRoundKey = SM4Engine.expandKey(KEY, true);
+        SM4Engine engine = new SM4Engine(KEY, true);
         byte[] ciphertext = new byte[16];
-        SM4Engine.processBlock(encRoundKey, PLAINTEXT, 0, ciphertext, 0);
+        engine.processBlock( PLAINTEXT, 0, ciphertext, 0);
         for (int i = 1; i < 1_000_000; i++) {
-            SM4Engine.processBlock(encRoundKey, ciphertext, 0, ciphertext, 0);
+            engine.processBlock(ciphertext, 0, ciphertext, 0);
         }
         Assertions.assertArrayEquals(REPEATED_CIPHERTEXT, ciphertext);
     }
 
     @Test
     public void testDecryptMillionTimes() {
-        int[] decRoundKey = SM4Engine.expandKey(KEY, false);
+        SM4Engine engine = new SM4Engine(KEY, false);
         byte[] cleartext = new byte[16];
-        SM4Engine.processBlock(decRoundKey, REPEATED_CIPHERTEXT, 0, cleartext, 0);
+        engine.processBlock(REPEATED_CIPHERTEXT, 0, cleartext, 0);
         for (int i = 1; i < 1_000_000; i++) {
-            SM4Engine.processBlock(decRoundKey, cleartext, 0, cleartext, 0);
+            engine.processBlock(cleartext, 0, cleartext, 0);
         }
         Assertions.assertArrayEquals(PLAINTEXT, cleartext);
     }

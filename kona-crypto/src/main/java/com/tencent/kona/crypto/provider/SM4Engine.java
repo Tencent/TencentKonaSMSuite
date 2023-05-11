@@ -363,8 +363,14 @@ public final class SM4Engine {
         0x10171e25, 0x2c333a41, 0x484f565d, 0x646b7279
     };
 
+    private final int[] rk;
+
+    public SM4Engine(byte[] key, boolean encrypt) {
+        rk = expandKey(key, encrypt);
+    }
+
     // Key expansion
-    public static int[] expandKey(byte[] key, boolean encrypt) {
+    private static int[] expandKey(byte[] key, boolean encrypt) {
         // MK = (MK0, MK1, MK2, MK3)
         int[] mk = new int[4];
         mk[0] = bytes4ToInt(key, 0);
@@ -417,8 +423,7 @@ public final class SM4Engine {
                  ^ circularLeftShift(b, 23);
     }
 
-    public static void processBlock(
-            int[] rk,
+    public void processBlock(
             byte[] in, int inOffset,
             byte[] out, int outOffset) {
         // Input (X0, X1, X2, X3)
