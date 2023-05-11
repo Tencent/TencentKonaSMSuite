@@ -1,12 +1,17 @@
 package com.tencent.kona.crypto.perf;
 
 import com.tencent.kona.crypto.provider.SM4Engine;
+import org.bouncycastle.crypto.params.KeyParameter;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.BenchmarkMode;
 import org.openjdk.jmh.annotations.Fork;
+import org.openjdk.jmh.annotations.Level;
 import org.openjdk.jmh.annotations.Measurement;
 import org.openjdk.jmh.annotations.Mode;
 import org.openjdk.jmh.annotations.OutputTimeUnit;
+import org.openjdk.jmh.annotations.Scope;
+import org.openjdk.jmh.annotations.Setup;
+import org.openjdk.jmh.annotations.State;
 import org.openjdk.jmh.annotations.Threads;
 import org.openjdk.jmh.annotations.Warmup;
 
@@ -37,23 +42,45 @@ public class SM4EnginePerfTest {
             (byte)0x76, (byte)0x54, (byte)0x32, (byte)0x10
     };
 
-    private static final int[] ROUND_KEY = SM4Engine.expandKey(KEY, true);
+    @State(Scope.Benchmark)
+    public static class EncrypterHolder {
 
-    @Benchmark
-    public int[] expandKey() {
-        int[] roundKey = null;
-        for (int i = 1; i < 10000; i++) {
-            roundKey = SM4Engine.expandKey(KEY, true);
+        SM4Engine engine;
+
+        @Setup(Level.Invocation)
+        public void setup() throws Exception {
+            engine = new SM4Engine(KEY, true);
         }
-        return roundKey;
+    }
+
+    @State(Scope.Benchmark)
+    public static class EncrypterHolderBC {
+
+        org.bouncycastle.crypto.engines.SM4Engine engine;
+
+        @Setup(Level.Invocation)
+        public void setup() throws Exception {
+            engine = new org.bouncycastle.crypto.engines.SM4Engine();
+            engine.init(true, new KeyParameter(KEY));
+        }
     }
 
     @Benchmark
-    public byte[] processBlock() {
+    public byte[] processBlock(EncrypterHolder holder) {
         byte[] ciphertext = new byte[16];
-        SM4Engine.processBlock(ROUND_KEY, DATA, 0, ciphertext, 0);
+        holder.engine.processBlock(DATA, 0, ciphertext, 0);
         for (int i = 1; i < 10000; i++) {
-            SM4Engine.processBlock(ROUND_KEY, ciphertext, 0, ciphertext, 0);
+            holder.engine.processBlock(ciphertext, 0, ciphertext, 0);
+        }
+        return ciphertext;
+    }
+
+    @Benchmark
+    public byte[] processBlockBC(EncrypterHolderBC holder) {
+        byte[] ciphertext = new byte[16];
+        holder.engine.processBlock(DATA, 0, ciphertext, 0);
+        for (int i = 1; i < 10000; i++) {
+            holder.engine.processBlock(ciphertext, 0, ciphertext, 0);
         }
         return ciphertext;
     }
