@@ -155,6 +155,11 @@ public interface IntegerModuloP {
     void asByteArray(byte[] result);
 
     /**
+     * Break encapsulation, used for IntrinsicCandidate functions
+     */
+    long[] getLimbs();
+
+    /**
      * Compute the multiplicative inverse of this field element.
      *
      * @return the multiplicative inverse (1 / this)
