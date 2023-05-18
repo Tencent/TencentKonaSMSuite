@@ -1,0 +1,18 @@
+server:
+  port: 8443
+
+  ssl:
+    enabled: true
+
+    trust-store-provider: Kona
+    trust-store-type: PKCS12
+    trust-store: classpath:ssl/truststore.p12
+    trust-store-password: truststorepass
+
+    key-store-provider: Kona
+    key-store-type: PKCS12
+    key-store: classpath:ssl/keystore.p12
+    key-store-password: keystorepass
+
+    # This context protocol supports TLCPv1.1, TLSv1.3 and TLSv1.2
+    protocol: TLCP
