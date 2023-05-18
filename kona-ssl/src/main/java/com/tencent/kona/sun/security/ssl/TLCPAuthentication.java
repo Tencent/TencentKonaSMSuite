@@ -219,14 +219,19 @@ final class TLCPAuthentication implements SSLAuthentication {
             for (String clientAlias : clientAliases) {
                 PossessionEntry bufPossEntry = clientPossEntry(
                         chc, keyType, km, clientAlias);
-                if (bufPossEntry != null) {
-                    if (signPossEntry == null
-                            && PKIXUtils.isSignCert(bufPossEntry.popCert)) {
-                        signPossEntry = bufPossEntry;
-                    } else if (PKIXUtils.isEncCert(bufPossEntry.popCert)) {
-                        encPossEntry = bufPossEntry;
-                        break;
-                    }
+                if (bufPossEntry == null) {
+                    continue;
+                }
+
+                if (signPossEntry == null
+                        && PKIXUtils.isSignCert(bufPossEntry.popCert)) {
+                    signPossEntry = bufPossEntry;
+                } else if (PKIXUtils.isEncCert(bufPossEntry.popCert)) {
+                    encPossEntry = bufPossEntry;
+                }
+
+                if (signPossEntry != null && encPossEntry != null) {
+                    break;
                 }
             }
 
@@ -320,6 +325,9 @@ final class TLCPAuthentication implements SSLAuthentication {
                     signPossEntry = bufPossEntry;
                 } else if (PKIXUtils.isEncCert(bufPossEntry.popCert)) {
                     encPossEntry = bufPossEntry;
+                }
+
+                if (signPossEntry != null && encPossEntry != null) {
                     break;
                 }
             }
