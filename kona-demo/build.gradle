@@ -1,0 +1,20 @@
+plugins {
+    id("kona-common")
+    id("org.springframework.boot") version("2.7.11")
+    id("io.spring.dependency-management") version "1.0.15.RELEASE"
+}
+
+dependencies {
+    implementation(project(":kona-crypto"))
+    implementation(project(":kona-pkix"))
+    implementation(project(":kona-ssl"))
+    implementation(project(":kona-provider"))
+
+    implementation("org.apache.httpcomponents:httpclient:4.5.13")
+
+    implementation("org.springframework.boot:spring-boot-starter-web") {
+        exclude(module : "spring-boot-starter-tomcat")
+    }
+    implementation("org.springframework.boot:spring-boot-starter-jetty")
+    implementation("org.springframework.boot:spring-boot-starter-test")
+}
