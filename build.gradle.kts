@@ -5,5 +5,5 @@ allprojects {
     }
 
     group = "com.tencent.kona"
-    version = "1.0.8"
+    version = "1.0.9-SNAPSHOT"
 }
