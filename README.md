@@ -73,23 +73,23 @@ Welcome to evolve and maintain Tencent Kona SM Suite with us together. Please re
 Tencent Kona SM Suite is licensed under GNU GPL v2.0 license with classpath exception. For more details, please read the attached license [text].
 
 ## FAQ
-Q: Why may SM2 Cipher throw exception `java.security.InvalidKeyException: Illegal key size or default parameters`?<br>
-A: Before JDK `8u161`, JDKs don't support stronger algorithm and longer key length by default. These JDKs don't support 256-bit key, like `AES-256`. SM2 encryption algorithm just needs 256-bit keys, so it is also affected by this limit. For the solution details, please refer to this [Stack Overflow question].
+**Q**: Why may SM2 Cipher throw exception `java.security.InvalidKeyException: Illegal key size or default parameters`?<br>
+**A**: Before JDK `8u161`, JDKs don't support stronger algorithm and longer key length by default. These JDKs don't support 256-bit key, like `AES-256`. SM2 encryption algorithm just needs 256-bit keys, so it is also affected by this limit. For the solution details, please refer to this [Stack Overflow question].
 
-Q: Can support `ECC_SM4_GCM_SM3` and `ECDHE_SM4_GCM_SM3` in TLS 1.2?<br>
-A: There is no any RFC specification introducing these cipher suites to TLS 1.2, so it cannot support them in this protocol. However, this project supports `TLS_SM4_GCM_SM3` in TLS 1.3 based on RFC 8998.
+**Q**: Can support `ECC_SM4_GCM_SM3` and `ECDHE_SM4_GCM_SM3` in TLS 1.2?<br>
+**A**: There is no any RFC specification introducing these cipher suites to TLS 1.2, so it cannot support them in this protocol. However, this project supports `TLS_SM4_GCM_SM3` in TLS 1.3 based on RFC 8998.
 
-Q: Is `GMSSL` or `GMSSL 1.1` supported?<br>
-A: China's specification GB/T 38636-2020 defined the TLS-liked protocol as `Transport layer cryptography protocol`, so the protocol name in this project is`TLCP`, and the version is `1.1`. Certainly, `TLCP` or `TLCP 1.1` is `GMSSL` or`GMSSL 1.1`.
+**Q**: Is `GMSSL` or `GMSSL 1.1` supported?<br>
+**A**: China's specification GB/T 38636-2020 defined the TLS-liked protocol as `Transport layer cryptography protocol`, so the protocol name in this project is`TLCP`, and the version is `1.1`. Certainly, `TLCP` or `TLCP 1.1` is `GMSSL` or`GMSSL 1.1`.
 
-Q: Why cannot run the tests in this project with Oracle JDK?<br>
-A: Oracle JDK requires a JCE implementation (here is `KoneCrypto`) must be signed and the associated certificate must be issued by Oracle JCE Code Signing CA. When directly executing the tests with the project source, `KonaCrypto` Provider is not signed yet, so they cannot run on Oracle JDK. But note that, the artifacts in Maven Central repository are already signed and surely can run on Oracle JDK.
+**Q**: Why cannot run the tests in this project with Oracle JDK?<br>
+**A**: Oracle JDK requires a JCE implementation (here is `KoneCrypto`) must be signed and the associated certificate must be issued by Oracle JCE Code Signing CA. When directly executing the tests with the project source, `KonaCrypto` Provider is not signed yet, so they cannot run on Oracle JDK. But note that, the artifacts in Maven Central repository are already signed and surely can run on Oracle JDK.
 
-Q: Is this project related to BouncyCastle?<br>
-A: The earlier versions of this project used the SM algorithms from BouncyCastle, but since `1.0.5`, this project doesn't depend on BouncyCastle any more. In addition, please note BouncyCastle doesn't support SM protocols, including TLCP and TLS 1.3/RFC 8998.
+**Q**: Is this project related to BouncyCastle?<br>
+**A**: The earlier versions of this project used the SM algorithms from BouncyCastle, but since `1.0.5`, this project doesn't depend on BouncyCastle anymore. Both of the components comply with China's specification, so they can interoperate with each other. In addition, please note BouncyCastle doesn't support SM protocols, including TLCP and TLS 1.3/RFC 8998.
 
-Q: How old JDK 8 released can be supported<br>
-A: Different scenarios require different JDK 8 releases. 1. Only need SM algorithms and/or TLCP protocol, this project can support `8u141` or older releases. 2. Requires ALPN extension with TLCP protocol, this oldest JDK 8 release is `8u251`. 3. In order to apply TLS 1.3/RFC 8998, `8u261` or higher is required.
+**Q**: How old JDK 8 released can be supported?<br>
+**A**: Different scenarios require different JDK 8 releases. 1. Only need SM algorithms and/or TLCP protocol, at most `8u141` (even older releases) is required. 2. Requires ALPN extension with TLCP protocol, this oldest JDK 8 release is `8u251`. 3. In order to apply TLS 1.3/RFC 8998, `8u261` or higher is required.
 
 
 [JCA]:
