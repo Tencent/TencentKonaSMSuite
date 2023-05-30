@@ -7,7 +7,9 @@ Tencent Kona SM Suite is a set of Java security providers, which service the Sha
 - [KonaCrypto]，which implements SM2, SM3 and SM4 algorithms based on Java Cryptography Architecture.
 - [KonaPKIX]，which supports ShangMi algorithms on loading certificate and certificate chain verification. It also can load and write key store files containing ShangMi certificates.
 - [KonaSSL] implements China's Transport Layer Cryptographic Protocol, and also applies ShangMi algorithms to TLS 1.3 based on RFC 8998.
-- [Kona], which wraps all the features in `KonaCrypto`，`KonaPKIX` and `KonaSSL`. Generally, it recommends users to use this provider.
+- [Kona], which wraps all the features in `KonaCrypto`，`KonaPKIX` and `KonaSSL`, so it has to depend on one or more of them. Generally, **this provider is recommended**.
+
+In addition, this project provides a Spring Boot application, exactly [kona-demo], as a server-side demo. But this module is not one of the artifacts of this project.
 
 ## System requirements
 
@@ -70,6 +72,25 @@ Welcome to evolve and maintain Tencent Kona SM Suite with us together. Please re
 ## License
 Tencent Kona SM Suite is licensed under GNU GPL v2.0 license with classpath exception. For more details, please read the attached license [text].
 
+## FAQ
+Q: Why may SM2 Cipher throw exception `java.security.InvalidKeyException: Illegal key size or default parameters`?<br>
+A: Before JDK `8u161`, JDKs don't support stronger algorithm and longer key length by default. These JDKs don't support 256-bit key, like `AES-256`. SM2 encryption algorithm just needs 256-bit keys, so it is also affected by this limit. For the solution details, please refer to this [Stack Overflow question].
+
+Q: Can support `ECC_SM4_GCM_SM3` and `ECDHE_SM4_GCM_SM3` in TLS 1.2?<br>
+A: There is no any RFC specification introducing these cipher suites to TLS 1.2, so it cannot support them in this protocol. However, this project supports `TLS_SM4_GCM_SM3` in TLS 1.3 based on RFC 8998.
+
+Q: Is `GMSSL` or `GMSSL 1.1` supported?<br>
+A: China's specification GB/T 38636-2020 defined the TLS-liked protocol as `Transport layer cryptography protocol`, so the protocol name in this project is`TLCP`, and the version is `1.1`. Certainly, `TLCP` or `TLCP 1.1` is `GMSSL` or`GMSSL 1.1`.
+
+Q: Why cannot run the tests in this project with Oracle JDK?<br>
+A: Oracle JDK requires a JCE implementation (here is `KoneCrypto`) must be signed and the associated certificate must be issued by Oracle JCE Code Signing CA. When directly executing the tests with the project source, `KonaCrypto` Provider is not signed yet, so they cannot run on Oracle JDK. But note that, the artifacts in Maven Central repository are already signed and surely can run on Oracle JDK.
+
+Q: Is this project related to BouncyCastle?<br>
+A: The earlier versions of this project used the SM algorithms from BouncyCastle, but since `1.0.5`, this project doesn't depend on BouncyCastle any more. In addition, please note BouncyCastle doesn't support SM protocols, including TLCP and TLS 1.3/RFC 8998.
+
+Q: How old JDK 8 released can be supported<br>
+A: Different scenarios require different JDK 8 releases. 1. Only need SM algorithms and/or TLCP protocol, this project can support `8u141` or older releases. 2. Requires ALPN extension with TLCP protocol, this oldest JDK 8 release is `8u251`. 3. In order to apply TLS 1.3/RFC 8998, `8u261` or higher is required.
+
 
 [JCA]:
 <https://docs.oracle.com/en/java/javase/11/security/java-cryptography-architecture-jca-reference-guide.html>
@@ -85,6 +106,9 @@ Tencent Kona SM Suite is licensed under GNU GPL v2.0 license with classpath exce
 
 [Kona]:
 <kona-provider/README.md>
+
+[kona-demo]:
+<kona-demo/README.md>
 
 [certificate]:
 <https://www.oracle.com/java/technologies/javase/getcodesigningcertificate.html#jcacodesigning>
@@ -112,3 +136,6 @@ Tencent Kona SM Suite is licensed under GNU GPL v2.0 license with classpath exce
 
 [text]:
 <LICENSE.txt>
+
+[Stack Overflow question]:
+<https://stackoverflow.com/questions/3862800/invalidkeyexception-illegal-key-size>
