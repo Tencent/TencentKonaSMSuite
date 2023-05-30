@@ -7,7 +7,9 @@
 - [KonaCrypto]，它遵循标准的[JCA]框架实现了国密基础算法SM2，SM3和SM4。
 - [KonaPKIX]，它实现了国密证书的解析与验证，并可加载和创建包含国密证书的密钥库文件。它需要依赖`KonaCrypto`。
 - [KonaSSL]，它实现了中国的传输层密码协议（TLCP），并遵循RFC 8998规范将国密基础算法应用到了TLS 1.3协议中。它需要依赖`KonaCrypto`和`KonaPKIX`。
-- [Kona]，它将`KonaCrypto`，`KonaPKIX`和`KonaSSL`中的特性进行了简单的封装。一般地，建议使用这个Provider。根据实际需求，它需要依赖`KonaCrypto`，`KonaPKIX`和`KonaSSL`中的一个或多个。
+- [Kona]，它将`KonaCrypto`，`KonaPKIX`和`KonaSSL`中的特性进行了简单的封装，所以它需要根据实际需求去依赖这些Provider中的一个或多个。一般地，**建议使用这个Provider**。
+
+另外，本项目还提供了一个Spring Boot应用作为服务端的示例，即[kona-demo]，但该模块不是本项目的制品之一。
 
 ## 系统要求
 
@@ -70,6 +72,26 @@ gradle :kona-pkix:build
 ## 许可协议
 腾讯Kona国密套件使用的许可协议是GNU GPL v2.0 license with classpath exception，请详见附带的许可协议[文本]。
 
+## FAQ
+Q：为何使用SM2 Cipher时会遇到异常`java.security.InvalidKeyException: Illegal key size or default parameters`？<br>
+A：在JDK `8u161`之前，JDK默认不能支持较强的加密算法和密钥长度。它们就不能支持256位长度的加密算法，如`AES-256`。而SM2加密算法的密钥长度也是256，所以也存在这个问题。具体解决方法，请见这个[Stack Overflow的问题]。
+
+Q：能否在TLS 1.2中支持`ECC_SM4_GCM_SM3`和`ECDHE_SM4_GCM_SM3`？<br>
+A：由于没有任何RFC规范将国密密码套件引入TLS 1.2协议，所以无法在该协议中支持上述密码套件。但本项目基于RFC 8998支持在TLS 1.3协议中使用国密密码套件`TLS_SM4_GCM_SM3`。
+
+Q：是否支持`GMSSL`或`GMSSL 1.1`协议？<br>
+A：国家标准GB/T 38636-2020定义的这个类TLS安全通信协议为`传输层密码协议`，其英文为`Transport layer cryptography protocol`。本组件使用它的简称`TLCP`，版本为`1.1`。所以，`TLCP`或`TLCP 1.1`就是`GMSSL`或`GMSSL 1.1`。
+
+Q：为什么不能在Oracle JDK下执行本项目中的测试用例？<br>
+A：Oracle JDK会验证JCE实现（此处为`KonaCrypto`）是否被签名，并且其关联的证书要由JCE Code Signing CA颁发。而在执行本项目中的测试用例时，其使用的`KonaCrypto` Provider还没有签名，所以不能在Oracle JDK中执行它们。但发布到Maven中央仓库中的jar文件都被签名了，所以它们都可以在Oracle JDK中运行。
+
+Q：本项目与BoucyCastle中的国密实现有何关系？<br>
+A：本项目的早期版本会依赖BouncyCastle中的国密基础算法，但从`1.0.5`开始，已经不再对BouncyCastle有任何的依赖。由于都是遵循中国相关标准来实现的国密基础算法，所以这两个组件之间可以正常交互。另外，需要了解的是，BouncyCastle并不支持国密安全通信协议，包括TLCP和TLS 1.3/RFC 8998。
+
+Q：可以支持的JDK 8最低版本是多少？<br>
+A：根据不同的应用场景，对JDK 8的版本的要求也不尽相同。1. 仅使用国密基础算法和/或TLCP协议，支持`8u141`甚至更老的版本。2. 在TLCP协议中使用ALPN扩展，要求的最低JDK 8版本为`8u251`。3. 为了使用TLS 1.3/RFC 8998协议，要求的版本为`8u261`或更高。
+
+
 
 [JCA]:
 <https://docs.oracle.com/en/java/javase/11/security/java-cryptography-architecture-jca-reference-guide.html>
@@ -85,6 +107,9 @@ gradle :kona-pkix:build
 
 [Kona]:
 <kona-provider/README_cn.md>
+
+[kona-demo]:
+<kona-demo/README_cn.md>
 
 [证书]:
 <https://www.oracle.com/java/technologies/javase/getcodesigningcertificate.html#jcacodesigning>
@@ -112,3 +137,6 @@ gradle :kona-pkix:build
 
 [文本]:
 <LICENSE.txt>
+
+[Stack Overflow的问题]:
+<https://stackoverflow.com/questions/3862800/invalidkeyexception-illegal-key-size>
