@@ -24,7 +24,8 @@ import java.security.spec.EncodedKeySpec;
 public class SharedSecretsUtil {
 
     private static final boolean USE_SHARED_SECRETS
-            = privilegedGetBoolProperty("com.tencent.misc.useSharedSecrets", "false");
+            = privilegedGetBoolProperty("com.tencent.misc.useSharedSecrets",
+                    isJdk8() ? "true" : "false");
 
     /* JavaLangAccess */
     private static final Method langNewStringNoRepl;
