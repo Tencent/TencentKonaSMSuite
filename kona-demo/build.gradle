@@ -17,4 +17,11 @@ dependencies {
     }
     implementation("org.springframework.boot:spring-boot-starter-jetty")
     implementation("org.springframework.boot:spring-boot-starter-test")
+
+    implementation("org.eclipse.jetty.http2:http2-server")
+    if(JavaVersion.current().isJava8()) {
+        implementation("org.eclipse.jetty:jetty-alpn-openjdk8-server")
+    } else {
+        implementation("org.eclipse.jetty:jetty-alpn-java-server")
+    }
 }

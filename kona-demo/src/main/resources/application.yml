@@ -16,3 +16,6 @@ server:
 
     # This context protocol supports TLCPv1.1, TLSv1.3 and TLSv1.2
     protocol: TLCP
+
+  http2:
+    enabled: true
