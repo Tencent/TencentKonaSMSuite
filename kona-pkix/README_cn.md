@@ -92,7 +92,7 @@ signature.update(message);
 boolean verified = signature.verify(sign);
 ```
 
-### KeyStore
+### 密钥库
 一般地，证书及其私钥应该存放在密钥库文件中，以便于管理与分发。`KonaPKIX`支持标准的PKCS#12格式的密钥库，也支持JDK自定义的JKS格式的密钥库。
 
 准备证书与私钥。
@@ -147,6 +147,50 @@ try (FileInputStream keyStoreIn
     localKeyStore.load(keyStoreIn, keyStorePassword);
 } 
 ```
+
+#### 密钥库工具
+为了方便用户将已有的国密证书和私钥存入密钥库中，提供了一个工具，即`com.tencent.kona.pkix.tool.KeyStoreTool`。该工具的用法如下，
+
+```
+Usages:
+  -type        Store type, PKCS12 or JKS. PKCS12 is the default.
+  -alias       One or multiple aliases, separated by comma, like alias1,alias2,alieas3
+  -keyAlgo     Private key algorithm
+  -key         A PEM file containing a PKCS#8 private key
+  -keyPasswd   Private key password
+  -certs       A PEM file containing trust certificates or certificate chain
+  -store       Store file path
+  -storePasswd Store file password
+```
+
+存入多个CA证书，
+
+```
+KeyStoreTool \
+  -type PKCS12 \
+  -alias trust1,trust2 \
+  -certs /path/to/cas.pem \
+  -store /path/to/store.p12 \
+  -storePasswd changeit
+```
+
+上面示例中的`cas.pem`包含有两个CA证书，分别使用别名为`trust1`和`trust2`。该示例生成的密钥库文件为PKCS#12格式。
+
+存入一个私钥及其证书链，
+
+```
+KeyStoreTool \
+  -type JKS \
+  -alias server \
+  -keyAlgo EC \
+  -key /path/to/key.pem \
+  -keyPasswd changeit \
+  -certs /path/to/server.pem \
+  -store /path/to/store.p12 \
+  -storePasswd changeit
+```
+
+上面示例中的`key.pem`文件包含一个PKCS#8的EC私钥，而`server.pem`文件包含有由多个证书组成的证书链，使用的别名为`server`。该示例生成的密钥库文件为JKS格式。若要存入多个私钥及其证书链，需要多次重复上面的命令。
 
 
 [参考指南]:
