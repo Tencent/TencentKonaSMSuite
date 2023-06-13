@@ -740,12 +740,12 @@ enum NamedGroup {
             // The value of the System Property defines a list of enabled named
             // groups in preference order, separated with comma.  For example:
             //
-            //      jdk.tls.namedGroups="secp521r1, secp256r1, ffdhe2048"
+            //      com.tencent.kona.ssl.namedGroups="secp521r1, secp256r1, ffdhe2048"
             //
             // If the System Property is not defined or the value is empty, the
             // default groups and preferences will be used.
             String property = GetPropertyAction
-                    .privilegedGetProperty("jdk.tls.namedGroups");
+                    .privilegedGetProperty("com.tencent.kona.ssl.namedGroups");
             if (property != null && !property.isEmpty()) {
                 // remove double quote marks from beginning/end of the property
                 if (property.length() > 1 && property.charAt(0) == '"' &&
@@ -772,7 +772,7 @@ enum NamedGroup {
 
                 if (groupList.isEmpty()) {
                     throw new IllegalArgumentException(
-                            "System property jdk.tls.namedGroups(" +
+                            "System property com.tencent.kona.ssl.namedGroups(" +
                             property + ") contains no supported named groups");
                 }
             } else {        // default groups
