@@ -78,7 +78,6 @@ public class SSLSocketTest {
 
     @BeforeAll
     public static void setup() {
-        System.setProperty("com.tencent.kona.ssl.namedGroups", "curveSM2");
         TestUtils.addProviders();
     }
 
