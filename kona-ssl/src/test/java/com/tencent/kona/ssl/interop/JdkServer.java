@@ -50,6 +50,22 @@ public class JdkServer extends AbstractServer {
     private SSLSocket socket;
 
     public JdkServer(Builder builder) throws Exception {
+        NamedGroup[] namedGroups = builder.getNamedGroups();
+        if (namedGroups != null) {
+            System.setProperty("com.tencent.kona.ssl.namedGroups",
+                    Utilities.join(",",
+                            (namedGroup) -> namedGroup.name,
+                            namedGroups));
+        }
+
+        SignatureScheme[] signatureSchemes = builder.getSignatureSchemes();
+        if (signatureSchemes != null) {
+            System.setProperty("com.tencent.kona.ssl.client.signatureSchemes",
+                    Utilities.join(",",
+                            (signatureScheme) -> signatureScheme.name,
+                            signatureSchemes));
+        }
+
         response = builder.getMessage();
 
         context = Utilities.createSSLContext(
