@@ -2,9 +2,16 @@ package com.tencent.kona.pkix.tool;
 
 import com.tencent.kona.crypto.CryptoInsts;
 import com.tencent.kona.crypto.KonaCryptoProvider;
+import com.tencent.kona.javax.crypto.EncryptedPrivateKeyInfo;
 import com.tencent.kona.pkix.KonaPKIXProvider;
 import com.tencent.kona.pkix.PKIXInsts;
 
+import javax.crypto.BadPaddingException;
+import javax.crypto.Cipher;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
+import javax.crypto.SecretKeyFactory;
+import javax.crypto.spec.PBEKeySpec;
 import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.FileInputStream;
@@ -16,6 +23,10 @@ import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.security.AlgorithmParameters;
+import java.security.InvalidAlgorithmParameterException;
+import java.security.InvalidKeyException;
+import java.security.Key;
 import java.security.KeyFactory;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
@@ -28,6 +39,7 @@ import java.security.cert.X509Certificate;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Base64;
 import java.util.List;
 import java.util.Locale;
@@ -44,6 +56,9 @@ public class KeyStoreTool {
 
     private static final String BEGIN_KEY = "BEGIN PRIVATE KEY";
     private static final String END_KEY= "END PRIVATE KEY";
+
+    private static final String BEGIN_ENC_KEY = "BEGIN ENCRYPTED PRIVATE KEY";
+    private static final String END_ENC_KEY= "END ENCRYPTED PRIVATE KEY";
 
     private static final String BEGIN_CERT = "BEGIN CERTIFICATE";
     private static final String END_CERT = "END CERTIFICATE";
@@ -65,10 +80,10 @@ public class KeyStoreTool {
         String[] alias;
         String keyAlgo;
         String key;
-        String keyPasswd;
+        char[] keyPasswd;
         String certs;
         String store;
-        String storePasswd;
+        char[] storePasswd;
 
         Arguments(String[] args) {
             for (int i = 0; i < args.length; i += 2) {
@@ -88,7 +103,7 @@ public class KeyStoreTool {
                         key = value;
                         break;
                     case "-keypasswd":
-                        keyPasswd = value;
+                        keyPasswd = value.toCharArray();
                         break;
                     case "-certs":
                         certs = value;
@@ -97,7 +112,7 @@ public class KeyStoreTool {
                         store = value;
                         break;
                     case "-storepasswd":
-                        storePasswd = value;
+                        storePasswd = value.toCharArray();
                         break;
                 }
             }
@@ -116,10 +131,21 @@ public class KeyStoreTool {
         }
 
         Arguments arguments = new Arguments(args);
-        if (arguments.isKeyStore()) {
-            createKeyStore(arguments);
-        } else {
-            createTrustStore(arguments);
+        try {
+            if (arguments.isKeyStore()) {
+                createKeyStore(arguments);
+            } else {
+                createTrustStore(arguments);
+            }
+        } finally {
+            cleanPasswd(arguments.keyPasswd);
+            cleanPasswd(arguments.storePasswd);
+        }
+    }
+
+    private static void cleanPasswd(char[] passwd) {
+        if (passwd != null) {
+            Arrays.fill(passwd, ' ');
         }
     }
 
@@ -140,27 +166,29 @@ public class KeyStoreTool {
 
     private static void createKeyStore(Arguments arguments)
             throws IOException, CertificateException, KeyStoreException,
-            NoSuchAlgorithmException, InvalidKeySpecException {
+            NoSuchAlgorithmException, InvalidKeySpecException,
+            InvalidAlgorithmParameterException, NoSuchPaddingException,
+            IllegalBlockSizeException, BadPaddingException, InvalidKeyException {
         KeyStore store = loadStore(arguments.type, arguments.store,
                 arguments.storePasswd);
 
         PrivateKey key = key(arguments);
         List<X509Certificate> certChain = certs(arguments);
         store.setKeyEntry(arguments.alias[0], key,
-                arguments.keyPasswd.toCharArray(),
+                arguments.keyPasswd,
                 certChain.toArray(new X509Certificate[0]));
 
         saveStore(store, arguments.store, arguments.storePasswd);
     }
 
     private static KeyStore loadStore(String type, String storePath,
-            String storePasswd) throws IOException, CertificateException,
+            char[] storePasswd) throws IOException, CertificateException,
             KeyStoreException, NoSuchAlgorithmException {
         KeyStore store = PKIXInsts.getKeyStore(type);
 
         if (Files.exists(Paths.get(storePath))) {
             try (InputStream in = new FileInputStream(storePath)) {
-                store.load(in, storePasswd.toCharArray());
+                store.load(in, storePasswd);
             }
         } else {
             store.load(null, null);
@@ -170,15 +198,17 @@ public class KeyStoreTool {
     }
 
     private static void saveStore(KeyStore store, String storePath,
-            String storePasswd) throws IOException, CertificateException,
+            char[] storePasswd) throws IOException, CertificateException,
             KeyStoreException, NoSuchAlgorithmException {
         try (OutputStream out = new FileOutputStream(storePath)) {
-            store.store(out, storePasswd.toCharArray());
+            store.store(out, storePasswd);
         }
     }
 
     private static PrivateKey key(Arguments arguments)
-            throws IOException, NoSuchAlgorithmException, InvalidKeySpecException {
+            throws IOException, NoSuchAlgorithmException, InvalidKeySpecException,
+            InvalidAlgorithmParameterException, NoSuchPaddingException,
+            IllegalBlockSizeException, BadPaddingException, InvalidKeyException {
         try(BufferedReader keyReader = new BufferedReader(
                 new FileReader(arguments.key))) {
 
@@ -187,10 +217,11 @@ public class KeyStoreTool {
             String line = keyReader.readLine();
             boolean begin = false;
             while (line != null) {
-                if (line.contains(BEGIN_KEY)) {
+                if (line.contains(BEGIN_KEY) || line.contains(BEGIN_ENC_KEY)) {
                     begin = true;
-                } else if (line.contains(END_KEY)) {
-                    key = key(arguments.keyAlgo, keyPem.toString());
+                } else if (line.contains(END_KEY) || line.contains(END_ENC_KEY)) {
+                    key = key(arguments.keyAlgo, keyPem.toString(),
+                            line.contains(END_ENC_KEY) ? arguments.keyPasswd : null);
                     break;
                 } else if (begin) {
                     keyPem.append(line).append("\n");
@@ -238,10 +269,31 @@ public class KeyStoreTool {
                 new ByteArrayInputStream(certPEM.getBytes(StandardCharsets.UTF_8)));
     }
 
-    private static PrivateKey key(String keyAlg, String keyPEM)
-            throws NoSuchAlgorithmException, InvalidKeySpecException {
-        PKCS8EncodedKeySpec privateKeySpec = new PKCS8EncodedKeySpec(
-                Base64.getMimeDecoder().decode(keyPEM));
+    private static PrivateKey key(String keyAlg, String keyPEM, char[] keyPasswd)
+            throws NoSuchAlgorithmException, InvalidKeySpecException, IOException,
+            InvalidAlgorithmParameterException, InvalidKeyException,
+            NoSuchPaddingException, IllegalBlockSizeException, BadPaddingException {
+        byte[] encoded = Base64.getMimeDecoder().decode(keyPEM);
+
+        if (keyPasswd != null) {
+            EncryptedPrivateKeyInfo encryptedPrivateKeyInfo
+                = new EncryptedPrivateKeyInfo(encoded);
+            String pbeAlg = encryptedPrivateKeyInfo.getAlgName();
+            AlgorithmParameters params = encryptedPrivateKeyInfo.getAlgParameters();
+
+            SecretKeyFactory pbeKeyFactory = SecretKeyFactory.getInstance(pbeAlg);
+            Key pbeKey = pbeKeyFactory.generateSecret(new PBEKeySpec(keyPasswd));
+            Cipher cipher = CryptoInsts.getCipher(pbeAlg);
+            cipher.init(Cipher.DECRYPT_MODE, pbeKey, params);
+            // Cannot directly get PKCS8EncodedKeySpec due to the changes for
+            // EncryptedPrivateKeyInfo::checkPKCS8Encoding on JDK 11+.
+//            PKCS8EncodedKeySpec pkcs8EncodedKeySpec =
+//                    encryptedPrivateKeyInfo.getKeySpec(cipher);
+            encoded = cipher.doFinal(
+                    encryptedPrivateKeyInfo.getEncryptedData());
+        }
+
+        PKCS8EncodedKeySpec privateKeySpec = new PKCS8EncodedKeySpec(encoded);
         KeyFactory keyFactory = CryptoInsts.getKeyFactory(keyAlg);
         return keyFactory.generatePrivate(privateKeySpec);
     }
