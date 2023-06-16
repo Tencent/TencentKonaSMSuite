@@ -215,29 +215,13 @@ public class TestUtils {
                 "EC", keyStr(encryptedKeyFileName), passphrase);
     }
 
-    public static PrivateKey encryptedECPrivateKeyAsFile(
-            String pbeAlg, String keyAlg, String encryptedKeyFileName,
-            String passphrase) throws Exception {
-        return encryptedPrivateKey(
-                pbeAlg, keyAlg, keyStr(encryptedKeyFileName), passphrase);
-    }
-
-    public static PrivateKey encryptedPrivateKey(
+    private static PrivateKey encryptedPrivateKey(
             String keyAlg, String encryptedKeyPEM, String passphrase)
-            throws Exception {
-        // It cannot get SecretKeyFactory by EncryptedPrivateKeyInfo::getAlgName
-        // with OID 1.2.840.113549.1.5.13 due to JDK-8226824. So it has to apply
-        // the algorithm PBEWithHmacSHA256AndAES_256 explicitly.
-        return encryptedPrivateKey("PBEWithHmacSHA256AndAES_256",
-                keyAlg, encryptedKeyPEM, passphrase);
-    }
-
-    public static PrivateKey encryptedPrivateKey(
-            String pbeAlg, String keyAlg, String encryptedKeyPEM, String passphrase)
             throws Exception {
         EncryptedPrivateKeyInfo encryptedPrivateKeyInfo
                 = new EncryptedPrivateKeyInfo(
                         Base64.getMimeDecoder().decode(encryptedKeyPEM));
+        String pbeAlg = encryptedPrivateKeyInfo.getAlgName();
         AlgorithmParameters params = encryptedPrivateKeyInfo.getAlgParameters();
 
         SecretKeyFactory pbeKeyFactory = SecretKeyFactory.getInstance(pbeAlg);

@@ -38,10 +38,11 @@ public class KeyStoreToolTest {
         Assertions.assertEquals("server", keyEntryArguments.alias[0]);
         Assertions.assertEquals("EC", keyEntryArguments.keyAlgo);
         Assertions.assertEquals("/path/to/key.pem", keyEntryArguments.key);
-        Assertions.assertEquals("keyPassword", keyEntryArguments.keyPasswd);
+        Assertions.assertArrayEquals("keyPassword".toCharArray(), keyEntryArguments.keyPasswd);
         Assertions.assertEquals("/path/to/certchain.pem", keyEntryArguments.certs);
         Assertions.assertEquals("/path/to/keystore.p12", keyEntryArguments.store);
-        Assertions.assertEquals("KeystorePassword", keyEntryArguments.storePasswd);
+        Assertions.assertArrayEquals("KeystorePassword".toCharArray(),
+                keyEntryArguments.storePasswd);
     }
 
     @Test
@@ -57,7 +58,8 @@ public class KeyStoreToolTest {
                 trustEntryArgs.alias);
         Assertions.assertEquals("/path/to/trustcerts.pem", trustEntryArgs.certs);
         Assertions.assertEquals("/path/to/truststore.p12", trustEntryArgs.store);
-        Assertions.assertEquals("TruststorePassword", trustEntryArgs.storePasswd);
+        Assertions.assertArrayEquals("TruststorePassword".toCharArray(),
+                trustEntryArgs.storePasswd);
     }
 
     @Test
@@ -121,7 +123,7 @@ public class KeyStoreToolTest {
                 "-type", type,
                 "-alias", signAlias,
                 "-keyAlgo", "EC",
-                "-key", signKeyPath,
+                "-key", signKeyPath, // This private key is not encrypted
                 "-keyPasswd", "signkeypass",
                 "-certs", signCertChainPath,
                 "-store", storePath.toString(),
@@ -134,7 +136,7 @@ public class KeyStoreToolTest {
                 "-type", type,
                 "-alias", encAlias,
                 "-keyAlgo", "EC",
-                "-key", encKeyPath,
+                "-key", encKeyPath, // This private key is encrypted
                 "-keyPasswd", "enckeypass",
                 "-certs", encCertChainPath,
                 "-store", storePath.toString(),
