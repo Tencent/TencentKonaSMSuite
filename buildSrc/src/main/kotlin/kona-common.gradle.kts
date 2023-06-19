@@ -48,6 +48,7 @@ tasks {
                 excludeTestsMatching("com.tencent.kona.ssl.hybrid.*")
                 excludeTestsMatching("com.tencent.kona.ssl.tlcp.*")
                 excludeTestsMatching("com.tencent.kona.ssl.tls.*")
+                excludeTestsMatching("com.tencent.kona.ssl.misc.*")
             }
 
             val babasslPathProp = "test.babassl.path"
