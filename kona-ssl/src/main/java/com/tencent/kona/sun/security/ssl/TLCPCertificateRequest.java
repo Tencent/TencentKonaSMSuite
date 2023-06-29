@@ -6,13 +6,13 @@ import java.security.cert.X509Certificate;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import javax.security.auth.x500.X500Principal;
+import com.tencent.kona.sun.security.ssl.CipherSuite.KeyExchange;
+import com.tencent.kona.sun.security.ssl.SSLHandshake.HandshakeMessage;
 
 final class TLCPCertificateRequest {
 
@@ -22,14 +22,14 @@ final class TLCPCertificateRequest {
             = new TLCPCertificateRequestProducer();
 
     private static final class TLCPCertificateRequestMessage
-            extends SSLHandshake.HandshakeMessage {
+            extends HandshakeMessage {
 
         final byte[] types;                 // certificate types
         final int[] algorithmIds;           // supported signature algorithms
         final List<byte[]> authorities;     // certificate authorities
 
         TLCPCertificateRequestMessage(HandshakeContext handshakeContext,
-                    X509Certificate[] trustedCerts, CipherSuite.KeyExchange keyExchange,
+                    X509Certificate[] trustedCerts, KeyExchange keyExchange,
                     List<SignatureScheme> signatureSchemes) throws IOException {
             super(handshakeContext);
 
@@ -134,9 +134,12 @@ final class TLCPCertificateRequest {
             return CertificateRequest.ClientCertificateType.getKeyTypes(types);
         }
 
+        // This method will throw IllegalArgumentException if the
+        // X500Principal cannot be parsed.
         X500Principal[] getAuthorities() {
             X500Principal[] principals = new X500Principal[authorities.size()];
             int i = 0;
+
             for (byte[] encoded : authorities) {
                 principals[i++] = new X500Principal(encoded);
             }
@@ -198,8 +201,12 @@ final class TLCPCertificateRequest {
 
             List<String> authorityNames = new ArrayList<>(authorities.size());
             for (byte[] encoded : authorities) {
-                X500Principal principal = new X500Principal(encoded);
-                authorityNames.add(principal.toString());
+                try {
+                    X500Principal principal = new X500Principal(encoded);
+                    authorityNames.add(principal.toString());
+                } catch (IllegalArgumentException iae) {
+                    authorityNames.add("unparseable distinguished name: " + iae);
+                }
             }
             Object[] messageFields = {
                 typeNames,
@@ -221,7 +228,7 @@ final class TLCPCertificateRequest {
 
         @Override
         public byte[] produce(ConnectionContext context,
-                SSLHandshake.HandshakeMessage message) throws IOException {
+                HandshakeMessage message) throws IOException {
             // The producing happens in server side only.
             ServerHandshakeContext shc = (ServerHandshakeContext)context;
 
@@ -341,8 +348,13 @@ final class TLCPCertificateRequest {
                 chc.handshakeSession.setPeerSupportedSignatureAlgorithms(sss);
             }
 
-            chc.peerSupportedAuthorities = crm.getAuthorities();
-
+            try {
+                chc.peerSupportedAuthorities = crm.getAuthorities();
+            } catch (IllegalArgumentException iae) {
+                chc.conContext.fatal(Alert.DECODE_ERROR, "The "
+                    + "distinguished names of the peer's certificate "
+                    + "authorities could not be parsed", iae);
+            }
             // For TLS 1.2, we no longer use the certificate_types field
             // from the CertificateRequest message to directly determine
             // the SSLPossession.  Instead, the choosePossession method
