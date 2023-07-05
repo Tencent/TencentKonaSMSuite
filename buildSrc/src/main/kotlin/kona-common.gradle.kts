@@ -43,8 +43,9 @@ tasks {
             includeTestsMatching("*Test")
             includeTestsMatching("*Demo")
 
-            // The TLCP and TLS interop tests are not stable on Windows
+            // Ignore the tests depending local paths on Windows
             if (Os.isFamily(Os.FAMILY_WINDOWS)) {
+                excludeTestsMatching("com.tencent.kona.pkix.tool.*")
                 excludeTestsMatching("com.tencent.kona.ssl.hybrid.*")
                 excludeTestsMatching("com.tencent.kona.ssl.tlcp.*")
                 excludeTestsMatching("com.tencent.kona.ssl.tls.*")

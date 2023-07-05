@@ -26,6 +26,7 @@
 package com.tencent.kona.sun.security.tools;
 
 import java.io.BufferedReader;
+import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -35,11 +36,13 @@ import java.io.StreamTokenizer;
 import java.io.StringReader;
 import java.net.URL;
 
-//import java.security.Key;
-//import java.security.KeyStore;
+import java.security.KeyStore;
 
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
 //import java.security.Provider;
 //import java.security.Security;
+import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.text.Collator;
 
@@ -51,6 +54,7 @@ import java.util.Properties;
 import java.util.ResourceBundle;
 //import java.util.ServiceLoader;
 
+import com.tencent.kona.pkix.PKIXInsts;
 import com.tencent.kona.sun.security.util.FilePaths;
 import com.tencent.kona.sun.security.util.PropertyExpander;
 
@@ -126,16 +130,16 @@ public class KeyStoreUtil {
         return FilePaths.cacerts();
     }
 
-//    /**
-//     * Returns the keystore with the configured CA certificates.
-//     */
-//    public static KeyStore getCacertsKeyStore() throws Exception {
-//        File file = new File(getCacerts());
-//        if (!file.exists()) {
-//            return null;
-//        }
-//        return KeyStore.getInstance(file, (char[])null);
-//    }
+    /**
+     * Returns the keystore with the configured CA certificates.
+     */
+    public static KeyStore getCacertsKeyStore() throws Exception {
+        File file = new File(getCacerts());
+        if (!file.exists()) {
+            return null;
+        }
+        return getKeyStore(file, (char[])null);
+    }
 
     public static char[] getPassWithModifier(String modifier, String arg,
                                              ResourceBundle rb,
@@ -155,7 +159,8 @@ public class KeyStoreUtil {
             try {
                 URL url;
                 try {
-                    url = new URL(arg);
+                    @SuppressWarnings("deprecation")
+                    URL _unused = url = new URL(arg);
                 } catch (java.net.MalformedURLException mue) {
                     File f = new File(arg);
                     if (f.exists()) {
@@ -266,6 +271,31 @@ public class KeyStoreUtil {
             result.addAll(Arrays.asList(args));
             return result.toArray(new String[0]);
         }
+    }
+
+    public static String keyStoreType(File f) throws IOException {
+        int MAGIC = 0xfeedfeed;
+        int JCEKS_MAGIC = 0xcececece;
+        try (DataInputStream dis = new DataInputStream(
+            new FileInputStream(f))) {
+            int xMagic = dis.readInt();
+            if (xMagic == MAGIC) {
+                return "JKS";
+            } else if (xMagic == JCEKS_MAGIC) {
+                return "JCEKS";
+            } else {
+                return "Non JKS/JCEKS";
+            }
+        }
+    }
+
+    public static KeyStore getKeyStore(File file, char[] password)
+            throws KeyStoreException, IOException, NoSuchAlgorithmException,
+            CertificateException {
+        String type = keyStoreType(file);
+        KeyStore keyStore = PKIXInsts.getKeyStore(type);
+        keyStore.load(new FileInputStream(file), password);
+        return keyStore;
     }
 
 //    /**
