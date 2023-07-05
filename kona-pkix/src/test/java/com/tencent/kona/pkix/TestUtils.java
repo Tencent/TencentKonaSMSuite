@@ -1,8 +1,11 @@
 package com.tencent.kona.pkix;
 
 import com.tencent.kona.crypto.CryptoInsts;
+import com.tencent.kona.crypto.CryptoUtils;
 import com.tencent.kona.crypto.KonaCryptoProvider;
 import com.tencent.kona.javax.crypto.EncryptedPrivateKeyInfo;
+import com.tencent.kona.pkix.process.OutputAnalyzer;
+import com.tencent.kona.pkix.process.ProcessTools;
 
 import javax.crypto.Cipher;
 import javax.crypto.SecretKeyFactory;
@@ -34,7 +37,9 @@ import java.security.interfaces.ECPrivateKey;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Base64;
+import java.util.Comparator;
 import java.util.List;
 import java.util.StringJoiner;
 import java.util.concurrent.Callable;
@@ -48,6 +53,10 @@ import java.util.concurrent.Future;
  */
 public class TestUtils {
 
+    private static final String JAVA_HOME = System.getProperty("java.home");
+    private static final String JAVA
+            = String.join(File.separator, JAVA_HOME, "bin", "java");
+
     public static final String PROVIDER = PKIXInsts.PROV_NAME;
 
     private static final String BEGIN = "-----BEGIN";
@@ -55,6 +64,12 @@ public class TestUtils {
 
     private static final Path TEST_RES_PATH
             = Paths.get("src/test/resources");
+
+    private static final String CLASSPATH = System.getProperty("test.classpath");
+    private static final List<String> JDK11_OPTIONS = Arrays.asList(
+            "--add-exports", "java.base/jdk.internal.misc=ALL-UNNAMED");
+    private static final List<String> JDK17_OPTIONS = Arrays.asList(
+            "--add-exports", "java.base/jdk.internal.access=ALL-UNNAMED");
 
     public static void addProviders() {
         Security.addProvider(new KonaCryptoProvider());
@@ -372,5 +387,60 @@ public class TestUtils {
     public interface Executable {
 
         void execute() throws Exception;
+    }
+
+    public static OutputAnalyzer java(Class<?> clazz, List<String> args)
+            throws Throwable {
+        return java(null, clazz, args);
+    }
+
+    public static OutputAnalyzer java(List<String> jvmOptions, Class<?> clazz,
+            List<String> args) throws Throwable {
+        List<String> allJVMOptions = new ArrayList<>();
+
+        if (jvmOptions != null) {
+            allJVMOptions.addAll(jvmOptions);
+        }
+
+        if (CryptoUtils.isJdk11()) {
+            allJVMOptions.addAll(JDK11_OPTIONS);
+        } else if (CryptoUtils.isJdk17()) {
+            allJVMOptions.addAll(JDK17_OPTIONS);
+        }
+
+        return createProcessBuilder(
+                Paths.get(JAVA), allJVMOptions, CLASSPATH, clazz, args);
+    }
+
+    private static OutputAnalyzer createProcessBuilder(Path javaPath,
+            List<String> jvmOptions, String classpath, Class<?> clazz,
+            List<String> arguments) throws Throwable {
+        List<String> cmds = new ArrayList<>();
+        cmds.add(javaPath.toString());
+
+        if (jvmOptions != null) {
+            cmds.addAll(jvmOptions);
+        }
+
+        cmds.add("-cp");
+        cmds.add(classpath);
+
+        cmds.add(clazz.getName());
+        if (arguments != null) {
+            cmds.addAll(arguments);
+        }
+
+        return ProcessTools.executeProcess(cmds.toArray(new String[0]));
+    }
+
+    public static void deleteDirIfExists(Path dir) throws IOException {
+        if (!Files.exists(dir)) {
+            return;
+        }
+
+        Files.walk(dir)
+                .sorted(Comparator.reverseOrder())
+                .map(Path::toFile)
+                .forEach(File::delete);
     }
 }

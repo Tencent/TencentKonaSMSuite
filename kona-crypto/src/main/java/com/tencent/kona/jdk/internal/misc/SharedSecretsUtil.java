@@ -3,6 +3,8 @@ package com.tencent.kona.jdk.internal.misc;
 import static com.tencent.kona.crypto.CryptoUtils.*;
 
 import javax.crypto.spec.SecretKeySpec;
+import java.io.Console;
+import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.InetAddress;
@@ -23,13 +25,20 @@ import java.security.spec.EncodedKeySpec;
  */
 public class SharedSecretsUtil {
 
+    // Use SharedSecrets by default on JDK 8
     private static final boolean USE_SHARED_SECRETS
             = privilegedGetBoolProperty("com.tencent.misc.useSharedSecrets",
                     isJdk8() ? "true" : "false");
 
     /* JavaLangAccess */
     private static final Method langNewStringNoRepl;
+    private static final Method initialSystemIn;
     private static final Object langAccess;
+
+    /* JavaIOAccess */
+    private static final Method console;
+    private static final Method charset;
+    private static final Object ioAccess;
 
     /* JavaxCryptoSpecAccess */
     private static final Method cryptoSpecClearSecretKeySpec;
@@ -53,6 +62,7 @@ public class SharedSecretsUtil {
         Class<?> sharedSecretsClass = null;
 
         Class<?> javaLangAccessClass = null;
+        Class<?> javaIOAccessClass = null;
         Class<?> javaxCryptoSpecAccessClass = null;
         Class<?> inetAddressAccessClass = null;
         Class<?> secSignatureAccessClass = null;
@@ -64,18 +74,21 @@ public class SharedSecretsUtil {
                     sharedSecretsClass = Class.forName("sun.misc.SharedSecrets");
 
                     javaLangAccessClass = Class.forName("sun.misc.JavaLangAccess");
+                    javaIOAccessClass = Class.forName("sun.misc.JavaIOAccess");
                     inetAddressAccessClass = Class.forName("sun.misc.JavaNetAccess");
                     secSignatureAccessClass = Class.forName("sun.misc.JavaSecuritySignatureAccess");
                 } else if (isJdk11()) {
                     sharedSecretsClass = Class.forName("jdk.internal.misc.SharedSecrets");
 
                     javaLangAccessClass = Class.forName("jdk.internal.misc.JavaLangAccess");
+                    javaIOAccessClass = Class.forName("jdk.internal.misc.JavaIOAccess");
                     inetAddressAccessClass = Class.forName("jdk.internal.misc.JavaNetInetAddressAccess");
                     secSignatureAccessClass = Class.forName("jdk.internal.misc.JavaSecuritySignatureAccess");
                 } else if (isJdk17()) {
                     sharedSecretsClass = Class.forName("jdk.internal.access.SharedSecrets");
 
                     javaLangAccessClass = Class.forName("jdk.internal.access.JavaLangAccess");
+                    javaIOAccessClass = Class.forName("jdk.internal.access.JavaIOAccess");
                     javaxCryptoSpecAccessClass = Class.forName("jdk.internal.access.JavaxCryptoSpecAccess");
                     inetAddressAccessClass = Class.forName("jdk.internal.access.JavaNetInetAddressAccess");
                     secSignatureAccessClass = Class.forName("jdk.internal.access.JavaSecuritySignatureAccess");
@@ -91,6 +104,11 @@ public class SharedSecretsUtil {
                 langNewStringNoRepl = isJdk8()
                         ? null : javaLangAccessClass.getMethod(
                                 "newStringNoRepl", byte[].class, Charset.class);
+                initialSystemIn = isJdk8()
+                        ? null : javaLangAccessClass.getMethod("initialSystemIn");
+
+                console = javaIOAccessClass.getMethod("console");
+                charset = javaIOAccessClass.getMethod("charset");
 
                 cryptoSpecClearSecretKeySpec = javaxCryptoSpecAccessClass != null
                         ? javaxCryptoSpecAccessClass.getMethod(
@@ -118,6 +136,7 @@ public class SharedSecretsUtil {
             }
 
             langAccess = getAccessObject(sharedSecretsClass, "getJavaLangAccess");
+            ioAccess = getAccessObject(sharedSecretsClass, "getJavaIOAccess");
             cryptoSpecAccess = isJdk17()
                     ? getAccessObject(sharedSecretsClass, "getJavaxCryptoSpecAccess")
                     : null;
@@ -130,7 +149,12 @@ public class SharedSecretsUtil {
                     : null;
         } else {
             langNewStringNoRepl = null;
+            initialSystemIn = null;
             langAccess = null;
+
+            console = null;
+            charset = null;
+            ioAccess = null;
 
             cryptoSpecClearSecretKeySpec = null;
             cryptoSpecAccess = null;
@@ -166,11 +190,48 @@ public class SharedSecretsUtil {
             throw new RuntimeException("getOriginalHostName failed", e);
         }
     }
+
+    public static InputStream initialSystemIn() {
+        if (initialSystemIn == null) {
+            return System.in;
+        }
+
+        try {
+            return (InputStream) initialSystemIn.invoke(langAccess);
+        } catch (IllegalAccessException | InvocationTargetException e) {
+            throw new RuntimeException("initialSystemIn failed", e);
+        }
+    }
     /* JavaLangAccess End */
 
+    /* JavaIOAccess Start */
+    public static Console console() {
+        if (console == null) {
+            return null;
+        }
+
+        try {
+            return (Console) console.invoke(ioAccess);
+        } catch (IllegalAccessException | InvocationTargetException e) {
+            throw new RuntimeException("console failed", e);
+        }
+    }
+
+    public static Charset charset() {
+        if (charset == null) {
+            return null;
+        }
+
+        try {
+            return (Charset) charset.invoke(ioAccess);
+        } catch (IllegalAccessException | InvocationTargetException e) {
+            throw new RuntimeException("charset failed", e);
+        }
+    }
+    /* JavaIOAccess End */
+
     /* JavaxCryptoSpecAccess Start */
-    public static void cryptoSpecClearSecretKeySpec(SecretKeySpec keySpec)
-            throws CharacterCodingException {
+    public static void cryptoSpecClearSecretKeySpec(SecretKeySpec keySpec) {
         if (cryptoSpecClearSecretKeySpec == null) {
             return;
         }
@@ -188,13 +249,13 @@ public class SharedSecretsUtil {
             InetAddress inetAddress) {
         if (netInetAddressGetOriginalHostName == null) {
             return inetAddress.getHostName();
-        } else {
-            try {
-                return (String) netInetAddressGetOriginalHostName.invoke(
-                        netInetAddressAccess, inetAddress);
-            } catch (IllegalAccessException | InvocationTargetException e) {
-                throw new RuntimeException("getOriginalHostName failed", e);
-            }
+        }
+
+        try {
+            return (String) netInetAddressGetOriginalHostName.invoke(
+                    netInetAddressAccess, inetAddress);
+        } catch (IllegalAccessException | InvocationTargetException e) {
+            throw new RuntimeException("getOriginalHostName failed", e);
         }
     }
     /* JavaNetInetAddressAccess End */

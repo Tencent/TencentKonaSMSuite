@@ -2,8 +2,9 @@ package com.tencent.kona.pkix.tool;
 
 import com.tencent.kona.pkix.PKIXInsts;
 import com.tencent.kona.pkix.TestUtils;
-import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.FileInputStream;
@@ -14,14 +15,27 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.KeyStore;
 
+/**
+ * The tests for KeyStoreTool.
+ */
 public class KeyStoreToolTest {
 
-    private static final String TRUST_STORE_P12 = "truststore.p12";
-    private static final String TRUST_STORE_JKS = "truststore.jks";
-    private static final String KEY_STORE_P12 = "keystore.p12";
-    private static final String KEY_STORE_JKS = "keystore.jks";
-    private static final String STORE_P12 = "store.p12";
-    private static final String STORE_JKS = "store.jks";
+    private static final Path BASE_DIR = Paths.get("KeyStoreToolTest");
+
+    private static final Path TRUST_STORE = path("truststore.ks");
+    private static final Path KEY_STORE = path("keystore.ks");
+    private static final Path STORE = path("store.ks");
+
+    @BeforeEach
+    public void prepare() throws IOException {
+        TestUtils.deleteDirIfExists(BASE_DIR);
+        Files.createDirectory(BASE_DIR);
+    }
+
+    @AfterEach
+    public void clean() throws IOException {
+        TestUtils.deleteDirIfExists(BASE_DIR);
+    }
 
     @Test
     public void testParseKeyEntryParams() {
@@ -64,20 +78,19 @@ public class KeyStoreToolTest {
 
     @Test
     public void testCreatePKCS12TrustStore() throws Exception {
-        testCreateTrustStore("PKCS12", TRUST_STORE_P12, "truststorepass");
+        testCreateTrustStore("PKCS12", TRUST_STORE, "truststorepass");
     }
 
     @Test
     public void testCreateJKSTrustStore() throws Exception {
-        testCreateTrustStore("JKS", TRUST_STORE_JKS, "truststorepass");
+        testCreateTrustStore("JKS", TRUST_STORE, "truststorepass");
     }
 
-    private void testCreateTrustStore(String type, String storeFilePath,
+    private void testCreateTrustStore(String type, Path storePath,
             String storePasswd) throws Exception {
         String tlcpCAAlias = "tlcp-ca";
         String rsaCAAlias = "rsa-ca";
         String trustCertsPath = TestUtils.resFilePath("tool/trust_certs.pem").toString();
-        Path storePath = Paths.get(storeFilePath).toAbsolutePath();
 
         String[] args = new String[] {
                 "-type", type,
@@ -99,15 +112,15 @@ public class KeyStoreToolTest {
 
     @Test
     public void testCreatePKCS12KeyStore() throws Exception {
-        testCreateKeyStore("PKCS12", KEY_STORE_P12, "keystorepass");
+        testCreateKeyStore("PKCS12", KEY_STORE, "keystorepass");
     }
 
     @Test
     public void testCreateJKSKeyStore() throws Exception {
-        testCreateKeyStore("JKS", KEY_STORE_JKS, "keystorepass");
+        testCreateKeyStore("JKS", KEY_STORE, "keystorepass");
     }
 
-    private void testCreateKeyStore(String type, String storeFilePath,
+    private void testCreateKeyStore(String type, Path storePath,
             String storePasswd) throws Exception {
         String signAlias = "sign";
         String signKeyPath = TestUtils.resFilePath("tool/sign_key.pem").toString();
@@ -116,8 +129,6 @@ public class KeyStoreToolTest {
         String encAlias = "enc";
         String encKeyPath = TestUtils.resFilePath("tool/enc_key.pem").toString();
         String encCertChainPath = TestUtils.resFilePath("tool/enc_cert_chain.pem").toString();
-
-        Path storePath = Paths.get(storeFilePath).toAbsolutePath();
 
         String[] signArgs = new String[] {
                 "-type", type,
@@ -153,28 +164,22 @@ public class KeyStoreToolTest {
 
     @Test
     public void testCreatePKCS12TrustAndKeyStore() throws Exception {
-        testCreateTrustAndKeyStore("PKCS12", STORE_P12);
+        testCreateTrustAndKeyStore("PKCS12", STORE);
     }
 
     @Test
     public void testCreateJKSTrustAndKeyStore() throws Exception {
-        testCreateTrustAndKeyStore("JKS", STORE_JKS);
+        testCreateTrustAndKeyStore("JKS", STORE);
     }
 
-    private void testCreateTrustAndKeyStore(String type, String storeFile)
+    private void testCreateTrustAndKeyStore(String type, Path storePath)
             throws Exception {
         String storePasswd = "storepass";
-        testCreateTrustStore(type, storeFile, storePasswd);
-        testCreateKeyStore(type, storeFile, storePasswd);
+        testCreateTrustStore(type, storePath, storePasswd);
+        testCreateKeyStore(type, storePath, storePasswd);
     }
 
-    @AfterAll
-    public static void clean() throws IOException {
-        Files.deleteIfExists(Paths.get(TRUST_STORE_P12));
-        Files.deleteIfExists(Paths.get(TRUST_STORE_JKS));
-        Files.deleteIfExists(Paths.get(KEY_STORE_P12));
-        Files.deleteIfExists(Paths.get(KEY_STORE_JKS));
-        Files.deleteIfExists(Paths.get(STORE_P12));
-        Files.deleteIfExists(Paths.get(STORE_JKS));
+    private static Path path(String file) {
+        return BASE_DIR.resolve(Paths.get(file));
     }
 }

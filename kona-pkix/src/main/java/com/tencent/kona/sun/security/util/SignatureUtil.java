@@ -40,7 +40,7 @@ import com.tencent.kona.sun.security.rsa.RSAUtil;
  * internal PKI classes such as sun.security.x509.X509CertImpl,
  * sun.security.pkcs.SignerInfo, for setting signature parameters.
  *
- * @since   11
+ * @since   8
  */
 public class SignatureUtil {
 

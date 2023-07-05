@@ -66,6 +66,8 @@ public class KeyStoreTool {
     static class Arguments {
 
         private static final String HINT =
+                "KeyStoreTool is a handy utility for creating key store with the existing keys and certificates.\n" +
+                "For creating new keys and certificates, please use KeyTool.\n\n" +
                 "Usages:\n" +
                 "  -type        Store type, PKCS12 or JKS. PKCS12 is the default.\n" +
                 "  -alias       One or multiple aliases, separated by comma, like alias1,alias2,alieas3\n" +
