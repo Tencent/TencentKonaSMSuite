@@ -148,8 +148,48 @@ try (FileInputStream keyStoreIn
 } 
 ```
 
-#### 密钥库工具
-为了方便用户将已有的国密证书和私钥存入密钥库中，提供了一个工具，即`com.tencent.kona.pkix.tool.KeyStoreTool`。该工具的用法如下，
+#### KeyTool
+为了能够创建使用国密算法的私钥和证书，引入了工具`com.tencent.kona.pkix.tool.KeyTool`。它扩展了JDK中`keytool`的功能，其参数设置与keytool相同，但可以指定使用国密椭圆曲线（`-groupname curveSM2`）以及国密签名算法（`-sigalg SM3withSM2`）。
+
+生成密钥对，
+
+```
+java -cp <...> KeyTool \
+  -genkeypair \
+  -keystore ca.ks -storetype PKCS12 -storepass testpasswd \
+  -keyalg EC -groupname curveSM2 -sigalg SM3withSM2 \
+  -dname CN=ca -alias ca
+
+java -cp <...> KeyTool \
+  -genkeypair \
+  -keystore ee.ks -storetype PKCS12 -storepass testpasswd \
+  -keyalg EC -groupname curveSM2 -sigalg SM3withSM2 \
+  -dname CN=ee -alias ee
+```
+
+生成CSR，
+
+```
+java -cp <...> KeyTool \
+  -certreq \
+  -keystore ee.ks -storetype PKCS12 -storepass testpasswd \
+  -alias ee \
+  -file ee.csr
+```
+
+生成证书，
+
+```
+java -cp <...> KeyTool \
+  -gencert -rfc \
+  -keystore ca.ks -storetype PKCS12 -storepass testpasswd \
+  -sigalg SM3withSM2 \
+  -alias ca \
+  -infile ee.csr -outfile ee.crt
+```
+
+#### KeyStoreTool
+为了方便用户将已有的国密私钥和证书导入密钥库文件中，提供了另一个工具，即`com.tencent.kona.pkix.tool.KeyStoreTool`。该工具的用法如下，
 
 ```
 Usages:
@@ -166,7 +206,7 @@ Usages:
 存入多个CA证书，
 
 ```
-KeyStoreTool \
+java -cp <...> KeyStoreTool \
   -type PKCS12 \
   -alias trust1,trust2 \
   -certs /path/to/cas.pem \
@@ -179,7 +219,7 @@ KeyStoreTool \
 存入一个私钥及其证书链，
 
 ```
-KeyStoreTool \
+java -cp <...> KeyStoreTool \
   -type JKS \
   -alias server \
   -keyAlgo EC \
