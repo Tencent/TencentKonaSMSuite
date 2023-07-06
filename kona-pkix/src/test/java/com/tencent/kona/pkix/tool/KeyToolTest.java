@@ -114,10 +114,10 @@ public class KeyToolTest {
 
         outputCert(ROOT_KEYSTORE, storeType, rootAlias, path(rootAlias + ".crt"));
         genCSR(CA_KEYSTORE, storeType, caAlias, caCSRPath);
-        genCert(ROOT_KEYSTORE, storeType, rootAlias, caCSRPath, path(caAlias + ".crt"));
+        genCert(ROOT_KEYSTORE, storeType, rootAlias, sigAlg, caCSRPath, path(caAlias + ".crt"));
 
         genCSR(EE_KEYSTORE, storeType, eeAlias, eeCSRPath);
-        genCert(CA_KEYSTORE, storeType, caAlias, eeCSRPath, path(eeAlias + ".crt"));
+        genCert(CA_KEYSTORE, storeType, caAlias, sigAlg, eeCSRPath, path(eeAlias + ".crt"));
     }
 
     private static String suffix(String keyAlg, String group, String sigAlg) {
@@ -243,7 +243,8 @@ public class KeyToolTest {
     }
 
     private static void genCert(Path keystorePath, String storeType,
-            String issuerAlias, Path csrPath, Path certPath) throws Throwable {
+            String issuerAlias, String sigAlg , Path csrPath, Path certPath)
+            throws Throwable {
         List<String> args = new ArrayList<>();
 
         args.add("-gencert");
@@ -263,6 +264,9 @@ public class KeyToolTest {
 
         args.add("-keypass");
         args.add(PASSWORD);
+
+        args.add("-sigalg");
+        args.add(sigAlg);
 
         args.add("-infile");
         args.add(csrPath.toString());
