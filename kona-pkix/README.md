@@ -149,8 +149,48 @@ try (FileInputStream keyStoreIn
 } 
 ```
 
+#### KeyTool
+In order to create private keys and certificates using ShangMi algorithms, the tool `com.tencent.kona.pkix.tool.KeyTool` is introduced. It expands `keytool` in JDK and uses the same arguments. But it can use ShangMi curve (`-groupname curveSM2`) and signature algorithm (`-sigalg SM3withSM2`).
+
+Generate key pairs,
+
+```
+java -cp <...> KeyTool \
+  -genkeypair \
+  -keystore ca.ks -storetype PKCS12 -storepass testpasswd \
+  -keyalg EC -groupname curveSM2 -sigalg SM3withSM2 \
+  -dname CN=ca -alias ca
+
+java -cp <...> KeyTool \
+  -genkeypair \
+  -keystore ee.ks -storetype PKCS12 -storepass testpasswd \
+  -keyalg EC -groupname curveSM2 -sigalg SM3withSM2 \
+  -dname CN=ee -alias ee
+```
+
+Generate CSR,
+
+```
+java -cp <...> KeyTool \
+  -certreq \
+  -keystore ee.ks -storetype PKCS12 -storepass testpasswd \
+  -alias ee \
+  -file ee.csr
+```
+
+Generate certificate,
+
+```
+java -cp <...> KeyTool \
+  -gencert -rfc \
+  -keystore ca.ks -storetype PKCS12 -storepass testpasswd \
+  -sigalg SM3withSM2 \
+  -alias ca \
+  -infile ee.csr -outfile ee.crt
+```
+
 #### KeyStoreTool
-To facilitate users in storing the existing certificates and private keys using ShangMi algorithms in a keystore, a tool `com.tencent.kona.pkix.tool.KeyStoreTool` is provided. The usage of this tool is as follows:
+To facilitate users in importing the existing private keys and certificates using ShangMi algorithms to a keystore, another tool `com.tencent.kona.pkix.tool.KeyStoreTool` is provided. The usage of this tool is as follows:
 
 
 ```

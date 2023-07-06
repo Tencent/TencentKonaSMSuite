@@ -5,7 +5,9 @@
 Tencent Kona SM Suite is a set of Java security providers, which service the ShangMi applications in Java ecosystem. This suite contains four providers:
 
 - [KonaCrypto]，which implements SM2, SM3 and SM4 algorithms based on Java Cryptography Architecture.
-- [KonaPKIX]，which supports ShangMi algorithms on loading certificate and certificate chain verification. It also can load and write key store files containing ShangMi certificates.
+- [KonaPKIX]，which supports ShangMi algorithms on loading certificate and certificate chain verification. It also can load and write key store files containing ShangMi certificates. Additionally, this component provides two utility classes: 
+  - KeyTool, which is the same as `keytool` in JDK, can generate private keys and certificates.
+  - KeyStoreTool, which can import the existing [PEM]-encoded private keys and certificates to key store files.
 - [KonaSSL] implements China's Transport Layer Cryptographic Protocol, and also applies ShangMi algorithms to TLS 1.3 based on RFC 8998.
 - [Kona], which wraps all the features in `KonaCrypto`，`KonaPKIX` and `KonaSSL`, so it has to depend on one or more of them. Generally, **this provider is recommended**.
 
@@ -100,6 +102,9 @@ Tencent Kona SM Suite is licensed under GNU GPL v2.0 license with classpath exce
 
 [KonaPKIX]:
 <kona-pkix/README.md>
+
+[PEM]:
+<https://en.wikipedia.org/wiki/Privacy-Enhanced_Mail>
 
 [KonaSSL]:
 <kona-ssl/README.md>
