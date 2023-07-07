@@ -1,3 +1,5 @@
+**[English]** | 中文
+
 # 作出贡献
 
 非常欢迎以不同的方式向腾讯Kona国密套件作出贡献。在您开始之前请先阅读下面的内容。
@@ -32,6 +34,10 @@ o9MYV6zBTB5FONtVo9w/BA==
 在向腾讯Kona国密套件贡献代码之前，需要了解到它使用GNU GPL v2.0 license with classpath exception[许可协议]。通过GitHub的[Pull Request]向本项目提出合并代码的请求。请关注代码的质量，可以参考Oracle的[Java编码规范]。在修复缺陷或增加特性时，请务必提供相应的基于[JUnit 5]的单元测试程序。我们也非常欢迎为本项目增加新的单元测试。更多的测试用例不仅有利于确保本项目的质量，也将会帮助未来可能的重构。测试代码的价值并不亚于产品代码本身。
 
 **在此先感谢您的帮助！**
+
+
+[English]:
+<CONTRIBUTING.md>
 
 [PGP]:
 <https://en.wikipedia.org/wiki/Pretty_Good_Privacy>

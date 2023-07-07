@@ -1,3 +1,5 @@
+English | **[中文]**
+
 # Tencent Kona Demo
 
 ## Introduction
@@ -8,3 +10,7 @@ It can launch this demo server via the below command,
 ```
 gradle :kona-demo:bootRun
 ```
+
+
+[中文]:
+<README_cn.md>

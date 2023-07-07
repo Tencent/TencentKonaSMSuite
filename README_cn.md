@@ -1,3 +1,5 @@
+**[English]** | 中文
+
 # 腾讯Kona国密套件
 
 ## 概览
@@ -94,6 +96,8 @@ gradle :kona-pkix:build
 **答**：根据不同的应用场景，对JDK 8的版本的要求也不尽相同。1. 仅使用国密基础算法和/或TLCP协议，最多需要`8u141`（甚至更老的版本)。2. 在TLCP协议中使用ALPN扩展，要求的最低JDK 8版本为`8u251`。3. 为了使用TLS 1.3/RFC 8998协议，要求的版本为`8u261`或更高。
 
 
+[English]:
+<README.md>
 
 [JCA]:
 <https://docs.oracle.com/en/java/javase/11/security/java-cryptography-architecture-jca-reference-guide.html>

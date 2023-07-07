@@ -1,3 +1,5 @@
+English | **[中文]**
+
 # Tencent Kona SM Suite
 
 ## Overview
@@ -93,6 +95,9 @@ Tencent Kona SM Suite is licensed under GNU GPL v2.0 license with classpath exce
 **Q**: How old JDK 8 released can be supported?<br>
 **A**: Different scenarios require different JDK 8 releases. 1. Only need SM algorithms and/or TLCP protocol, at most `8u141` (even older releases) is required. 2. Requires ALPN extension with TLCP protocol, this oldest JDK 8 release is `8u251`. 3. In order to apply TLS 1.3/RFC 8998, `8u261` or higher is required.
 
+
+[中文]:
+<README_cn.md>
 
 [JCA]:
 <https://docs.oracle.com/en/java/javase/11/security/java-cryptography-architecture-jca-reference-guide.html>
