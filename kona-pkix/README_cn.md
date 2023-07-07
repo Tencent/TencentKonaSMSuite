@@ -1,3 +1,5 @@
+**[English]** | 中文
+
 # 腾讯Kona PKIX
 
 ## 简介
@@ -232,6 +234,9 @@ java -cp <...> KeyStoreTool \
 
 上面示例中的`key.pem`文件包含一个PKCS#8的EC私钥，而`server.pem`文件包含有由多个证书组成的证书链，使用的别名为`server`。该示例生成的密钥库文件为JKS格式。若要存入多个私钥及其证书链，需要多次重复上面的命令。
 
+
+[English]:
+<README.md>
 
 [参考指南]:
 <https://docs.oracle.com/en/java/javase/11/security/java-pki-programmers-guide.html#GUID-650D0D53-B617-4055-AFD3-AF5C2629CBBF>

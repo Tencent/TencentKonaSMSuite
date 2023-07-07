@@ -1,3 +1,5 @@
+**[English]** | 中文
+
 # Tencent Kona Demo
 
 ## 简介
@@ -8,3 +10,7 @@ Tencent Kona Demo是一个基于Spring Boot的服务端应用，其使用Jetty�
 ```
 gradle :kona-demo:bootRun
 ```
+
+
+[English]:
+<README.md>

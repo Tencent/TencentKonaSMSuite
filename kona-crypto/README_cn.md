@@ -1,3 +1,5 @@
+**[English]** | 中文
+
 # 腾讯Kona Crypto
 
 ## 简介
@@ -340,6 +342,9 @@ byte[] outputFinal = cipher.doFinal();
 
 关于加密算法API的更详细用法，请参考[Cipher]的官方文档。
 
+
+[English]:
+<README.md>
 
 [Java Cryptography Architecture (JCA)]:
 <https://docs.oracle.com/en/java/javase/11/security/java-cryptography-architecture-jca-reference-guide.html#GUID-2BCFDD85-D533-4E6C-8CE9-29990DEB0190>

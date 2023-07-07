@@ -1,3 +1,5 @@
+English | **[中文]**
+
 # Tencent Kona Crypto
 
 ## Introduction
@@ -376,3 +378,7 @@ For the detailed information about Cipher APIs, please refer to the official [Ci
 
 [GCMParameterSpec]:
 <https://docs.oracle.com/en/java/javase/11/docs/api/java.base/javax/crypto/spec/GCMParameterSpec.html>
+
+
+[中文]:
+<README_cn.md>

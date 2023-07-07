@@ -1,3 +1,5 @@
+English | **[中文]**
+
 # Contributing
 
 Welcome to contribute Tencent Kona SM Suite in a variety of ways. Before start to contribute, please read the following suggestions.
@@ -33,6 +35,9 @@ Before contribute any code to this project, please know that it is [licensed] un
 
 **Thanks for your help in advance!**
 
+
+[中文]:
+<CONTRIBUTING_cn.md>
 
 [PGP]:
 <https://en.wikipedia.org/wiki/Pretty_Good_Privacy>
