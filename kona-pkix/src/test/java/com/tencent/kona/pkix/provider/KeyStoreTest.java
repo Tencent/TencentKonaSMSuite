@@ -16,8 +16,10 @@ import java.security.KeyStore;
 import java.security.cert.X509Certificate;
 import java.security.interfaces.ECPrivateKey;
 import java.security.interfaces.RSAPrivateKey;
+import java.util.Base64;
 
 import static com.tencent.kona.pkix.TestUtils.PROVIDER;
+import static com.tencent.kona.pkix.TestUtils.keyStr;
 
 /**
  * The test for KeyStore.
@@ -181,6 +183,10 @@ public class KeyStoreTest {
                 SM2ParameterSpec.instance().getCurve(),
                 ee_sm2sm2_sm2sm2_sm2sm2.getParams().getCurve());
 
+        RSAPrivateKey ca_rsarsa_encKey
+                = (RSAPrivateKey) keyStore.getKey(
+                        "ca-rsarsa_enc", PASSWD_CHARS);
+        Assertions.assertEquals("RSA", ca_rsarsa_encKey.getAlgorithm());
         ECPrivateKey ca_p256ecdsa_encKey
                 = (ECPrivateKey) keyStore.getKey(
                         "ca-p256ecdsa_enc", PASSWD_CHARS);
@@ -188,6 +194,46 @@ public class KeyStoreTest {
         ECPrivateKey ca_p256sm2_encKey
                 = (ECPrivateKey) keyStore.getKey(
                         "ca-p256sm2_enc", EMPTY_PASSWD);
+        Assertions.assertEquals("EC", ca_p256sm2_encKey.getAlgorithm());
+        ECPrivateKey ca_sm2sm2_encKey
+                = (ECPrivateKey) keyStore.getKey(
+                        "ca-sm2sm2_enc", PASSWD_CHARS);
+        Assertions.assertEquals("EC", ca_sm2sm2_encKey.getAlgorithm());
+    }
+
+    @Test
+    public void testCreatePKCS12KeyStoreLoadEncryptedKey() throws Exception {
+        KeyStore keyStore = PKIXInsts.getKeyStore("PKCS12");
+        keyStore.load(null, null);
+
+        keyStore.setKeyEntry(
+                "ca-rsarsa_enc",
+                Base64.getMimeDecoder().decode(keyStr("ca-rsarsa_enc.key")),
+                TestUtils.certChainAsFiles("ca-rsarsa.crt"));
+        keyStore.setKeyEntry(
+                "ca-p256ecdsa_enc",
+                Base64.getMimeDecoder().decode(keyStr("ca-p256ecdsa_enc.key")),
+                TestUtils.certChainAsFiles("ca-p256ecdsa.crt"));
+        keyStore.setKeyEntry(
+                "ca-p256sm2_enc",
+                Base64.getMimeDecoder().decode(keyStr("ca-p256sm2_enc.key")),
+                TestUtils.certChainAsFiles("ca-p256sm2.crt"));
+        keyStore.setKeyEntry(
+                "ca-sm2sm2_enc",
+                Base64.getMimeDecoder().decode(keyStr("ca-sm2sm2_enc.key")),
+                TestUtils.certChainAsFiles("ca-sm2sm2.crt"));
+
+        RSAPrivateKey ca_rsarsa_encKey
+                = (RSAPrivateKey) keyStore.getKey(
+                        "ca-rsarsa_enc", PASSWD_CHARS);
+        Assertions.assertEquals("RSA", ca_rsarsa_encKey.getAlgorithm());
+        ECPrivateKey ca_p256ecdsa_encKey
+                = (ECPrivateKey) keyStore.getKey(
+                        "ca-p256ecdsa_enc", PASSWD_CHARS);
+        Assertions.assertEquals("EC", ca_p256ecdsa_encKey.getAlgorithm());
+        ECPrivateKey ca_p256sm2_encKey
+                = (ECPrivateKey) keyStore.getKey(
+                        "ca-p256sm2_enc", PASSWD_CHARS);
         Assertions.assertEquals("EC", ca_p256sm2_encKey.getAlgorithm());
         ECPrivateKey ca_sm2sm2_encKey
                 = (ECPrivateKey) keyStore.getKey(
