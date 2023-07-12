@@ -398,7 +398,7 @@ public class TestUtils {
             List<String> args) throws Throwable {
         List<String> allJVMOptions = new ArrayList<>();
 
-        if (jvmOptions != null) {
+        if (jvmOptions != null && !jvmOptions.isEmpty()) {
             allJVMOptions.addAll(jvmOptions);
         }
 
@@ -418,7 +418,7 @@ public class TestUtils {
         List<String> cmds = new ArrayList<>();
         cmds.add(javaPath.toString());
 
-        if (jvmOptions != null) {
+        if (jvmOptions != null && !jvmOptions.isEmpty()) {
             cmds.addAll(jvmOptions);
         }
 
@@ -426,7 +426,8 @@ public class TestUtils {
         cmds.add(classpath);
 
         cmds.add(clazz.getName());
-        if (arguments != null) {
+
+        if (arguments != null && !arguments.isEmpty()) {
             cmds.addAll(arguments);
         }
 

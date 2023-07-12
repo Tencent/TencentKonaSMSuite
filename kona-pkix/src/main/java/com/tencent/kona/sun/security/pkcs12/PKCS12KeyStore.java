@@ -26,7 +26,7 @@
 package com.tencent.kona.sun.security.pkcs12;
 
 import java.io.*;
-import java.security.AccessController;
+//import java.security.AccessController;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.Key;
@@ -66,7 +66,7 @@ import javax.security.auth.DestroyFailedException;
 import javax.security.auth.x500.X500Principal;
 
 import com.tencent.kona.crypto.CryptoInsts;
-import com.tencent.kona.crypto.CryptoUtils;
+//import com.tencent.kona.crypto.CryptoUtils;
 import com.tencent.kona.jdk.internal.misc.SharedSecretsUtil;
 import com.tencent.kona.pkix.PKIXInsts;
 import com.tencent.kona.sun.security.provider.KeyStoreDelegator;
@@ -80,7 +80,7 @@ import com.tencent.kona.sun.security.util.DerValue;
 import com.tencent.kona.sun.security.util.KnownOIDs;
 import com.tencent.kona.sun.security.util.ObjectIdentifier;
 import com.tencent.kona.sun.security.util.Oid;
-import com.tencent.kona.sun.security.util.SecurityProperties;
+//import com.tencent.kona.sun.security.util.SecurityProperties;
 import com.tencent.kona.sun.security.x509.AlgorithmId;
 import com.tencent.kona.sun.security.x509.AuthorityKeyIdentifierExtension;
 import com.tencent.kona.sun.security.action.GetPropertyAction;
@@ -108,14 +108,31 @@ public final class PKCS12KeyStore extends KeyStoreSpi {
     // Hardcoded defaults. They should be the same with commented out
     // lines inside the java.security file.
     private static final String DEFAULT_CERT_PBE_ALGORITHM
-            = "PBEWithHmacSHA256AndAES_256";
+            = GetPropertyAction.privilegedGetProperty(
+                    "com.tencent.kona.keystore.pkcs12.certPbeAlgorithm",
+                    "PBEWithHmacSM3AndSM4");
     private static final String DEFAULT_KEY_PBE_ALGORITHM
-            = "PBEWithHmacSHA256AndAES_256";
-    private static final String DEFAULT_MAC_ALGORITHM = "HmacPBESHA256";
-    private static final int DEFAULT_CERT_PBE_ITERATION_COUNT = 10000;
-    private static final int DEFAULT_KEY_PBE_ITERATION_COUNT = 10000;
-    private static final int DEFAULT_MAC_ITERATION_COUNT = 10000;
+            = GetPropertyAction.privilegedGetProperty(
+                    "com.tencent.kona.keystore.pkcs12.keyPbeAlgorithm",
+                    "PBEWithHmacSM3AndSM4");
+    private static final String DEFAULT_MAC_ALGORITHM
+            = GetPropertyAction.privilegedGetProperty(
+                    "com.tencent.kona.keystore.pkcs12.macAlgorithm",
+                    "HmacPBESHA256");
+    private static final int DEFAULT_CERT_PBE_ITERATION_COUNT
+            = Integer.parseInt(GetPropertyAction.privilegedGetProperty(
+                    "com.tencent.kona.keystore.pkcs12.certPbeIterationCount",
+                    "10000"));
+    private static final int DEFAULT_KEY_PBE_ITERATION_COUNT
+            = Integer.parseInt(GetPropertyAction.privilegedGetProperty(
+                    "com.tencent.kona.keystore.pkcs12.keyPbeIterationCount",
+                    "10000"));
+    private static final int DEFAULT_MAC_ITERATION_COUNT
+            = Integer.parseInt(GetPropertyAction.privilegedGetProperty(
+                    "com.tencent.kona.keystore.pkcs12.macIterationCount",
+                    "10000"));
 
+    /***************************************************************************
     // Legacy settings. Used when "keystore.pkcs12.legacy" is set.
     private static final String LEGACY_CERT_PBE_ALGORITHM
             = "PBEWithSHA1AndRC2_40";
@@ -124,6 +141,7 @@ public final class PKCS12KeyStore extends KeyStoreSpi {
     private static final String LEGACY_MAC_ALGORITHM = "HmacPBESHA1";
     private static final int LEGACY_PBE_ITERATION_COUNT = 50000;
     private static final int LEGACY_MAC_ITERATION_COUNT = 100000;
+    ***************************************************************************/
 
     // Big switch. When this system property is set. Legacy settings
     // are used no matter what other keystore.pkcs12.* properties are set.
@@ -895,13 +913,13 @@ public final class PKCS12KeyStore extends KeyStoreSpi {
                     algParams.init(algParamSpec);
                 } else {
                     algParams = getPBEAlgorithmParameters(algorithm,
-                            defaultKeyPbeIterationCount());
+                            DEFAULT_KEY_PBE_ITERATION_COUNT);
                 }
             } else {
                 // Check default key protection algorithm for PKCS12 keystores
-                algorithm = defaultKeyProtectionAlgorithm();
+                algorithm = DEFAULT_KEY_PBE_ALGORITHM;
                 algParams = getPBEAlgorithmParameters(algorithm,
-                        defaultKeyPbeIterationCount());
+                        DEFAULT_KEY_PBE_ITERATION_COUNT);
             }
 
             ObjectIdentifier pbeOID = mapPBEAlgorithmToOID(algorithm);
@@ -948,7 +966,7 @@ public final class PKCS12KeyStore extends KeyStoreSpi {
     private static ObjectIdentifier mapPBEAlgorithmToOID(String algorithm)
             throws NoSuchAlgorithmException {
         // Check for PBES2 algorithms
-        if (algorithm.toLowerCase(Locale.ENGLISH).startsWith("pbewithhmacsha")) {
+        if (algorithm.toLowerCase(Locale.ENGLISH).startsWith("pbewithhmac")) {
             return pbes2_OID;
         }
         return AlgorithmId.get(algorithm).getOID();
@@ -1208,10 +1226,10 @@ public final class PKCS12KeyStore extends KeyStoreSpi {
         if (certificateCount > 0) {
 
             if (certProtectionAlgorithm == null) {
-                certProtectionAlgorithm = defaultCertProtectionAlgorithm();
+                certProtectionAlgorithm = DEFAULT_CERT_PBE_ALGORITHM;
             }
             if (certPbeIterationCount < 0) {
-                certPbeIterationCount = defaultCertPbeIterationCount();
+                certPbeIterationCount = DEFAULT_CERT_PBE_ITERATION_COUNT;
             }
 
             if (debug != null) {
@@ -1250,10 +1268,10 @@ public final class PKCS12KeyStore extends KeyStoreSpi {
 
         // -- MAC
         if (macAlgorithm == null) {
-            macAlgorithm = defaultMacAlgorithm();
+            macAlgorithm = DEFAULT_MAC_ALGORITHM;
         }
         if (macIterationCount < 0) {
-            macIterationCount = defaultMacIterationCount();
+            macIterationCount = DEFAULT_MAC_ITERATION_COUNT;
         }
         if (password != null && !macAlgorithm.equalsIgnoreCase("NONE")) {
             byte[] macData = calculateMac(password, authenticatedSafe);
@@ -2649,6 +2667,7 @@ public final class PKCS12KeyStore extends KeyStoreSpi {
         return result;
     }
 
+    /***************************************************************************
     // The following methods are related to customizing
     // the generation of a PKCS12 keystore or private/secret
     // key entries.
@@ -2742,6 +2761,7 @@ public final class PKCS12KeyStore extends KeyStoreSpi {
                 ? string2IC("macIterationCount", result)
                 : DEFAULT_MAC_ITERATION_COUNT;
     }
+    ***************************************************************************/
 
     private static int string2IC(String type, String value) {
         int number;

@@ -92,6 +92,22 @@ public class KeyToolTest {
         testGenCertChain("JKS");
     }
 
+    @Test
+    public void testPBEAlgorithmOnPKCS12() throws Throwable {
+        genKeyPair(path("SM3AndSM4.ks"), "PKCS12", "SM3AndSM4",
+                "EC", "curveSM2", "SM3withSM2",
+                "PBEWithHmacSM3AndSM4", "PBEWithHmacSM3AndSM4");
+        genKeyPair(path("SM3AndSM4-SHA256AndAES.ks"), "PKCS12",
+                "SM3AndSM4-SHA256AndAES", "EC", "curveSM2", "SM3withSM2",
+                "PBEWithHmacSM3AndSM4", "PBEWithHmacSHA256AndAES_256");
+        genKeyPair(path("SHA256AndAES.ks"), "PKCS12", "SHA256AndAES",
+                "EC", "curveSM2", "SM3withSM2",
+                "PBEWithHmacSHA256AndAES_256", "PBEWithHmacSHA256AndAES_256");
+        genKeyPair(path("SHA256AndAES-SM3AndSM4.ks"), "PKCS12",
+                "SHA256AndAES-SM3AndSM4", "EC", "curveSM2", "SM3withSM2",
+                "PBEWithHmacSHA256AndAES_256", "PBEWithHmacSM3AndSM4");
+    }
+
     private void testGenCertChain(String storeType) throws Throwable {
         genCertChain(storeType, "RSA", null, "SHA256withRSA");
         genCertChain(storeType, "EC", "SECP256R1", "SHA256withECDSA");
@@ -165,6 +181,14 @@ public class KeyToolTest {
     private static void genKeyPair(Path keystorePath, String storeType,
             String alias, String keyAlg, String group, String sigAlg)
             throws Throwable {
+        genKeyPair(keystorePath, storeType, alias, keyAlg, group, sigAlg,
+                null, null);
+    }
+
+    private static void genKeyPair(Path keystorePath, String storeType,
+            String alias, String keyAlg, String group, String sigAlg,
+            String certPbeAlg, String keyPbeAlg)
+            throws Throwable {
         List<String> args = new ArrayList<>();
 
         args.add("-genkeypair");
@@ -198,7 +222,17 @@ public class KeyToolTest {
         args.add("-dname");
         args.add("CN=" + alias);
 
-        OutputAnalyzer oa = TestUtils.java(KeyTool.class, args);
+        List<String> jvmOptions = new ArrayList<>();
+        if (certPbeAlg != null) {
+            jvmOptions.add(
+                    "-Dcom.tencent.kona.keystore.pkcs12.certPbeAlgorithm=" + certPbeAlg);
+        }
+        if (keyPbeAlg != null) {
+            jvmOptions.add(
+                    "-Dcom.tencent.kona.keystore.pkcs12.keyPbeAlgorithm=" + keyPbeAlg);
+        }
+
+        OutputAnalyzer oa = TestUtils.java(jvmOptions, KeyTool.class, args);
         try {
             Assertions.assertEquals(0, oa.getExitValue());
         } catch (AssertionFailedError error){

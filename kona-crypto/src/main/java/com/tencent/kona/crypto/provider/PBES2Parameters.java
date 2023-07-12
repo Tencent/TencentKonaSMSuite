@@ -174,6 +174,8 @@ abstract class PBES2Parameters extends AlgorithmParametersSpi {
         }
 
         if (cipherAlgo.equals("SM4")) {
+            keysize = 128; // the SM4 key size always be 128
+
             switch (keysize) {
             case 128:
                 cipherAlgo_OID = sm4128CBC_OID;

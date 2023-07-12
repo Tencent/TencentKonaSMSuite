@@ -72,8 +72,10 @@ public class KonaCryptoProvider extends Provider {
         // PBES2 on SM
         provider.put("AlgorithmParameters.PBES2",
                 "com.tencent.kona.crypto.provider.PBES2Parameters$General");
-        provider.put("AlgorithmParameters.PBESWithHmacSM3AndSM4",
+        provider.put("AlgorithmParameters.PBEWithHmacSM3AndSM4",
                 "com.tencent.kona.crypto.provider.PBES2Parameters$HmacSM3AndSM4");
+        provider.put("Alg.Alias.AlgorithmParameters.PBEWithHmacSM3AndSM4_128",
+                "PBEWithHmacSM3AndSM4");
         provider.put("SecretKeyFactory.PBEWithHmacSM3AndSM4",
                 "com.tencent.kona.crypto.provider.PBEKeyFactory$PBEWithHmacSM3AndSM4");
         provider.put("Alg.Alias.SecretKeyFactory.PBEWithHmacSM3AndSM4_128",
