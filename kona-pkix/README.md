@@ -191,6 +191,11 @@ java -cp <...> KeyTool \
   -infile ee.csr -outfile ee.crt
 ```
 
+When the type of the keystore file is `PKCS12`, KeyTool can also use `PBEWithHmacSM3AndSM4` to encrypt the private keys and keystore files. Since the `KeyStoreSpi` of JDK does not provide relevant interfaces for setting these encryption algorithms, the following two system properties are provided:
+
+- `com.tencent.kona.keystore.pkcs12.certPbeAlgorithm`, setting the PBE algorithm for encrypting keystore files.
+- `com.tencent.kona.keystore.pkcs12.keyPbeAlgorithm`, setting the PBE algorithm for encrypting private keys.
+
 #### KeyStoreTool
 To facilitate users in importing the existing private keys and certificates using ShangMi algorithms to a keystore, another tool `com.tencent.kona.pkix.tool.KeyStoreTool` is provided. The usage of this tool is as follows:
 
