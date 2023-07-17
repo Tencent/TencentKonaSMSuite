@@ -7,7 +7,7 @@ import static com.tencent.kona.crypto.util.Constants.SM3_DIGEST_LEN;
 /**
  * SM3 engine in compliance with China's GB/T 32905-2016.
  */
-public final class SM3Engine {
+public final class SM3Engine implements Cloneable {
 
     // The initial value
     private static final int[] IV = {
@@ -57,14 +57,14 @@ public final class SM3Engine {
     private int[] v;
 
     // W0..W67
-    private final int[] w = new int[68];
+    private int[] w = new int[68];
 
     // A word is 4-bytes or 1-integer.
-    private final byte[] word = new byte[4];
+    private byte[] word = new byte[4];
     private int wordOffset;
 
     // A message block is 512-bits or 16-integers.
-    private final int[] block = new int[SM3_BLOCK_INT_SIZE];
+    private int[] block = new int[SM3_BLOCK_INT_SIZE];
     private int blockOffset;
 
     private long countOfBytes;
@@ -257,6 +257,15 @@ public final class SM3Engine {
         v[5] ^= f;
         v[6] ^= g;
         v[7] ^= h;
+    }
+
+    public SM3Engine clone() throws CloneNotSupportedException {
+        SM3Engine clone = (SM3Engine) super.clone();
+        clone.v = v.clone();
+        clone.w = w.clone();
+        clone.word = word.clone();
+        clone.block = block.clone();
+        return clone;
     }
 
     /* ***** Boolean functions ***** */

@@ -163,4 +163,19 @@ public class SM3Test {
             }
         }
     }
+
+    @Test
+    public void testClone() throws Exception {
+        MessageDigest md = MessageDigest.getInstance("SM3", PROVIDER);
+        md.update(MESSAGE_LONG, 0, MESSAGE_LONG.length / 3);
+        md.update(MESSAGE_LONG[MESSAGE_LONG.length / 3]);
+
+        MessageDigest clone = (MessageDigest) md.clone();
+        clone.update(MESSAGE_LONG, MESSAGE_LONG.length / 3 + 1,
+                MESSAGE_LONG.length - MESSAGE_LONG.length / 3 - 2);
+        clone.update(MESSAGE_LONG[MESSAGE_LONG.length - 1]);
+        byte[] digest = clone.digest();
+
+        Assertions.assertArrayEquals(DIGEST_LONG, digest);
+    }
 }

@@ -5,9 +5,9 @@ import java.security.MessageDigest;
 
 import static com.tencent.kona.crypto.util.Constants.SM3_DIGEST_LEN;
 
-public final class SM3MessageDigest extends MessageDigest {
+public final class SM3MessageDigest extends MessageDigest implements Cloneable {
 
-    private final SM3Engine engine = new SM3Engine();
+    private SM3Engine engine = new SM3Engine();
 
     public SM3MessageDigest() {
         super("SM3");
@@ -49,5 +49,11 @@ public final class SM3MessageDigest extends MessageDigest {
     @Override
     protected void engineReset() {
         engine.reset();
+    }
+
+    public Object clone() throws CloneNotSupportedException {
+        SM3MessageDigest clone = (SM3MessageDigest) super.clone();
+        clone.engine = engine.clone();
+        return clone;
     }
 }
