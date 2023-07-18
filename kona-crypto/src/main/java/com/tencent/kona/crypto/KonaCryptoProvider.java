@@ -76,6 +76,8 @@ public class KonaCryptoProvider extends Provider {
                 "com.tencent.kona.crypto.provider.PBES2Parameters$HmacSM3AndSM4");
         provider.put("Alg.Alias.AlgorithmParameters.PBEWithHmacSM3AndSM4_128",
                 "PBEWithHmacSM3AndSM4");
+        provider.put("Mac.HmacPBESM3",
+                "com.tencent.kona.crypto.provider.HmacPKCS12PBE_SM3");
         provider.put("SecretKeyFactory.PBEWithHmacSM3AndSM4",
                 "com.tencent.kona.crypto.provider.PBEKeyFactory$PBEWithHmacSM3AndSM4");
         provider.put("Alg.Alias.SecretKeyFactory.PBEWithHmacSM3AndSM4_128",

@@ -190,10 +190,11 @@ java -cp <...> KeyTool \
   -infile ee.csr -outfile ee.crt
 ```
 
-当密钥库文件的类型为`PKCS12`时，KeyTool还可以使用`PBEWithHmacSM3AndSM4`对私钥和密钥库文件进行加密。由于JDK的`KeyStoreSpi`并没有为设置该加密算法提供相关的接口，所以提供了如下两个系统属性：
+当密钥库文件的类型为`PKCS12`时，KeyTool还可以使用`PBEWithHmacSM3AndSM4`对私钥和密钥库进行加密，以及可使用`HmacPBESM3`算法验证密钥库的完整性。由于JDK的`KeyStoreSpi`并没有为设置这些算法提供相关的接口，所以提供了如下系统属性：
 
 - `com.tencent.kona.keystore.pkcs12.certPbeAlgorithm`，设置加密密钥库的PBE算法。
 - `com.tencent.kona.keystore.pkcs12.keyPbeAlgorithm`，设置加密私钥的PBE算法。
+- `com.tencent.kona.keystore.pkcs12.macAlgorithm`，设置验证密钥库完整性的MAC算法。
 
 #### KeyStoreTool
 为了方便用户将已有的国密私钥和证书导入密钥库文件中，提供了另一个工具，即`com.tencent.kona.pkix.tool.KeyStoreTool`。该工具的用法如下，
