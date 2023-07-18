@@ -36,11 +36,11 @@ import java.security.KeyStoreSpi;
 import java.security.KeyStoreException;
 import java.security.PKCS12Attribute;
 import java.security.PrivateKey;
-import java.security.PrivilegedAction;
+//import java.security.PrivilegedAction;
 import java.security.UnrecoverableEntryException;
 import java.security.UnrecoverableKeyException;
 import java.security.SecureRandom;
-import java.security.Security;
+//import java.security.Security;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
@@ -110,11 +110,11 @@ public final class PKCS12KeyStore extends KeyStoreSpi {
     private static final String DEFAULT_CERT_PBE_ALGORITHM
             = GetPropertyAction.privilegedGetProperty(
                     "com.tencent.kona.keystore.pkcs12.certPbeAlgorithm",
-                    "PBEWithHmacSM3AndSM4");
+                    "PBEWithHmacSHA256AndAES_256");
     private static final String DEFAULT_KEY_PBE_ALGORITHM
             = GetPropertyAction.privilegedGetProperty(
                     "com.tencent.kona.keystore.pkcs12.keyPbeAlgorithm",
-                    "PBEWithHmacSM3AndSM4");
+                    "PBEWithHmacSHA256AndAES_256");
     private static final String DEFAULT_MAC_ALGORITHM
             = GetPropertyAction.privilegedGetProperty(
                     "com.tencent.kona.keystore.pkcs12.macAlgorithm",

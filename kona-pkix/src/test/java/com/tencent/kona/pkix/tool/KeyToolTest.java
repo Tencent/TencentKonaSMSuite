@@ -96,16 +96,16 @@ public class KeyToolTest {
     public void testPBEAlgorithmOnPKCS12() throws Throwable {
         genKeyPair(path("SM3AndSM4.ks"), "PKCS12", "SM3AndSM4",
                 "EC", "curveSM2", "SM3withSM2",
-                "PBEWithHmacSM3AndSM4", "PBEWithHmacSM3AndSM4");
+                "PBEWithHmacSM3AndSM4", "PBEWithHmacSM3AndSM4", "HmacPBESM3");
         genKeyPair(path("SM3AndSM4-SHA256AndAES.ks"), "PKCS12",
                 "SM3AndSM4-SHA256AndAES", "EC", "curveSM2", "SM3withSM2",
-                "PBEWithHmacSM3AndSM4", "PBEWithHmacSHA256AndAES_256");
+                "PBEWithHmacSM3AndSM4", "PBEWithHmacSHA256AndAES_256", "HmacPBESHA256");
         genKeyPair(path("SHA256AndAES.ks"), "PKCS12", "SHA256AndAES",
                 "EC", "curveSM2", "SM3withSM2",
-                "PBEWithHmacSHA256AndAES_256", "PBEWithHmacSHA256AndAES_256");
+                "PBEWithHmacSHA256AndAES_256", "PBEWithHmacSHA256AndAES_256", "HmacPBESM3");
         genKeyPair(path("SHA256AndAES-SM3AndSM4.ks"), "PKCS12",
                 "SHA256AndAES-SM3AndSM4", "EC", "curveSM2", "SM3withSM2",
-                "PBEWithHmacSHA256AndAES_256", "PBEWithHmacSM3AndSM4");
+                "PBEWithHmacSHA256AndAES_256", "PBEWithHmacSM3AndSM4", "HmacPBESM3");
     }
 
     private void testGenCertChain(String storeType) throws Throwable {
@@ -182,12 +182,12 @@ public class KeyToolTest {
             String alias, String keyAlg, String group, String sigAlg)
             throws Throwable {
         genKeyPair(keystorePath, storeType, alias, keyAlg, group, sigAlg,
-                null, null);
+                null, null, null);
     }
 
     private static void genKeyPair(Path keystorePath, String storeType,
             String alias, String keyAlg, String group, String sigAlg,
-            String certPbeAlg, String keyPbeAlg)
+            String certPbeAlg, String keyPbeAlg, String macAlg)
             throws Throwable {
         List<String> args = new ArrayList<>();
 
@@ -230,6 +230,10 @@ public class KeyToolTest {
         if (keyPbeAlg != null) {
             jvmOptions.add(
                     "-Dcom.tencent.kona.keystore.pkcs12.keyPbeAlgorithm=" + keyPbeAlg);
+        }
+        if (macAlg != null) {
+            jvmOptions.add(
+                    "-Dcom.tencent.kona.keystore.pkcs12.macAlgorithm=" + macAlg);
         }
 
         OutputAnalyzer oa = TestUtils.java(jvmOptions, KeyTool.class, args);
