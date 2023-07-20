@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2005, 2021, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2005, 2023, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -40,6 +40,7 @@ import javax.crypto.SecretKey;
 import javax.crypto.spec.PBEKeySpec;
 
 import com.tencent.kona.crypto.CryptoInsts;
+import com.tencent.kona.crypto.util.Sweeper;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 
@@ -62,9 +63,9 @@ final class PBKDF2KeyImpl implements javax.crypto.interfaces.PBEKey {
     private int iterCount;
     private byte[] key;
 
-    @SuppressWarnings("serial") // Type of field is not Serializable;
-                                // see writeReplace method
-    private Mac prf;
+    // The following fields are not Serializable. See writeReplace method.
+    private transient Mac prf;
+    private transient Sweeper sweeper = Sweeper.instance();
 
     private static byte[] getPasswordBytes(char[] passwd) {
         CharBuffer cb = CharBuffer.wrap(passwd);
@@ -86,13 +87,7 @@ final class PBKDF2KeyImpl implements javax.crypto.interfaces.PBEKey {
      */
     PBKDF2KeyImpl(PBEKeySpec keySpec, String prfAlgo)
         throws InvalidKeySpecException {
-        char[] passwd = keySpec.getPassword();
-        if (passwd == null) {
-            // Should allow an empty password.
-            this.passwd = new char[0];
-        } else {
-            this.passwd = passwd.clone();
-        }
+        this.passwd = keySpec.getPassword();
         // Convert the password from char[] to byte[]
         byte[] passwdBytes = getPasswordBytes(this.passwd);
         // remove local copy
@@ -123,16 +118,18 @@ final class PBKDF2KeyImpl implements javax.crypto.interfaces.PBEKey {
             throw new InvalidKeySpecException(nsae);
         } finally {
             Arrays.fill(passwdBytes, (byte) 0x00);
-
-//            // Use the cleaner to zero the key when no longer referenced
-//            final byte[] k = this.key;
-//            final char[] p = this.passwd;
-//            CleanerFactory.cleaner().register(this,
-//                    () -> {
-//                        Arrays.fill(k, (byte) 0x00);
-//                        Arrays.fill(p, '\0');
-//                    });
+            if (key == null) {
+                Arrays.fill(passwd, '\0');
+            }
         }
+        // Use the cleaner to zero the key when no longer referenced
+        final byte[] k = this.key;
+        final char[] p = this.passwd;
+        sweeper.register(this,
+                () -> {
+                    Arrays.fill(k, (byte) 0x00);
+                    Arrays.fill(p, '\0');
+                });
     }
 
     private static byte[] deriveKey(final Mac prf, final byte[] password,
@@ -210,11 +207,7 @@ final class PBKDF2KeyImpl implements javax.crypto.interfaces.PBEKey {
     }
 
     public byte[] getEncoded() {
-        // The key is zeroized by finalize()
-        // The reachability fence ensures finalize() isn't called early
-        byte[] result = key.clone();
-//        Reference.reachabilityFence(this);
-        return result;
+        return key.clone();
     }
 
     public String getAlgorithm() {
@@ -225,16 +218,12 @@ final class PBKDF2KeyImpl implements javax.crypto.interfaces.PBEKey {
         return iterCount;
     }
 
-    public void clearPassword() {
-        Arrays.fill(passwd, (char)0);
+    public void clear() {
+        sweeper.clean();
     }
 
     public char[] getPassword() {
-        // The password is zeroized by finalize()
-        // The reachability fence ensures finalize() isn't called early
-        char[] result = passwd.clone();
-//        Reference.reachabilityFence(this);
-        return result;
+        return passwd.clone();
     }
 
     public byte[] getSalt() {
