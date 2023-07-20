@@ -25,6 +25,8 @@
 
 package com.tencent.kona.sun.security.util;
 
+import com.tencent.kona.crypto.CryptoInsts;
+
 import java.security.AlgorithmParameters;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
@@ -128,15 +130,14 @@ public final class PBEUtil {
          * P11PBECipher (SunPKCS11).
          */
         public AlgorithmParameters getAlgorithmParameters(int blkSize,
-                String pbeAlgo, Provider algParamsProv, SecureRandom random) {
+                String pbeAlgo, SecureRandom random) {
             AlgorithmParameters params;
             try {
                 if (iCount == 0 && salt == null && ivSpec == null) {
                     initialize(blkSize, Cipher.ENCRYPT_MODE, 0, null, null,
                             random);
                 }
-                params = AlgorithmParameters.getInstance(pbeAlgo,
-                        algParamsProv);
+                params = CryptoInsts.getAlgorithmParameters(pbeAlgo);
                 params.init(new PBEParameterSpec(salt, iCount, ivSpec));
             } catch (NoSuchAlgorithmException nsae) {
                 // should never happen
