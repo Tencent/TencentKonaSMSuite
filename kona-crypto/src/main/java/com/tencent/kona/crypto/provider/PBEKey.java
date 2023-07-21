@@ -25,6 +25,8 @@
 
 package com.tencent.kona.crypto.provider;
 
+import com.tencent.kona.crypto.util.Sweeper;
+
 import java.security.MessageDigest;
 import java.security.KeyRep;
 import java.security.spec.InvalidKeySpecException;
@@ -46,6 +48,8 @@ final class PBEKey implements SecretKey {
     private byte[] key;
 
     private String type;
+
+    private final Sweeper sweeper = Sweeper.instance();
 
     /**
      * Creates a PBE key from a given PBE key specification.
@@ -74,11 +78,11 @@ final class PBEKey implements SecretKey {
         type = keytype;
 
         // Use the cleaner to zero the key when no longer referenced
-//        if (useCleaner) {
-//            final byte[] k = this.key;
-//            CleanerFactory.cleaner().register(this,
-//                () -> Arrays.fill(k, (byte) 0x00));
-//        }
+        if (useCleaner) {
+            final byte[] k = this.key;
+            sweeper.register(this,
+                () -> Arrays.fill(k, (byte) 0x00));
+        }
     }
 
     public byte[] getEncoded() {
