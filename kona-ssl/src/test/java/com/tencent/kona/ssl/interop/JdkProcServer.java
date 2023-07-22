@@ -53,6 +53,8 @@ public class JdkProcServer extends AbstractServer {
                     builder.getSecPropsFile().toString());
         }
 
+        props.put(JdkProcUtils.PROP_PROVIDER, builder.getProvider().name);
+
         if (builder.getCertTuple() != null) {
             props.put(JdkProcUtils.PROP_TRUSTED_CERTS,
                     JdkProcUtils.certsToStr(builder.getCertTuple().trustedCerts));
@@ -104,6 +106,7 @@ public class JdkProcServer extends AbstractServer {
 
         if (Utilities.DEBUG) {
             props.put("com.tencent.kona.ssl.debug", "all");
+            props.put("javax.net.debug", "all");
         }
 
         props.putAll(builder.getAllProps());
@@ -114,6 +117,8 @@ public class JdkProcServer extends AbstractServer {
         private Jdk jdk = Jdk.DEFAULT;
 
         private Path secPropsFile;
+
+        private Provider provider = Provider.KONA;
 
         public Jdk getJdk() {
             return jdk;
@@ -130,6 +135,15 @@ public class JdkProcServer extends AbstractServer {
 
         public Builder setSecPropsFile(Path secPropsFile) {
             this.secPropsFile = secPropsFile;
+            return this;
+        }
+
+        public Provider getProvider() {
+            return provider;
+        }
+
+        public AbstractPeer.Builder setProvider(Provider provider) {
+            this.provider = provider;
             return this;
         }
 
@@ -205,7 +219,11 @@ public class JdkProcServer extends AbstractServer {
     }
 
     public static void main(String[] args) throws Exception {
-        TestUtils.addProviders();
+        String providerStr = System.getProperty(
+                JdkProcUtils.PROP_PROVIDER, Provider.KONA.name);
+        if (Provider.KONA.name.equals(providerStr)) {
+            TestUtils.addProviders();
+        }
 
         String trustedCertsStr = System.getProperty(JdkProcUtils.PROP_TRUSTED_CERTS);
         String eeCertsStr = System.getProperty(JdkProcUtils.PROP_EE_CERTS);
@@ -224,6 +242,7 @@ public class JdkProcServer extends AbstractServer {
         String messageStr = System.getProperty(JdkProcUtils.PROP_MESSAGE);
 
         JdkServer.Builder builder = new JdkServer.Builder();
+        builder.setProvider(Provider.provider(providerStr));
         builder.setCertTuple(JdkProcUtils.createCertTuple(
                 trustedCertsStr, eeCertsStr));
         builder.setContextProtocol(

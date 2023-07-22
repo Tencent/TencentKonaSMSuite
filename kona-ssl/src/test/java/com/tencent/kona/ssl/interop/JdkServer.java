@@ -68,7 +68,7 @@ public class JdkServer extends AbstractServer {
 
         response = builder.getMessage();
 
-        context = Utilities.createSSLContext(
+        context = Utilities.createSSLContext(builder.getProvider(),
                 builder.getContextProtocol(), builder.getCertTuple());
         SSLServerSocketFactory serverFactory = context.getServerSocketFactory();
         serverSocket
@@ -114,6 +114,17 @@ public class JdkServer extends AbstractServer {
     }
 
     public static class Builder extends AbstractServer.Builder {
+
+        private Provider provider = Provider.KONA;
+
+        public Provider getProvider() {
+            return provider;
+        }
+
+        public AbstractPeer.Builder setProvider(Provider provider) {
+            this.provider = provider;
+            return this;
+        }
 
         @Override
         public JdkServer build() throws Exception {
