@@ -102,6 +102,7 @@ public class JdkProcClient extends AbstractClient {
 
         if (Utilities.DEBUG) {
             props.put("com.tencent.kona.ssl.debug", "all");
+            props.put("javax.net.debug", "all");
         }
 
         props.putAll(builder.getAllProps());
@@ -110,6 +111,8 @@ public class JdkProcClient extends AbstractClient {
     public static class Builder extends AbstractClient.Builder {
 
         private Jdk jdk = Jdk.DEFAULT;
+
+        private Provider provider = Provider.KONA;
 
         private Path secPropsFile;
 
@@ -130,6 +133,16 @@ public class JdkProcClient extends AbstractClient {
             this.secPropsFile = secPropsFile;
             return this;
         }
+
+        public Provider getProvider() {
+            return provider;
+        }
+
+        public AbstractPeer.Builder setProvider(Provider provider) {
+            this.provider = provider;
+            return this;
+        }
+
 
         @Override
         public JdkProcClient build() {
@@ -167,7 +180,11 @@ public class JdkProcClient extends AbstractClient {
     }
 
     public static void main(String[] args) throws Exception {
-        TestUtils.addProviders();
+        String providerStr = System.getProperty(
+                JdkProcUtils.PROP_PROVIDER, Provider.KONA.name);
+        if (Provider.KONA.name.equals(providerStr)) {
+            TestUtils.addProviders();
+        }
 
         String trustedCertsStr = System.getProperty(JdkProcUtils.PROP_TRUSTED_CERTS);
         String eeCertsStr = System.getProperty(JdkProcUtils.PROP_EE_CERTS);
@@ -186,6 +203,7 @@ public class JdkProcClient extends AbstractClient {
         String readResponseStr = System.getProperty(JdkProcUtils.PROP_READ_RESPONSE);
 
         JdkClient.Builder builder = new JdkClient.Builder();
+        builder.setProvider(Provider.provider(providerStr));
         builder.setCertTuple(JdkProcUtils.createCertTuple(
                 trustedCertsStr, eeCertsStr));
         builder.setContextProtocol(

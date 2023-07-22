@@ -41,6 +41,7 @@ public class JdkProcUtils {
     public static final String PROP_PORT = "test.port";
 
     public static final String PROP_SEC_PROPS_FILE = "java.security.properties";
+    public static final String PROP_PROVIDER = "test.provider";
     public static final String PROP_CTX_PROTOCOL = "test.context.protocol";
     public static final String PROP_PROTOCOLS = "test.protocols";
     public static final String PROP_CIPHER_SUITES = "test.cipher.suites";

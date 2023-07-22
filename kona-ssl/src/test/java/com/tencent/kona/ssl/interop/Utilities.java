@@ -113,10 +113,10 @@ public class Utilities {
         return cipherSuites;
     }
 
-    public static SSLContext createSSLContext(String provider,
-            String contextProtocol, CertTuple certTuple) throws Exception {
-        String sslProvider = provider.equalsIgnoreCase("JDK") ? "SunJSSE" : "KonaSSL";
-        String pkixProvider = provider.equalsIgnoreCase("JDK") ? "SUN" : "KonaPKIX";
+    public static SSLContext createSSLContext(Provider provider,
+            ContextProtocol contextProtocol, CertTuple certTuple) throws Exception {
+        String sslProvider = provider == Provider.JDK ? "SunJSSE" : "KonaSSL";
+        String pkixProvider = provider == Provider.JDK ? "SUN" : "KonaPKIX";
 
         KeyStore trustStore = createTrustStore(pkixProvider, certTuple.trustedCerts);
         TrustManagerFactory tmf = TrustManagerFactory.getInstance("PKIX", sslProvider);
@@ -126,18 +126,9 @@ public class Utilities {
         KeyManagerFactory kmf = KeyManagerFactory.getInstance("NewSunX509", sslProvider);
         kmf.init(keyStore, null);
 
-        SSLContext context = SSLContext.getInstance(contextProtocol, sslProvider);
+        SSLContext context = SSLContext.getInstance(contextProtocol.name, sslProvider);
         context.init(kmf.getKeyManagers(), tmf.getTrustManagers(), null);
         return context;
-    }
-
-    /*
-     * Creates SSL context with the specified certificates.
-     */
-    public static SSLContext createSSLContext(
-            ContextProtocol contextProtocol, CertTuple certTuple)
-            throws Exception {
-        return createSSLContext(PROVIDER, contextProtocol.name, certTuple);
     }
 
     /*

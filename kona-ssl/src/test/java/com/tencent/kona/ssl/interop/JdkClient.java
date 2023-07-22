@@ -79,7 +79,7 @@ public class JdkClient extends AbstractClient {
 
     protected SSLContext getContext(Builder builder) throws Exception {
         return builder.getContext() == null
-                ? Utilities.createSSLContext(
+                ? Utilities.createSSLContext(builder.getProvider(),
                         builder.getContextProtocol(), builder.getCertTuple())
                 : builder.getContext();
     }
@@ -111,8 +111,19 @@ public class JdkClient extends AbstractClient {
 
     public static class Builder extends AbstractClient.Builder {
 
+        private Provider provider = Provider.KONA;
+
         private ConnectionInterceptor interceptor;
         private SSLContext context;
+
+        public Provider getProvider() {
+            return provider;
+        }
+
+        public AbstractPeer.Builder setProvider(Provider provider) {
+            this.provider = provider;
+            return this;
+        }
 
         public ConnectionInterceptor getInterceptor() {
             return interceptor;
