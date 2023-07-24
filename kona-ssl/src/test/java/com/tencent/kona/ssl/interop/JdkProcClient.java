@@ -49,6 +49,8 @@ public class JdkProcClient extends AbstractClient {
                     builder.getSecPropsFile().toString());
         }
 
+        props.put(JdkProcUtils.PROP_PROVIDER, builder.getProvider().name);
+
         if (builder.getCertTuple() != null) {
             props.put(JdkProcUtils.PROP_TRUSTED_CERTS,
                     JdkProcUtils.certsToStr(builder.getCertTuple().trustedCerts));
