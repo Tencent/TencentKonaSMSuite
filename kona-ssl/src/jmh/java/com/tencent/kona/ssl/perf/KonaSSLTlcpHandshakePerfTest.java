@@ -24,6 +24,7 @@
 package com.tencent.kona.ssl.perf;
 
 import com.tencent.kona.ssl.interop.ContextProtocol;
+import com.tencent.kona.ssl.interop.Provider;
 import com.tencent.kona.ssl.interop.SmCertTuple;
 import com.tencent.kona.ssl.interop.Utilities;
 import com.tencent.kona.ssl.TestUtils;
@@ -91,9 +92,9 @@ public class KonaSSLTlcpHandshakePerfTest {
 
     @Setup(Level.Trial)
     public void init() throws Exception {
-        serverContext = Utilities.createSSLContext(
+        serverContext = Utilities.createSSLContext(Provider.KONA,
                 ContextProtocol.TLCP11, SERVER_CERT_TUPLE);
-        clientContext = Utilities.createSSLContext(
+        clientContext = Utilities.createSSLContext(Provider.KONA,
                 ContextProtocol.TLCP11, CLIENT_CERT_TUPLE);
     }
 
