@@ -29,6 +29,7 @@ import com.tencent.kona.ssl.interop.ContextProtocol;
 import com.tencent.kona.ssl.interop.FileCert;
 import com.tencent.kona.ssl.interop.HashAlgorithm;
 import com.tencent.kona.ssl.interop.KeyAlgorithm;
+import com.tencent.kona.ssl.interop.Provider;
 import com.tencent.kona.ssl.interop.SignatureAlgorithm;
 import com.tencent.kona.ssl.interop.Utilities;
 import com.tencent.kona.ssl.TestUtils;
@@ -104,9 +105,9 @@ public class KonaSSLTlsHandshakePerfTest {
 
     @Setup(Level.Trial)
     public void init() throws Exception {
-        serverContext = Utilities.createSSLContext(
+        serverContext = Utilities.createSSLContext(Provider.KONA,
                 ContextProtocol.TLS, CERT_TUPLE);
-        clientContext = Utilities.createSSLContext(
+        clientContext = Utilities.createSSLContext(Provider.KONA,
                 ContextProtocol.TLS, CERT_TUPLE);
     }
 

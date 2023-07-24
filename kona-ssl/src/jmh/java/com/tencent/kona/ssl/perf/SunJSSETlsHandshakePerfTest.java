@@ -30,6 +30,7 @@ import com.tencent.kona.ssl.interop.FileCert;
 import com.tencent.kona.ssl.interop.HashAlgorithm;
 import com.tencent.kona.ssl.interop.KeyAlgorithm;
 import com.tencent.kona.ssl.interop.Protocol;
+import com.tencent.kona.ssl.interop.Provider;
 import com.tencent.kona.ssl.interop.SignatureAlgorithm;
 import com.tencent.kona.ssl.interop.Utilities;
 import org.openjdk.jmh.annotations.Benchmark;
@@ -97,10 +98,10 @@ public class SunJSSETlsHandshakePerfTest {
 
     @Setup(Level.Trial)
     public void init() throws Exception {
-        serverContext = Utilities.createSSLContext(
-                "JDK", ContextProtocol.TLS.name, CERT_TUPLE);
-        clientContext = Utilities.createSSLContext(
-                "JDK", ContextProtocol.TLS.name, CERT_TUPLE);
+        serverContext = Utilities.createSSLContext(Provider.JDK,
+                ContextProtocol.TLS, CERT_TUPLE);
+        clientContext = Utilities.createSSLContext(Provider.JDK,
+                ContextProtocol.TLS, CERT_TUPLE);
     }
 
     /**
