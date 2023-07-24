@@ -62,8 +62,6 @@ import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManagerFactory;
 
-import static com.tencent.kona.ssl.TestUtils.PROVIDER;
-
 /*
  * Utilities for interop testing.
  */
@@ -116,13 +114,16 @@ public class Utilities {
     public static SSLContext createSSLContext(Provider provider,
             ContextProtocol contextProtocol, CertTuple certTuple) throws Exception {
         String sslProvider = provider == Provider.JDK ? "SunJSSE" : "KonaSSL";
+        String keystoreProvider = provider == Provider.JDK ? "SunJSSE" : "KonaPKIX";
         String pkixProvider = provider == Provider.JDK ? "SUN" : "KonaPKIX";
 
-        KeyStore trustStore = createTrustStore(pkixProvider, certTuple.trustedCerts);
+        KeyStore trustStore = createTrustStore(
+                keystoreProvider, pkixProvider, certTuple.trustedCerts);
         TrustManagerFactory tmf = TrustManagerFactory.getInstance("PKIX", sslProvider);
         tmf.init(trustStore);
 
-        KeyStore keyStore = createKeyStore(pkixProvider, certTuple.endEntityCerts);
+        KeyStore keyStore = createKeyStore(
+                keystoreProvider, pkixProvider, certTuple.endEntityCerts);
         KeyManagerFactory kmf = KeyManagerFactory.getInstance("NewSunX509", sslProvider);
         kmf.init(keyStore, null);
 
@@ -134,17 +135,18 @@ public class Utilities {
     /*
      * Creates trust store with the specified certificates.
      */
-    public static KeyStore createTrustStore(String provider, Cert... certs)
+    public static KeyStore createTrustStore(
+            String keystoreProvider, String pkixProvider, Cert... certs)
             throws KeyStoreException, IOException, NoSuchAlgorithmException,
             CertificateException, NoSuchProviderException {
-        KeyStore trustStore = KeyStore.getInstance("PKCS12", provider);
+        KeyStore trustStore = KeyStore.getInstance("PKCS12", keystoreProvider);
         trustStore.load(null, null);
 
         if (certs != null && certs.length > 0) {
             for (int i = 0; i < certs.length; i++) {
                 if (certs[i] != null) {
                     trustStore.setCertificateEntry("trust-" + i,
-                            createCert(provider, certs[i]));
+                            createCert(pkixProvider, certs[i]));
                 }
             }
         }
@@ -155,29 +157,30 @@ public class Utilities {
     /*
      * Creates key store with the specified certificates.
      */
-    public static KeyStore createKeyStore(String provider, Cert... certs)
+    public static KeyStore createKeyStore(
+            String keystoreProvider, String pkixProvider, Cert... certs)
             throws KeyStoreException, IOException, NoSuchAlgorithmException,
             CertificateException, InvalidKeySpecException,
             NoSuchProviderException {
-        KeyStore keyStore = KeyStore.getInstance("PKCS12", provider);
+        KeyStore keyStore = KeyStore.getInstance("PKCS12", keystoreProvider);
         keyStore.load(null, null);
 
         if (certs != null && certs.length > 0) {
-            X509Certificate lastCert = createCert(provider, certs[certs.length - 1]);
+            X509Certificate lastCert = createCert(pkixProvider, certs[certs.length - 1]);
             if (PKIXUtils.isCA(lastCert)) {
                 for (int i = 0; i < certs.length - 1; i++) {
-                    String cryptoProvider = cryptoProvider(provider, certs[i]);
+                    String cryptoProvider = cryptoProvider(pkixProvider, certs[i]);
                     if (certs[i] != null) {
                         keyStore.setKeyEntry("cert-" + i, createKey(cryptoProvider, certs[i]), null,
-                                new Certificate[]{ createCert(provider, certs[i]), lastCert });
+                                new Certificate[]{ createCert(pkixProvider, certs[i]), lastCert });
                     }
                 }
             } else {
                 for (int i = 0; i < certs.length; i++) {
                     if (certs[i] != null) {
-                        String cryptoProvider = cryptoProvider(provider, certs[i]);
+                        String cryptoProvider = cryptoProvider(pkixProvider, certs[i]);
                         keyStore.setKeyEntry("cert-" + i, createKey(cryptoProvider, certs[i]), null,
-                                new Certificate[]{ createCert(provider, certs[i]) });
+                                new Certificate[]{ createCert(pkixProvider, certs[i]) });
                     }
                 }
             }
