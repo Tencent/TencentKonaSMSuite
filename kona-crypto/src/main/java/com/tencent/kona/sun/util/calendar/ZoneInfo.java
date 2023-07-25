@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2000, 2021, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2000, 2023, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -70,7 +70,6 @@ public class ZoneInfo extends TimeZone {
     private static final long DST_MASK = 0xf0L;
     private static final int DST_NSHIFT = 4;
     // this bit field is reserved for abbreviation support
-    private static final long ABBR_MASK = 0xf00L;
     private static final int TRANSITION_NSHIFT = 12;
 
     /**
@@ -393,7 +392,7 @@ public class ZoneInfo extends TimeZone {
         }
 
         long dateInMillis = gcal.getTime(date) + milliseconds;
-        dateInMillis -= (long) rawOffset; // make it UTC
+        dateInMillis -= rawOffset; // make it UTC
         return getOffsets(dateInMillis, null, UTC_TIME);
     }
 
@@ -403,7 +402,7 @@ public class ZoneInfo extends TimeZone {
      * historical ones, if applicable.
      *
      * @param offsetMillis the base time zone offset to GMT.
-     * @see getRawOffset
+     * @see #getRawOffset
      */
     public synchronized void setRawOffset(int offsetMillis) {
         if (offsetMillis == rawOffset + rawOffsetDiff) {
@@ -523,21 +522,6 @@ public class ZoneInfo extends TimeZone {
     public int getDSTSavings() {
         return dstSavings;
     }
-
-//    /**
-//     * @return the last year in the transition table or -1 if this
-//     * time zone doesn't observe any daylight saving time.
-//     */
-//    public int getMaxTransitionYear() {
-//      if (transitions == null) {
-//          return -1;
-//      }
-//      long val = transitions[transitions.length - 1];
-//      int offset = this.offsets[(int)(val & OFFSET_MASK)] + rawOffsetDiff;
-//      val = (val >> TRANSITION_NSHIFT) + offset;
-//      CalendarDate lastDate = Gregorian.getCalendarDate(val);
-//      return lastDate.getYear();
-//    }
 
     /**
      * Returns a string representation of this time zone.
