@@ -25,6 +25,7 @@
 
 package com.tencent.kona.sun.security.util;
 
+import com.tencent.kona.java.util.HexFormat;
 import com.tencent.kona.sun.util.calendar.CalendarDate;
 import com.tencent.kona.sun.util.calendar.CalendarSystem;
 
@@ -1186,7 +1187,8 @@ public class DerValue {
     @Override
     public String toString() {
         return String.format("DerValue(%02x, %s, %d, %d)",
-                0xff & tag, buffer, start, end);
+                0xff & tag, HexFormat.of().withUpperCase().formatHex(buffer),
+                start, end);
     }
 
     /**
