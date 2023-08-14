@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1997, 2022, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997, 2023, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -188,15 +188,22 @@ public class X509CertInfo {
      * certificates are not both X.509 certs, otherwise it
      * compares them as binary data.
      *
-     * @param other the object being compared with this one
+     * @param obj the object being compared with this one
      * @return true iff the certificates are equivalent
      */
-    public boolean equals(Object other) {
-        if (other instanceof X509CertInfo) {
-            return equals((X509CertInfo) other);
-        } else {
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+
+        if (!(obj instanceof X509CertInfo)) {
             return false;
         }
+
+        return rawCertInfo != null
+                && ((X509CertInfo) obj).rawCertInfo != null
+                && Arrays.equals(rawCertInfo, ((X509CertInfo) obj).rawCertInfo);
     }
 
     /**
@@ -222,17 +229,9 @@ public class X509CertInfo {
         return true;
     }
 
-    /**
-     * Calculates a hash code value for the object.  Objects
-     * which are equal will also have the same hashcode.
-     */
+    @Override
     public int hashCode() {
-        int retval = 0;
-
-        for (int i = 1; i < rawCertInfo.length; i++) {
-            retval += rawCertInfo[i] * i;
-        }
-        return retval;
+        return Arrays.hashCode(rawCertInfo);
     }
 
     /**

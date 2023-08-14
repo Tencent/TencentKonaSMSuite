@@ -345,9 +345,7 @@ public class AlgorithmId implements Serializable, DerEncoder {
     }
 
     /**
-     * Returns a hashcode for this AlgorithmId.
-     *
-     * @return a hashcode for this AlgorithmId.
+     * {@return a hashcode for this AlgorithmId}
      */
     @Override
     public int hashCode() {

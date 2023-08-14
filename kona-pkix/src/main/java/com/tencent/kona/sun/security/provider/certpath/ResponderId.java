@@ -234,18 +234,15 @@ public final class ResponderId {
             return true;
         }
 
-        if (obj instanceof ResponderId) {
-            ResponderId respObj = (ResponderId)obj;
-            return Arrays.equals(encodedRid, respObj.getEncoded());
+        if (!(obj instanceof ResponderId)) {
+            return false;
         }
 
-        return false;
+        return Arrays.equals(encodedRid, ((ResponderId) obj).getEncoded());
     }
 
     /**
-     * Returns the hash code value for this {@code ResponderId}
-     *
-     * @return the hash code value for this {@code ResponderId}
+     * {@return the hash code value for this {@code ResponderId}}
      */
     @Override
     public int hashCode() {

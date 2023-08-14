@@ -5355,11 +5355,15 @@ class Pair<A, B> {
         return "Pair[" + fst + "," + snd + "]";
     }
 
-    public boolean equals(Object other) {
+    @Override
+    public boolean equals(Object obj) {
+        if (!(obj instanceof Pair<?, ?>)) {
+            return false;
+        }
+
         return
-            other instanceof Pair &&
-            Objects.equals(fst, ((Pair)other).fst) &&
-            Objects.equals(snd, ((Pair)other).snd);
+            Objects.equals(fst, ((Pair<?, ?>) obj).fst) &&
+            Objects.equals(snd, ((Pair<?, ?>) obj).snd);
     }
 
     public int hashCode() {

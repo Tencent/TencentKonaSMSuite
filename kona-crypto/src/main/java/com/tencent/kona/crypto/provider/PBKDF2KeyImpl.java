@@ -167,7 +167,7 @@ final class PBKDF2KeyImpl implements javax.crypto.interfaces.PBEKey {
                 @Override
                 public boolean equals(Object obj) {
                     if (this == obj) return true;
-                    if (this.getClass() != obj.getClass()) return false;
+                    if (obj == null || this.getClass() != obj.getClass()) return false;
                     SecretKey sk = (SecretKey)obj;
                     return prf.getAlgorithm().equalsIgnoreCase(
                         sk.getAlgorithm()) &&
@@ -251,18 +251,15 @@ final class PBKDF2KeyImpl implements javax.crypto.interfaces.PBEKey {
      */
     public int hashCode() {
         try {
-            int retval = 0;
-            for (int i = 1; i < this.key.length; i++) {
-                retval += this.key[i] * i;
-            }
-            return (retval ^= getAlgorithm().toLowerCase
-                    (Locale.ENGLISH).hashCode());
+            return Arrays.hashCode(this.key)
+                    ^ getAlgorithm().toLowerCase(Locale.ENGLISH).hashCode();
         } finally {
             // prevent this from being cleaned for the above block
 //            Reference.reachabilityFence(this);
         }
     }
 
+    @Override
     public boolean equals(Object obj) {
         try {
             if (obj == this) {
