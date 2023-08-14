@@ -1315,9 +1315,7 @@ public class DerValue {
     }
 
     /**
-     * Returns a hashcode for this DerValue.
-     *
-     * @return a hashcode for this DerValue.
+     * {@return a hashcode for this DerValue}
      */
     @Override
     public int hashCode() {

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1997, 2021, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997, 2023, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -106,11 +106,8 @@ final class PBEKey implements SecretKey {
      * Objects that are equal will also have the same hashcode.
      */
     public int hashCode() {
-        int retval = 0;
-        for (int i = 1; i < this.key.length; i++) {
-            retval += this.key[i] * i;
-        }
-        return(retval ^= getAlgorithm().toLowerCase(Locale.ENGLISH).hashCode());
+        return Arrays.hashCode(this.key)
+                ^ getAlgorithm().toLowerCase(Locale.ENGLISH).hashCode();
     }
 
     public boolean equals(Object obj) {

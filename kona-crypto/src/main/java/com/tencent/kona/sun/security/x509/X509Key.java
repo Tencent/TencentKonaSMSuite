@@ -36,6 +36,7 @@ import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.X509EncodedKeySpec;
+import java.util.Objects;
 
 import com.tencent.kona.crypto.CryptoInsts;
 import com.tencent.kona.sun.security.util.BitArray;
@@ -399,6 +400,7 @@ public class X509Key implements PublicKey, DerEncoder {
         }
     }
 
+    @Override
     public boolean equals(Object obj) {
         if (this == obj) {
             return true;
