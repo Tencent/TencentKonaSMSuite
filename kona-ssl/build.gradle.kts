@@ -10,6 +10,7 @@ dependencies {
     testImplementation("org.eclipse.jetty:jetty-server:9.4.44.v20210927")
     testImplementation("org.eclipse.jetty:jetty-servlet:9.4.44.v20210927")
     testImplementation("org.eclipse.jetty:jetty-client:9.4.44.v20210927")
+    testImplementation("org.apache.tomcat.embed:tomcat-embed-core:9.0.78")
     testImplementation("org.apache.httpcomponents:httpclient:4.5.13")
 
     jmhImplementation("org.openjdk.jmh:jmh-core:1.35")
