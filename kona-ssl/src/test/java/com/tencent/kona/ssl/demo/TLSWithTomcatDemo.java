@@ -5,24 +5,36 @@ import com.tencent.kona.pkix.PKIXInsts;
 import com.tencent.kona.ssl.SSLInsts;
 import com.tencent.kona.ssl.TestUtils;
 import com.tencent.kona.sun.security.x509.SMCertificate;
+import org.apache.catalina.Context;
+import org.apache.catalina.LifecycleException;
+import org.apache.catalina.connector.Connector;
+import org.apache.catalina.connector.CoyoteAdapter;
+import org.apache.catalina.startup.Tomcat;
+import org.apache.coyote.http11.AbstractHttp11JsseProtocol;
+import org.apache.juli.logging.Log;
+import org.apache.juli.logging.LogFactory;
+import org.apache.tomcat.util.net.SSLHostConfig;
+import org.apache.tomcat.util.net.SSLHostConfigCertificate;
+import org.apache.tomcat.util.net.SSLUtil;
+import org.apache.tomcat.util.net.SSLUtilBase;
+import org.apache.tomcat.util.net.jsse.JSSEImplementation;
+import org.apache.tomcat.util.net.jsse.JSSEUtil;
 import org.eclipse.jetty.client.HttpClient;
 import org.eclipse.jetty.client.api.ContentResponse;
-import org.eclipse.jetty.http.HttpVersion;
-import org.eclipse.jetty.server.HttpConfiguration;
-import org.eclipse.jetty.server.HttpConnectionFactory;
-import org.eclipse.jetty.server.SecureRequestCustomizer;
-import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.server.ServerConnector;
-import org.eclipse.jetty.server.SslConnectionFactory;
-import org.eclipse.jetty.server.handler.DefaultHandler;
-import org.eclipse.jetty.server.handler.HandlerList;
-import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.junit.jupiter.api.Test;
 
+import javax.net.ssl.KeyManager;
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLEngine;
+import javax.net.ssl.SSLParameters;
+import javax.net.ssl.SSLServerSocketFactory;
+import javax.net.ssl.SSLSessionContext;
+import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
+import javax.net.ssl.X509KeyManager;
+import javax.net.ssl.X509TrustManager;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -31,21 +43,32 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.FileSystems;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.security.KeyFactory;
+import java.security.KeyManagementException;
 import java.security.KeyStore;
+import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.SecureRandom;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.security.spec.PKCS8EncodedKeySpec;
+import java.util.Arrays;
 import java.util.Base64;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 /**
  * A comprehensive demo for TLS 1.3 connection with RFC 8998-defined
  * cipher suite, named group and signature scheme.
  */
-public class TLSWithJettyDemo {
+public class TLSWithTomcatDemo {
 
     /* The CA certificate.
      *
@@ -163,12 +186,12 @@ public class TLSWithJettyDemo {
             "A0dXvT6J6Jkwv5IAd20IAKgjatGhRANCAASZQ4IMei45MkVhDySFjpD117Mz5fJs\n" +
             "H8uBtltHZzJPow3osNIOHLdNV43gRcgo5ge+uJsSoLvy00j9/XOKsAVO";
 
-    private static final String PASSWORD = "password";
+    private static final String PASSWORD = "keystorepass";
 
     @Test
     public void tlsDemo() throws Exception {
-        // Output debug info.
-//        System.setProperty("com.tencent.kona.ssl.debug", "all");
+         // Output debug info.
+        System.setProperty("com.tencent.kona.ssl.debug", "all");
 
         // Just use SM2 curve for key share
         System.setProperty("com.tencent.kona.ssl.namedGroups", "curveSM2");
@@ -176,45 +199,47 @@ public class TLSWithJettyDemo {
         // Add providers.
         TestUtils.addProviders();
 
-        Server server = createServer();
-        server.start();
-        int port = server.getURI().getPort();
+        KonaConnector httpsConnector = new KonaConnector("HTTP/1.1");
+        httpsConnector.setPort(0);
+        httpsConnector.setProperty("SSLEnabled", "true");
+
+        SSLHostConfig sslConfig = new KonaSSLHostConfig();
+        SSLHostConfigCertificate certConfig = new SSLHostConfigCertificate(
+                sslConfig, SSLHostConfigCertificate.Type.EC);
+        certConfig.setCertificateKeystoreType("PKCS12");
+        certConfig.setCertificateKeystore(createKeyStore(EE, EE_ID, EE_KEY));
+        certConfig.setCertificateKeystorePassword(PASSWORD);
+        certConfig.setCertificateKeyAlias("tls-ee-demo");
+        sslConfig.addCertificate(certConfig);
+        sslConfig.setTrustStore(createTrustStore(CA, null));
+        httpsConnector.addSslHostConfig(sslConfig);
+
+        Tomcat tomcat = new Tomcat();
+        tomcat.setBaseDir("build/tomcat");
+        tomcat.getService().addConnector(httpsConnector);
+        tomcat.setConnector(httpsConnector);
+
+        Context rootCtx = tomcat.addContext(
+                "", Paths.get(".").toFile().getAbsolutePath());
+        Tomcat.addServlet(rootCtx, "Hello", new HelloServlet());
+        rootCtx.addServletMappingDecoded("/hello", "Hello");
+
+        tomcat.start();
+
+        // Wait for the server
+        TimeUnit.MILLISECONDS.sleep(500);
 
         HttpClient client = createClient();
         client.start();
 
         // Access Servlet /hello over HTTPS scheme.
         ContentResponse response = client.GET(
-                new URI(String.format("https://localhost:%d/hello", port)));
+                new URI(String.format("https://localhost:%d/hello",
+                        tomcat.getConnector().getLocalPort())));
         client.stop();
         System.out.println(response.getContentAsString());
 
-        server.stop();
-    }
-
-    // Create Jetty server, which can publish service over TLS.
-    private static Server createServer() throws Exception {
-        SslContextFactory.Server sslContextFactory = new SslContextFactory.Server();
-        sslContextFactory.setSslContext(createContext());
-
-        HttpConfiguration config = new HttpConfiguration();
-        config.setSecureScheme("https");
-        config.addCustomizer(new SecureRequestCustomizer());
-
-        Server server = new Server();
-        ServerConnector httpsConnector = new ServerConnector(server,
-                new SslConnectionFactory(sslContextFactory,
-                        HttpVersion.HTTP_1_1.asString()),
-                new HttpConnectionFactory(config));
-        httpsConnector.setPort(0);
-        server.addConnector(httpsConnector);
-
-        ServletContextHandler context = new ServletContextHandler();
-        context.setContextPath("/");
-        context.addServlet(HelloServlet.class, "/hello");
-        server.setHandler(new HandlerList(context, new DefaultHandler()));
-
-        return server;
+        tomcat.stop();
     }
 
     // Create Jetty client, which supports TLS connection.
@@ -285,9 +310,171 @@ public class TLSWithJettyDemo {
         return keyFactory.generatePrivate(privateKeySpec);
     }
 
+    public static class KonaConnector extends Connector {
+
+        public KonaConnector(String protocol) {
+            super(protocol);
+        }
+
+        @Override
+        protected void initInternal() throws LifecycleException {
+            // Initialize adapter
+            adapter = new CoyoteAdapter(this);
+            protocolHandler.setAdapter(adapter);
+
+            // Make sure parseBodyMethodsSet has a default
+            if (parseBodyMethodsSet == null) {
+                setParseBodyMethods(getParseBodyMethods());
+            }
+
+            // Use custom JSSEImplementation
+            ((AbstractHttp11JsseProtocol<?>) protocolHandler).setSslImplementationName(
+                    KonaSSLImpl.class.getName());
+
+            try {
+                protocolHandler.init();
+            } catch (Exception e) {
+                throw new LifecycleException(sm.getString(
+                        "coyoteConnector.protocolHandlerInitializationFailed"), e);
+            }
+        }
+    }
+
+    public static class KonaSSLHostConfig extends SSLHostConfig {
+
+        private static final long serialVersionUID = 3931709572625017292L;
+
+        @Override
+        public List<String> getJsseCipherNames() {
+            return Collections.singletonList("TLS_SM4_GCM_SM3");
+        }
+    }
+
+    public static class KonaSSLImpl extends JSSEImplementation {
+
+        @Override
+        public SSLUtil getSSLUtil(SSLHostConfigCertificate certificate) {
+            return new KonaSSLUtil(certificate);
+        }
+    }
+
+    public static class KonaSSLUtil extends SSLUtilBase {
+
+        private static final Log LOG = LogFactory.getLog(JSSEUtil.class);
+
+        protected KonaSSLUtil(SSLHostConfigCertificate certificate) {
+            super(certificate);
+        }
+
+        protected KonaSSLUtil(SSLHostConfigCertificate certificate,
+                              boolean warnTls13) {
+            super(certificate, warnTls13);
+        }
+
+        @Override
+        protected Log getLog() {
+            return LOG;
+        }
+
+        @Override
+        protected Set<String> getImplementedProtocols() {
+            return Collections.singleton("TLSv1.3");
+        }
+
+        @Override
+        protected Set<String> getImplementedCiphers() {
+            return Collections.singleton("TLS_SM4_GCM_SM3");
+        }
+
+        @Override
+        protected boolean isTls13RenegAuthAvailable() {
+            // TLS 1.3 does not support authentication after the initial handshake
+            return false;
+        }
+
+        @Override
+        public org.apache.tomcat.util.net.SSLContext createSSLContextInternal(
+                List<String> negotiableProtocols) throws NoSuchAlgorithmException {
+            return new KonaSSLContext(sslHostConfig.getSslProtocol());
+        }
+    }
+
+    public static class KonaSSLContext
+            implements org.apache.tomcat.util.net.SSLContext {
+
+        private final SSLContext context;
+        private KeyManager[] kms;
+        private TrustManager[] tms;
+
+        public KonaSSLContext(String protocol) throws NoSuchAlgorithmException {
+            context = SSLInsts.getSSLContext(protocol);
+        }
+
+        @Override
+        public void init(KeyManager[] kms, TrustManager[] tms, SecureRandom random)
+                throws KeyManagementException {
+            this.kms = kms;
+            this.tms = tms;
+            context.init(kms, tms, random);
+        }
+
+        @Override
+        public void destroy() {
+        }
+
+        @Override
+        public SSLSessionContext getServerSessionContext() {
+            return context.getServerSessionContext();
+        }
+
+        @Override
+        public SSLEngine createSSLEngine() {
+            return context.createSSLEngine();
+        }
+
+        @Override
+        public SSLServerSocketFactory getServerSocketFactory() {
+            return context.getServerSocketFactory();
+        }
+
+        @Override
+        public SSLParameters getSupportedSSLParameters() {
+            return context.getSupportedSSLParameters();
+        }
+
+        @Override
+        public X509Certificate[] getCertificateChain(String alias) {
+            X509Certificate[] result = null;
+            if (kms != null) {
+                for (int i = 0; i < kms.length && result == null; i++) {
+                    if (kms[i] instanceof X509KeyManager) {
+                        result = ((X509KeyManager) kms[i]).getCertificateChain(alias);
+                    }
+                }
+            }
+            return result;
+        }
+
+        @Override
+        public X509Certificate[] getAcceptedIssuers() {
+            Set<X509Certificate> certs = new HashSet<>();
+            if (tms != null) {
+                for (TrustManager tm : tms) {
+                    if (tm instanceof X509TrustManager) {
+                        X509Certificate[] accepted = ((X509TrustManager) tm).getAcceptedIssuers();
+                        if (accepted != null) {
+                            certs.addAll(Arrays.asList(accepted));
+                        }
+                    }
+                }
+            }
+            return certs.toArray(new X509Certificate[0]);
+        }
+    }
+
     public static class HelloServlet extends HttpServlet {
 
-        private static final long serialVersionUID = -4748362333014218314L;
+        private static final long serialVersionUID = -3697586958032851435L;
 
         @Override
         public void doGet(
