@@ -18,7 +18,6 @@ import org.apache.tomcat.util.net.SSLHostConfigCertificate;
 import org.apache.tomcat.util.net.SSLUtil;
 import org.apache.tomcat.util.net.SSLUtilBase;
 import org.apache.tomcat.util.net.jsse.JSSEImplementation;
-import org.apache.tomcat.util.net.jsse.JSSEUtil;
 import org.eclipse.jetty.client.HttpClient;
 import org.eclipse.jetty.client.api.ContentResponse;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
@@ -43,8 +42,6 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.FileSystems;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.KeyFactory;
 import java.security.KeyManagementException;
@@ -191,7 +188,7 @@ public class TLSWithTomcatDemo {
     @Test
     public void tlsDemo() throws Exception {
          // Output debug info.
-        System.setProperty("com.tencent.kona.ssl.debug", "all");
+//        System.setProperty("com.tencent.kona.ssl.debug", "all");
 
         // Just use SM2 curve for key share
         System.setProperty("com.tencent.kona.ssl.namedGroups", "curveSM2");
@@ -360,7 +357,7 @@ public class TLSWithTomcatDemo {
 
     public static class KonaSSLUtil extends SSLUtilBase {
 
-        private static final Log LOG = LogFactory.getLog(JSSEUtil.class);
+        private static final Log LOG = LogFactory.getLog(KonaSSLUtil.class);
 
         protected KonaSSLUtil(SSLHostConfigCertificate certificate) {
             super(certificate);
