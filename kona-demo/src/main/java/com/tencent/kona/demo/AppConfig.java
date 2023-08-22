@@ -9,6 +9,9 @@ public class AppConfig {
     @Value("${server.port}")
     private int port;
 
+    @Value("${server.ssl.enabled}")
+    private boolean sslEnabled;
+
     @Value("${server.ssl.trust-store-provider}")
     private String trustStoreProvider;
 
@@ -45,6 +48,14 @@ public class AppConfig {
 
     public void setPort(String port) {
         this.port = Integer.parseInt(port);
+    }
+
+    public boolean isSslEnabled() {
+        return sslEnabled;
+    }
+
+    public void setSslEnabled(String sslEnabled) {
+        this.sslEnabled = Boolean.parseBoolean(sslEnabled);
     }
 
     public String getTrustStoreProvider() {

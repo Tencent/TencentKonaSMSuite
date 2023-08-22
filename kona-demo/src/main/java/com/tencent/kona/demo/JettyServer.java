@@ -27,7 +27,7 @@ import java.io.FileNotFoundException;
 import java.security.Security;
 
 @SpringBootApplication
-public class KonaServer {
+public class JettyServer {
 
     static {
         Security.addProvider(new KonaProvider());
@@ -35,7 +35,7 @@ public class KonaServer {
 
     public static void main(String[] args) {
 //        System.setProperty("com.tencent.kona.ssl.debug", "all");
-        SpringApplication.run(KonaServer.class, args);
+        SpringApplication.run(JettyServer.class, args);
     }
 
     @Bean
@@ -48,7 +48,7 @@ public class KonaServer {
     @RestController
     public static class ResponseController {
 
-        @GetMapping("/")
+        @GetMapping("/jetty")
         public String response() {
             return "This is a testing server on Tencent Kona SM Suite";
         }
