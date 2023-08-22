@@ -14,7 +14,8 @@ server:
     key-store: classpath:ssl/keystore.p12
     key-store-password: keystorepass
 
-    # This context protocol supports TLCPv1.1, TLSv1.3 and TLSv1.2
+    # This context protocol supports TLCPv1.1, TLSv1.3 and TLSv1.2,
+    # and will take the providers from TencentKonaSMSuite to work.
     protocol: TLCP
 
   http2:

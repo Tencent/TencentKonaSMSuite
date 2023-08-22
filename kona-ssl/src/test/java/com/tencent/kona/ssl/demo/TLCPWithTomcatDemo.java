@@ -63,6 +63,9 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * A comprehensive demo for TLCP with Tomcat.
+ *
+ * This demo may not be the best practice.
+ * Please figure out the best way for your real projects by your self.
  */
 public class TLCPWithTomcatDemo {
 
@@ -250,7 +253,7 @@ public class TLCPWithTomcatDemo {
     private static final String PASSWORD = "password";
 
     @Test
-    public void tlsDemo() throws Exception {
+    public void tlcpDemo() throws Exception {
          // Output debug info.
 //        System.setProperty("com.tencent.kona.ssl.debug", "all");
 
@@ -278,7 +281,6 @@ public class TLCPWithTomcatDemo {
         Tomcat tomcat = new Tomcat();
         tomcat.setBaseDir("build/tomcat");
         tomcat.getService().addConnector(httpsConnector);
-        tomcat.setConnector(httpsConnector);
 
         Context rootCtx = tomcat.addContext(
                 "", Paths.get(".").toFile().getAbsolutePath());
@@ -446,7 +448,8 @@ public class TLCPWithTomcatDemo {
         @Override
         public KeyManager[] getKeyManagers() throws Exception {
             KeyManagerFactory kmf = SSLInsts.getKeyManagerFactory("NewSunX509");
-            kmf.init(certificate.getCertificateKeystore(), PASSWORD.toCharArray());
+            kmf.init(certificate.getCertificateKeystore(),
+                    certificate.getCertificateKeystorePassword().toCharArray());
             return kmf.getKeyManagers();
         }
 

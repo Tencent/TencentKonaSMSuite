@@ -12,11 +12,12 @@ dependencies {
 
     implementation("org.apache.httpcomponents:httpclient:4.5.13")
 
-    implementation("org.springframework.boot:spring-boot-starter-web") {
-        exclude(module : "spring-boot-starter-tomcat")
-    }
+    implementation("org.springframework.boot:spring-boot-starter-web")
+
+    implementation("org.springframework.boot:spring-boot-starter-tomcat")
+    testImplementation("org.apache.tomcat.embed:tomcat-embed-core:9.0.78")
+
     implementation("org.springframework.boot:spring-boot-starter-jetty")
-    implementation("org.springframework.boot:spring-boot-starter-test")
 
     implementation("org.eclipse.jetty.http2:http2-server")
     if(JavaVersion.current().isJava8()) {
