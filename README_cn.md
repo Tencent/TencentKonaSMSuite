@@ -13,7 +13,7 @@
 - [KonaSSL]，它实现了中国的传输层密码协议（TLCP），并遵循RFC 8998规范将国密基础算法应用到了TLS 1.3协议中。它需要依赖`KonaCrypto`和`KonaPKIX`。
 - [Kona]，它将`KonaCrypto`，`KonaPKIX`和`KonaSSL`中的特性进行了简单的封装，所以它需要根据实际需求去依赖这些Provider中的一个或多个。一般地，**建议使用这个Provider**。
 
-另外，本项目还提供了一个Spring Boot应用作为服务端的示例，即[kona-demo]，但该模块不是本项目的制品之一。
+本项目还提供了一个Spring Boot模块，即[kona-demo]，作为服务端的示例。该模块演示了将腾讯Kona国密套件集成入第三方Web服务器，包括Jetty和Tomcat，的途径。但该模块并不是本项目的制品之一。另外，`kona-ssl`模块的[测试集]还提供了与`Netty`和`Apache HttpClient`进行集成的示例。
 
 ## 系统要求
 
@@ -61,13 +61,13 @@ dependencies {
 构建该项目的一个典型方法就是在项目的根目录下执行命令：
 
 ```
-gradle build
+./gradlew build
 ```
 
 它会编译源代码，并执行单元测试，最后制作出jar文件。也可以仅构建某个子模块，比如像下面这样：
 
 ```
-gradle :kona-pkix:build
+./gradlew :kona-pkix:build
 ```
 
 ## 贡献
@@ -119,6 +119,9 @@ gradle :kona-pkix:build
 
 [kona-demo]:
 <kona-demo/README_cn.md>
+
+[测试集]:
+<kona-ssl/src/test/java/com/tencent/kona/ssl/demo>
 
 [证书]:
 <https://www.oracle.com/java/technologies/javase/getcodesigningcertificate.html#jcacodesigning>
