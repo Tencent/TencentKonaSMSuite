@@ -3,12 +3,15 @@ English | **[中文]**
 # Tencent Kona Demo
 
 ## Introduction
-Tencent Kona Demo is a server-side application based on Spring Boot, and it uses Jetty as the embedded server. This module is only used for demonstrating the way on integrating this project to a Spring Boot project. However, this module is not one of the artifacts of this project.
+Tencent Kona Demo is a server-side application based on Spring Boot. It is only used for demonstrating the approach on integrating this suite to a Spring Boot project. However, this module is not one of the artifacts of this project.
+
+`kona-demo` supports two embedded web servers, including Jetty and Tomcat. But only Jetty web server `JettyServer` is a `SpringBootApplication`, so it can be launched by Gradle task `bootRun`. However, Tomcat web server `TomcatServer` is a common application.
 
 ## Usages
-It can launch this demo server via the below command,
+It can launch the Jetty server via the below command,
+
 ```
-gradle :kona-demo:bootRun
+./gradlew :kona-demo:bootRun
 ```
 
 

@@ -13,7 +13,7 @@ Tencent Kona SM Suite is a set of Java security providers, which service the Sha
 - [KonaSSL] implements China's Transport Layer Cryptographic Protocol, and also applies ShangMi algorithms to TLS 1.3 based on RFC 8998.
 - [Kona], which wraps all the features in `KonaCrypto`，`KonaPKIX` and `KonaSSL`, so it has to depend on one or more of them. Generally, **this provider is recommended**.
 
-In addition, this project provides a Spring Boot application, exactly [kona-demo], as a server-side demo. But this module is not one of the artifacts of this project.
+This project provides a Spring Boot module, exactly [kona-demo], as a server-side demo. This module demonstrates the approach on integrating Tencent Kona SM Suite to the 3rd-party web servers, including Jetty and Tomcat. But this module is not one of the artifacts of this project. In addition, [the test set] in `kona-ssl` module provides the demon on integrating with `Netty` and `Apache HttpClient`.
 
 ## System requirements
 
@@ -61,13 +61,13 @@ Tencent Kona SM Suite uses Gradle to build this project. And the build script us
 A typical way to build this project just usts the following command:
 
 ```
-gradle build
+./gradlew build
 ```
 
 It will compile the source codes, execute unit tests and finally make the jar files. It also can just build a subproject, like the below,
 
 ```
-gradle :kona-pkix:build
+./gradlew :kona-pkix:build
 ```
 
 ## Contributing
@@ -119,6 +119,9 @@ Tencent Kona SM Suite is licensed under GNU GPL v2.0 license with classpath exce
 
 [kona-demo]:
 <kona-demo/README.md>
+
+[the test set]:
+<kona-ssl/src/test/java/com/tencent/kona/ssl/demo>
 
 [certificate]:
 <https://www.oracle.com/java/technologies/javase/getcodesigningcertificate.html#jcacodesigning>
