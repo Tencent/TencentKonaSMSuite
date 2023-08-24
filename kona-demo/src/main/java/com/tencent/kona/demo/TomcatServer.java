@@ -4,10 +4,7 @@ import com.tencent.kona.KonaProvider;
 import com.tencent.kona.pkix.PKIXInsts;
 import com.tencent.kona.ssl.SSLInsts;
 import org.apache.catalina.Context;
-import org.apache.catalina.LifecycleException;
 import org.apache.catalina.connector.Connector;
-import org.apache.catalina.connector.CoyoteAdapter;
-import org.apache.coyote.http11.AbstractHttp11JsseProtocol;
 import org.apache.juli.logging.Log;
 import org.apache.juli.logging.LogFactory;
 import org.apache.tomcat.util.descriptor.web.SecurityCollection;
@@ -17,6 +14,7 @@ import org.apache.tomcat.util.net.SSLHostConfigCertificate;
 import org.apache.tomcat.util.net.SSLUtil;
 import org.apache.tomcat.util.net.SSLUtilBase;
 import org.apache.tomcat.util.net.jsse.JSSEImplementation;
+import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.web.embedded.tomcat.TomcatServletWebServerFactory;
@@ -61,6 +59,7 @@ public class TomcatServer {
 
     public static void main(String[] args) {
 //        System.setProperty("com.tencent.kona.ssl.debug", "all");
+//        SpringApplication.run(TomcatServer.class, args);
         new SpringApplicationBuilder(AppConfig.class)
                 .child(TomcatServer.class)
                 .run(args);
@@ -98,10 +97,11 @@ public class TomcatServer {
     private Connector httpsConnector(AppConfig appConfig)
             throws CertificateException, KeyStoreException, IOException,
             NoSuchAlgorithmException {
-        KonaConnector connector = new KonaConnector(
+        Connector connector = new Connector(
                 TomcatServletWebServerFactory.DEFAULT_PROTOCOL);
         connector.setScheme("https");
         connector.setProperty("SSLEnabled", Boolean.toString(appConfig.isSslEnabled()));
+        connector.setProperty("sslImplementationName", KonaSSLImpl.class.getName());
         connector.setPort(appConfig.getPort());
 
         SSLHostConfig sslConfig = new KonaSSLHostConfig();
@@ -131,36 +131,6 @@ public class TomcatServer {
         }
 
         return keyStore;
-    }
-
-    public static class KonaConnector extends Connector {
-
-        public KonaConnector(String protocol) {
-            super(protocol);
-        }
-
-        @Override
-        protected void initInternal() throws LifecycleException {
-            // Initialize adapter
-            adapter = new CoyoteAdapter(this);
-            protocolHandler.setAdapter(adapter);
-
-            // Make sure parseBodyMethodsSet has a default
-            if (parseBodyMethodsSet == null) {
-                setParseBodyMethods(getParseBodyMethods());
-            }
-
-            // Use custom JSSEImplementation
-            ((AbstractHttp11JsseProtocol<?>) protocolHandler).setSslImplementationName(
-                    KonaSSLImpl.class.getName());
-
-            try {
-                protocolHandler.init();
-            } catch (Exception e) {
-                throw new LifecycleException(sm.getString(
-                        "coyoteConnector.protocolHandlerInitializationFailed"), e);
-            }
-        }
     }
 
     public static class KonaSSLHostConfig extends SSLHostConfig {
