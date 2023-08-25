@@ -13,7 +13,7 @@
 - [KonaSSL]，它实现了中国的传输层密码协议（TLCP），并遵循RFC 8998规范将国密基础算法应用到了TLS 1.3协议中。它需要依赖`KonaCrypto`和`KonaPKIX`。
 - [Kona]，它将`KonaCrypto`，`KonaPKIX`和`KonaSSL`中的特性进行了简单的封装，所以它需要根据实际需求去依赖这些Provider中的一个或多个。一般地，**建议使用这个Provider**。
 
-本项目还提供了一个Spring Boot模块，即[kona-demo]，作为服务端的示例。该模块演示了将腾讯Kona国密套件集成入第三方Web服务器，包括`Jetty`和`Tomcat`，的途径。但该模块并不是本项目的制品之一。另外，`kona-ssl`模块的[测试集]还提供了与`Netty`和`Apache HttpClient`进行集成的示例。
+本项目还提供了一个Spring Boot模块，即[kona-demo]，作为服务端的示例。该模块演示了将腾讯Kona国密套件集成入第三方Web服务器，包括`Jetty`和`Tomcat`，的途径。但该模块并不是本项目的制品之一。另外，`kona-ssl`模块的[测试集]还提供了与`Netty`，`Apache HttpClient`和`OkHttp`进行集成的示例。
 
 ## 系统要求
 
