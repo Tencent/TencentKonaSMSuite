@@ -84,17 +84,21 @@ dependencies {
 **答**：由于没有任何RFC规范将国密密码套件引入TLS 1.2协议，所以无法在该协议中支持上述密码套件。但本项目基于RFC 8998支持在TLS 1.3协议中使用国密密码套件`TLS_SM4_GCM_SM3`。
 
 **问**：是否支持`GMSSL`或`GMSSL 1.1`协议？<br>
-**答**：国家标准GB/T 38636-2020定义的这个类TLS安全通信协议为`传输层密码协议`，其英文为`Transport layer cryptography protocol`。本组件使用它的简称`TLCP`，版本为`1.1`。所以，`TLCP`或`TLCP 1.1`就是`GMSSL`或`GMSSL 1.1`。
+**答**：国家标准GB/T 38636-2020定义的这个类TLS安全通信协议是`传输层密码协议`，其英文为`Transport layer cryptography protocol`。本组件使用它的简称`TLCP`，版本为`1.1`。而`TLCP`或`TLCP 1.1`就是`GMSSL`或`GMSSL 1.1`。
 
 **问**：为什么不能在Oracle JDK下执行本项目中的测试用例？<br>
 **答**：Oracle JDK会验证JCE实现（此处为`KonaCrypto`）是否被签名，并且其关联的证书要由JCE Code Signing CA颁发。而在执行本项目中的测试用例时，其使用的`KonaCrypto` Provider还没有签名，所以不能在Oracle JDK中执行它们。但发布到Maven中央仓库中的jar文件都被签名了，所以它们都可以在Oracle JDK中运行。
 
 **问**：本项目与BoucyCastle中的国密实现有何关系？<br>
-**答**：本项目的早期版本会依赖BouncyCastle中的国密基础算法，但从`1.0.5`开始，已经不再对BouncyCastle有任何的依赖。由于都是遵循中国相关标准来实现的国密基础算法，所以这两个组件之间可以正常交互。另外，需要了解的是，BouncyCastle并不支持国密安全通信协议，包括TLCP和TLS 1.3/RFC 8998。
+**答**：本项目的早期版本会依赖BouncyCastle中的国密基础算法，但从`1.0.5`版开始，已经不再对BouncyCastle有任何的依赖。由于都是遵循中国相关标准来实现的国密基础算法，所以这两个组件之间可以正常交互。另外，需要了解的是，BouncyCastle并不支持国密安全通信协议，包括TLCP和TLS 1.3/RFC 8998。
 
 **问**：可以支持的JDK 8最低版本是多少？<br>
-**答**：根据不同的应用场景，对JDK 8的版本的要求也不尽相同。1. 仅使用国密基础算法和/或TLCP协议，最多需要`8u141`（甚至更老的版本)。2. 在TLCP协议中使用ALPN扩展，要求的最低JDK 8版本为`8u251`。3. 为了使用TLS 1.3/RFC 8998协议，要求的版本为`8u261`或更高。
+**答**：根据不同的应用场景，对JDK 8的版本的要求也不尽相同。
+- 仅使用国密基础算法和/或TLCP协议，最多需要`8u141`（甚至更老的版本)。
+  - 要在TLCP协议中使用ALPN扩展，要求的最低版本则为`8u251`。
+- 为了使用TLS 1.3/RFC 8998协议，要求的最低版本为`8u261`。
 
+你所遇到的问题，之前可能已经有人提出来过了。在提出新的问题之前，请先浏览这些已有的[问题]。
 
 [English]:
 <README.md>
@@ -152,3 +156,6 @@ dependencies {
 
 [Stack Overflow的问题]:
 <https://stackoverflow.com/questions/3862800/invalidkeyexception-illegal-key-size>
+
+[问题]:
+<https://github.com/Tencent/TencentKonaSMSuite/issues?q=is%3Aissue+label%3Aquestion>
