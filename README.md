@@ -90,11 +90,15 @@ Tencent Kona SM Suite is licensed under GNU GPL v2.0 license with classpath exce
 **A**: Oracle JDK requires a JCE implementation (here is `KoneCrypto`) must be signed and the associated certificate must be issued by Oracle JCE Code Signing CA. When directly executing the tests with the project source, `KonaCrypto` Provider is not signed yet, so they cannot run on Oracle JDK. But note that, the artifacts in Maven Central repository are already signed and surely can run on Oracle JDK.
 
 **Q**: Is this project related to BouncyCastle?<br>
-**A**: The earlier versions of this project used the SM algorithms from BouncyCastle, but since `1.0.5`, this project doesn't depend on BouncyCastle anymore. Both of the components comply with China's specification, so they can interoperate with each other. In addition, please note BouncyCastle doesn't support SM protocols, including TLCP and TLS 1.3/RFC 8998.
+**A**: The earlier versions of this project used the SM algorithms from BouncyCastle, but since version `1.0.5`, this project doesn't depend on BouncyCastle anymore. Both of the components comply with China's specification, so they can interoperate with each other. In addition, please note BouncyCastle doesn't support SM protocols, including TLCP and TLS 1.3/RFC 8998.
 
 **Q**: How old JDK 8 released can be supported?<br>
-**A**: Different scenarios require different JDK 8 releases. 1. Only need SM algorithms and/or TLCP protocol, at most `8u141` (even older releases) is required. 2. Requires ALPN extension with TLCP protocol, this oldest JDK 8 release is `8u251`. 3. In order to apply TLS 1.3/RFC 8998, `8u261` or higher is required.
+**A**: Different scenarios require different JDK 8 releases.
+- Only need SM algorithms and/or TLCP protocol, at most `8u141` (even older versions) is required.-
+  - If it requires ALPN extension in TLCP protocol, this required oldest version is `8u251`.
+- In order to apply TLS 1.3/RFC 8998, the required oldest version is `8u261`.
 
+In addition, your problems may be already raised by others. Before open a new issue, please look through the existing [questions].
 
 [中文]:
 <README_cn.md>
@@ -152,3 +156,6 @@ Tencent Kona SM Suite is licensed under GNU GPL v2.0 license with classpath exce
 
 [Stack Overflow question]:
 <https://stackoverflow.com/questions/3862800/invalidkeyexception-illegal-key-size>
+
+[questions]:
+<https://github.com/Tencent/TencentKonaSMSuite/issues?q=is%3Aissue+label%3Aquestion>
