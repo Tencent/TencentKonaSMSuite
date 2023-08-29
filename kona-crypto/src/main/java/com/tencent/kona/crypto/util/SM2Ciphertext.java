@@ -124,8 +124,7 @@ public class SM2Ciphertext {
     private final byte[] digest;
     private final byte[] ciphertext;
 
-    public SM2Ciphertext(Builder builder)
-            throws IOException {
+    public SM2Ciphertext(Builder builder) throws IOException {
         if (builder.format == Format.DER_C1C3C2
                 || builder.format == Format.DER_C1C2C3) {
             DerInputStream derIn = new DerInputStream(builder.encodedCiphertext);
@@ -151,6 +150,13 @@ public class SM2Ciphertext {
         } else if (builder.format == Format.RAW_C1C3C2
                 || builder.format == Format.RAW_C1C2C3) {
             byte[] encodedCiphertext = builder.encodedCiphertext;
+
+            // The public point key must start with 0x04
+            // indicating the format is uncompressed.
+            if (encodedCiphertext[0] != 0x04) {
+                throw new IOException("For RAW_C1C3C2 and RAW_C1C2C3 formats, "
+                        + "the ciphertext must start with 04");
+            }
 
             builder.coordX(copy(encodedCiphertext, 1, 32));
             builder.coordY(copy(encodedCiphertext, 1 + 32, 32));

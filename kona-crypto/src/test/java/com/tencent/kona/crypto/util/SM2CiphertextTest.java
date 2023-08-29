@@ -23,6 +23,12 @@ public class SM2CiphertextTest {
             + "0401"
             + "06";
 
+    private static final String C1_WITHOUT_04
+            = "8A2A155B9C644A45D118BCC3213325EECDD970307406F1AB90CB1EC0A0445A6E"
+            + "054797A7ABB739E783CFACE5B1184458685148F40D4C0680DA2AEB4538307555"
+            + "16A9E16A16E440A245DD744E7966A32AC49D22152E9F560F7506E9FAFF293D73"
+            + "06";
+
     private static SM2Ciphertext sm2Ciphertext;
     private static SM2Ciphertext sm2CiphertextNone;
 
@@ -40,6 +46,22 @@ public class SM2CiphertextTest {
                 .digest(CryptoUtils.toBytes("16A9E16A16E440A245DD744E7966A32AC49D22152E9F560F7506E9FAFF293D73"))
                 .ciphertext(CryptoUtils.toBytes("06"))
                 .build();
+    }
+
+    @Test
+    public void testCheckRawC1C3C2() {
+        Assertions.assertThrows(IOException.class, () -> SM2Ciphertext.builder()
+                .format(SM2Ciphertext.Format.RAW_C1C3C2)
+                .encodedCiphertext(CryptoUtils.toBytes(C1_WITHOUT_04))
+                .build());
+    }
+
+    @Test
+    public void testCheckRawC1C2C3() {
+        Assertions.assertThrows(IOException.class, () -> SM2Ciphertext.builder()
+                .format(SM2Ciphertext.Format.RAW_C1C2C3)
+                .encodedCiphertext(CryptoUtils.toBytes(C1_WITHOUT_04))
+                .build());
     }
 
     @Test
