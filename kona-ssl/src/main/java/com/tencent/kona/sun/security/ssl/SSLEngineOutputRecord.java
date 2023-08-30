@@ -597,8 +597,8 @@ final class SSLEngineOutputRecord extends OutputRecord implements SSLRecord {
      * the peer must have similar protections.
      */
     boolean needToSplitPayload() {
-        return (!protocolVersion.useTLS11PlusSpec()) &&
-                writeCipher.isCBCMode() && !isFirstAppOutputRecord &&
-                enableCBCProtection;
+        return !protocolVersion.useTLS11PlusSpec() && !protocolVersion.isTLCP11()
+                && writeCipher.isCBCMode() && !isFirstAppOutputRecord
+                && enableCBCProtection;
     }
 }
