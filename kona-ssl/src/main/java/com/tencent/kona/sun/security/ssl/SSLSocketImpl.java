@@ -1789,23 +1789,26 @@ public final class SSLSocketImpl
                 SSLSocketInputRecord inputRecord
                         = (SSLSocketInputRecord) conContext.inputRecord;
                 if (appInput.readLock.tryLock()) {
-                    int soTimeout = getSoTimeout();
                     try {
-                        // deplete could hang on the skip operation
-                        // in case of infinite socket read timeout.
-                        // Change read timeout to avoid deadlock.
-                        // This workaround could be replaced later
-                        // with the right synchronization
-                        if (soTimeout == 0) {
-                            setSoTimeout(DEFAULT_SKIP_TIMEOUT);
+                        int soTimeout = getSoTimeout();
+                        try {
+                            // deplete could hang on the skip operation
+                            // in case of infinite socket read timeout.
+                            // Change read timeout to avoid deadlock.
+                            // This workaround could be replaced later
+                            // with the right synchronization
+                            if (soTimeout == 0) {
+                                setSoTimeout(DEFAULT_SKIP_TIMEOUT);
+                            }
+                            inputRecord.deplete(false);
+                        } catch (SocketTimeoutException stEx) {
+                            // skip timeout exception during deplete
+                        } finally {
+                            if (soTimeout == 0) {
+                                setSoTimeout(soTimeout);
+                            }
                         }
-                        inputRecord.deplete(false);
-                    } catch (SocketTimeoutException stEx) {
-                        // skip timeout exception during deplete
                     } finally {
-                        if (soTimeout == 0) {
-                            setSoTimeout(soTimeout);
-                        }
                         appInput.readLock.unlock();
                     }
                 }
