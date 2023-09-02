@@ -1,7 +1,7 @@
 plugins {
     id("kona-common")
-    id("org.springframework.boot") version("2.7.11")
-    id("io.spring.dependency-management") version "1.0.15.RELEASE"
+    alias(libs.plugins.springboot).apply(true)
+    alias(libs.plugins.springdepman).apply(true)
 }
 
 dependencies {
@@ -10,19 +10,16 @@ dependencies {
     implementation(project(":kona-ssl"))
     implementation(project(":kona-provider"))
 
-    implementation("org.apache.httpcomponents:httpclient:4.5.13")
+    implementation(libs.spring.boot.starter.web)
+    implementation(libs.spring.boot.starter.tomcat)
+    implementation(libs.spring.boot.starter.jetty)
 
-    implementation("org.springframework.boot:spring-boot-starter-web")
-
-    implementation("org.springframework.boot:spring-boot-starter-tomcat")
-    implementation("org.apache.tomcat.embed:tomcat-embed-core:9.0.78")
-
-    implementation("org.springframework.boot:spring-boot-starter-jetty")
-
-    implementation("org.eclipse.jetty.http2:http2-server")
+    implementation(libs.tomcat.embed.core)
+    implementation(libs.jetty.http2.server)
     if(JavaVersion.current().isJava8()) {
-        implementation("org.eclipse.jetty:jetty-alpn-openjdk8-server")
+        implementation(libs.jetty.alpn.openjdk8.server)
     } else {
-        implementation("org.eclipse.jetty:jetty-alpn-java-server")
+        implementation(libs.jetty.alpn.java.server)
     }
+    implementation(libs.apache.httpclient)
 }
