@@ -3,7 +3,12 @@ plugins {
 }
 
 dependencies {
-    jmhImplementation("org.openjdk.jmh:jmh-core:1.35")
-    jmhAnnotationProcessor("org.openjdk.jmh:jmh-generator-annprocess:1.35")
+    testImplementation(libs.bcprov.jdk18on)
+
+    testImplementation(libs.junit.jupiter.api)
+    testRuntimeOnly(libs.junit.jupiter.engine)
+
+    jmhImplementation(libs.jmh.core)
+    jmhAnnotationProcessor(libs.jmh.generator.annprocess)
     jmhImplementation(sourceSets["test"].runtimeClasspath)
 }

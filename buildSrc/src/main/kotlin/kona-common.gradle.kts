@@ -20,13 +20,6 @@ sourceSets.create("jmh") {
     java.setSrcDirs(listOf("src/jmh/java"))
 }
 
-dependencies {
-    testImplementation("org.bouncycastle:bcprov-jdk18on:1.72")
-
-    testImplementation("org.junit.jupiter:junit-jupiter-api:5.8.2")
-    testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.8.2")
-}
-
 tasks {
     compileJava {
         options.encoding = "UTF-8"
