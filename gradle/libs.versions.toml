@@ -6,6 +6,7 @@ jetty = "9.4.52.v20230823"
 apache-httpclient = "4.5.14"
 okhttp = "4.11.0"
 junit = "5.10.0"
+junit-platform-launcher = "1.10.0"
 jmh = "1.37"
 
 springboot = "2.7.15"
@@ -31,6 +32,7 @@ spring-boot-starter-jetty = { module = "org.springframework.boot:spring-boot-sta
 
 junit-jupiter-api = { module = "org.junit.jupiter:junit-jupiter-api", version.ref = "junit"}
 junit-jupiter-engine = { module = "org.junit.jupiter:junit-jupiter-engine", version.ref = "junit"}
+junit-platform-launcher = { module = "org.junit.platform:junit-platform-launcher", version.ref = "junit.platform.launcher"}
 
 jmh-core = { module = "org.openjdk.jmh:jmh-core", version.ref = "jmh"}
 jmh-generator-annprocess = { module = "org.openjdk.jmh:jmh-generator-annprocess", version.ref = "jmh"}
