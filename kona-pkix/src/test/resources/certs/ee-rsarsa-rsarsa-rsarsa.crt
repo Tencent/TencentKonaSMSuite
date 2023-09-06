@@ -33,9 +33,9 @@ Certificate:
                     35:ab
                 Exponent: 65537 (0x10001)
         X509v3 extensions:
-            X509v3 Subject Key Identifier: 
+            X509v3 Subject Key Identifier:
                 62:2A:21:D5:15:0C:FE:C6:D2:BE:40:9E:A2:F7:E3:90:74:46:97:F6
-            X509v3 Authority Key Identifier: 
+            X509v3 Authority Key Identifier:
                 keyid:7F:85:FE:52:CF:A1:9F:89:7A:D9:13:A1:A8:74:93:86:3F:94:F5:A2
 
     Signature Algorithm: sha256WithRSAEncryption

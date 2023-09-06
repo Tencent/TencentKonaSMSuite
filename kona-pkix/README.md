@@ -18,7 +18,7 @@ Security.addProvider(new KonaCryptoProvider());
 Security.addProvider(new KonaPKIXProvider());
 ```
 
-The above lines add these providers at the bottom of the provider list. That means their privilege are the lowest. If necessary, it can insert the providers at specific positions, like the below, 
+The above lines add these providers at the bottom of the provider list. That means their privilege are the lowest. If necessary, it can insert the providers at specific positions, like the below,
 
 ```
 Security.insertProviderAt(new KonaCryptoProvider(), position1);
@@ -96,7 +96,7 @@ boolean verified = signature.verify(sign);
 ```
 
 ### KeyStore
-Generally, certificates and private keys are stored in key store files so that they can be managed and distributed easily. 
+Generally, certificates and private keys are stored in key store files so that they can be managed and distributed easily.
 
 Load certificates and private key.
 
@@ -148,7 +148,7 @@ KeyStore localKeyStore = KeyStore.getInstance("PKCS12");
 try (FileInputStream keyStoreIn
         = new FileInputStream(keyStoreFile)) {
     localKeyStore.load(keyStoreIn, keyStorePassword);
-} 
+}
 ```
 
 #### KeyTool

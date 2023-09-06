@@ -147,7 +147,7 @@ KeyStore localKeyStore = KeyStore.getInstance("PKCS12");
 try (FileInputStream keyStoreIn
         = new FileInputStream(keyStoreFile)) {
     localKeyStore.load(keyStoreIn, keyStorePassword);
-} 
+}
 ```
 
 #### KeyTool

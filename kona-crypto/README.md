@@ -28,7 +28,7 @@ Before using any feature in `KonaCrypto`, it has to load `KonaCryptoProvider`.
 Security.addProvider(new KonaCryptoProvider());
 ```
 
-The above line adds this provider at the bottom of the provider list. That means its privilege is the lowest. If necessary, it can insert the provider at specific positions, like the below, 
+The above line adds this provider at the bottom of the provider list. That means its privilege is the lowest. If necessary, it can insert the provider at specific positions, like the below,
 
 ```
 Security.insertProviderAt(new KonaCryptoProvider(), position);
@@ -102,7 +102,7 @@ Initialize the Signature instance with the private key for signing.
 signature.initSign(privateKey);
 ```
 
-Behind the above initialization, it uses the default SM2 ID, exactly `1234567812345678`. It also derives the public key from the private key. According to the associated specification, public key must be used for generating SM2 signature data. This is a significant difference between the international algorithms, like ECDSA, and SM2 signature algorithm. Note that calculating the public key leads to some overhead. That is harmful for the performance. 
+Behind the above initialization, it uses the default SM2 ID, exactly `1234567812345678`. It also derives the public key from the private key. According to the associated specification, public key must be used for generating SM2 signature data. This is a significant difference between the international algorithms, like ECDSA, and SM2 signature algorithm. Note that calculating the public key leads to some overhead. That is harmful for the performance.
 
 If not using the default ID or expect to eliminate the cost on calculating public key, it would provide an AlgorithmParameterSpec, exactly SM2SignatureParameterSpec, instance.
 
@@ -378,7 +378,6 @@ For the detailed information about Cipher APIs, please refer to the official [Ci
 
 [GCMParameterSpec]:
 <https://docs.oracle.com/en/java/javase/11/docs/api/java.base/javax/crypto/spec/GCMParameterSpec.html>
-
 
 [中文]:
 <README_cn.md>

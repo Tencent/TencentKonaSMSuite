@@ -33,9 +33,9 @@ Certificate:
                     48:71
                 Exponent: 65537 (0x10001)
         X509v3 extensions:
-            X509v3 Subject Key Identifier: 
+            X509v3 Subject Key Identifier:
                 7F:85:FE:52:CF:A1:9F:89:7A:D9:13:A1:A8:74:93:86:3F:94:F5:A2
-            X509v3 Authority Key Identifier: 
+            X509v3 Authority Key Identifier:
                 keyid:54:A7:E7:38:9B:D1:0F:08:F0:24:47:F3:67:A1:3E:3D:C1:EF:67:AD
 
             X509v3 Basic Constraints: critical

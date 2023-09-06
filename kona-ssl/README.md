@@ -19,7 +19,7 @@ Security.addProvider(new KonaPKIXProvider());
 Security.addProvider(new KonaSSLProvider());
 ```
 
-The above lines adds the three providers at the bottom of the provider list. That means their privilege are the lowest. If necessary, it can insert the providers at specific positions, like the below, 
+The above lines adds the three providers at the bottom of the provider list. That means their privilege are the lowest. If necessary, it can insert the providers at specific positions, like the below,
 
 ```
 Security.insertProviderAt(new KonaCryptoProvider(), position1);
