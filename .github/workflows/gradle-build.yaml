@@ -3,7 +3,21 @@ name: Execute build on PR
 on: pull_request
 
 jobs:
+  precheck:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout the source
+        uses: actions/checkout@v4
+
+      - name: Run precheck script
+        run: bash ./.github/workflows/scripts/precheck.sh
+        shell: bash
+
   gradle:
+    if: ${{ always() && contains(join(needs.*.result, ','), 'success') }}
+    needs: [precheck]
+
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest]
@@ -11,8 +25,8 @@ jobs:
     runs-on: ${{ matrix.os }}
 
     steps:
-      - name: Copy source files
-        uses: actions/checkout@v3
+      - name: Checkout the source
+        uses: actions/checkout@v4
 
       - name: Set up JDKs
         uses: actions/setup-java@v3
@@ -21,7 +35,7 @@ jobs:
           distribution: 'temurin'
 
       - name: Setup Gradle
-        uses: gradle/gradle-build-action@v2.4.2
+        uses: gradle/gradle-build-action@v2.8.0
 
       - name: Execute Gradle build
         run: ./gradlew clean build
