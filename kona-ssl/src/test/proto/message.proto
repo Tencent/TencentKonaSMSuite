@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "com.tencent.kona.ssl.demo";
+option java_outer_classname = "MessageProto";
+
+package demo;
+
+service MessageService {
+    rpc SendMessage(MessageRequest) returns(MessageResponse) {}
+}
+
+message MessageRequest {
+    string request = 1;
+}
+
+message MessageResponse {
+    string response = 1;
+}
