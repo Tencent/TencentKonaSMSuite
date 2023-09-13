@@ -1,5 +1,7 @@
 [versions]
 bouncycastle = "1.76"
+
+grpc = "1.58.0"
 tomcat = "9.0.78"
 netty = "4.1.97.Final"
 jetty = "9.4.52.v20230823"
@@ -8,9 +10,11 @@ okhttp = "4.11.0"
 junit = "5.10.0"
 junit-platform-launcher = "1.10.0"
 jmh = "1.37"
+protoc = "3.23.2"
 
 springboot = "2.7.15"
-springdepman = "1.1.3"
+springdepmanPlugin = "1.1.3"
+protobufPlugin = "0.9.4"
 
 
 [libraries]
@@ -26,6 +30,13 @@ apache-httpclient = { module = "org.apache.httpcomponents:httpclient", version.r
 tomcat-embed-core = { module = "org.apache.tomcat.embed:tomcat-embed-core", version.ref = "tomcat"}
 okhttp = { module = "com.squareup.okhttp3:okhttp", version.ref = "okhttp"}
 
+protoc = { module = "com.google.protobuf:protoc", version.ref = "protoc" }
+grpc-protoc-gen-grpc = { module = "io.grpc:protoc-gen-grpc-java", version.ref = "grpc" }
+grpc-core = { module = "io.grpc:grpc-core", version.ref = "grpc" }
+grpc-protobuf = { module = "io.grpc:grpc-protobuf", version.ref = "grpc" }
+grpc-stub = { module = "io.grpc:grpc-stub", version.ref = "grpc" }
+grpc-netty = { module = "io.grpc:grpc-netty", version.ref = "grpc" }
+
 spring-boot-starter-web = { module = "org.springframework.boot:spring-boot-starter-web", version.ref = "springboot"}
 spring-boot-starter-tomcat = { module = "org.springframework.boot:spring-boot-starter-tomcat", version.ref = "springboot"}
 spring-boot-starter-jetty = { module = "org.springframework.boot:spring-boot-starter-jetty", version.ref = "springboot"}
@@ -38,6 +49,11 @@ jmh-core = { module = "org.openjdk.jmh:jmh-core", version.ref = "jmh"}
 jmh-generator-annprocess = { module = "org.openjdk.jmh:jmh-generator-annprocess", version.ref = "jmh"}
 
 
+[bundles]
+grpc = [ "grpc.core", "grpc.protobuf", "grpc.stub", "grpc.netty"]
+
+
 [plugins]
 springboot = { id = "org.springframework.boot", version.ref = "springboot"}
-springdepman = { id = "io.spring.dependency-management", version.ref = "springdepman"}
+springdepman = { id = "io.spring.dependency-management", version.ref = "springdepmanPlugin"}
+protobuf = { id = "com.google.protobuf", version.ref = "protobufPlugin" }
