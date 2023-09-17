@@ -43,7 +43,7 @@ dependencies {
     testRuntimeOnly(libs.junit.platform.launcher)
 
     jmhImplementation(libs.jmh.core)
-    jmhImplementation(libs.jmh.generator.annprocess)
+    jmhAnnotationProcessor(libs.jmh.generator.annprocess)
     jmhImplementation(sourceSets["test"].runtimeClasspath)
 }
 
