@@ -40,15 +40,15 @@ import java.util.Arrays;
 import static com.tencent.kona.crypto.util.Constants.SM3_BLOCK_SIZE;
 import static com.tencent.kona.crypto.util.Constants.SM3_HMAC_LEN;
 
-public class SM3HMac extends MacSpi {
+public class SM3HMac extends MacSpi implements Cloneable {
 
-    private final MessageDigest md = new SM3MessageDigest();
+    private MessageDigest md = new SM3MessageDigest();
 
     // inner padding - key XORd with ipad
-    private final byte[] k_ipad = new byte[SM3_BLOCK_SIZE];
+    private byte[] k_ipad = new byte[SM3_BLOCK_SIZE];
 
     // outer padding - key XORd with opad
-    private final byte[] k_opad = new byte[SM3_BLOCK_SIZE];
+    private byte[] k_opad = new byte[SM3_BLOCK_SIZE];
 
     // Is this the first data to be processed?
     private boolean first = true;
@@ -203,5 +203,14 @@ public class SM3HMac extends MacSpi {
             md.reset();
             first = true;
         }
+    }
+
+    @Override
+    public Object clone() throws CloneNotSupportedException {
+        SM3HMac clone = (SM3HMac) super.clone();
+        clone.md = (SM3MessageDigest) md.clone();
+        clone.k_ipad = k_ipad.clone();
+        clone.k_opad = k_opad.clone();
+        return clone;
     }
 }

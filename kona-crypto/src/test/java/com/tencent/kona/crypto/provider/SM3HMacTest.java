@@ -85,7 +85,7 @@ public class SM3HMacTest {
     @Test
     public void testSM3HMac() throws Exception {
         Mac sm3HMac = Mac.getInstance("HmacSM3", PROVIDER);
-        SecretKeySpec keySpec = new SecretKeySpec(KEY, "SM4");
+        SecretKeySpec keySpec = new SecretKeySpec(KEY, "HmacSM3");
         sm3HMac.init(keySpec);
         byte[] mac = sm3HMac.doFinal(toBytes("616263"));
         Assertions.assertEquals(SM3_HMAC_LEN, mac.length);
@@ -94,7 +94,7 @@ public class SM3HMacTest {
     @Test
     public void testUpdateByte() throws Exception {
         Mac sm3HMac = Mac.getInstance("HmacSM3", PROVIDER);
-        SecretKeySpec keySpec = new SecretKeySpec(KEY, "SM4");
+        SecretKeySpec keySpec = new SecretKeySpec(KEY, "HmacSM3");
         sm3HMac.init(keySpec);
         for (byte b : MESSAGE) {
             sm3HMac.update(b);
@@ -106,7 +106,7 @@ public class SM3HMacTest {
     @Test
     public void testUpdateBytes() throws Exception {
         Mac sm3HMac = Mac.getInstance("HmacSM3", PROVIDER);
-        SecretKeySpec keySpec = new SecretKeySpec(KEY, "SM4");
+        SecretKeySpec keySpec = new SecretKeySpec(KEY, "HmacSM3");
         sm3HMac.init(keySpec);
         sm3HMac.update(MESSAGE, 0, MESSAGE.length / 2);
         sm3HMac.update(MESSAGE, MESSAGE.length / 2, MESSAGE.length - MESSAGE.length / 2);
@@ -117,7 +117,7 @@ public class SM3HMacTest {
     @Test
     public void testBigData() throws Exception {
         Mac sm3HMac = Mac.getInstance("HmacSM3", PROVIDER);
-        SecretKeySpec keySpec = new SecretKeySpec(KEY, "SM4");
+        SecretKeySpec keySpec = new SecretKeySpec(KEY, "HmacSM3");
         sm3HMac.init(keySpec);
         byte[] mac = sm3HMac.doFinal(TestUtils.dataMB(10));
         Assertions.assertEquals(SM3_HMAC_LEN, mac.length);
@@ -137,5 +137,30 @@ public class SM3HMacTest {
             testSM3HMac();
             return null;
         });
+    }
+
+    @Test
+    public void testClone() throws Exception {
+        Mac sm3HMac = Mac.getInstance("HmacSM3", PROVIDER);
+        SecretKeySpec keySpec = new SecretKeySpec(KEY, "HmacSM3");
+        sm3HMac.init(keySpec);
+
+        sm3HMac.update(MESSAGE, 0, MESSAGE.length / 3);
+        sm3HMac.update(MESSAGE[MESSAGE.length / 3]);
+
+        Mac clone = (Mac) sm3HMac.clone();
+
+        sm3HMac.update(MESSAGE, MESSAGE.length / 3 + 1,
+                MESSAGE.length - MESSAGE.length / 3 - 2);
+        clone.update(MESSAGE, MESSAGE.length / 3 + 1,
+                MESSAGE.length - MESSAGE.length / 3 - 2);
+
+        sm3HMac.update(MESSAGE[MESSAGE.length - 1]);
+        clone.update(MESSAGE[MESSAGE.length - 1]);
+
+        byte[] mac = sm3HMac.doFinal();
+        byte[] macClone = clone.doFinal();
+
+        Assertions.assertArrayEquals(mac, macClone);
     }
 }
