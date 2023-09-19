@@ -220,8 +220,8 @@ byte[] digest = md.digest();
 
 For detailed information about MessageDigest APIs, please refer to the official [MessageDigest] docs.
 
-### SM3HMac
-Using SM3 HMAC algorithm is the same as using other existing MAC algorithm, like HmacSHA256. It only invokes JDK APIs to generate the message authentication code.
+### HmacSM3
+Using HmacSM3 algorithm is the same as using other existing MAC algorithm, like HmacSHA256. It only invokes JDK APIs to generate the message authentication code.
 
 Prepare a 16-bytes key.
 
@@ -233,7 +233,7 @@ SecretKey secretKey = new SecretKeySpec(key, "SM4");
 Create Mac instance.
 
 ```
-Mac hmac = Mac.getInstance("SM3HMac");
+Mac hmac = Mac.getInstance("HmacSM3");
 ```
 
 Initialize the Mac instance with the key.

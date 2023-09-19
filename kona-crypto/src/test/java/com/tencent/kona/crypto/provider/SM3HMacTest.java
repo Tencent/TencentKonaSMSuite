@@ -52,7 +52,7 @@ public class SM3HMacTest {
     @Test
     public void testSM3HMacKeyGen() throws Exception {
         KeyGenerator sm3HMacKeyGen
-                = KeyGenerator.getInstance("SM3HMac", PROVIDER);
+                = KeyGenerator.getInstance("HmacSM3", PROVIDER);
 
         TestUtils.checkThrowable(
                 InvalidParameterException.class, ()-> sm3HMacKeyGen.init(127));
@@ -84,7 +84,7 @@ public class SM3HMacTest {
 
     @Test
     public void testSM3HMac() throws Exception {
-        Mac sm3HMac = Mac.getInstance("SM3HMac", PROVIDER);
+        Mac sm3HMac = Mac.getInstance("HmacSM3", PROVIDER);
         SecretKeySpec keySpec = new SecretKeySpec(KEY, "SM4");
         sm3HMac.init(keySpec);
         byte[] mac = sm3HMac.doFinal(toBytes("616263"));
@@ -93,7 +93,7 @@ public class SM3HMacTest {
 
     @Test
     public void testUpdateByte() throws Exception {
-        Mac sm3HMac = Mac.getInstance("SM3HMac", PROVIDER);
+        Mac sm3HMac = Mac.getInstance("HmacSM3", PROVIDER);
         SecretKeySpec keySpec = new SecretKeySpec(KEY, "SM4");
         sm3HMac.init(keySpec);
         for (byte b : MESSAGE) {
@@ -105,7 +105,7 @@ public class SM3HMacTest {
 
     @Test
     public void testUpdateBytes() throws Exception {
-        Mac sm3HMac = Mac.getInstance("SM3HMac", PROVIDER);
+        Mac sm3HMac = Mac.getInstance("HmacSM3", PROVIDER);
         SecretKeySpec keySpec = new SecretKeySpec(KEY, "SM4");
         sm3HMac.init(keySpec);
         sm3HMac.update(MESSAGE, 0, MESSAGE.length / 2);
@@ -116,7 +116,7 @@ public class SM3HMacTest {
 
     @Test
     public void testBigData() throws Exception {
-        Mac sm3HMac = Mac.getInstance("SM3HMac", PROVIDER);
+        Mac sm3HMac = Mac.getInstance("HmacSM3", PROVIDER);
         SecretKeySpec keySpec = new SecretKeySpec(KEY, "SM4");
         sm3HMac.init(keySpec);
         byte[] mac = sm3HMac.doFinal(TestUtils.dataMB(10));

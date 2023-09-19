@@ -220,8 +220,8 @@ byte[] digest = md.digest();
 
 关于消息摘要算法API的更详细用法，请参考[MessageDigest]的官方文档。
 
-### SM3HMac
-使用SM3HMac算法与使用JDK自带的其它消息验证码算法（如HmacSHA256）的方式是完全相同的，仅需要调用JDK API就可以生成消息验证码。
+### HmacSM3
+使用HmacSM3算法与使用JDK自带的其它消息验证码算法（如HmacSHA256）的方式是完全相同的，仅需要调用JDK API就可以生成消息验证码。
 
 准备密钥，其长度为16字节。
 
@@ -233,7 +233,7 @@ SecretKey secretKey = new SecretKeySpec(key, "SM4");
 创建Mac实例。
 
 ```
-Mac hmac = Mac.getInstance("SM3HMac");
+Mac hmac = Mac.getInstance("HmacSM3");
 ```
 
 使用密钥对Mac进行初始化。

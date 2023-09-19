@@ -71,7 +71,7 @@ public class SM3HMacPerfTest {
 
         @Setup(Level.Trial)
         public void setup() throws Exception {
-            mac = Mac.getInstance("SM3HMac", PROVIDER);
+            mac = Mac.getInstance("HmacSM3", PROVIDER);
             mac.init(SECRET_KEY);
         }
     }

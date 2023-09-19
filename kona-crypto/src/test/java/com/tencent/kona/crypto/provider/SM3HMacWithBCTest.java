@@ -48,7 +48,7 @@ public class SM3HMacWithBCTest {
     public void testSM3HMac() throws Exception {
         byte[] message = toBytes("616263");
 
-        Mac sm3HMac = Mac.getInstance("SM3HMac", PROVIDER);
+        Mac sm3HMac = Mac.getInstance("HmacSM3", PROVIDER);
         Mac sm3HMacBC = Mac.getInstance("HMACSM3", "BC");
 
         SecretKey secretKey = new SecretKeySpec(
