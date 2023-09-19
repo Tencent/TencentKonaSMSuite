@@ -20,6 +20,8 @@
 
 package com.tencent.kona.crypto.provider;
 
+import com.tencent.kona.jdk.internal.util.Preconditions;
+
 import java.security.DigestException;
 import java.security.MessageDigest;
 
@@ -45,6 +47,12 @@ public final class SM3MessageDigest extends MessageDigest implements Cloneable {
 
     @Override
     protected void engineUpdate(byte[] input, int offset, int length) {
+        if (length == 0) {
+            return;
+        }
+        Preconditions.checkFromIndexSize(
+                offset, length, input.length, Preconditions.AIOOBE_FORMATTER);
+
         engine.update(input, offset, length);
     }
 

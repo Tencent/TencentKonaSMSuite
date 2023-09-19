@@ -136,11 +136,12 @@ public class SM3Test {
         outOfBounds(16, 0, 32);
         outOfBounds(7, 0, 32);
         outOfBounds(16, -8, 16);
-//        outOfBounds(16, 8, -8);
+        outOfBounds(16, 8, -8);
         outOfBounds(16, Integer.MAX_VALUE, 8);
     }
 
-    private static void outOfBounds(int arrayLen, int ofs, int len) throws Exception {
+    private static void outOfBounds(int arrayLen, int ofs, int len)
+            throws Exception {
         MessageDigest md = MessageDigest.getInstance("SM3", PROVIDER);
 
         try {
