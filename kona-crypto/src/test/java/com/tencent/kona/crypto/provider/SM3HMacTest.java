@@ -29,6 +29,7 @@ import javax.crypto.Mac;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 
+import java.nio.ByteBuffer;
 import java.security.InvalidParameterException;
 import java.security.SecureRandom;
 
@@ -115,12 +116,41 @@ public class SM3HMacTest {
     }
 
     @Test
+    public void testByteBuffer() throws Exception {
+        Mac sm3HMac = Mac.getInstance("HmacSM3", PROVIDER);
+        SecretKeySpec keySpec = new SecretKeySpec(KEY, "HmacSM3");
+        sm3HMac.init(keySpec);
+        ByteBuffer buffer = ByteBuffer.wrap(toBytes("616263"));
+        sm3HMac.update(buffer);
+        byte[] mac = sm3HMac.doFinal();
+        Assertions.assertEquals(SM3_HMAC_LEN, mac.length);
+    }
+
+    @Test
     public void testBigData() throws Exception {
         Mac sm3HMac = Mac.getInstance("HmacSM3", PROVIDER);
         SecretKeySpec keySpec = new SecretKeySpec(KEY, "HmacSM3");
         sm3HMac.init(keySpec);
         byte[] mac = sm3HMac.doFinal(TestUtils.dataMB(10));
         Assertions.assertEquals(SM3_HMAC_LEN, mac.length);
+    }
+
+    @Test
+    public void testBigByteBuffer() throws Exception {
+        byte[] data = TestUtils.dataMB(10);
+        SecretKeySpec keySpec = new SecretKeySpec(KEY, "HmacSM3");
+
+        Mac sm3HMac = Mac.getInstance("HmacSM3", PROVIDER);
+        sm3HMac.init(keySpec);
+        byte[] mac = sm3HMac.doFinal(data);
+
+        Mac sm3HMacBuffer = Mac.getInstance("HmacSM3", PROVIDER);
+        sm3HMacBuffer.init(keySpec);
+        ByteBuffer buffer = ByteBuffer.wrap(data);
+        sm3HMacBuffer.update(buffer);
+        byte[] macBuffer = sm3HMacBuffer.doFinal();
+
+        Assertions.assertArrayEquals(mac, macBuffer);
     }
 
     @Test

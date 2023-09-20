@@ -25,6 +25,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
+import java.nio.ByteBuffer;
 import java.security.MessageDigest;
 import java.util.Random;
 
@@ -95,10 +96,32 @@ public class SM3Test {
     }
 
     @Test
+    public void testByteBuffer() throws Exception {
+        MessageDigest md = MessageDigest.getInstance("SM3", PROVIDER);
+        md.update(ByteBuffer.wrap(MESSAGE_SHORT));
+        byte[] digest = md.digest();
+        Assertions.assertArrayEquals(DIGEST_SHORT, digest);
+    }
+
+    @Test
     public void testBigData() throws Exception {
         MessageDigest md = MessageDigest.getInstance("SM3", PROVIDER);
         byte[] digest = md.digest(TestUtils.dataMB(10));
         Assertions.assertEquals(Constants.SM3_DIGEST_LEN, digest.length);
+    }
+
+    @Test
+    public void testBigByteBuffer() throws Exception {
+        byte[] data = TestUtils.dataMB(10);
+
+        MessageDigest md = MessageDigest.getInstance("SM3", PROVIDER);
+        byte[] digest = md.digest(data);
+
+        MessageDigest mdBuffer = MessageDigest.getInstance("SM3", PROVIDER);
+        mdBuffer.update(ByteBuffer.wrap(data));
+        byte[] digestBuffer = mdBuffer.digest();
+
+        Assertions.assertArrayEquals(digest, digestBuffer);
     }
 
     @Test
