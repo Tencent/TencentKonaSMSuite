@@ -96,11 +96,52 @@ public class SM3Test {
     }
 
     @Test
+    public void testNullBytes() throws Exception {
+        MessageDigest md = MessageDigest.getInstance("SM3", PROVIDER);
+        Assertions.assertThrows(
+                NullPointerException.class,
+                () -> md.update((byte[]) null));
+    }
+
+    @Test
     public void testByteBuffer() throws Exception {
         MessageDigest md = MessageDigest.getInstance("SM3", PROVIDER);
         md.update(ByteBuffer.wrap(MESSAGE_SHORT));
         byte[] digest = md.digest();
         Assertions.assertArrayEquals(DIGEST_SHORT, digest);
+    }
+
+    @Test
+    public void testNullByteBuffer() throws Exception {
+        MessageDigest md = MessageDigest.getInstance("SM3", PROVIDER);
+        Assertions.assertThrows(
+                NullPointerException.class,
+                () -> md.update((ByteBuffer) null));
+    }
+
+    @Test
+    public void testEmptyInput() throws Exception {
+        MessageDigest md1 = MessageDigest.getInstance("SM3", PROVIDER);
+        md1.update(new byte[0]);
+        byte[] digest1 = md1.digest();
+
+        MessageDigest md2 = MessageDigest.getInstance("SM3", PROVIDER);
+        md2.update(ByteBuffer.wrap(new byte[0]));
+        byte[] digest2 = md2.digest();
+
+        Assertions.assertArrayEquals(digest1, digest2);
+    }
+
+    @Test
+    public void testNoInput() throws Exception {
+        MessageDigest md1 = MessageDigest.getInstance("SM3", PROVIDER);
+        byte[] digest1 = md1.digest();
+
+        MessageDigest md2 = MessageDigest.getInstance("SM3", PROVIDER);
+        md2.update(new byte[0]);
+        byte[] digest2 = md2.digest();
+
+        Assertions.assertArrayEquals(digest1, digest2);
     }
 
     @Test
