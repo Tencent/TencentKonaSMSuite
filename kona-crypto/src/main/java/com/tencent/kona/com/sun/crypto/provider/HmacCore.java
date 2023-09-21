@@ -35,7 +35,6 @@ import java.security.*;
 import java.security.spec.*;
 
 import com.tencent.kona.crypto.CryptoInsts;
-import sun.security.x509.AlgorithmId;
 
 /**
  * This class constitutes the core of HMAC-<MD> algorithms, where

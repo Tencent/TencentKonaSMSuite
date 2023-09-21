@@ -116,6 +116,23 @@ public class SM3HMacTest {
     }
 
     @Test
+    public void testNullBytes() throws Exception {
+        SecretKeySpec keySpec = new SecretKeySpec(KEY, "HmacSM3");
+
+        Mac sm3HMac1 = Mac.getInstance("HmacSM3", PROVIDER);
+        sm3HMac1.init(keySpec);
+        sm3HMac1.update((byte[]) null);
+        byte[] mac1 = sm3HMac1.doFinal();
+
+        Mac sm3HMac2 = Mac.getInstance("HmacSM3", PROVIDER);
+        sm3HMac2.init(keySpec);
+        sm3HMac2.update(new byte[0]);
+        byte[] mac2 = sm3HMac2.doFinal();
+
+        Assertions.assertArrayEquals(mac1, mac2);
+    }
+
+    @Test
     public void testByteBuffer() throws Exception {
         Mac sm3HMac = Mac.getInstance("HmacSM3", PROVIDER);
         SecretKeySpec keySpec = new SecretKeySpec(KEY, "HmacSM3");
@@ -124,6 +141,51 @@ public class SM3HMacTest {
         sm3HMac.update(buffer);
         byte[] mac = sm3HMac.doFinal();
         Assertions.assertEquals(SM3_HMAC_LEN, mac.length);
+    }
+
+    @Test
+    public void testNullByteBuffer() throws Exception {
+        Mac sm3HMac = Mac.getInstance("HmacSM3", PROVIDER);
+        SecretKeySpec keySpec = new SecretKeySpec(KEY, "HmacSM3");
+        sm3HMac.init(keySpec);
+        Assertions.assertThrows(
+                IllegalArgumentException.class,
+                () -> {
+                    sm3HMac.update((ByteBuffer) null);
+                });
+    }
+
+    @Test
+    public void testEmptyInput() throws Exception {
+        SecretKeySpec keySpec = new SecretKeySpec(KEY, "HmacSM3");
+
+        Mac sm3HMac1 = Mac.getInstance("HmacSM3", PROVIDER);
+        sm3HMac1.init(keySpec);
+        sm3HMac1.update(new byte[0]);
+        byte[] mac1 = sm3HMac1.doFinal();
+
+        Mac sm3HMac2 = Mac.getInstance("HmacSM3", PROVIDER);
+        sm3HMac2.init(keySpec);
+        sm3HMac2.update(ByteBuffer.wrap(new byte[0]));
+        byte[] mac2 = sm3HMac2.doFinal();
+
+        Assertions.assertArrayEquals(mac1, mac2);
+    }
+
+    @Test
+    public void testNoInput() throws Exception {
+        SecretKeySpec keySpec = new SecretKeySpec(KEY, "HmacSM3");
+
+        Mac sm3HMac1 = Mac.getInstance("HmacSM3", PROVIDER);
+        sm3HMac1.init(keySpec);
+        byte[] mac1 = sm3HMac1.doFinal();
+
+        Mac sm3HMac2 = Mac.getInstance("HmacSM3", PROVIDER);
+        sm3HMac2.init(keySpec);
+        sm3HMac1.update(new byte[0]);
+        byte[] mac2 = sm3HMac1.doFinal();
+
+        Assertions.assertArrayEquals(mac1, mac2);
     }
 
     @Test
