@@ -182,8 +182,8 @@ public class SM3HMacTest {
 
         Mac sm3HMac2 = Mac.getInstance("HmacSM3", PROVIDER);
         sm3HMac2.init(keySpec);
-        sm3HMac1.update(new byte[0]);
-        byte[] mac2 = sm3HMac1.doFinal();
+        sm3HMac2.update(new byte[0]);
+        byte[] mac2 = sm3HMac2.doFinal();
 
         Assertions.assertArrayEquals(mac1, mac2);
     }
