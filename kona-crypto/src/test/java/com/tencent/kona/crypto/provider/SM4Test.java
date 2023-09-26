@@ -32,6 +32,7 @@ import javax.crypto.CipherOutputStream;
 import javax.crypto.KeyGenerator;
 import javax.crypto.SealedObject;
 import javax.crypto.SecretKey;
+import javax.crypto.ShortBufferException;
 import javax.crypto.spec.GCMParameterSpec;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
@@ -106,9 +107,6 @@ public class SM4Test {
         Cipher cipherGCM = Cipher.getInstance("SM4/GCM/NoPadding", PROVIDER);
         cipherGCM.init(Cipher.ENCRYPT_MODE, secretKey,
                 new GCMParameterSpec(SM4_GCM_TAG_LEN * 8, iv_12));
-//        Assertions.assertThrows(InvalidAlgorithmParameterException.class,
-//                () -> cipherGCM.init(Cipher.ENCRYPT_MODE, secretKey,
-//                        new GCMParameterSpec(SM4_GCM_TAG_LEN * 8, iv_16)));
     }
 
     @Test
@@ -140,6 +138,45 @@ public class SM4Test {
     }
 
     @Test
+    public void testKATWithByteBuffer() throws Exception {
+        byte[] message = toBytes("0123456789abcdeffedcba9876543210");
+        byte[] key = toBytes("0123456789abcdeffedcba9876543210");
+        byte[] expectedCiphertext = toBytes("681edf34d206965e86b3e94f536e4246");
+
+        SecretKey secretKey = new SecretKeySpec(key, "SM4");
+        Cipher cipher = Cipher.getInstance("SM4/ECB/NoPadding", PROVIDER);
+        cipher.init(Cipher.ENCRYPT_MODE, secretKey);
+
+        ByteBuffer plaintext = ByteBuffer.wrap(message);
+        ByteBuffer ciphertext = ByteBuffer.allocate(message.length);
+
+        cipher.doFinal(plaintext, ciphertext);
+        Assertions.assertArrayEquals(expectedCiphertext, ciphertext.array());
+
+        plaintext.flip();
+        ciphertext.flip();
+        ByteBuffer cleartext = ByteBuffer.allocate(message.length);
+        cipher.init(Cipher.DECRYPT_MODE, secretKey);
+        cipher.doFinal(ciphertext, cleartext);
+        Assertions.assertArrayEquals(message, cleartext.array());
+
+        // Without SM4 key factory
+        secretKey = new SecretKeySpec(key, "SM4");
+
+        plaintext.flip();
+        ciphertext.flip();
+        cipher.init(Cipher.ENCRYPT_MODE, secretKey);
+        cipher.doFinal(plaintext, ciphertext);
+        Assertions.assertArrayEquals(expectedCiphertext, ciphertext.array());
+
+        ciphertext.flip();
+        cleartext.flip();
+        cipher.init(Cipher.DECRYPT_MODE, secretKey);
+        cipher.doFinal(ciphertext, cleartext);
+        Assertions.assertArrayEquals(message, cleartext.array());
+    }
+
+    @Test
     public void testEmpty() throws Exception {
         byte[] key = toBytes("0123456789abcdeffedcba9876543210");
 
@@ -153,6 +190,83 @@ public class SM4Test {
         cipher.init(Cipher.DECRYPT_MODE, keySpec);
         byte[] cleartext = cipher.doFinal(ciphertext);
         Assertions.assertArrayEquals(TestUtils.EMPTY, cleartext);
+    }
+
+    @Test
+    public void testEmptyWithByteBuffer() throws Exception {
+        byte[] key = toBytes("0123456789abcdeffedcba9876543210");
+
+        SecretKeySpec keySpec = new SecretKeySpec(key, "SM4");
+
+        ByteBuffer plaintext = ByteBuffer.allocate(0);
+        ByteBuffer ciphertext = ByteBuffer.allocate(64);
+        Cipher cipher = Cipher.getInstance("SM4/ECB/NoPadding", PROVIDER);
+        cipher.init(Cipher.ENCRYPT_MODE, keySpec);
+        cipher.doFinal(plaintext, ciphertext);
+        Assertions.assertEquals(0, ciphertext.position());
+
+        ciphertext.flip();
+        ByteBuffer cleartext = ByteBuffer.allocate(64);
+        cipher.init(Cipher.DECRYPT_MODE, keySpec);
+        cipher.doFinal(plaintext, cleartext);
+        Assertions.assertEquals(0, cleartext.position());
+    }
+
+    @Test
+    public void testNull() throws Exception {
+        byte[] key = toBytes("0123456789abcdeffedcba9876543210");
+
+        SecretKeySpec keySpec = new SecretKeySpec(key, "SM4");
+
+        Cipher cipher = Cipher.getInstance("SM4/ECB/NoPadding", PROVIDER);
+        cipher.init(Cipher.ENCRYPT_MODE, keySpec);
+        Assertions.assertThrows(
+                IllegalArgumentException.class,
+                () -> cipher.doFinal(null));
+
+        cipher.init(Cipher.DECRYPT_MODE, keySpec);
+        Assertions.assertThrows(
+                IllegalArgumentException.class,
+                () -> cipher.doFinal(null));
+    }
+
+    @Test
+    public void testNoSpace() throws Exception {
+        byte[] key = toBytes("0123456789abcdeffedcba9876543210");
+
+        SecretKeySpec keySpec = new SecretKeySpec(key, "SM4");
+
+        ByteBuffer plaintext = ByteBuffer.wrap(MESSAGE);
+
+        Cipher cipher = Cipher.getInstance("SM4/ECB/NoPadding", PROVIDER);
+        cipher.init(Cipher.ENCRYPT_MODE, keySpec);
+        Assertions.assertThrows(
+                ShortBufferException.class,
+                () -> cipher.doFinal(plaintext, ByteBuffer.allocate(MESSAGE.length - 1)));
+
+        ByteBuffer ciphertext = ByteBuffer.allocate(MESSAGE.length);
+        cipher.init(Cipher.DECRYPT_MODE, keySpec);
+        Assertions.assertThrows(
+                ShortBufferException.class,
+                () -> cipher.doFinal(ciphertext, ByteBuffer.allocate(MESSAGE.length - 1)));
+    }
+
+    @Test
+    public void testNullWithByteBuffer() throws Exception {
+        byte[] key = toBytes("0123456789abcdeffedcba9876543210");
+
+        SecretKeySpec keySpec = new SecretKeySpec(key, "SM4");
+
+        Cipher cipher = Cipher.getInstance("SM4/ECB/NoPadding", PROVIDER);
+        cipher.init(Cipher.ENCRYPT_MODE, keySpec);
+        Assertions.assertThrows(
+                IllegalArgumentException.class,
+                () -> cipher.doFinal(null, null));
+
+        cipher.init(Cipher.DECRYPT_MODE, keySpec);
+        Assertions.assertThrows(
+                IllegalArgumentException.class,
+                () -> cipher.doFinal(null, null));
     }
 
     @Test
