@@ -843,7 +843,7 @@ public class SM4Test {
     @Test
     public void testSealedObject() throws Exception {
         KeyPairGenerator keyPairGen
-                = KeyPairGenerator.getInstance("SM2", PROVIDER);
+                = KeyPairGenerator.getInstance("EC", PROVIDER);
         keyPairGen.initialize(256);
         KeyPair keyPair = keyPairGen.generateKeyPair();
 
@@ -855,7 +855,7 @@ public class SM4Test {
         Cipher cipher = Cipher.getInstance("SM4/CBC/PKCS7Padding", PROVIDER);
         cipher.init(Cipher.ENCRYPT_MODE, secretKey);
 
-        // Seal the SM2 private key
+        // Seal the private key
         SealedObject sealed = new SealedObject(keyPair.getPrivate(), cipher);
 
         // Serialize
