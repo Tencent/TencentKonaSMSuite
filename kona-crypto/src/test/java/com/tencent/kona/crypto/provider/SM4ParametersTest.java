@@ -25,8 +25,10 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
+import javax.crypto.Cipher;
 import javax.crypto.spec.GCMParameterSpec;
 import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.StandardCharsets;
 import java.security.AlgorithmParameters;
 import java.security.spec.InvalidParameterSpecException;
@@ -39,10 +41,14 @@ import static com.tencent.kona.crypto.CryptoUtils.toHex;
  */
 public class SM4ParametersTest {
 
+    private static final byte[] KEY = toBytes("0123456789abcdef0123456789abcdef");
     private static final byte[] IV = "0123456789abcdef".getBytes(StandardCharsets.UTF_8);
     private static final byte[] GCM_IV = "0123456789ab".getBytes(StandardCharsets.UTF_8);
     private static final byte[] ENCODED_PARAMS = toBytes("041030313233343536373839616263646566");
     private static final byte[] GCM_ENCODED_PARAMS = toBytes("3011040c303132333435363738396162020110");
+
+    private static final byte[] MESSAGE = toBytes(
+            "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef");
 
     @BeforeAll
     public static void setup() {
@@ -90,5 +96,19 @@ public class SM4ParametersTest {
         Assertions.assertThrows(
                 InvalidParameterSpecException.class,
                 () -> gcmParams.getParameterSpec(GCMParameterSpec.class));
+    }
+
+    @Test
+    public void testGetParameters() throws Exception {
+        Cipher encrypter = Cipher.getInstance("SM4/CBC/NoPadding");
+        encrypter.init(Cipher.ENCRYPT_MODE, new SecretKeySpec(KEY, "SM4"));
+        AlgorithmParameters params = encrypter.getParameters();
+        byte[] cipertext = encrypter.doFinal(MESSAGE);
+
+        Cipher decrypter = Cipher.getInstance("SM4/CBC/NoPadding");
+        decrypter.init(Cipher.DECRYPT_MODE, new SecretKeySpec(KEY, "SM4"), params);
+        byte[] cleartext = decrypter.doFinal(cipertext);
+
+        Assertions.assertArrayEquals(MESSAGE, cleartext);
     }
 }

@@ -113,20 +113,24 @@ public final class SM4Parameters extends AlgorithmParametersSpi {
     protected <T extends AlgorithmParameterSpec> T engineGetParameterSpec(
             Class<T> paramSpec) throws InvalidParameterSpecException {
         if (IvParameterSpec.class.isAssignableFrom(paramSpec)) {
-            try {
-                decode();
-            } catch (IOException e) {
-                throw new InvalidParameterSpecException(
-                        "Decode parameters failed: " + e.getMessage());
+            if (iv == null) {
+                try {
+                    decode();
+                } catch (IOException e) {
+                    throw new InvalidParameterSpecException(
+                            "Decode parameters failed: " + e.getMessage());
+                }
             }
 
             return paramSpec.cast(new IvParameterSpec(iv));
         } else if (GCMParameterSpec.class.isAssignableFrom(paramSpec)) {
-            try {
-                gcmDecode();
-            } catch (IOException e) {
-                throw new InvalidParameterSpecException(
-                        "Decode GCM parameters failed: " + e.getMessage());
+            if (iv == null) {
+                try {
+                    gcmDecode();
+                } catch (IOException e) {
+                    throw new InvalidParameterSpecException(
+                            "Decode GCM parameters failed: " + e.getMessage());
+                }
             }
 
             if (tagLen == SM4_GCM_TAG_LEN) {
