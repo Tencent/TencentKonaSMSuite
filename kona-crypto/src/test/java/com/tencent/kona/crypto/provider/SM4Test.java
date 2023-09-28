@@ -20,7 +20,6 @@
 package com.tencent.kona.crypto.provider;
 
 import com.tencent.kona.crypto.TestUtils;
-import com.tencent.kona.crypto.spec.SM4KeySpec;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -55,7 +54,6 @@ import java.security.spec.AlgorithmParameterSpec;
 
 import static com.tencent.kona.crypto.CryptoUtils.toBytes;
 import static com.tencent.kona.crypto.TestUtils.PROVIDER;
-import static com.tencent.kona.crypto.TestUtils.checkISE;
 import static com.tencent.kona.crypto.util.Constants.SM4_GCM_TAG_LEN;
 
 /**
@@ -699,7 +697,7 @@ public class SM4Test {
                                 AlgorithmParameterSpec paramSpec,
                                 byte[] data, boolean segmented)
             throws Exception {
-        SecretKey secretKey = new SM4KeySpec(KEY);
+        SecretKey secretKey = new SecretKeySpec(KEY, "SM4");
         Cipher cipher = Cipher.getInstance(algorithm, PROVIDER);
         if (paramSpec != null) {
             cipher.init(opmode, secretKey, paramSpec);
@@ -775,34 +773,31 @@ public class SM4Test {
 
     @Test
     public void testUpdateAADExceptionEncUpdate() {
-        checkISE(() -> testUpdateAADException(Cipher.ENCRYPT_MODE, true));
-        checkISE(() -> testUpdateAADException(Cipher.ENCRYPT_MODE, false));
-        checkISE(() -> testUpdateAADException(Cipher.DECRYPT_MODE, true));
-//        checkISE(() -> testUpdateAADException(Cipher.DECRYPT_MODE, false));
+        Assertions.assertThrows(IllegalStateException.class,
+                () -> testUpdateAADException(Cipher.ENCRYPT_MODE, true));
+        Assertions.assertThrows(IllegalStateException.class,
+                () -> testUpdateAADException(Cipher.ENCRYPT_MODE, false));
+        Assertions.assertThrows(IllegalStateException.class,
+                () -> testUpdateAADException(Cipher.DECRYPT_MODE, true));
+        Assertions.assertThrows(AEADBadTagException.class,
+                () -> testUpdateAADException(Cipher.DECRYPT_MODE, false));
     }
 
-    private void testUpdateAADException(int opmode, boolean doUpdate) {
-        try {
-            SecretKey secretKey = new SecretKeySpec(KEY, "SM4");
-            GCMParameterSpec paramSpec = new GCMParameterSpec(
-                    SM4_GCM_TAG_LEN * 8, GCM_IV);
-            Cipher cipher = Cipher.getInstance("SM4/GCM/NoPadding", PROVIDER);
+    private void testUpdateAADException(int opmode, boolean doUpdate)
+            throws Exception {
+        SecretKey secretKey = new SecretKeySpec(KEY, "SM4");
+        GCMParameterSpec paramSpec = new GCMParameterSpec(
+                SM4_GCM_TAG_LEN * 8, GCM_IV);
+        Cipher cipher = Cipher.getInstance("SM4/GCM/NoPadding", PROVIDER);
 
-            cipher.init(opmode, secretKey, paramSpec);
-            cipher.updateAAD(AAD);
-            if (doUpdate) {
-                cipher.update(MESSAGE);
-            } else {
-                cipher.doFinal();
-            }
-            cipher.updateAAD(AAD); // It should throw IllegalStateException
-        } catch (Exception e) {
-            if (e instanceof IllegalStateException) {
-                throw (IllegalStateException) e;
-            } else {
-                throw new RuntimeException("test run fail", e);
-            }
+        cipher.init(opmode, secretKey, paramSpec);
+        cipher.updateAAD(AAD);
+        if (doUpdate) {
+            cipher.update(MESSAGE);
+        } else {
+            cipher.doFinal();
         }
+        cipher.updateAAD(AAD);
     }
 
     @Test

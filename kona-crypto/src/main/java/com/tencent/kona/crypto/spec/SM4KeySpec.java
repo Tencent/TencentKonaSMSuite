@@ -22,6 +22,10 @@ package com.tencent.kona.crypto.spec;
 
 import javax.crypto.spec.SecretKeySpec;
 
+/**
+ * @deprecated Use <code>SecretKeySpec(key, "SM4")</code> instead
+ */
+@Deprecated
 public class SM4KeySpec extends SecretKeySpec {
 
     private static final long serialVersionUID = -621469601839652916L;
