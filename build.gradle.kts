@@ -17,6 +17,8 @@
  * Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+println("Current JDK: " + org.gradle.internal.jvm.Jvm.current())
+
 allprojects {
 
     repositories {

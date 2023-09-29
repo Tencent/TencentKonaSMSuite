@@ -48,72 +48,39 @@ tasks {
         options.encoding = "UTF-8"
     }
 
-    test {
-        useJUnitPlatform()
+    val testOnCurrent = register("testOnCurrent", CommonTest::class) {
+        systemProperty("test.classpath", classpath.joinToString(separator = ":"))
+    }
 
-        filter {
-            includeTestsMatching("*Test")
-            includeTestsMatching("*Demo")
-
-            // Ignore the tests depending local paths on Windows
-            if (Os.isFamily(Os.FAMILY_WINDOWS)) {
-                excludeTestsMatching("com.tencent.kona.pkix.tool.*")
-                excludeTestsMatching("com.tencent.kona.ssl.hybrid.*")
-                excludeTestsMatching("com.tencent.kona.ssl.tlcp.*")
-                excludeTestsMatching("com.tencent.kona.ssl.tls.*")
-                excludeTestsMatching("com.tencent.kona.ssl.misc.*")
-            }
-
-            val babasslPathProp = "test.babassl.path"
-            val babasslPath = System.getProperty(babasslPathProp, "babassl")
-
-            if (!isBabaSSLAvailable(babasslPath)) {
-                // Ignore BabaSSL-related tests if no BabaSSL is available
-                excludeTestsMatching("*BabaSSL*Test")
-            } else {
-                systemProperty(babasslPathProp, babasslPath)
-            }
-        }
-
+    register("testOnAdop8", CommonTest::class) {
         systemProperty("test.classpath", classpath.joinToString(separator = ":"))
 
-//        if(JavaVersion.current() == JavaVersion.VERSION_11) {
-//            jvmArgs("--add-exports", "java.base/jdk.internal.misc=ALL-UNNAMED")
-//        } else if(JavaVersion.current() == JavaVersion.VERSION_17) {
-//            jvmArgs("--add-exports", "java.base/jdk.internal.access=ALL-UNNAMED")
-//        }
+        javaLauncher.set(javaToolchains.launcherFor {
+            languageVersion.set(JavaLanguageVersion.of(17))
+            vendor.set(JvmVendorSpec.ADOPTIUM)
+        })
+    }
 
-        testLogging {
-            events = mutableSetOf(
-                TestLogEvent.PASSED,
-                TestLogEvent.FAILED,
-                TestLogEvent.SKIPPED
-            )
-            showStandardStreams = true
-            showExceptions = true
-            exceptionFormat = TestExceptionFormat.FULL
-            showCauses = true
-            showStackTraces = true
+    register("testOnAdop11", CommonTest::class) {
+        systemProperty("test.classpath", classpath.joinToString(separator = ":"))
 
-            addTestListener(object : TestListener {
-                override fun beforeSuite(suite: TestDescriptor?) { }
+        javaLauncher.set(javaToolchains.launcherFor {
+            languageVersion.set(JavaLanguageVersion.of(11))
+            vendor.set(JvmVendorSpec.ADOPTIUM)
+        })
+    }
 
-                override fun afterSuite(
-                        descriptor: TestDescriptor, result: TestResult) {
-                    if (descriptor.parent == null) {
-                        println("Test summary: " +
-                                "Passed: ${result.successfulTestCount}, " +
-                                "Failed: ${result.failedTestCount}, " +
-                                "Skipped: ${result.skippedTestCount}")
-                    }
-                }
+    register("testOnAdop17", CommonTest::class) {
+        systemProperty("test.classpath", classpath.joinToString(separator = ":"))
 
-                override fun beforeTest(testDescriptor: TestDescriptor?) { }
+        javaLauncher.set(javaToolchains.launcherFor {
+            languageVersion.set(JavaLanguageVersion.of(17))
+            vendor.set(JvmVendorSpec.ADOPTIUM)
+        })
+    }
 
-                override fun afterTest(
-                        descriptor: TestDescriptor?, result: TestResult?) { }
-            })
-        }
+    test {
+        dependsOn(testOnCurrent)
     }
 
     javadoc {
@@ -208,20 +175,4 @@ task<Exec>("signJar") {
             alias
         )
     }
-}
-
-// Determine if BabaSSL is available
-fun isBabaSSLAvailable(babasslPath: String): Boolean {
-    var exitCode : Int = -1
-    try {
-        val process = ProcessBuilder()
-            .command(babasslPath, "version")
-            .start()
-        process.waitFor(3, TimeUnit.SECONDS)
-        exitCode = process.exitValue()
-    } catch (e: Exception) {
-        println("BabaSSL is unavailable: " + e.cause)
-    }
-
-    return exitCode == 0
 }
