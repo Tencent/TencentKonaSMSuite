@@ -25,11 +25,6 @@
 
 package com.tencent.kona.sun.security.ssl;
 
-import com.tencent.kona.crypto.CryptoInsts;
-import com.tencent.kona.ssl.SSLInsts;
-import com.tencent.kona.sun.security.internal.spec.TlcpSM2PremasterSecretParameterSpec;
-import com.tencent.kona.sun.security.util.KeyUtil;
-
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
 import javax.crypto.KeyGenerator;
@@ -44,6 +39,11 @@ import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.SecureRandom;
 import java.security.spec.AlgorithmParameterSpec;
+
+import com.tencent.kona.crypto.CryptoInsts;
+import com.tencent.kona.ssl.SSLInsts;
+import com.tencent.kona.sun.security.internal.spec.TlcpSM2PremasterSecretParameterSpec;
+import com.tencent.kona.sun.security.util.KeyUtil;
 
 /**
  * TLCP static SM2 key exchange.

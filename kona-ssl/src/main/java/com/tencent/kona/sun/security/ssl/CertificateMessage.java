@@ -247,7 +247,7 @@ final class CertificateMessage {
         }
 
         private byte[] onProduceCertificate(ServerHandshakeContext shc,
-                SSLHandshake.HandshakeMessage message) throws IOException {
+                HandshakeMessage message) throws IOException {
             X509Authentication.X509Possession x509Possession = null;
             for (SSLPossession possession : shc.handshakePossessions) {
                 if (possession instanceof X509Authentication.X509Possession) {
@@ -280,7 +280,7 @@ final class CertificateMessage {
         }
 
         private byte[] onProduceCertificate(ClientHandshakeContext chc,
-                SSLHandshake.HandshakeMessage message) throws IOException {
+                HandshakeMessage message) throws IOException {
             X509Authentication.X509Possession x509Possession = null;
             for (SSLPossession possession : chc.handshakePossessions) {
                 if (possession instanceof X509Authentication.X509Possession) {

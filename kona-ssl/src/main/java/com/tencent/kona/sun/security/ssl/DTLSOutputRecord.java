@@ -30,6 +30,8 @@ import java.nio.*;
 import java.util.*;
 import javax.net.ssl.*;
 
+import com.tencent.kona.sun.security.ssl.SSLCipher.SSLWriteCipher;
+
 /**
  * DTLS {@code OutputRecord} implementation for {@code SSLEngine}.
  */
@@ -41,16 +43,16 @@ final class DTLSOutputRecord extends OutputRecord implements DTLSRecord {
 
     int                 prevWriteEpoch;
     Authenticator       prevWriteAuthenticator;
-    SSLCipher.SSLWriteCipher prevWriteCipher;
+    SSLWriteCipher prevWriteCipher;
 
     private volatile boolean isCloseWaiting;
 
     DTLSOutputRecord(HandshakeHash handshakeHash) {
-        super(handshakeHash, SSLCipher.SSLWriteCipher.nullDTlsWriteCipher());
+        super(handshakeHash, SSLWriteCipher.nullDTlsWriteCipher());
 
         this.writeEpoch = 0;
         this.prevWriteEpoch = 0;
-        this.prevWriteCipher = SSLCipher.SSLWriteCipher.nullDTlsWriteCipher();
+        this.prevWriteCipher = SSLWriteCipher.nullDTlsWriteCipher();
 
         this.packetSize = maxRecordSize;
         this.protocolVersion = ProtocolVersion.NONE;
@@ -88,8 +90,8 @@ final class DTLSOutputRecord extends OutputRecord implements DTLSRecord {
     }
 
     @Override
-    void changeWriteCiphers(SSLCipher.SSLWriteCipher writeCipher,
-                            boolean useChangeCipherSpec) throws IOException {
+    void changeWriteCiphers(SSLWriteCipher writeCipher,
+            boolean useChangeCipherSpec) throws IOException {
         if (isClosed()) {
             if (SSLLogger.isOn && SSLLogger.isOn("ssl")) {
                 SSLLogger.warning("outbound has closed, ignore outbound " +
@@ -324,7 +326,7 @@ final class DTLSOutputRecord extends OutputRecord implements DTLSRecord {
         byte            majorVersion;
         byte            minorVersion;
         int             encodeEpoch;
-        SSLCipher.SSLWriteCipher encodeCipher;
+        SSLWriteCipher encodeCipher;
 
         byte[]          fragment;
     }

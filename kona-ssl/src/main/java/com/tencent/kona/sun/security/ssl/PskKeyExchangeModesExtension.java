@@ -30,13 +30,17 @@ import java.text.MessageFormat;
 import java.util.*;
 import javax.net.ssl.SSLProtocolException;
 
+import com.tencent.kona.sun.security.ssl.SSLExtension.ExtensionConsumer;
+import com.tencent.kona.sun.security.ssl.SSLExtension.SSLExtensionSpec;
+import com.tencent.kona.sun.security.ssl.SSLHandshake.HandshakeMessage;
+
 /**
  * Pack of the "psk_key_exchange_modes" extensions.
  */
 final class PskKeyExchangeModesExtension {
     static final HandshakeProducer chNetworkProducer =
             new PskKeyExchangeModesProducer();
-    static final SSLExtension.ExtensionConsumer chOnLoadConsumer =
+    static final ExtensionConsumer chOnLoadConsumer =
             new PskKeyExchangeModesConsumer();
     static final HandshakeAbsence chOnLoadAbsence =
             new PskKeyExchangeModesOnLoadAbsence();
@@ -80,7 +84,7 @@ final class PskKeyExchangeModesExtension {
     }
 
     static final
-            class PskKeyExchangeModesSpec implements SSLExtension.SSLExtensionSpec {
+            class PskKeyExchangeModesSpec implements SSLExtensionSpec {
         private static final PskKeyExchangeModesSpec DEFAULT =
                 new PskKeyExchangeModesSpec(new byte[] {
                         PskKeyExchangeMode.PSK_DHE_KE.id});
@@ -164,7 +168,7 @@ final class PskKeyExchangeModesExtension {
      * the ClientHello handshake message.
      */
     private static final
-            class PskKeyExchangeModesConsumer implements SSLExtension.ExtensionConsumer {
+            class PskKeyExchangeModesConsumer implements ExtensionConsumer {
         // Prevent instantiation of this class.
         private PskKeyExchangeModesConsumer() {
             // blank
@@ -172,7 +176,7 @@ final class PskKeyExchangeModesExtension {
 
         @Override
         public void consume(ConnectionContext context,
-                            SSLHandshake.HandshakeMessage message, ByteBuffer buffer) throws IOException {
+                HandshakeMessage message, ByteBuffer buffer) throws IOException {
 
             // The consuming happens in server side only.
             ServerHandshakeContext shc = (ServerHandshakeContext)context;
@@ -236,7 +240,7 @@ final class PskKeyExchangeModesExtension {
 
         @Override
         public byte[] produce(ConnectionContext context,
-                SSLHandshake.HandshakeMessage message) throws IOException {
+                HandshakeMessage message) throws IOException {
             // The producing happens in client side only.
             ClientHandshakeContext chc = (ClientHandshakeContext)context;
 
@@ -275,7 +279,7 @@ final class PskKeyExchangeModesExtension {
 
         @Override
         public void absent(ConnectionContext context,
-                SSLHandshake.HandshakeMessage message) throws IOException {
+                HandshakeMessage message) throws IOException {
             // The consuming happens in server side only.
             ServerHandshakeContext shc = (ServerHandshakeContext)context;
 
@@ -306,7 +310,7 @@ final class PskKeyExchangeModesExtension {
 
         @Override
         public void absent(ConnectionContext context,
-                SSLHandshake.HandshakeMessage message) throws IOException {
+                HandshakeMessage message) throws IOException {
             // The consuming happens in server side only.
             ServerHandshakeContext shc = (ServerHandshakeContext)context;
 
@@ -314,7 +318,7 @@ final class PskKeyExchangeModesExtension {
             // it offers a "pre_shared_key" extension.  If clients offer
             // "pre_shared_key" without a "psk_key_exchange_modes" extension,
             // servers MUST abort the handshake.
-            SSLExtension.SSLExtensionSpec spec =
+            SSLExtensionSpec spec =
                 shc.handshakeExtensions.get(SSLExtension.CH_PRE_SHARED_KEY);
             if (spec != null) {
                 throw shc.conContext.fatal(Alert.HANDSHAKE_FAILURE,

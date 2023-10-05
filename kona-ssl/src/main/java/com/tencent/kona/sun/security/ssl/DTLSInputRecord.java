@@ -39,6 +39,8 @@ import javax.crypto.BadPaddingException;
 import javax.net.ssl.SSLException;
 import javax.net.ssl.SSLProtocolException;
 
+import com.tencent.kona.sun.security.ssl.SSLCipher.SSLReadCipher;
+
 /**
  * DTLS {@code InputRecord} implementation for {@code SSLEngine}.
  */
@@ -47,12 +49,12 @@ final class DTLSInputRecord extends InputRecord implements DTLSRecord {
     private int             readEpoch;
 
     DTLSInputRecord(HandshakeHash handshakeHash) {
-        super(handshakeHash, SSLCipher.SSLReadCipher.nullDTlsReadCipher());
+        super(handshakeHash, SSLReadCipher.nullDTlsReadCipher());
         this.readEpoch = 0;
     }
 
     @Override
-    void changeReadCiphers(SSLCipher.SSLReadCipher readCipher) {
+    void changeReadCiphers(SSLReadCipher readCipher) {
         this.readCipher = readCipher;
         this.readEpoch++;
     }

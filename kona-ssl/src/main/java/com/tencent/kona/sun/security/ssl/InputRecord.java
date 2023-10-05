@@ -34,6 +34,8 @@ import java.nio.ByteBuffer;
 import java.util.concurrent.locks.ReentrantLock;
 import javax.crypto.BadPaddingException;
 
+import com.tencent.kona.sun.security.ssl.SSLCipher.SSLReadCipher;
+
 /**
  * {@code InputRecord} takes care of the management of SSL/TLS/DTLS input
  * records, including buffering, decryption, handshake messages marshal, etc.
@@ -41,7 +43,7 @@ import javax.crypto.BadPaddingException;
  * @author David Brownell
  */
 abstract class InputRecord implements Record, Closeable {
-    SSLCipher.SSLReadCipher readCipher;
+    SSLReadCipher readCipher;
     // Needed for KeyUpdate, used after Handshake.Finished
     TransportContext    tc;
 
@@ -58,7 +60,7 @@ abstract class InputRecord implements Record, Closeable {
 
     final ReentrantLock recordLock = new ReentrantLock();
 
-    InputRecord(HandshakeHash handshakeHash, SSLCipher.SSLReadCipher readCipher) {
+    InputRecord(HandshakeHash handshakeHash, SSLReadCipher readCipher) {
         this.readCipher = readCipher;
         this.helloVersion = ProtocolVersion.TLS10;
         this.handshakeHash = handshakeHash;
@@ -111,7 +113,7 @@ abstract class InputRecord implements Record, Closeable {
     }
 
     // apply to SSLSocket and SSLEngine
-    void changeReadCiphers(SSLCipher.SSLReadCipher readCipher) {
+    void changeReadCiphers(SSLReadCipher readCipher) {
 
         /*
          * Dispose of any intermediate state in the underlying cipher.

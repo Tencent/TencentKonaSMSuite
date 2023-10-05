@@ -44,6 +44,7 @@ import javax.crypto.spec.DHPublicKeySpec;
 import com.tencent.kona.crypto.CryptoInsts;
 import com.tencent.kona.sun.security.action.GetPropertyAction;
 import com.tencent.kona.sun.security.ssl.NamedGroup.NamedGroupSpec;
+import com.tencent.kona.sun.security.ssl.X509Authentication.X509Possession;
 import com.tencent.kona.sun.security.util.KeyUtil;
 
 final class DHKeyExchange {
@@ -76,7 +77,7 @@ final class DHKeyExchange {
         static DHECredentials valueOf(NamedGroup ng,
             byte[] encodedPublic) throws IOException, GeneralSecurityException {
 
-            if (ng.spec != NamedGroup.NamedGroupSpec.NAMED_GROUP_FFDHE) {
+            if (ng.spec != NamedGroupSpec.NAMED_GROUP_FFDHE) {
                 throw new RuntimeException(
                         "Credentials decoding:  Not FFDHE named group");
             }
@@ -365,8 +366,8 @@ final class DHKeyExchange {
                     PrivateKey key = null;
                     ServerHandshakeContext shc =
                             (ServerHandshakeContext)context;
-                    if (shc.interimAuthn instanceof X509Authentication.X509Possession) {
-                        key = ((X509Authentication.X509Possession)shc.interimAuthn).popPrivateKey;
+                    if (shc.interimAuthn instanceof X509Possession) {
+                        key = ((X509Possession)shc.interimAuthn).popPrivateKey;
                     }
 
                     if (key != null) {

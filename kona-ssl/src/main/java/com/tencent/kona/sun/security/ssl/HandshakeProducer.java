@@ -27,11 +27,13 @@ package com.tencent.kona.sun.security.ssl;
 
 import java.io.IOException;
 
+import com.tencent.kona.sun.security.ssl.SSLHandshake.HandshakeMessage;
+
 interface HandshakeProducer {
     // return the encoded producing if it has not been dumped to the context
     //
     // message: the handshake message responded to, can be null for producing
     //          of kickstart handshake message
     byte[] produce(ConnectionContext context,
-            SSLHandshake.HandshakeMessage message) throws IOException;
+            HandshakeMessage message) throws IOException;
 }

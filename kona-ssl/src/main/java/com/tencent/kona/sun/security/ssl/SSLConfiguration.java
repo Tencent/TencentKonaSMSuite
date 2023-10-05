@@ -45,6 +45,8 @@ import javax.net.ssl.SSLSocket;
 
 import com.tencent.kona.crypto.CryptoInsts;
 import com.tencent.kona.sun.security.action.GetPropertyAction;
+import com.tencent.kona.sun.security.ssl.SSLExtension.ClientExtensions;
+import com.tencent.kona.sun.security.ssl.SSLExtension.ServerExtensions;
 
 import static com.tencent.kona.sun.security.ssl.Utilities.SUPPORT_ALPN;
 
@@ -328,8 +330,8 @@ final class SSLConfiguration implements Cloneable {
         for (ProtocolVersion protocolVersion : enabledProtocols) {
             if (extension.isAvailable(protocolVersion)) {
                 if (isClientMode ?
-                        SSLExtension.ClientExtensions.defaults.contains(extension) :
-                        SSLExtension.ServerExtensions.defaults.contains(extension)) {
+                        ClientExtensions.defaults.contains(extension) :
+                        ServerExtensions.defaults.contains(extension)) {
                     return true;
                 }
             }
@@ -344,8 +346,8 @@ final class SSLConfiguration implements Cloneable {
     boolean isAvailable(SSLExtension extension,
             ProtocolVersion protocolVersion) {
         return extension.isAvailable(protocolVersion) &&
-                (isClientMode ? SSLExtension.ClientExtensions.defaults.contains(extension) :
-                                SSLExtension.ServerExtensions.defaults.contains(extension));
+                (isClientMode ? ClientExtensions.defaults.contains(extension) :
+                                ServerExtensions.defaults.contains(extension));
     }
 
     /**

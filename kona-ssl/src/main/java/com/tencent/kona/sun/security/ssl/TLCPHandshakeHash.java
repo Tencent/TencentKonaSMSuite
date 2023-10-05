@@ -31,9 +31,13 @@ import java.io.ByteArrayOutputStream;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
-final class TLCPHandshakeHash implements HandshakeHash.TranscriptHash {
+import com.tencent.kona.sun.security.ssl.HandshakeHash.CloneableHash;
+import com.tencent.kona.sun.security.ssl.HandshakeHash.NonCloneableHash;
+import com.tencent.kona.sun.security.ssl.HandshakeHash.TranscriptHash;
 
-    private final HandshakeHash.TranscriptHash transcriptHash;
+final class TLCPHandshakeHash implements TranscriptHash {
+
+    private final TranscriptHash transcriptHash;
     private final ByteArrayOutputStream baos;
 
     TLCPHandshakeHash() {
@@ -45,10 +49,10 @@ final class TLCPHandshakeHash implements HandshakeHash.TranscriptHash {
         }
 
         if (md instanceof Cloneable) {
-            transcriptHash = new HandshakeHash.CloneableHash(md);
+            transcriptHash = new CloneableHash(md);
             this.baos = new ByteArrayOutputStream();
         } else {
-            transcriptHash = new HandshakeHash.NonCloneableHash(md);
+            transcriptHash = new NonCloneableHash(md);
             this.baos = null;
         }
     }

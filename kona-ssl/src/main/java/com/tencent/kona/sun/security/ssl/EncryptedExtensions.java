@@ -30,6 +30,8 @@ import java.nio.ByteBuffer;
 import java.text.MessageFormat;
 import java.util.Locale;
 
+import com.tencent.kona.sun.security.ssl.SSLHandshake.HandshakeMessage;
+
 /**
  * Pack of the EncryptedExtensions handshake message.
  */
@@ -42,7 +44,7 @@ final class EncryptedExtensions {
     /**
      * The EncryptedExtensions handshake message.
      */
-    static final class EncryptedExtensionsMessage extends SSLHandshake.HandshakeMessage {
+    static final class EncryptedExtensionsMessage extends HandshakeMessage {
         private final SSLExtensions extensions;
 
         EncryptedExtensionsMessage(
@@ -121,7 +123,7 @@ final class EncryptedExtensions {
 
         @Override
         public byte[] produce(ConnectionContext context,
-                SSLHandshake.HandshakeMessage message) throws IOException {
+                HandshakeMessage message) throws IOException {
             // The producing happens in server side only.
             ServerHandshakeContext shc = (ServerHandshakeContext)context;
 

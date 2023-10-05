@@ -30,13 +30,14 @@ import java.nio.ByteBuffer;
 import java.text.MessageFormat;
 import java.util.*;
 
+import com.tencent.kona.sun.security.ssl.SSLHandshake.HandshakeMessage;
 import com.tencent.kona.sun.security.util.HexDumpEncoder;
 
 /**
  * SSL/(D)TLS extensions in a handshake message.
  */
 final class SSLExtensions {
-    private final SSLHandshake.HandshakeMessage handshakeMessage;
+    private final HandshakeMessage handshakeMessage;
     private final Map<SSLExtension, byte[]> extMap = new LinkedHashMap<>();
     private int encodedLength;
 
@@ -44,12 +45,12 @@ final class SSLExtensions {
     private final Map<Integer, byte[]> logMap =
             SSLLogger.isOn ? new LinkedHashMap<>() : null;
 
-    SSLExtensions(SSLHandshake.HandshakeMessage handshakeMessage) {
+    SSLExtensions(HandshakeMessage handshakeMessage) {
         this.handshakeMessage = handshakeMessage;
         this.encodedLength = 2;         // 2: the length of the extensions.
     }
 
-    SSLExtensions(SSLHandshake.HandshakeMessage hm,
+    SSLExtensions(HandshakeMessage hm,
                   ByteBuffer m, SSLExtension[] extensions) throws IOException {
         this.handshakeMessage = hm;
 

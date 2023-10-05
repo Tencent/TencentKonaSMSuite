@@ -47,6 +47,8 @@ import javax.net.ssl.SNIServerName;
 import javax.net.ssl.SSLHandshakeException;
 import javax.security.auth.x500.X500Principal;
 
+import com.tencent.kona.sun.security.ssl.NamedGroup.NamedGroupSpec;
+
 abstract class HandshakeContext implements ConnectionContext {
     // System properties
 
@@ -281,8 +283,8 @@ abstract class HandshakeContext implements ConnectionContext {
             }
 
             boolean found = false;
-            Map<NamedGroup.NamedGroupSpec, Boolean> cachedStatus =
-                    new EnumMap<>(NamedGroup.NamedGroupSpec.class);
+            Map<NamedGroupSpec, Boolean> cachedStatus =
+                    new EnumMap<>(NamedGroupSpec.class);
             for (CipherSuite suite : sslConfig.enabledCipherSuites) {
                 if (suite.isAvailable() && suite.supports(protocol)) {
                     if (isActivatable(sslConfig, suite,
@@ -337,8 +339,8 @@ abstract class HandshakeContext implements ConnectionContext {
 
         List<CipherSuite> suites = new LinkedList<>();
         if (enabledProtocols != null && !enabledProtocols.isEmpty()) {
-            Map<NamedGroup.NamedGroupSpec, Boolean> cachedStatus =
-                    new EnumMap<>(NamedGroup.NamedGroupSpec.class);
+            Map<NamedGroupSpec, Boolean> cachedStatus =
+                    new EnumMap<>(NamedGroupSpec.class);
             for (CipherSuite suite : sslConfig.enabledCipherSuites) {
                 if (!suite.isAvailable()) {
                     continue;
@@ -558,7 +560,7 @@ abstract class HandshakeContext implements ConnectionContext {
             SSLConfiguration sslConfig,
             CipherSuite suite,
             AlgorithmConstraints algorithmConstraints,
-            Map<NamedGroup.NamedGroupSpec, Boolean> cachedStatus) {
+            Map<NamedGroupSpec, Boolean> cachedStatus) {
 
         if (algorithmConstraints.permits(
                 EnumSet.of(CryptoPrimitive.KEY_AGREEMENT), suite.name, null)) {
@@ -569,9 +571,9 @@ abstract class HandshakeContext implements ConnectionContext {
 
             // Is at least one of the group types available?
             boolean groupAvailable, retval = false;
-            NamedGroup.NamedGroupSpec[] groupTypes = suite.keyExchange.groupTypes;
-            for (NamedGroup.NamedGroupSpec groupType : groupTypes) {
-                if (groupType != NamedGroup.NamedGroupSpec.NAMED_GROUP_NONE) {
+            NamedGroupSpec[] groupTypes = suite.keyExchange.groupTypes;
+            for (NamedGroupSpec groupType : groupTypes) {
+                if (groupType != NamedGroupSpec.NAMED_GROUP_NONE) {
                     Boolean checkedStatus = cachedStatus.get(groupType);
                     if (checkedStatus == null) {
                         groupAvailable = NamedGroup.isActivatable(

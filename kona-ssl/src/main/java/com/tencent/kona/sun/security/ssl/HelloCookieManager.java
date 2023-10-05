@@ -34,6 +34,8 @@ import java.security.SecureRandom;
 import java.util.Arrays;
 import java.util.concurrent.locks.ReentrantLock;
 
+import com.tencent.kona.sun.security.ssl.ClientHello.ClientHelloMessage;
+
 /**
  *  (D)TLS handshake cookie manager
  */
@@ -113,10 +115,10 @@ abstract class HelloCookieManager {
     }
 
     abstract byte[] createCookie(ServerHandshakeContext context,
-                ClientHello.ClientHelloMessage clientHello) throws IOException;
+                ClientHelloMessage clientHello) throws IOException;
 
     abstract boolean isCookieValid(ServerHandshakeContext context,
-                                   ClientHello.ClientHelloMessage clientHello, byte[] cookie) throws IOException;
+            ClientHelloMessage clientHello, byte[] cookie) throws IOException;
 
     // DTLS 1.0/1.2
     private static final
@@ -142,7 +144,7 @@ abstract class HelloCookieManager {
 
         @Override
         byte[] createCookie(ServerHandshakeContext context,
-                ClientHello.ClientHelloMessage clientHello) {
+                ClientHelloMessage clientHello) {
             int version;
             byte[] secret;
 
@@ -179,7 +181,7 @@ abstract class HelloCookieManager {
 
         @Override
         boolean isCookieValid(ServerHandshakeContext context,
-                              ClientHello.ClientHelloMessage clientHello, byte[] cookie) {
+                ClientHelloMessage clientHello, byte[] cookie) {
             // no cookie exchange or not a valid cookie length
             if ((cookie == null) || (cookie.length != 32)) {
                 return false;
@@ -220,13 +222,13 @@ abstract class HelloCookieManager {
 
         @Override
         byte[] createCookie(ServerHandshakeContext context,
-                ClientHello.ClientHelloMessage clientHello) {
+                ClientHelloMessage clientHello) {
             throw new UnsupportedOperationException("Not supported yet.");
         }
 
         @Override
         boolean isCookieValid(ServerHandshakeContext context,
-                              ClientHello.ClientHelloMessage clientHello, byte[] cookie) {
+                ClientHelloMessage clientHello, byte[] cookie) {
             throw new UnsupportedOperationException("Not supported yet.");
         }
     }
@@ -253,7 +255,7 @@ abstract class HelloCookieManager {
 
         @Override
         byte[] createCookie(ServerHandshakeContext context,
-                ClientHello.ClientHelloMessage clientHello) {
+                ClientHelloMessage clientHello) {
             int version;
             byte[] secret;
 
@@ -316,7 +318,7 @@ abstract class HelloCookieManager {
 
         @Override
         boolean isCookieValid(ServerHandshakeContext context,
-                              ClientHello.ClientHelloMessage clientHello, byte[] cookie) throws IOException {
+                ClientHelloMessage clientHello, byte[] cookie) throws IOException {
             // no cookie exchange or not a valid cookie length
             if ((cookie == null) || (cookie.length <= 32)) {    // 32: roughly
                 return false;

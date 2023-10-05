@@ -43,6 +43,9 @@ import java.util.Locale;
 import java.util.Map;
 
 import com.tencent.kona.crypto.CryptoInsts;
+import com.tencent.kona.sun.security.ssl.SSLHandshake.HandshakeMessage;
+import com.tencent.kona.sun.security.ssl.X509Authentication.X509Credentials;
+import com.tencent.kona.sun.security.ssl.X509Authentication.X509Possession;
 import com.tencent.kona.sun.security.util.HexDumpEncoder;
 
 /**
@@ -58,7 +61,7 @@ final class ECDHServerKeyExchange {
      * The ECDH ServerKeyExchange handshake message.
      */
     private static final
-            class ECDHServerKeyExchangeMessage extends SSLHandshake.HandshakeMessage {
+            class ECDHServerKeyExchangeMessage extends HandshakeMessage {
         private static final byte CURVE_NAMED_CURVE = (byte)0x03;
 
         // id of the named curve
@@ -88,15 +91,15 @@ final class ECDHServerKeyExchange {
 
             // Find the Possessions needed
             NamedGroupPossession namedGroupPossession = null;
-            X509Authentication.X509Possession x509Possession = null;
+            X509Possession x509Possession = null;
             for (SSLPossession possession : shc.handshakePossessions) {
                 if (possession instanceof NamedGroupPossession) {
                     namedGroupPossession = (NamedGroupPossession)possession;
                     if (x509Possession != null) {
                         break;
                     }
-                } else if (possession instanceof X509Authentication.X509Possession) {
-                    x509Possession = (X509Authentication.X509Possession)possession;
+                } else if (possession instanceof X509Possession) {
+                    x509Possession = (X509Possession)possession;
                     if (namedGroupPossession != null) {
                         break;
                     }
@@ -235,10 +238,10 @@ final class ECDHServerKeyExchange {
                         NamedGroup.nameOf(namedGroupId));
             }
 
-            X509Authentication.X509Credentials x509Credentials = null;
+            X509Credentials x509Credentials = null;
             for (SSLCredentials cd : chc.handshakeCredentials) {
-                if (cd instanceof X509Authentication.X509Credentials) {
-                    x509Credentials = (X509Authentication.X509Credentials)cd;
+                if (cd instanceof X509Credentials) {
+                    x509Credentials = (X509Credentials)cd;
                     break;
                 }
             }
@@ -481,7 +484,7 @@ final class ECDHServerKeyExchange {
 
         @Override
         public byte[] produce(ConnectionContext context,
-                SSLHandshake.HandshakeMessage message) throws IOException {
+                HandshakeMessage message) throws IOException {
             // The producing happens in server side only.
             ServerHandshakeContext shc = (ServerHandshakeContext)context;
             ECDHServerKeyExchangeMessage skem =

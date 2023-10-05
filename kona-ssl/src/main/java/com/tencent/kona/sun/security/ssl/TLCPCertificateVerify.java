@@ -41,6 +41,10 @@ import java.security.interfaces.ECPublicKey;
 import java.text.MessageFormat;
 import java.util.Locale;
 
+import com.tencent.kona.sun.security.ssl.SSLHandshake.HandshakeMessage;
+import com.tencent.kona.sun.security.ssl.TLCPAuthentication.TLCPCredentials;
+import com.tencent.kona.sun.security.ssl.TLCPAuthentication.TLCPPossession;
+
 final class TLCPCertificateVerify {
 
     static final SSLConsumer tlcpHandshakeConsumer
@@ -49,7 +53,7 @@ final class TLCPCertificateVerify {
             = new TLCPCertificateVerifyProducer();
 
     private static final class TLCPCertificateVerifyMessage
-            extends SSLHandshake.HandshakeMessage {
+            extends HandshakeMessage {
 
         // the signature algorithm
         private final SignatureScheme signatureScheme;
@@ -58,7 +62,7 @@ final class TLCPCertificateVerify {
         private final byte[] signature;
 
         TLCPCertificateVerifyMessage(HandshakeContext context,
-                                     TLCPAuthentication.TLCPPossession tlcpPossession)
+                                     TLCPPossession tlcpPossession)
                 throws IOException {
             super(context);
 
@@ -125,10 +129,10 @@ final class TLCPCertificateVerify {
             }
 
             // read and verify the signature
-            TLCPAuthentication.TLCPCredentials tlcpCredentials = null;
+            TLCPCredentials tlcpCredentials = null;
             for (SSLCredentials cd : shc.handshakeCredentials) {
-                if (cd instanceof TLCPAuthentication.TLCPCredentials) {
-                    tlcpCredentials = (TLCPAuthentication.TLCPCredentials) cd;
+                if (cd instanceof TLCPCredentials) {
+                    tlcpCredentials = (TLCPCredentials) cd;
                     break;
                 }
             }
@@ -225,14 +229,14 @@ final class TLCPCertificateVerify {
 
         @Override
         public byte[] produce(ConnectionContext context,
-                SSLHandshake.HandshakeMessage message) throws IOException {
+                HandshakeMessage message) throws IOException {
             // The producing happens in client side only.
             ClientHandshakeContext chc = (ClientHandshakeContext)context;
 
-            TLCPAuthentication.TLCPPossession tlcpPossession = null;
+            TLCPPossession tlcpPossession = null;
             for (SSLPossession possession : chc.handshakePossessions) {
-                if (possession instanceof TLCPAuthentication.TLCPPossession) {
-                    tlcpPossession = (TLCPAuthentication.TLCPPossession)possession;
+                if (possession instanceof TLCPPossession) {
+                    tlcpPossession = (TLCPPossession)possession;
                     break;
                 }
             }

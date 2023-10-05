@@ -30,20 +30,24 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import javax.net.ssl.SSLProtocolException;
 
+import com.tencent.kona.sun.security.ssl.SSLExtension.ExtensionConsumer;
+import com.tencent.kona.sun.security.ssl.SSLExtension.SSLExtensionSpec;
+import com.tencent.kona.sun.security.ssl.SSLHandshake.HandshakeMessage;
+
 /**
  * Pack of the "extended_master_secret" extensions [RFC 7627].
  */
 final class ExtendedMasterSecretExtension {
     static final HandshakeProducer chNetworkProducer =
             new CHExtendedMasterSecretProducer();
-    static final SSLExtension.ExtensionConsumer chOnLoadConsumer =
+    static final ExtensionConsumer chOnLoadConsumer =
             new CHExtendedMasterSecretConsumer();
     static final HandshakeAbsence chOnLoadAbsence =
             new CHExtendedMasterSecretAbsence();
 
     static final HandshakeProducer shNetworkProducer =
             new SHExtendedMasterSecretProducer();
-    static final SSLExtension.ExtensionConsumer shOnLoadConsumer =
+    static final ExtensionConsumer shOnLoadConsumer =
             new SHExtendedMasterSecretConsumer();
     static final HandshakeAbsence shOnLoadAbsence =
             new SHExtendedMasterSecretAbsence();
@@ -54,7 +58,7 @@ final class ExtendedMasterSecretExtension {
     /**
      * The "extended_master_secret" extension.
      */
-    static final class ExtendedMasterSecretSpec implements SSLExtension.SSLExtensionSpec {
+    static final class ExtendedMasterSecretSpec implements SSLExtensionSpec {
         // A nominal object that does not hold any real renegotiation info.
         static final ExtendedMasterSecretSpec NOMINAL =
                 new ExtendedMasterSecretSpec();
@@ -106,7 +110,7 @@ final class ExtendedMasterSecretExtension {
 
         @Override
         public byte[] produce(ConnectionContext context,
-                SSLHandshake.HandshakeMessage message) throws IOException {
+                HandshakeMessage message) throws IOException {
             // The producing happens in client side only.
             ClientHandshakeContext chc = (ClientHandshakeContext)context;
 
@@ -140,7 +144,7 @@ final class ExtendedMasterSecretExtension {
      * the ServerHello handshake message.
      */
     private static final
-            class CHExtendedMasterSecretConsumer implements SSLExtension.ExtensionConsumer {
+            class CHExtendedMasterSecretConsumer implements ExtensionConsumer {
         // Prevent instantiation of this class.
         private CHExtendedMasterSecretConsumer() {
             // blank
@@ -148,7 +152,7 @@ final class ExtendedMasterSecretExtension {
 
         @Override
         public void consume(ConnectionContext context,
-                            SSLHandshake.HandshakeMessage message, ByteBuffer buffer) throws IOException {
+                HandshakeMessage message, ByteBuffer buffer) throws IOException {
 
             // The consuming happens in server side only.
             ServerHandshakeContext shc = (ServerHandshakeContext)context;
@@ -201,7 +205,7 @@ final class ExtendedMasterSecretExtension {
             class CHExtendedMasterSecretAbsence implements HandshakeAbsence {
         @Override
         public void absent(ConnectionContext context,
-                SSLHandshake.HandshakeMessage message) throws IOException {
+                HandshakeMessage message) throws IOException {
             // The producing happens in server side only.
             ServerHandshakeContext shc = (ServerHandshakeContext)context;
 
@@ -271,7 +275,7 @@ final class ExtendedMasterSecretExtension {
 
         @Override
         public byte[] produce(ConnectionContext context,
-                SSLHandshake.HandshakeMessage message) throws IOException {
+                HandshakeMessage message) throws IOException {
             // The producing happens in server side only.
             ServerHandshakeContext shc = (ServerHandshakeContext)context;
 
@@ -292,7 +296,7 @@ final class ExtendedMasterSecretExtension {
      * the ServerHello handshake message.
      */
     private static final
-            class SHExtendedMasterSecretConsumer implements SSLExtension.ExtensionConsumer {
+            class SHExtendedMasterSecretConsumer implements ExtensionConsumer {
         // Prevent instantiation of this class.
         private SHExtendedMasterSecretConsumer() {
             // blank
@@ -300,7 +304,7 @@ final class ExtendedMasterSecretExtension {
 
         @Override
         public void consume(ConnectionContext context,
-                            SSLHandshake.HandshakeMessage message, ByteBuffer buffer) throws IOException {
+                HandshakeMessage message, ByteBuffer buffer) throws IOException {
             // The producing happens in client side only.
             ClientHandshakeContext chc = (ClientHandshakeContext)context;
 
@@ -340,7 +344,7 @@ final class ExtendedMasterSecretExtension {
             class SHExtendedMasterSecretAbsence implements HandshakeAbsence {
         @Override
         public void absent(ConnectionContext context,
-                SSLHandshake.HandshakeMessage message) throws IOException {
+                HandshakeMessage message) throws IOException {
             // The producing happens in client side only.
             ClientHandshakeContext chc = (ClientHandshakeContext)context;
 

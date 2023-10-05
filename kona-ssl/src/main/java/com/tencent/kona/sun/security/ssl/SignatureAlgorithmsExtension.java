@@ -33,13 +33,17 @@ import java.util.List;
 import java.util.Locale;
 import javax.net.ssl.SSLProtocolException;
 
+import com.tencent.kona.sun.security.ssl.SSLExtension.ExtensionConsumer;
+import com.tencent.kona.sun.security.ssl.SSLExtension.SSLExtensionSpec;
+import com.tencent.kona.sun.security.ssl.SSLHandshake.HandshakeMessage;
+
 /**
  * Pack of the "signature_algorithms" extensions [RFC 5246].
  */
 final class SignatureAlgorithmsExtension {
     static final HandshakeProducer chNetworkProducer =
             new CHSignatureSchemesProducer();
-    static final SSLExtension.ExtensionConsumer chOnLoadConsumer =
+    static final ExtensionConsumer chOnLoadConsumer =
             new CHSignatureSchemesConsumer();
     static final HandshakeAbsence chOnLoadAbsence =
             new CHSignatureSchemesOnLoadAbsence();
@@ -50,7 +54,7 @@ final class SignatureAlgorithmsExtension {
 
     static final HandshakeProducer crNetworkProducer =
             new CRSignatureSchemesProducer();
-    static final SSLExtension.ExtensionConsumer crOnLoadConsumer =
+    static final ExtensionConsumer crOnLoadConsumer =
             new CRSignatureSchemesConsumer();
     static final HandshakeAbsence crOnLoadAbsence =
             new CRSignatureSchemesAbsence();
@@ -63,7 +67,7 @@ final class SignatureAlgorithmsExtension {
     /**
      * The "signature_algorithms" extension.
      */
-    static final class SignatureSchemesSpec implements SSLExtension.SSLExtensionSpec {
+    static final class SignatureSchemesSpec implements SSLExtensionSpec {
         final int[] signatureSchemes;
 
         SignatureSchemesSpec(List<SignatureScheme> schemes) {
@@ -167,7 +171,7 @@ final class SignatureAlgorithmsExtension {
 
         @Override
         public byte[] produce(ConnectionContext context,
-                SSLHandshake.HandshakeMessage message) throws IOException {
+                HandshakeMessage message) throws IOException {
             // The producing happens in client side only.
             ClientHandshakeContext chc = (ClientHandshakeContext)context;
 
@@ -212,7 +216,7 @@ final class SignatureAlgorithmsExtension {
      * the ClientHello handshake message.
      */
     private static final
-            class CHSignatureSchemesConsumer implements SSLExtension.ExtensionConsumer {
+            class CHSignatureSchemesConsumer implements ExtensionConsumer {
         // Prevent instantiation of this class.
         private CHSignatureSchemesConsumer() {
             // blank
@@ -220,7 +224,7 @@ final class SignatureAlgorithmsExtension {
 
         @Override
         public void consume(ConnectionContext context,
-                            SSLHandshake.HandshakeMessage message, ByteBuffer buffer) throws IOException {
+                HandshakeMessage message, ByteBuffer buffer) throws IOException {
             // The consuming happens in server side only.
             ServerHandshakeContext shc = (ServerHandshakeContext)context;
 
@@ -258,7 +262,7 @@ final class SignatureAlgorithmsExtension {
 
         @Override
         public void consume(ConnectionContext context,
-                SSLHandshake.HandshakeMessage message) throws IOException {
+                HandshakeMessage message) throws IOException {
             // The consuming happens in server side only.
             ServerHandshakeContext shc = (ServerHandshakeContext)context;
 
@@ -319,7 +323,7 @@ final class SignatureAlgorithmsExtension {
             class CHSignatureSchemesOnLoadAbsence implements HandshakeAbsence {
         @Override
         public void absent(ConnectionContext context,
-                SSLHandshake.HandshakeMessage message) throws IOException {
+                HandshakeMessage message) throws IOException {
             // The consuming happens in server side only.
             ServerHandshakeContext shc = (ServerHandshakeContext)context;
 
@@ -344,7 +348,7 @@ final class SignatureAlgorithmsExtension {
             class CHSignatureSchemesOnTradeAbsence implements HandshakeAbsence {
         @Override
         public void absent(ConnectionContext context,
-                SSLHandshake.HandshakeMessage message) throws IOException {
+                HandshakeMessage message) throws IOException {
             // The consuming happens in server side only.
             ServerHandshakeContext shc = (ServerHandshakeContext)context;
 
@@ -393,7 +397,7 @@ final class SignatureAlgorithmsExtension {
 
         @Override
         public byte[] produce(ConnectionContext context,
-                SSLHandshake.HandshakeMessage message) throws IOException {
+                HandshakeMessage message) throws IOException {
             // The producing happens in server side only.
             ServerHandshakeContext shc = (ServerHandshakeContext)context;
 
@@ -437,14 +441,14 @@ final class SignatureAlgorithmsExtension {
      * the CertificateRequest handshake message.
      */
     private static final
-            class CRSignatureSchemesConsumer implements SSLExtension.ExtensionConsumer {
+            class CRSignatureSchemesConsumer implements ExtensionConsumer {
         // Prevent instantiation of this class.
         private CRSignatureSchemesConsumer() {
             // blank
         }
         @Override
         public void consume(ConnectionContext context,
-                            SSLHandshake.HandshakeMessage message, ByteBuffer buffer) throws IOException {
+                HandshakeMessage message, ByteBuffer buffer) throws IOException {
             // The consuming happens in client side only.
             ClientHandshakeContext chc = (ClientHandshakeContext)context;
 
@@ -486,7 +490,7 @@ final class SignatureAlgorithmsExtension {
 
         @Override
         public void consume(ConnectionContext context,
-                SSLHandshake.HandshakeMessage message) throws IOException {
+                HandshakeMessage message) throws IOException {
             // The consuming happens in client side only.
             ClientHandshakeContext chc = (ClientHandshakeContext)context;
 
@@ -531,7 +535,7 @@ final class SignatureAlgorithmsExtension {
             class CRSignatureSchemesAbsence implements HandshakeAbsence {
         @Override
         public void absent(ConnectionContext context,
-                SSLHandshake.HandshakeMessage message) throws IOException {
+                HandshakeMessage message) throws IOException {
             // The consuming happens in client side only.
             ClientHandshakeContext chc = (ClientHandshakeContext)context;
 

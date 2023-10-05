@@ -34,6 +34,12 @@ import java.text.MessageFormat;
 import java.util.Locale;
 import javax.crypto.SecretKey;
 
+import com.tencent.kona.sun.security.ssl.RSAKeyExchange.EphemeralRSACredentials;
+import com.tencent.kona.sun.security.ssl.RSAKeyExchange.EphemeralRSAPossession;
+import com.tencent.kona.sun.security.ssl.RSAKeyExchange.RSAPremasterSecret;
+import com.tencent.kona.sun.security.ssl.SSLHandshake.HandshakeMessage;
+import com.tencent.kona.sun.security.ssl.X509Authentication.X509Credentials;
+import com.tencent.kona.sun.security.ssl.X509Authentication.X509Possession;
 import com.tencent.kona.sun.security.util.HexDumpEncoder;
 
 /**
@@ -49,13 +55,13 @@ final class RSAClientKeyExchange {
      * The RSA ClientKeyExchange handshake message.
      */
     private static final
-            class RSAClientKeyExchangeMessage extends SSLHandshake.HandshakeMessage {
+            class RSAClientKeyExchangeMessage extends HandshakeMessage {
         final int protocolVersion;
         final boolean useTLS10PlusSpec;
         final byte[] encrypted;
 
         RSAClientKeyExchangeMessage(HandshakeContext context,
-                RSAKeyExchange.RSAPremasterSecret premaster,
+                RSAPremasterSecret premaster,
                 PublicKey publicKey) throws GeneralSecurityException {
             super(context);
             this.protocolVersion = context.clientHelloVersion;
@@ -141,20 +147,20 @@ final class RSAClientKeyExchange {
 
         @Override
         public byte[] produce(ConnectionContext context,
-                SSLHandshake.HandshakeMessage message) throws IOException {
+                HandshakeMessage message) throws IOException {
             // This happens in client side only.
             ClientHandshakeContext chc = (ClientHandshakeContext)context;
 
-            RSAKeyExchange.EphemeralRSACredentials rsaCredentials = null;
-            X509Authentication.X509Credentials x509Credentials = null;
+            EphemeralRSACredentials rsaCredentials = null;
+            X509Credentials x509Credentials = null;
             for (SSLCredentials credential : chc.handshakeCredentials) {
-                if (credential instanceof RSAKeyExchange.EphemeralRSACredentials) {
-                    rsaCredentials = (RSAKeyExchange.EphemeralRSACredentials)credential;
+                if (credential instanceof EphemeralRSACredentials) {
+                    rsaCredentials = (EphemeralRSACredentials)credential;
                     if (x509Credentials != null) {
                         break;
                     }
-                } else if (credential instanceof X509Authentication.X509Credentials) {
-                    x509Credentials = (X509Authentication.X509Credentials)credential;
+                } else if (credential instanceof X509Credentials) {
+                    x509Credentials = (X509Credentials)credential;
                     if (rsaCredentials != null) {
                         break;
                     }
@@ -173,10 +179,10 @@ final class RSAClientKeyExchange {
                     "Not RSA public key for client key exchange");
             }
 
-            RSAKeyExchange.RSAPremasterSecret premaster;
+            RSAPremasterSecret premaster;
             RSAClientKeyExchangeMessage ckem;
             try {
-                premaster = RSAKeyExchange.RSAPremasterSecret.createPremasterSecret(chc);
+                premaster = RSAPremasterSecret.createPremasterSecret(chc);
                 chc.handshakePossessions.add(premaster);
                 ckem = new RSAClientKeyExchangeMessage(
                         chc, premaster, publicKey);
@@ -240,14 +246,14 @@ final class RSAClientKeyExchange {
             // The consuming happens in server side only.
             ServerHandshakeContext shc = (ServerHandshakeContext)context;
 
-            RSAKeyExchange.EphemeralRSAPossession rsaPossession = null;
-            X509Authentication.X509Possession x509Possession = null;
+            EphemeralRSAPossession rsaPossession = null;
+            X509Possession x509Possession = null;
             for (SSLPossession possession : shc.handshakePossessions) {
-                if (possession instanceof RSAKeyExchange.EphemeralRSAPossession) {
-                    rsaPossession = (RSAKeyExchange.EphemeralRSAPossession)possession;
+                if (possession instanceof EphemeralRSAPossession) {
+                    rsaPossession = (EphemeralRSAPossession)possession;
                     break;
-                } else if (possession instanceof X509Authentication.X509Possession) {
-                    x509Possession = (X509Authentication.X509Possession)possession;
+                } else if (possession instanceof X509Possession) {
+                    x509Possession = (X509Possession)possession;
                 }
             }
 
@@ -271,10 +277,10 @@ final class RSAClientKeyExchange {
             }
 
             // create the credentials
-            RSAKeyExchange.RSAPremasterSecret premaster;
+            RSAPremasterSecret premaster;
             try {
                 premaster =
-                    RSAKeyExchange.RSAPremasterSecret.decode(shc, privateKey, ckem.encrypted);
+                    RSAPremasterSecret.decode(shc, privateKey, ckem.encrypted);
                 shc.handshakeCredentials.add(premaster);
             } catch (GeneralSecurityException gse) {
                 throw shc.conContext.fatal(Alert.ILLEGAL_PARAMETER,

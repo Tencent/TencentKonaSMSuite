@@ -25,11 +25,6 @@
 
 package com.tencent.kona.sun.security.ssl;
 
-import com.tencent.kona.crypto.CryptoInsts;
-import com.tencent.kona.crypto.spec.SM2SignatureParameterSpec;
-import com.tencent.kona.crypto.util.Constants;
-import com.tencent.kona.sun.security.util.HexDumpEncoder;
-
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.security.InvalidAlgorithmParameterException;
@@ -43,6 +38,14 @@ import java.security.interfaces.ECPublicKey;
 import java.text.MessageFormat;
 import java.util.Locale;
 
+import com.tencent.kona.crypto.CryptoInsts;
+import com.tencent.kona.crypto.spec.SM2SignatureParameterSpec;
+import com.tencent.kona.crypto.util.Constants;
+import com.tencent.kona.sun.security.ssl.TLCPAuthentication.TLCPCredentials;
+import com.tencent.kona.sun.security.ssl.TLCPAuthentication.TLCPPossession;
+import com.tencent.kona.sun.security.ssl.SSLHandshake.HandshakeMessage;
+import com.tencent.kona.sun.security.util.HexDumpEncoder;
+
 /**
  * Pack of the static SM2 ServerKeyExchange handshake message.
  */
@@ -54,7 +57,7 @@ final class SM2ServerKeyExchange {
             = new SM2ServerKeyExchangeProducer();
 
     private static final class SM2ServerKeyExchangeMessage
-            extends SSLHandshake.HandshakeMessage {
+            extends HandshakeMessage {
 
         // signature bytes, or null if anonymous
         private final byte[] paramsSignature;
@@ -72,10 +75,10 @@ final class SM2ServerKeyExchange {
             ServerHandshakeContext shc =
                     (ServerHandshakeContext)handshakeContext;
 
-            TLCPAuthentication.TLCPPossession tlcpPossession = null;
+            TLCPPossession tlcpPossession = null;
             for (SSLPossession possession : shc.handshakePossessions) {
-                if (possession instanceof TLCPAuthentication.TLCPPossession) {
-                    tlcpPossession = (TLCPAuthentication.TLCPPossession) possession;
+                if (possession instanceof TLCPPossession) {
+                    tlcpPossession = (TLCPPossession) possession;
                     break;
                 }
             }
@@ -141,10 +144,10 @@ final class SM2ServerKeyExchange {
             ClientHandshakeContext chc =
                     (ClientHandshakeContext)handshakeContext;
 
-            TLCPAuthentication.TLCPCredentials tlcpCredentials = null;
+            TLCPCredentials tlcpCredentials = null;
             for (SSLCredentials cd : chc.handshakeCredentials) {
-                if (cd instanceof TLCPAuthentication.TLCPCredentials) {
-                    tlcpCredentials = (TLCPAuthentication.TLCPCredentials)cd;
+                if (cd instanceof TLCPCredentials) {
+                    tlcpCredentials = (TLCPCredentials)cd;
                     break;
                 }
             }
@@ -296,7 +299,7 @@ final class SM2ServerKeyExchange {
 
         @Override
         public byte[] produce(ConnectionContext context,
-                SSLHandshake.HandshakeMessage message) throws IOException {
+                HandshakeMessage message) throws IOException {
             // The producing happens in server side only.
             ServerHandshakeContext shc = (ServerHandshakeContext)context;
             SM2ServerKeyExchangeMessage skem =

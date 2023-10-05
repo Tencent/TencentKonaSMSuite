@@ -35,6 +35,7 @@ import javax.crypto.SecretKey;
 
 import com.tencent.kona.crypto.CryptoInsts;
 import com.tencent.kona.sun.security.internal.spec.TlsMasterSecretParameterSpec;
+import com.tencent.kona.sun.security.ssl.CipherSuite.HashAlg;
 
 enum SSLMasterKeyDerivation implements SSLKeyDerivationGenerator {
     TLCP11      ("kdf_tlcp11"),
@@ -95,7 +96,7 @@ enum SSLMasterKeyDerivation implements SSLKeyDerivationGenerator {
 
             // What algs/params do we need to use?
             String masterAlg;
-            CipherSuite.HashAlg hashAlg;
+            HashAlg hashAlg;
 
             byte majorVersion = protocolVersion.major;
             byte minorVersion = protocolVersion.minor;
@@ -106,7 +107,7 @@ enum SSLMasterKeyDerivation implements SSLKeyDerivationGenerator {
                     minorVersion = ProtocolVersion.TLS11.minor;
 
                     masterAlg = "SunTlsMasterSecret";
-                    hashAlg = CipherSuite.HashAlg.H_NONE;
+                    hashAlg = HashAlg.H_NONE;
                 } else {    // DTLS 1.2
                     majorVersion = ProtocolVersion.TLS12.major;
                     minorVersion = ProtocolVersion.TLS12.minor;
@@ -117,13 +118,13 @@ enum SSLMasterKeyDerivation implements SSLKeyDerivationGenerator {
             } else {
                 if (protocolVersion.isTLCP11()) {
                     masterAlg = "TlcpMasterSecret";
-                    hashAlg = CipherSuite.HashAlg.H_SM3;
+                    hashAlg = HashAlg.H_SM3;
                 } else if (protocolVersion.id >= ProtocolVersion.TLS12.id) {
                     masterAlg = "SunTls12MasterSecret";
                     hashAlg = cipherSuite.hashAlg;
                 } else {
                     masterAlg = "SunTlsMasterSecret";
-                    hashAlg = CipherSuite.HashAlg.H_NONE;
+                    hashAlg = HashAlg.H_NONE;
                 }
             }
 

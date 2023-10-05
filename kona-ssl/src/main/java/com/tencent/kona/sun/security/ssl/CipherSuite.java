@@ -27,9 +27,11 @@ package com.tencent.kona.sun.security.ssl;
 
 import java.util.*;
 
+import com.tencent.kona.sun.security.ssl.NamedGroup.NamedGroupSpec;
 import static com.tencent.kona.sun.security.ssl.CipherSuite.HashAlg.*;
 import static com.tencent.kona.sun.security.ssl.CipherSuite.KeyExchange.*;
 import static com.tencent.kona.sun.security.ssl.CipherSuite.MacAlg.*;
+import static com.tencent.kona.sun.security.ssl.NamedGroup.NamedGroupSpec.*;
 
 /**
  * Enum for SSL/(D)TLS cipher suites.
@@ -1059,48 +1061,48 @@ enum CipherSuite {
      */
     enum KeyExchange {
         // KeyExchanges on SM2 standardized by GB/T 32918.3-2016
-        K_SM2           ("SM2",            true,  false,  NamedGroup.NamedGroupSpec.NAMED_GROUP_ECDHE),
-        K_SM2E          ("SM2E",           true,  false,  NamedGroup.NamedGroupSpec.NAMED_GROUP_ECDHE),
+        K_SM2           ("SM2",            true,  false,  NAMED_GROUP_ECDHE),
+        K_SM2E          ("SM2E",           true,  false,  NAMED_GROUP_ECDHE),
 
-        K_NULL          ("NULL",           false, true,   NamedGroup.NamedGroupSpec.NAMED_GROUP_NONE),
-        K_RSA           ("RSA",            true,  false,  NamedGroup.NamedGroupSpec.NAMED_GROUP_NONE),
-        K_RSA_EXPORT    ("RSA_EXPORT",     true,  false,  NamedGroup.NamedGroupSpec.NAMED_GROUP_NONE),
-        K_DH_RSA        ("DH_RSA",         false, false,  NamedGroup.NamedGroupSpec.NAMED_GROUP_NONE),
-        K_DH_DSS        ("DH_DSS",         false, false,  NamedGroup.NamedGroupSpec.NAMED_GROUP_NONE),
-        K_DHE_DSS       ("DHE_DSS",        true,  false,  NamedGroup.NamedGroupSpec.NAMED_GROUP_FFDHE),
-        K_DHE_DSS_EXPORT("DHE_DSS_EXPORT", true,  false,  NamedGroup.NamedGroupSpec.NAMED_GROUP_NONE),
-        K_DHE_RSA       ("DHE_RSA",        true,  false,  NamedGroup.NamedGroupSpec.NAMED_GROUP_FFDHE),
-        K_DHE_RSA_EXPORT("DHE_RSA_EXPORT", true,  false,  NamedGroup.NamedGroupSpec.NAMED_GROUP_NONE),
-        K_DH_ANON       ("DH_anon",        true,  true,   NamedGroup.NamedGroupSpec.NAMED_GROUP_FFDHE),
-        K_DH_ANON_EXPORT("DH_anon_EXPORT", true,  true,   NamedGroup.NamedGroupSpec.NAMED_GROUP_NONE),
+        K_NULL          ("NULL",           false, true,   NAMED_GROUP_NONE),
+        K_RSA           ("RSA",            true,  false,  NAMED_GROUP_NONE),
+        K_RSA_EXPORT    ("RSA_EXPORT",     true,  false,  NAMED_GROUP_NONE),
+        K_DH_RSA        ("DH_RSA",         false, false,  NAMED_GROUP_NONE),
+        K_DH_DSS        ("DH_DSS",         false, false,  NAMED_GROUP_NONE),
+        K_DHE_DSS       ("DHE_DSS",        true,  false,  NAMED_GROUP_FFDHE),
+        K_DHE_DSS_EXPORT("DHE_DSS_EXPORT", true,  false,  NAMED_GROUP_NONE),
+        K_DHE_RSA       ("DHE_RSA",        true,  false,  NAMED_GROUP_FFDHE),
+        K_DHE_RSA_EXPORT("DHE_RSA_EXPORT", true,  false,  NAMED_GROUP_NONE),
+        K_DH_ANON       ("DH_anon",        true,  true,   NAMED_GROUP_FFDHE),
+        K_DH_ANON_EXPORT("DH_anon_EXPORT", true,  true,   NAMED_GROUP_NONE),
 
         // These KeyExchanges can use either ECDHE/XDH, so we'll use a
         // varargs here.
         K_ECDH_ECDSA    ("ECDH_ECDSA",     JsseJce.ALLOW_ECC,  false,
-                NamedGroup.NamedGroupSpec.NAMED_GROUP_ECDHE),
+                NAMED_GROUP_ECDHE),
         K_ECDH_RSA      ("ECDH_RSA",       JsseJce.ALLOW_ECC,  false,
-            NamedGroup.NamedGroupSpec.NAMED_GROUP_ECDHE),
+                NAMED_GROUP_ECDHE),
         K_ECDHE_ECDSA   ("ECDHE_ECDSA",    JsseJce.ALLOW_ECC,  false,
-            NamedGroup.NamedGroupSpec.NAMED_GROUP_ECDHE),
+                NAMED_GROUP_ECDHE),
         K_ECDHE_SM2   ("ECDHE_SM2",        JsseJce.ALLOW_ECC,  false,
-                NamedGroup.NamedGroupSpec.NAMED_GROUP_ECDHE),
+                NAMED_GROUP_ECDHE),
         K_ECDHE_RSA     ("ECDHE_RSA",      JsseJce.ALLOW_ECC,  false,
-            NamedGroup.NamedGroupSpec.NAMED_GROUP_ECDHE),
+                NAMED_GROUP_ECDHE),
         K_ECDH_ANON     ("ECDH_anon",      JsseJce.ALLOW_ECC,  true,
-            NamedGroup.NamedGroupSpec.NAMED_GROUP_ECDHE),
+                NAMED_GROUP_ECDHE),
 
         // renegotiation protection request signaling cipher suite
-        K_SCSV          ("SCSV",           true,  true,   NamedGroup.NamedGroupSpec.NAMED_GROUP_NONE);
+        K_SCSV          ("SCSV",           true,  true,   NAMED_GROUP_NONE);
 
         // name of the key exchange algorithm, e.g. DHE_DSS
         final String name;
         final boolean allowed;
-        final NamedGroup.NamedGroupSpec[] groupTypes;
+        final NamedGroupSpec[] groupTypes;
         private final boolean alwaysAvailable;
         private final boolean isAnonymous;
 
         KeyExchange(String name, boolean allowed,
-                boolean isAnonymous, NamedGroup.NamedGroupSpec... groupTypes) {
+                boolean isAnonymous, NamedGroupSpec... groupTypes) {
             this.name = name;
             this.groupTypes = groupTypes;
             this.allowed = allowed;
@@ -1114,8 +1116,8 @@ enum CipherSuite {
                 return true;
             }
 
-            if (NamedGroup.NamedGroupSpec.arrayContains(groupTypes,
-                    NamedGroup.NamedGroupSpec.NAMED_GROUP_ECDHE)) {
+            if (arrayContains(groupTypes,
+                    NamedGroupSpec.NAMED_GROUP_ECDHE)) {
                 return (allowed && JsseJce.isEcAvailable());
             } else {
                 return allowed;

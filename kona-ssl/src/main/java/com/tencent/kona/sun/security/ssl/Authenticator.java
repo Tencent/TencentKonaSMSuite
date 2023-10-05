@@ -34,6 +34,8 @@ import java.util.Arrays;
 import javax.crypto.Mac;
 import javax.crypto.SecretKey;
 
+import com.tencent.kona.sun.security.ssl.CipherSuite.MacAlg;
+
 /**
  * This class represents an SSL/TLS/DTLS message authentication token,
  * which encapsulates a sequence number and ensures that attempts to
@@ -74,7 +76,7 @@ abstract class Authenticator {
 
     @SuppressWarnings({"unchecked"})
     static <T extends Authenticator & MAC> T
-         valueOf(ProtocolVersion protocolVersion, CipherSuite.MacAlg macAlg,
+         valueOf(ProtocolVersion protocolVersion, MacAlg macAlg,
                  SecretKey key) throws NoSuchAlgorithmException,
                         InvalidKeyException {
         if (protocolVersion.isDTLS) {
@@ -409,7 +411,7 @@ abstract class Authenticator {
     }
 
     interface MAC {
-        CipherSuite.MacAlg macAlg();
+        MacAlg macAlg();
 
         /**
          * Compute and returns the MAC for the remaining data
@@ -452,17 +454,17 @@ abstract class Authenticator {
 
     class MacImpl implements MAC {
         // internal identifier for the MAC algorithm
-        final CipherSuite.MacAlg macAlg;
+        final MacAlg macAlg;
 
         // JCE Mac object
         private final Mac mac;
 
         MacImpl() {
-            macAlg = CipherSuite.MacAlg.M_NULL;
+            macAlg = MacAlg.M_NULL;
             mac = null;
         }
 
-        MacImpl(ProtocolVersion protocolVersion, CipherSuite.MacAlg macAlg,
+        MacImpl(ProtocolVersion protocolVersion, MacAlg macAlg,
                 SecretKey key) throws NoSuchAlgorithmException,
                         InvalidKeyException {
             if (macAlg == null) {
@@ -499,7 +501,7 @@ abstract class Authenticator {
         }
 
         @Override
-        public CipherSuite.MacAlg macAlg() {
+        public MacAlg macAlg() {
             return macAlg;
         }
 
@@ -533,7 +535,7 @@ abstract class Authenticator {
         }
 
         @Override
-        public CipherSuite.MacAlg macAlg() {
+        public MacAlg macAlg() {
             return macImpl.macAlg;
         }
 
@@ -549,14 +551,14 @@ abstract class Authenticator {
             class SSL30Mac extends SSL30Authenticator implements MAC {
         private final MacImpl macImpl;
         public SSL30Mac(ProtocolVersion protocolVersion,
-                        CipherSuite.MacAlg macAlg, SecretKey key) throws NoSuchAlgorithmException,
-                        InvalidKeyException {
+                MacAlg macAlg, SecretKey key) throws NoSuchAlgorithmException,
+                InvalidKeyException {
             super();
             this.macImpl = new MacImpl(protocolVersion, macAlg, key);
         }
 
         @Override
-        public CipherSuite.MacAlg macAlg() {
+        public MacAlg macAlg() {
             return macImpl.macAlg;
         }
 
@@ -572,14 +574,14 @@ abstract class Authenticator {
             class TLS10Mac extends TLS10Authenticator implements MAC {
         private final MacImpl macImpl;
         public TLS10Mac(ProtocolVersion protocolVersion,
-                        CipherSuite.MacAlg macAlg, SecretKey key) throws NoSuchAlgorithmException,
-                        InvalidKeyException {
+                MacAlg macAlg, SecretKey key) throws NoSuchAlgorithmException,
+                InvalidKeyException {
             super(protocolVersion);
             this.macImpl = new MacImpl(protocolVersion, macAlg, key);
         }
 
         @Override
-        public CipherSuite.MacAlg macAlg() {
+        public MacAlg macAlg() {
             return macImpl.macAlg;
         }
 
@@ -600,7 +602,7 @@ abstract class Authenticator {
         }
 
         @Override
-        public CipherSuite.MacAlg macAlg() {
+        public MacAlg macAlg() {
             return macImpl.macAlg;
         }
 
@@ -616,14 +618,14 @@ abstract class Authenticator {
             extends DTLS10Authenticator implements MAC {
         private final MacImpl macImpl;
         public DTLS10Mac(ProtocolVersion protocolVersion,
-                         CipherSuite.MacAlg macAlg, SecretKey key) throws NoSuchAlgorithmException,
-                        InvalidKeyException {
+                MacAlg macAlg, SecretKey key) throws NoSuchAlgorithmException,
+                InvalidKeyException {
             super(protocolVersion);
             this.macImpl = new MacImpl(protocolVersion, macAlg, key);
         }
 
         @Override
-        public CipherSuite.MacAlg macAlg() {
+        public MacAlg macAlg() {
             return macImpl.macAlg;
         }
 

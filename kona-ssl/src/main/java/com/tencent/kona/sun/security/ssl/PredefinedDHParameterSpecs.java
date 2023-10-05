@@ -25,8 +25,6 @@
 
 package com.tencent.kona.sun.security.ssl;
 
-import com.tencent.kona.sun.security.util.SafeDHParameterSpec;
-
 import java.math.BigInteger;
 import java.security.*;
 import java.util.Collections;

@@ -28,6 +28,9 @@ package com.tencent.kona.sun.security.ssl;
 import java.util.HashSet;
 import java.util.Set;
 
+import com.tencent.kona.sun.security.ssl.CipherSuite.HashAlg;
+import com.tencent.kona.sun.security.ssl.CipherSuite.KeyExchange;
+import com.tencent.kona.sun.security.ssl.CipherSuite.MacAlg;
 import com.tencent.kona.sun.security.util.AlgorithmDecomposer;
 
 /**
@@ -46,7 +49,7 @@ class SSLAlgorithmDecomposer extends AlgorithmDecomposer {
         this(false);
     }
 
-    private Set<String> decomposes(CipherSuite.KeyExchange keyExchange) {
+    private Set<String> decomposes(KeyExchange keyExchange) {
         Set<String> components = new HashSet<>();
         switch (keyExchange) {
             case K_NULL:
@@ -178,25 +181,25 @@ class SSLAlgorithmDecomposer extends AlgorithmDecomposer {
         return components;
     }
 
-    private Set<String> decomposes(CipherSuite.MacAlg macAlg,
+    private Set<String> decomposes(MacAlg macAlg,
             SSLCipher cipher) {
         Set<String> components = new HashSet<>();
 
-        if (macAlg == CipherSuite.MacAlg.M_NULL
+        if (macAlg == MacAlg.M_NULL
                 && cipher.cipherType != CipherType.AEAD_CIPHER) {
             components.add("M_NULL");
-        } else if (macAlg == CipherSuite.MacAlg.M_MD5) {
+        } else if (macAlg == MacAlg.M_MD5) {
             components.add("MD5");
             components.add("HmacMD5");
-        } else if (macAlg == CipherSuite.MacAlg.M_SHA) {
+        } else if (macAlg == MacAlg.M_SHA) {
             components.add("SHA1");
             components.add("SHA-1");
             components.add("HmacSHA1");
-        } else if (macAlg == CipherSuite.MacAlg.M_SHA256) {
+        } else if (macAlg == MacAlg.M_SHA256) {
             components.add("SHA256");
             components.add("SHA-256");
             components.add("HmacSHA256");
-        } else if (macAlg == CipherSuite.MacAlg.M_SHA384) {
+        } else if (macAlg == MacAlg.M_SHA384) {
             components.add("SHA384");
             components.add("SHA-384");
             components.add("HmacSHA384");
@@ -205,14 +208,14 @@ class SSLAlgorithmDecomposer extends AlgorithmDecomposer {
         return components;
     }
 
-    private Set<String> decomposes(CipherSuite.HashAlg hashAlg) {
+    private Set<String> decomposes(HashAlg hashAlg) {
         Set<String> components = new HashSet<>();
 
-        if (hashAlg == CipherSuite.HashAlg.H_SHA256) {
+        if (hashAlg == HashAlg.H_SHA256) {
             components.add("SHA256");
             components.add("SHA-256");
             components.add("HmacSHA256");
-        } else if (hashAlg == CipherSuite.HashAlg.H_SHA384) {
+        } else if (hashAlg == HashAlg.H_SHA384) {
             components.add("SHA384");
             components.add("SHA-384");
             components.add("HmacSHA384");
@@ -221,10 +224,10 @@ class SSLAlgorithmDecomposer extends AlgorithmDecomposer {
         return components;
     }
 
-    private Set<String> decompose(CipherSuite.KeyExchange keyExchange,
+    private Set<String> decompose(KeyExchange keyExchange,
                                   SSLCipher cipher,
-                                  CipherSuite.MacAlg macAlg,
-                                  CipherSuite.HashAlg hashAlg) {
+                                  MacAlg macAlg,
+                                  HashAlg hashAlg) {
         Set<String> components = new HashSet<>();
 
         if (keyExchange != null) {

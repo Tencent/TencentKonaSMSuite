@@ -31,6 +31,8 @@ import java.util.Arrays;
 import java.util.List;
 
 import com.tencent.kona.sun.security.ssl.SignatureAlgorithmsExtension.SignatureSchemesSpec;
+import com.tencent.kona.sun.security.ssl.SSLExtension.ExtensionConsumer;
+import com.tencent.kona.sun.security.ssl.SSLHandshake.HandshakeMessage;
 
 /**
  * Pack of the "signature_algorithms_cert" extensions.
@@ -38,14 +40,14 @@ import com.tencent.kona.sun.security.ssl.SignatureAlgorithmsExtension.SignatureS
 final class CertSignAlgsExtension {
     static final HandshakeProducer chNetworkProducer =
             new CHCertSignatureSchemesProducer();
-    static final SSLExtension.ExtensionConsumer chOnLoadConsumer =
+    static final ExtensionConsumer chOnLoadConsumer =
             new CHCertSignatureSchemesConsumer();
     static final HandshakeConsumer chOnTradeConsumer =
             new CHCertSignatureSchemesUpdate();
 
     static final HandshakeProducer crNetworkProducer =
             new CRCertSignatureSchemesProducer();
-    static final SSLExtension.ExtensionConsumer crOnLoadConsumer =
+    static final ExtensionConsumer crOnLoadConsumer =
             new CRCertSignatureSchemesConsumer();
     static final HandshakeConsumer crOnTradeConsumer =
             new CRCertSignatureSchemesUpdate();
@@ -80,7 +82,7 @@ final class CertSignAlgsExtension {
 
         @Override
         public byte[] produce(ConnectionContext context,
-                SSLHandshake.HandshakeMessage message) throws IOException {
+                HandshakeMessage message) throws IOException {
             // The producing happens in client side only.
             ClientHandshakeContext chc = (ClientHandshakeContext)context;
 
@@ -127,7 +129,7 @@ final class CertSignAlgsExtension {
      * the ClientHello handshake message.
      */
     private static final
-            class CHCertSignatureSchemesConsumer implements SSLExtension.ExtensionConsumer {
+            class CHCertSignatureSchemesConsumer implements ExtensionConsumer {
         // Prevent instantiation of this class.
         private CHCertSignatureSchemesConsumer() {
             // blank
@@ -135,7 +137,7 @@ final class CertSignAlgsExtension {
 
         @Override
         public void consume(ConnectionContext context,
-                            SSLHandshake.HandshakeMessage message, ByteBuffer buffer) throws IOException {
+                HandshakeMessage message, ByteBuffer buffer) throws IOException {
             // The consuming happens in server side only.
             ServerHandshakeContext shc = (ServerHandshakeContext)context;
 
@@ -174,7 +176,7 @@ final class CertSignAlgsExtension {
 
         @Override
         public void consume(ConnectionContext context,
-                SSLHandshake.HandshakeMessage message) throws IOException {
+                HandshakeMessage message) throws IOException {
             // The consuming happens in server side only.
             ServerHandshakeContext shc = (ServerHandshakeContext)context;
 
@@ -224,7 +226,7 @@ final class CertSignAlgsExtension {
 
         @Override
         public byte[] produce(ConnectionContext context,
-                SSLHandshake.HandshakeMessage message) throws IOException {
+                HandshakeMessage message) throws IOException {
             // The producing happens in server side only.
             ServerHandshakeContext shc = (ServerHandshakeContext)context;
 
@@ -268,14 +270,14 @@ final class CertSignAlgsExtension {
      * the CertificateRequest handshake message.
      */
     private static final
-            class CRCertSignatureSchemesConsumer implements SSLExtension.ExtensionConsumer {
+            class CRCertSignatureSchemesConsumer implements ExtensionConsumer {
         // Prevent instantiation of this class.
         private CRCertSignatureSchemesConsumer() {
             // blank
         }
         @Override
         public void consume(ConnectionContext context,
-                            SSLHandshake.HandshakeMessage message, ByteBuffer buffer) throws IOException {
+                HandshakeMessage message, ByteBuffer buffer) throws IOException {
             // The consuming happens in client side only.
             ClientHandshakeContext chc = (ClientHandshakeContext)context;
 
@@ -314,7 +316,7 @@ final class CertSignAlgsExtension {
 
         @Override
         public void consume(ConnectionContext context,
-                SSLHandshake.HandshakeMessage message) throws IOException {
+                HandshakeMessage message) throws IOException {
             // The consuming happens in client side only.
             ClientHandshakeContext chc = (ClientHandshakeContext)context;
 

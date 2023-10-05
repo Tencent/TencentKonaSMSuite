@@ -39,22 +39,26 @@ import javax.net.ssl.SSLEngine;
 import javax.net.ssl.SSLProtocolException;
 import javax.net.ssl.SSLSocket;
 
+import com.tencent.kona.sun.security.ssl.SSLHandshake.HandshakeMessage;
+import com.tencent.kona.sun.security.ssl.SSLExtension.ExtensionConsumer;
+import com.tencent.kona.sun.security.ssl.SSLExtension.SSLExtensionSpec;
+
 /**
  * Pack of the "application_layer_protocol_negotiation" extensions [RFC 7301].
  */
 final class AlpnExtension {
     static final HandshakeProducer chNetworkProducer = new CHAlpnProducer();
-    static final SSLExtension.ExtensionConsumer chOnLoadConsumer = new CHAlpnConsumer();
+    static final ExtensionConsumer chOnLoadConsumer = new CHAlpnConsumer();
     static final HandshakeAbsence chOnLoadAbsence = new CHAlpnAbsence();
 
     static final HandshakeProducer shNetworkProducer = new SHAlpnProducer();
-    static final SSLExtension.ExtensionConsumer shOnLoadConsumer = new SHAlpnConsumer();
+    static final ExtensionConsumer shOnLoadConsumer = new SHAlpnConsumer();
     static final HandshakeAbsence shOnLoadAbsence = new SHAlpnAbsence();
 
     // Note: we reuse ServerHello operations for EncryptedExtensions for now.
     // Please be careful about any code or specification changes in the future.
     static final HandshakeProducer eeNetworkProducer = new SHAlpnProducer();
-    static final SSLExtension.ExtensionConsumer eeOnLoadConsumer = new SHAlpnConsumer();
+    static final ExtensionConsumer eeOnLoadConsumer = new SHAlpnConsumer();
     static final HandshakeAbsence eeOnLoadAbsence = new SHAlpnAbsence();
 
     static final SSLStringizer alpnStringizer = new AlpnStringizer();
@@ -79,7 +83,7 @@ final class AlpnExtension {
      *
      * See RFC 7301 for the specification of this extension.
      */
-    static final class AlpnSpec implements SSLExtension.SSLExtensionSpec {
+    static final class AlpnSpec implements SSLExtensionSpec {
         final List<String> applicationProtocols;
 
         private AlpnSpec(String[] applicationProtocols) {
@@ -156,7 +160,7 @@ final class AlpnExtension {
 
         @Override
         public byte[] produce(ConnectionContext context,
-                SSLHandshake.HandshakeMessage message) throws IOException {
+                HandshakeMessage message) throws IOException {
             // The producing happens in client side only.
             ClientHandshakeContext chc = (ClientHandshakeContext)context;
 
@@ -255,7 +259,7 @@ final class AlpnExtension {
      * Network data consumer of the extension in a ClientHello
      * handshake message.
      */
-    private static final class CHAlpnConsumer implements SSLExtension.ExtensionConsumer {
+    private static final class CHAlpnConsumer implements ExtensionConsumer {
         // Prevent instantiation of this class.
         private CHAlpnConsumer() {
             // blank
@@ -263,7 +267,7 @@ final class AlpnExtension {
 
         @Override
         public void consume(ConnectionContext context,
-                            SSLHandshake.HandshakeMessage message, ByteBuffer buffer) throws IOException {
+                HandshakeMessage message, ByteBuffer buffer) throws IOException {
             // The consuming happens in server side only.
             ServerHandshakeContext shc = (ServerHandshakeContext)context;
 
@@ -345,7 +349,7 @@ final class AlpnExtension {
     private static final class CHAlpnAbsence implements HandshakeAbsence {
         @Override
         public void absent(ConnectionContext context,
-                SSLHandshake.HandshakeMessage message) throws IOException {
+                HandshakeMessage message) throws IOException {
             // The producing happens in server side only.
             ServerHandshakeContext shc = (ServerHandshakeContext)context;
 
@@ -367,7 +371,7 @@ final class AlpnExtension {
 
         @Override
         public byte[] produce(ConnectionContext context,
-                SSLHandshake.HandshakeMessage message) throws IOException {
+                HandshakeMessage message) throws IOException {
             // The producing happens in client side only.
             ServerHandshakeContext shc = (ServerHandshakeContext)context;
 
@@ -455,7 +459,7 @@ final class AlpnExtension {
      * Network data consumer of the extension in the ServerHello
      * handshake message.
      */
-    private static final class SHAlpnConsumer implements SSLExtension.ExtensionConsumer {
+    private static final class SHAlpnConsumer implements ExtensionConsumer {
         // Prevent instantiation of this class.
         private SHAlpnConsumer() {
             // blank
@@ -463,7 +467,7 @@ final class AlpnExtension {
 
         @Override
         public void consume(ConnectionContext context,
-                            SSLHandshake.HandshakeMessage message, ByteBuffer buffer) throws IOException {
+                HandshakeMessage message, ByteBuffer buffer) throws IOException {
             // The producing happens in client side only.
             ClientHandshakeContext chc = (ClientHandshakeContext)context;
 
@@ -514,7 +518,7 @@ final class AlpnExtension {
     private static final class SHAlpnAbsence implements HandshakeAbsence {
         @Override
         public void absent(ConnectionContext context,
-                SSLHandshake.HandshakeMessage message) throws IOException {
+                HandshakeMessage message) throws IOException {
             // The producing happens in client side only.
             ClientHandshakeContext chc = (ClientHandshakeContext)context;
 

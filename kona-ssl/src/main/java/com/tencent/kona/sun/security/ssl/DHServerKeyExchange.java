@@ -48,7 +48,11 @@ import javax.crypto.spec.DHParameterSpec;
 import javax.crypto.spec.DHPublicKeySpec;
 
 import com.tencent.kona.crypto.CryptoInsts;
+import com.tencent.kona.sun.security.ssl.DHKeyExchange.DHECredentials;
+import com.tencent.kona.sun.security.ssl.DHKeyExchange.DHEPossession;
 import com.tencent.kona.sun.security.ssl.SSLHandshake.HandshakeMessage;
+import com.tencent.kona.sun.security.ssl.X509Authentication.X509Credentials;
+import com.tencent.kona.sun.security.ssl.X509Authentication.X509Possession;
 import com.tencent.kona.sun.security.util.HexDumpEncoder;
 import com.tencent.kona.sun.security.util.KeyUtil;
 
@@ -86,16 +90,16 @@ final class DHServerKeyExchange {
             ServerHandshakeContext shc =
                     (ServerHandshakeContext)handshakeContext;
 
-            DHKeyExchange.DHEPossession dhePossession = null;
-            X509Authentication.X509Possession x509Possession = null;
+            DHEPossession dhePossession = null;
+            X509Possession x509Possession = null;
             for (SSLPossession possession : shc.handshakePossessions) {
-                if (possession instanceof DHKeyExchange.DHEPossession) {
-                    dhePossession = (DHKeyExchange.DHEPossession)possession;
+                if (possession instanceof DHEPossession) {
+                    dhePossession = (DHEPossession)possession;
                     if (x509Possession != null) {
                         break;
                     }
-                } else if (possession instanceof X509Authentication.X509Possession) {
-                    x509Possession = (X509Authentication.X509Possession)possession;
+                } else if (possession instanceof X509Possession) {
+                    x509Possession = (X509Possession)possession;
                     if (dhePossession != null) {
                         break;
                     }
@@ -190,10 +194,10 @@ final class DHServerKeyExchange {
                     "Invalid DH ServerKeyExchange: invalid parameters", ike);
             }
 
-            X509Authentication.X509Credentials x509Credentials = null;
+            X509Credentials x509Credentials = null;
             for (SSLCredentials cd : chc.handshakeCredentials) {
-                if (cd instanceof X509Authentication.X509Credentials) {
-                    x509Credentials = (X509Authentication.X509Credentials)cd;
+                if (cd instanceof X509Credentials) {
+                    x509Credentials = (X509Credentials)cd;
                     break;
                 }
             }
@@ -541,7 +545,7 @@ final class DHServerKeyExchange {
             //
             NamedGroup namedGroup = NamedGroup.valueOf(publicKey.getParams());
             chc.handshakeCredentials.add(
-                    new DHKeyExchange.DHECredentials(publicKey, namedGroup));
+                    new DHECredentials(publicKey, namedGroup));
 
             //
             // produce

@@ -28,6 +28,8 @@ package com.tencent.kona.sun.security.ssl;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
+import com.tencent.kona.sun.security.ssl.SSLHandshake.HandshakeMessage;
+
 /**
  * Pack of the HelloRequest handshake message.
  */
@@ -49,7 +51,7 @@ final class HelloRequest {
      *
      *      struct { } HelloRequest;
      */
-    static final class HelloRequestMessage extends SSLHandshake.HandshakeMessage {
+    static final class HelloRequestMessage extends HandshakeMessage {
         HelloRequestMessage(HandshakeContext handshakeContext) {
             super(handshakeContext);
         }
@@ -131,7 +133,7 @@ final class HelloRequest {
 
         @Override
         public byte[] produce(ConnectionContext context,
-                SSLHandshake.HandshakeMessage message) throws IOException {
+                HandshakeMessage message) throws IOException {
             // The producing happens in server side only.
             ServerHandshakeContext shc = (ServerHandshakeContext)context;
 

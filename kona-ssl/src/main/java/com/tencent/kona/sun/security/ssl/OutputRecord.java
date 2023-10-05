@@ -32,6 +32,8 @@ import java.io.OutputStream;
 import java.nio.ByteBuffer;
 import java.util.concurrent.locks.ReentrantLock;
 
+import com.tencent.kona.sun.security.ssl.SSLCipher.SSLWriteCipher;
+
 /**
  * {@code OutputRecord} takes care of the management of SSL/(D)TLS
  * output records, including buffering, encryption, handshake
@@ -41,7 +43,7 @@ import java.util.concurrent.locks.ReentrantLock;
  */
 abstract class OutputRecord
         extends ByteArrayOutputStream implements Record, Closeable {
-    SSLCipher.SSLWriteCipher writeCipher;
+    SSLWriteCipher writeCipher;
     // Needed for KeyUpdate, used after Handshake.Finished
     TransportContext            tc;
 
@@ -81,7 +83,7 @@ abstract class OutputRecord
     private static final byte[] HANDSHAKE_MESSAGE_KEY_UPDATE =
         {SSLHandshake.KEY_UPDATE.id, 0x00, 0x00, 0x01, 0x00};
 
-    OutputRecord(HandshakeHash handshakeHash, SSLCipher.SSLWriteCipher writeCipher) {
+    OutputRecord(HandshakeHash handshakeHash, SSLWriteCipher writeCipher) {
         this.writeCipher = writeCipher;
         this.firstMessage = true;
         this.fragmentSize = Record.maxDataSize;
@@ -170,7 +172,7 @@ abstract class OutputRecord
     }
 
     // Change write ciphers, may use change_cipher_spec record.
-    void changeWriteCiphers(SSLCipher.SSLWriteCipher writeCipher,
+    void changeWriteCiphers(SSLWriteCipher writeCipher,
                             boolean useChangeCipherSpec) throws IOException {
         recordLock.lock();
         try {
@@ -204,7 +206,7 @@ abstract class OutputRecord
     }
 
     // Change write ciphers using key_update handshake message.
-    void changeWriteCiphers(SSLCipher.SSLWriteCipher writeCipher,
+    void changeWriteCiphers(SSLWriteCipher writeCipher,
                             byte keyUpdateRequest) throws IOException {
         recordLock.lock();
         try {
@@ -321,7 +323,7 @@ abstract class OutputRecord
     // destination ByteBuffer's position is updated to reflect the amount
     // of data produced.  The limit remains the same.
     static long encrypt(
-            SSLCipher.SSLWriteCipher encCipher, byte contentType, ByteBuffer destination,
+            SSLWriteCipher encCipher, byte contentType, ByteBuffer destination,
             int headerOffset, int dstLim, int headerSize,
             ProtocolVersion protocolVersion) {
         boolean isDTLS = protocolVersion.isDTLS;
@@ -349,14 +351,14 @@ abstract class OutputRecord
     }
 
     private static long d13Encrypt(
-            SSLCipher.SSLWriteCipher encCipher, byte contentType, ByteBuffer destination,
+            SSLWriteCipher encCipher, byte contentType, ByteBuffer destination,
             int headerOffset, int dstLim, int headerSize,
             ProtocolVersion protocolVersion) {
         throw new UnsupportedOperationException("Not supported yet.");
     }
 
     private static long d10Encrypt(
-            SSLCipher.SSLWriteCipher encCipher, byte contentType, ByteBuffer destination,
+            SSLWriteCipher encCipher, byte contentType, ByteBuffer destination,
             int headerOffset, int dstLim, int headerSize,
             ProtocolVersion protocolVersion) {
         byte[] sequenceNumber = encCipher.authenticator.sequenceNumber();
@@ -390,7 +392,7 @@ abstract class OutputRecord
     }
 
     private static long t13Encrypt(
-            SSLCipher.SSLWriteCipher encCipher, byte contentType, ByteBuffer destination,
+            SSLWriteCipher encCipher, byte contentType, ByteBuffer destination,
             int headerOffset, int dstLim, int headerSize,
             ProtocolVersion protocolVersion) {
         if (!encCipher.isNullCipher()) {
@@ -433,7 +435,7 @@ abstract class OutputRecord
     }
 
     private static long t10Encrypt(
-            SSLCipher.SSLWriteCipher encCipher, byte contentType, ByteBuffer destination,
+            SSLWriteCipher encCipher, byte contentType, ByteBuffer destination,
             int headerOffset, int dstLim, int headerSize,
             ProtocolVersion protocolVersion) {
         byte[] sequenceNumber = encCipher.authenticator.sequenceNumber();
@@ -461,7 +463,7 @@ abstract class OutputRecord
     // Uses the internal expandable buf variable and the current
     // protocolVersion variable.
     long encrypt(
-            SSLCipher.SSLWriteCipher encCipher, byte contentType, int headerSize) {
+            SSLWriteCipher encCipher, byte contentType, int headerSize) {
         if (protocolVersion.useTLS13PlusSpec()) {
             return t13Encrypt(encCipher, contentType, headerSize);
         } else {
@@ -470,7 +472,7 @@ abstract class OutputRecord
     }
 
     private long t13Encrypt(
-            SSLCipher.SSLWriteCipher encCipher, byte contentType, int headerSize) {
+            SSLWriteCipher encCipher, byte contentType, int headerSize) {
         if (!encCipher.isNullCipher()) {
             // inner plaintext
             write(contentType);
@@ -514,7 +516,7 @@ abstract class OutputRecord
     }
 
     private long t10Encrypt(
-            SSLCipher.SSLWriteCipher encCipher, byte contentType, int headerSize) {
+            SSLWriteCipher encCipher, byte contentType, int headerSize) {
         byte[] sequenceNumber = encCipher.authenticator.sequenceNumber();
         int position = headerSize + writeCipher.getExplicitNonceSize();
         int contentLen = count - position;

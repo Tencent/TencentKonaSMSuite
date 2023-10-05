@@ -39,6 +39,8 @@ import javax.net.ssl.SSLException;
 import javax.net.ssl.SSLHandshakeException;
 import javax.net.ssl.SSLProtocolException;
 
+import com.tencent.kona.sun.security.ssl.SSLCipher.SSLReadCipher;
+
 /**
  * {@code InputRecord} implementation for {@code SSLSocket}.
  *
@@ -58,7 +60,7 @@ final class SSLSocketInputRecord extends InputRecord implements SSLRecord {
     private ByteBuffer handshakeBuffer = null;
 
     SSLSocketInputRecord(HandshakeHash handshakeHash) {
-        super(handshakeHash, SSLCipher.SSLReadCipher.nullTlsReadCipher());
+        super(handshakeHash, SSLReadCipher.nullTlsReadCipher());
     }
 
     @Override

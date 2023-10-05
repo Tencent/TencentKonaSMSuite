@@ -36,8 +36,11 @@ import java.util.Set;
 
 import com.tencent.kona.crypto.CryptoInsts;
 import com.tencent.kona.sun.security.action.GetPropertyAction;
+import com.tencent.kona.sun.security.ssl.DHKeyExchange.DHECredentials;
+import com.tencent.kona.sun.security.ssl.DHKeyExchange.DHEPossession;
+import com.tencent.kona.sun.security.ssl.ECDHKeyExchange.ECDHECredentials;
+import com.tencent.kona.sun.security.ssl.ECDHKeyExchange.ECDHEPossession;
 import com.tencent.kona.sun.security.util.CurveDB;
-
 
 /**
  * An enum containing all known named groups for use in TLS.
@@ -583,7 +586,7 @@ enum NamedGroup {
                 NamedGroupPossession namedGroupPossession);
 
         SSLCredentials decodeCredentials(NamedGroup ng,
-                                         byte[] encoded) throws IOException, GeneralSecurityException;
+                byte[] encoded) throws IOException, GeneralSecurityException;
 
         SSLPossession createPossession(NamedGroup ng, SecureRandom random);
 
@@ -646,7 +649,7 @@ enum NamedGroup {
 
         @Override
         public SSLCredentials decodeCredentials(NamedGroup ng,
-                                                byte[] encoded) throws IOException, GeneralSecurityException {
+                byte[] encoded) throws IOException, GeneralSecurityException {
             if (scheme != null) {
                 return scheme.decodeCredentials(ng, encoded);
             }
@@ -686,14 +689,14 @@ enum NamedGroup {
 
         @Override
         public SSLCredentials decodeCredentials(NamedGroup ng,
-                                                byte[] encoded) throws IOException, GeneralSecurityException {
-            return DHKeyExchange.DHECredentials.valueOf(ng, encoded);
+                byte[] encoded) throws IOException, GeneralSecurityException {
+            return DHECredentials.valueOf(ng, encoded);
         }
 
         @Override
         public SSLPossession createPossession(
                 NamedGroup ng, SecureRandom random) {
-            return new DHKeyExchange.DHEPossession(ng, random);
+            return new DHEPossession(ng, random);
         }
 
         @Override
@@ -710,19 +713,19 @@ enum NamedGroup {
         @Override
         public byte[] encodePossessionPublicKey(
                 NamedGroupPossession namedGroupPossession) {
-            return ((ECDHKeyExchange.ECDHEPossession)namedGroupPossession).encode();
+            return ((ECDHEPossession)namedGroupPossession).encode();
         }
 
         @Override
         public SSLCredentials decodeCredentials(NamedGroup ng,
-                                                byte[] encoded) throws IOException, GeneralSecurityException {
-            return ECDHKeyExchange.ECDHECredentials.valueOf(ng, encoded);
+                byte[] encoded) throws IOException, GeneralSecurityException {
+            return ECDHECredentials.valueOf(ng, encoded);
         }
 
         @Override
         public SSLPossession createPossession(
                 NamedGroup ng, SecureRandom random) {
-            return new ECDHKeyExchange.ECDHEPossession(ng, random);
+            return new ECDHEPossession(ng, random);
         }
 
         @Override

@@ -40,6 +40,8 @@ import com.tencent.kona.crypto.spec.SM2SignatureParameterSpec;
 import com.tencent.kona.crypto.util.Constants;
 import com.tencent.kona.pkix.PKIXUtils;
 import com.tencent.kona.sun.security.ssl.SSLHandshake.HandshakeMessage;
+import com.tencent.kona.sun.security.ssl.X509Authentication.X509Credentials;
+import com.tencent.kona.sun.security.ssl.X509Authentication.X509Possession;
 import com.tencent.kona.sun.security.util.HexDumpEncoder;
 
 /**
@@ -74,7 +76,7 @@ final class CertificateVerify {
         private final byte[] signature;
 
         S30CertificateVerifyMessage(HandshakeContext context,
-                X509Authentication.X509Possession x509Possession) throws IOException {
+                X509Possession x509Possession) throws IOException {
             super(context);
 
             // This happens in client side only.
@@ -124,10 +126,10 @@ final class CertificateVerify {
 
             // read and verify the signature
             this.signature = Record.getBytes16(m);
-            X509Authentication.X509Credentials x509Credentials = null;
+            X509Credentials x509Credentials = null;
             for (SSLCredentials cd : shc.handshakeCredentials) {
-                if (cd instanceof X509Authentication.X509Credentials) {
-                    x509Credentials = (X509Authentication.X509Credentials)cd;
+                if (cd instanceof X509Credentials) {
+                    x509Credentials = (X509Credentials)cd;
                     break;
                 }
             }
@@ -241,10 +243,10 @@ final class CertificateVerify {
             // The producing happens in client side only.
             ClientHandshakeContext chc = (ClientHandshakeContext)context;
 
-            X509Authentication.X509Possession x509Possession = null;
+            X509Possession x509Possession = null;
             for (SSLPossession possession : chc.handshakePossessions) {
-                if (possession instanceof X509Authentication.X509Possession) {
-                    x509Possession = (X509Authentication.X509Possession)possession;
+                if (possession instanceof X509Possession) {
+                    x509Possession = (X509Possession)possession;
                     break;
                 }
             }
@@ -328,7 +330,7 @@ final class CertificateVerify {
         private final byte[] signature;
 
         T10CertificateVerifyMessage(HandshakeContext context,
-                X509Authentication.X509Possession x509Possession) throws IOException {
+                X509Possession x509Possession) throws IOException {
             super(context);
 
             // This happens in client side only.
@@ -377,10 +379,10 @@ final class CertificateVerify {
 
             // read and verify the signature
             this.signature = Record.getBytes16(m);
-            X509Authentication.X509Credentials x509Credentials = null;
+            X509Credentials x509Credentials = null;
             for (SSLCredentials cd : shc.handshakeCredentials) {
-                if (cd instanceof X509Authentication.X509Credentials) {
-                    x509Credentials = (X509Authentication.X509Credentials)cd;
+                if (cd instanceof X509Credentials) {
+                    x509Credentials = (X509Credentials)cd;
                     break;
                 }
             }
@@ -495,10 +497,10 @@ final class CertificateVerify {
                 HandshakeMessage message) throws IOException {
             // The producing happens in client side only.
             ClientHandshakeContext chc = (ClientHandshakeContext)context;
-            X509Authentication.X509Possession x509Possession = null;
+            X509Possession x509Possession = null;
             for (SSLPossession possession : chc.handshakePossessions) {
-                if (possession instanceof X509Authentication.X509Possession) {
-                    x509Possession = (X509Authentication.X509Possession)possession;
+                if (possession instanceof X509Possession) {
+                    x509Possession = (X509Possession)possession;
                     break;
                 }
             }
@@ -585,7 +587,7 @@ final class CertificateVerify {
         private final byte[] signature;
 
         T12CertificateVerifyMessage(HandshakeContext context,
-                X509Authentication.X509Possession x509Possession) throws IOException {
+                X509Possession x509Possession) throws IOException {
             super(context);
 
             // This happens in client side only.
@@ -655,10 +657,10 @@ final class CertificateVerify {
             }
 
             // read and verify the signature
-            X509Authentication.X509Credentials x509Credentials = null;
+            X509Credentials x509Credentials = null;
             for (SSLCredentials cd : shc.handshakeCredentials) {
-                if (cd instanceof X509Authentication.X509Credentials) {
-                    x509Credentials = (X509Authentication.X509Credentials)cd;
+                if (cd instanceof X509Credentials) {
+                    x509Credentials = (X509Credentials)cd;
                     break;
                 }
             }
@@ -754,10 +756,10 @@ final class CertificateVerify {
             // The producing happens in client side only.
             ClientHandshakeContext chc = (ClientHandshakeContext)context;
 
-            X509Authentication.X509Possession x509Possession = null;
+            X509Possession x509Possession = null;
             for (SSLPossession possession : chc.handshakePossessions) {
-                if (possession instanceof X509Authentication.X509Possession) {
-                    x509Possession = (X509Authentication.X509Possession)possession;
+                if (possession instanceof X509Possession) {
+                    x509Possession = (X509Possession)possession;
                     break;
                 }
             }
@@ -907,7 +909,7 @@ final class CertificateVerify {
         private final byte[] signature;
 
         T13CertificateVerifyMessage(HandshakeContext context,
-                X509Authentication.X509Possession x509Possession) throws IOException {
+                X509Possession x509Possession) throws IOException {
             super(context);
 
             Map.Entry<SignatureScheme, Signature> schemeAndSigner =
@@ -986,10 +988,10 @@ final class CertificateVerify {
             }
 
             // read and verify the signature
-            X509Authentication.X509Credentials x509Credentials = null;
+            X509Credentials x509Credentials = null;
             for (SSLCredentials cd : context.handshakeCredentials) {
-                if (cd instanceof X509Authentication.X509Credentials) {
-                    x509Credentials = (X509Authentication.X509Credentials)cd;
+                if (cd instanceof X509Credentials) {
+                    x509Credentials = (X509Credentials)cd;
                     break;
                 }
             }
@@ -1103,10 +1105,10 @@ final class CertificateVerify {
             // The producing happens in handshake context only.
             HandshakeContext hc = (HandshakeContext)context;
 
-            X509Authentication.X509Possession x509Possession = null;
+            X509Possession x509Possession = null;
             for (SSLPossession possession : hc.handshakePossessions) {
-                if (possession instanceof X509Authentication.X509Possession) {
-                    x509Possession = (X509Authentication.X509Possession)possession;
+                if (possession instanceof X509Possession) {
+                    x509Possession = (X509Possession)possession;
                     break;
                 }
             }
@@ -1131,7 +1133,7 @@ final class CertificateVerify {
         }
 
         private byte[] onProduceCertificateVerify(ServerHandshakeContext shc,
-                X509Authentication.X509Possession x509Possession) throws IOException {
+                X509Possession x509Possession) throws IOException {
             T13CertificateVerifyMessage cvm =
                     new T13CertificateVerifyMessage(shc, x509Possession);
             if (SSLLogger.isOn && SSLLogger.isOn("ssl,handshake")) {
@@ -1148,7 +1150,7 @@ final class CertificateVerify {
         }
 
         private byte[] onProduceCertificateVerify(ClientHandshakeContext chc,
-                X509Authentication.X509Possession x509Possession) throws IOException {
+                X509Possession x509Possession) throws IOException {
             T13CertificateVerifyMessage cvm =
                     new T13CertificateVerifyMessage(chc, x509Possession);
             if (SSLLogger.isOn && SSLLogger.isOn("ssl,handshake")) {

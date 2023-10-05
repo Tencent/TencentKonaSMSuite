@@ -40,6 +40,9 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 
+import com.tencent.kona.sun.security.ssl.SSLHandshake.HandshakeMessage;
+import com.tencent.kona.sun.security.ssl.SupportedVersionsExtension.CHSupportedVersionsSpec;
+
 /**
  * Pack of the ClientHello handshake message.
  */
@@ -65,7 +68,7 @@ final class ClientHello {
      *
      * See RFC 5264/4346/2246/6347 for the specifications.
      */
-    static final class ClientHelloMessage extends SSLHandshake.HandshakeMessage {
+    static final class ClientHelloMessage extends HandshakeMessage {
         private final boolean       isDTLS;
 
         final int                   clientVersion;
@@ -676,7 +679,7 @@ final class ClientHello {
         //     HelloVerifyRequest               (DTLS 1.0/1.2)
         @Override
         public byte[] produce(ConnectionContext context,
-                SSLHandshake.HandshakeMessage message) throws IOException {
+                HandshakeMessage message) throws IOException {
             // The producing happens in client side only.
             ClientHandshakeContext chc = (ClientHandshakeContext)context;
 
@@ -811,8 +814,8 @@ final class ClientHello {
             clientHello.extensions.consumeOnLoad(context, extTypes);
 
             ProtocolVersion negotiatedProtocol;
-            SupportedVersionsExtension.CHSupportedVersionsSpec svs =
-                    (SupportedVersionsExtension.CHSupportedVersionsSpec)context.handshakeExtensions.get(
+            CHSupportedVersionsSpec svs =
+                    (CHSupportedVersionsSpec)context.handshakeExtensions.get(
                             SSLExtension.CH_SUPPORTED_VERSIONS);
             if (svs != null) {
                 negotiatedProtocol =
@@ -923,7 +926,7 @@ final class ClientHello {
 
         @Override
         public void consume(ConnectionContext context,
-                SSLHandshake.HandshakeMessage message) throws IOException {
+                HandshakeMessage message) throws IOException {
             // The consuming happens in server side only.
             ServerHandshakeContext shc = (ServerHandshakeContext)context;
             ClientHelloMessage clientHello = (ClientHelloMessage)message;
@@ -1125,7 +1128,7 @@ final class ClientHello {
 
         @Override
         public void consume(ConnectionContext context,
-                SSLHandshake.HandshakeMessage message) throws IOException {
+                HandshakeMessage message) throws IOException {
             // The consuming happens in server side only.
             ServerHandshakeContext shc = (ServerHandshakeContext)context;
             ClientHelloMessage clientHello = (ClientHelloMessage)message;
@@ -1263,7 +1266,7 @@ final class ClientHello {
 
         @Override
         public void consume(ConnectionContext context,
-                SSLHandshake.HandshakeMessage message) throws IOException {
+                HandshakeMessage message) throws IOException {
             // The consuming happens in server side only.
             ServerHandshakeContext shc = (ServerHandshakeContext)context;
             ClientHelloMessage clientHello = (ClientHelloMessage)message;
@@ -1466,7 +1469,7 @@ final class ClientHello {
 
         @Override
         public void consume(ConnectionContext context,
-                SSLHandshake.HandshakeMessage message) throws IOException {
+                HandshakeMessage message) throws IOException {
             throw new UnsupportedOperationException("Not supported yet.");
         }
     }

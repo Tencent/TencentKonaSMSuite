@@ -45,6 +45,7 @@ import java.util.Set;
 import com.tencent.kona.crypto.CryptoInsts;
 import com.tencent.kona.crypto.spec.SM2SignatureParameterSpec;
 import com.tencent.kona.crypto.util.Constants;
+import com.tencent.kona.sun.security.ssl.NamedGroup.NamedGroupSpec;
 import com.tencent.kona.sun.security.ssl.X509Authentication.X509Possession;
 import com.tencent.kona.sun.security.util.KeyUtil;
 import com.tencent.kona.sun.security.util.SignatureUtil;
@@ -530,7 +531,7 @@ enum SignatureScheme {
                     keyAlgorithm.equalsIgnoreCase(ss.keyAlgorithm) &&
                     ss.isPermitted(constraints)) {
                 if ((ss.namedGroup != null) && (ss.namedGroup.spec ==
-                        NamedGroup.NamedGroupSpec.NAMED_GROUP_ECDHE)) {
+                        NamedGroupSpec.NAMED_GROUP_ECDHE)) {
                     if (namedGroup == ss.namedGroup) {
                         Signature signer = ss.getSigner(signingKey);
                         if (signer != null) {

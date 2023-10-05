@@ -387,7 +387,7 @@ final class TLCPFinished {
         }
 
         private byte[] onProduceFinished(ClientHandshakeContext chc,
-                                         HandshakeMessage message) throws IOException {
+                HandshakeMessage message) throws IOException {
             // Refresh handshake hash
             chc.handshakeHash.update();
 
@@ -446,7 +446,7 @@ final class TLCPFinished {
         }
 
         private byte[] onProduceFinished(ServerHandshakeContext shc,
-                                         HandshakeMessage message) throws IOException {
+                HandshakeMessage message) throws IOException {
             if (shc.statelessResumption) {
                 NewSessionTicket.handshake12Producer.produce(shc, message);
             }
