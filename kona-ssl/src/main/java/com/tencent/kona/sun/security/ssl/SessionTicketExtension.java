@@ -25,10 +25,6 @@
 
 package com.tencent.kona.sun.security.ssl;
 
-import com.tencent.kona.crypto.CryptoInsts;
-import com.tencent.kona.sun.security.action.GetPropertyAction;
-import com.tencent.kona.sun.security.util.HexDumpEncoder;
-
 import javax.crypto.Cipher;
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
@@ -42,6 +38,13 @@ import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.text.MessageFormat;
 import java.util.Locale;
+
+import com.tencent.kona.crypto.CryptoInsts;
+import com.tencent.kona.sun.security.action.GetPropertyAction;
+import com.tencent.kona.sun.security.ssl.SSLExtension.ExtensionConsumer;
+import com.tencent.kona.sun.security.ssl.SSLExtension.SSLExtensionSpec;
+import com.tencent.kona.sun.security.ssl.SSLHandshake.HandshakeMessage;
+import com.tencent.kona.sun.security.util.HexDumpEncoder;
 
 /**
  * SessionTicketExtension is an implementation of RFC 5077 with some internals
@@ -59,11 +62,11 @@ final class SessionTicketExtension {
 
     static final HandshakeProducer chNetworkProducer =
             new T12CHSessionTicketProducer();
-    static final SSLExtension.ExtensionConsumer chOnLoadConsumer =
+    static final ExtensionConsumer chOnLoadConsumer =
             new T12CHSessionTicketConsumer();
     static final HandshakeProducer shNetworkProducer =
             new T12SHSessionTicketProducer();
-    static final SSLExtension.ExtensionConsumer shOnLoadConsumer =
+    static final ExtensionConsumer shOnLoadConsumer =
             new T12SHSessionTicketConsumer();
 
     static final SSLStringizer steStringizer = new SessionTicketStringizer();
@@ -165,7 +168,7 @@ final class SessionTicketExtension {
      * Using the key associated with the ticket, the class encrypts and
      * decrypts the data, but does not interpret the data.
      */
-    static final class SessionTicketSpec implements SSLExtension.SSLExtensionSpec {
+    static final class SessionTicketSpec implements SSLExtensionSpec {
         private static final int GCM_TAG_LEN = 128;
         ByteBuffer data;
         static final ByteBuffer zero = ByteBuffer.wrap(new byte[0]);
@@ -324,7 +327,7 @@ final class SessionTicketExtension {
 
         @Override
         public byte[] produce(ConnectionContext context,
-                SSLHandshake.HandshakeMessage message) throws IOException {
+                HandshakeMessage message) throws IOException {
 
             ClientHandshakeContext chc = (ClientHandshakeContext)context;
 
@@ -362,13 +365,13 @@ final class SessionTicketExtension {
     }
 
     private static final class T12CHSessionTicketConsumer
-            implements SSLExtension.ExtensionConsumer {
+            implements ExtensionConsumer {
         T12CHSessionTicketConsumer() {
         }
 
         @Override
         public void consume(ConnectionContext context,
-                            SSLHandshake.HandshakeMessage message, ByteBuffer buffer)
+                HandshakeMessage message, ByteBuffer buffer)
                 throws IOException {
             ServerHandshakeContext shc = (ServerHandshakeContext) context;
 
@@ -423,7 +426,7 @@ final class SessionTicketExtension {
 
         @Override
         public byte[] produce(ConnectionContext context,
-                SSLHandshake.HandshakeMessage message) {
+                HandshakeMessage message) {
 
             ServerHandshakeContext shc = (ServerHandshakeContext)context;
 
@@ -446,13 +449,13 @@ final class SessionTicketExtension {
     }
 
     private static final class T12SHSessionTicketConsumer
-            implements SSLExtension.ExtensionConsumer {
+            implements ExtensionConsumer {
         T12SHSessionTicketConsumer() {
         }
 
         @Override
         public void consume(ConnectionContext context,
-                            SSLHandshake.HandshakeMessage message, ByteBuffer buffer)
+                HandshakeMessage message, ByteBuffer buffer)
                 throws IOException {
             ClientHandshakeContext chc = (ClientHandshakeContext) context;
 

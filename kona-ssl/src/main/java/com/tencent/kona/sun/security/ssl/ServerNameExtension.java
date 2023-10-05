@@ -41,27 +41,31 @@ import javax.net.ssl.SNIServerName;
 import javax.net.ssl.SSLProtocolException;
 import javax.net.ssl.StandardConstants;
 
+import com.tencent.kona.sun.security.ssl.SSLExtension.ExtensionConsumer;
+import com.tencent.kona.sun.security.ssl.SSLExtension.SSLExtensionSpec;
+import com.tencent.kona.sun.security.ssl.SSLHandshake.HandshakeMessage;
+
 /**
  * Pack of the "server_name" extensions [RFC 4366/6066].
  */
 final class ServerNameExtension {
     static final HandshakeProducer chNetworkProducer =
             new CHServerNameProducer();
-    static final SSLExtension.ExtensionConsumer chOnLoadConsumer =
+    static final ExtensionConsumer chOnLoadConsumer =
             new CHServerNameConsumer();
     static final SSLStringizer chStringizer =
             new CHServerNamesStringizer();
 
     static final HandshakeProducer shNetworkProducer =
             new SHServerNameProducer();
-    static final SSLExtension.ExtensionConsumer shOnLoadConsumer =
+    static final ExtensionConsumer shOnLoadConsumer =
             new SHServerNameConsumer();
     static final SSLStringizer shStringizer =
             new SHServerNamesStringizer();
 
     static final HandshakeProducer eeNetworkProducer =
             new EEServerNameProducer();
-    static final SSLExtension.ExtensionConsumer eeOnLoadConsumer =
+    static final ExtensionConsumer eeOnLoadConsumer =
             new EEServerNameConsumer();
 
     /**
@@ -69,7 +73,7 @@ final class ServerNameExtension {
      *
      * See RFC 4366/6066 for the specification of the extension.
      */
-    static final class CHServerNamesSpec implements SSLExtension.SSLExtensionSpec {
+    static final class CHServerNamesSpec implements SSLExtensionSpec {
         // For backward compatibility, all future data structures associated
         // with new NameTypes MUST begin with a 16-bit length field.
         static final int NAME_HEADER_LENGTH = 3;    //  1: NameType
@@ -206,7 +210,7 @@ final class ServerNameExtension {
 
         @Override
         public byte[] produce(ConnectionContext context,
-                SSLHandshake.HandshakeMessage message) throws IOException {
+                HandshakeMessage message) throws IOException {
             // The producing happens in client side only.
             ClientHandshakeContext chc = (ClientHandshakeContext)context;
 
@@ -269,7 +273,7 @@ final class ServerNameExtension {
      * ClientHello handshake message.
      */
     private static final
-            class CHServerNameConsumer implements SSLExtension.ExtensionConsumer {
+            class CHServerNameConsumer implements ExtensionConsumer {
         // Prevent instantiation of this class.
         private CHServerNameConsumer() {
             // blank
@@ -277,7 +281,7 @@ final class ServerNameExtension {
 
         @Override
         public void consume(ConnectionContext context,
-                            SSLHandshake.HandshakeMessage message, ByteBuffer buffer) throws IOException {
+                HandshakeMessage message, ByteBuffer buffer) throws IOException {
             // The consuming happens in server side only.
             ServerHandshakeContext shc = (ServerHandshakeContext)context;
 
@@ -382,7 +386,7 @@ final class ServerNameExtension {
      *
      * The "extension_data" field of this extension shall be empty.
      */
-    static final class SHServerNamesSpec implements SSLExtension.SSLExtensionSpec {
+    static final class SHServerNamesSpec implements SSLExtensionSpec {
         static final SHServerNamesSpec DEFAULT = new SHServerNamesSpec();
 
         private SHServerNamesSpec() {
@@ -429,7 +433,7 @@ final class ServerNameExtension {
 
         @Override
         public byte[] produce(ConnectionContext context,
-                SSLHandshake.HandshakeMessage message) throws IOException {
+                HandshakeMessage message) throws IOException {
             // The producing happens in server side only.
             ServerHandshakeContext shc = (ServerHandshakeContext)context;
 
@@ -467,7 +471,7 @@ final class ServerNameExtension {
      * ServerHello handshake message.
      */
     private static final
-            class SHServerNameConsumer implements SSLExtension.ExtensionConsumer {
+            class SHServerNameConsumer implements ExtensionConsumer {
         // Prevent instantiation of this class.
         private SHServerNameConsumer() {
             // blank
@@ -475,7 +479,7 @@ final class ServerNameExtension {
 
         @Override
         public void consume(ConnectionContext context,
-                            SSLHandshake.HandshakeMessage message, ByteBuffer buffer) throws IOException {
+                HandshakeMessage message, ByteBuffer buffer) throws IOException {
             // The consuming happens in client side only.
             ClientHandshakeContext chc = (ClientHandshakeContext)context;
 
@@ -516,7 +520,7 @@ final class ServerNameExtension {
 
         @Override
         public byte[] produce(ConnectionContext context,
-                SSLHandshake.HandshakeMessage message) throws IOException {
+                HandshakeMessage message) throws IOException {
             // The producing happens in server side only.
             ServerHandshakeContext shc = (ServerHandshakeContext)context;
 
@@ -554,7 +558,7 @@ final class ServerNameExtension {
      * EncryptedExtensions handshake message.
      */
     private static final
-            class EEServerNameConsumer implements SSLExtension.ExtensionConsumer {
+            class EEServerNameConsumer implements ExtensionConsumer {
         // Prevent instantiation of this class.
         private EEServerNameConsumer() {
             // blank
@@ -562,7 +566,7 @@ final class ServerNameExtension {
 
         @Override
         public void consume(ConnectionContext context,
-                            SSLHandshake.HandshakeMessage message, ByteBuffer buffer) throws IOException {
+                HandshakeMessage message, ByteBuffer buffer) throws IOException {
             // The consuming happens in client side only.
             ClientHandshakeContext chc = (ClientHandshakeContext)context;
 

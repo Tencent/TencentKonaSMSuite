@@ -29,6 +29,8 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.Map;
 
+import com.tencent.kona.sun.security.ssl.SSLHandshake.HandshakeMessage;
+
 /**
  * Pack of the ServerKeyExchange handshake message.
  */
@@ -50,7 +52,7 @@ final class ServerKeyExchange {
 
         @Override
         public byte[] produce(ConnectionContext context,
-                SSLHandshake.HandshakeMessage message) throws IOException {
+                HandshakeMessage message) throws IOException {
             // The producing happens in server side only.
             ServerHandshakeContext shc = (ServerHandshakeContext)context;
 

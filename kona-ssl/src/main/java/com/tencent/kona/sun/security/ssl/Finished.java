@@ -43,6 +43,11 @@ import javax.crypto.spec.SecretKeySpec;
 
 import com.tencent.kona.crypto.CryptoInsts;
 import com.tencent.kona.sun.security.internal.spec.TlsPrfParameterSpec;
+import com.tencent.kona.sun.security.ssl.CipherSuite.HashAlg;
+import com.tencent.kona.sun.security.ssl.SSLBasicKeyDerivation.SecretSizeSpec;
+import com.tencent.kona.sun.security.ssl.SSLCipher.SSLReadCipher;
+import com.tencent.kona.sun.security.ssl.SSLCipher.SSLWriteCipher;
+import com.tencent.kona.sun.security.ssl.SSLHandshake.HandshakeMessage;
 import com.tencent.kona.sun.security.util.HexDumpEncoder;
 
 /**
@@ -63,7 +68,7 @@ final class Finished {
     /**
      * The Finished handshake message.
      */
-    private static final class FinishedMessage extends SSLHandshake.HandshakeMessage {
+    private static final class FinishedMessage extends HandshakeMessage {
         private final byte[] verifyData;
 
         FinishedMessage(HandshakeContext context) throws IOException {
@@ -238,7 +243,7 @@ final class Finished {
             try {
                 byte[] seed = handshakeHash.digest();
                 String prfAlg = "SunTlsPrf";
-                CipherSuite.HashAlg hashAlg = CipherSuite.HashAlg.H_NONE;
+                HashAlg hashAlg = HashAlg.H_NONE;
 
                 /*
                  * RFC 5246/7.4.9 says that finished messages can
@@ -289,7 +294,7 @@ final class Finished {
             try {
                 byte[] seed = handshakeHash.digest();
                 String prfAlg = "SunTls12Prf";
-                CipherSuite.HashAlg hashAlg = cipherSuite.hashAlg;
+                HashAlg hashAlg = cipherSuite.hashAlg;
 
                 /*
                  * RFC 5246/7.4.9 says that finished messages can
@@ -326,7 +331,7 @@ final class Finished {
         public byte[] createVerifyData(HandshakeContext context,
                 boolean isValidation) throws IOException {
             // create finished secret key
-            CipherSuite.HashAlg hashAlg =
+            HashAlg hashAlg =
                     context.negotiatedCipherSuite.hashAlg;
             SecretKey secret = isValidation ?
                     context.baseReadSecret : context.baseWriteSecret;
@@ -334,7 +339,7 @@ final class Finished {
                     secret, hashAlg.name,
                     hkdfLabel, hkdfContext, hashAlg.hashLength);
             AlgorithmParameterSpec keySpec =
-                    new SSLBasicKeyDerivation.SecretSizeSpec(hashAlg.hashLength);
+                    new SecretSizeSpec(hashAlg.hashLength);
             SecretKey finishedSecret =
                     kdf.deriveKey("TlsFinishedSecret", keySpec);
 
@@ -363,7 +368,7 @@ final class Finished {
 
         @Override
         public byte[] produce(ConnectionContext context,
-                SSLHandshake.HandshakeMessage message) throws IOException {
+                HandshakeMessage message) throws IOException {
             // The consuming happens in handshake context only.
             HandshakeContext hc = (HandshakeContext)context;
             if (hc.sslConfig.isClientMode) {
@@ -376,7 +381,7 @@ final class Finished {
         }
 
         private byte[] onProduceFinished(ClientHandshakeContext chc,
-                SSLHandshake.HandshakeMessage message) throws IOException {
+                HandshakeMessage message) throws IOException {
             // Refresh handshake hash
             chc.handshakeHash.update();
 
@@ -435,7 +440,7 @@ final class Finished {
         }
 
         private byte[] onProduceFinished(ServerHandshakeContext shc,
-                SSLHandshake.HandshakeMessage message) throws IOException {
+                HandshakeMessage message) throws IOException {
             if (shc.statelessResumption) {
                 NewSessionTicket.handshake12Producer.produce(shc, message);
             }
@@ -658,7 +663,7 @@ final class Finished {
 
         @Override
         public byte[] produce(ConnectionContext context,
-                SSLHandshake.HandshakeMessage message) throws IOException {
+                HandshakeMessage message) throws IOException {
             // The consuming happens in handshake context only.
             HandshakeContext hc = (HandshakeContext)context;
             if (hc.sslConfig.isClientMode) {
@@ -671,7 +676,7 @@ final class Finished {
         }
 
         private byte[] onProduceFinished(ClientHandshakeContext chc,
-                SSLHandshake.HandshakeMessage message) throws IOException {
+                HandshakeMessage message) throws IOException {
             // Refresh handshake hash
             chc.handshakeHash.update();
 
@@ -721,7 +726,7 @@ final class Finished {
                         "TlsIv", null);
                 IvParameterSpec writeIv =
                         new IvParameterSpec(writeIvSecret.getEncoded());
-                SSLCipher.SSLWriteCipher writeCipher =
+                SSLWriteCipher writeCipher =
                         chc.negotiatedCipherSuite.bulkCipher.createWriteCipher(
                                 Authenticator.valueOf(chc.negotiatedProtocol),
                                 chc.negotiatedProtocol, writeKey, writeIv,
@@ -765,7 +770,7 @@ final class Finished {
         }
 
         private byte[] onProduceFinished(ServerHandshakeContext shc,
-                SSLHandshake.HandshakeMessage message) throws IOException {
+                HandshakeMessage message) throws IOException {
             // Refresh handshake hash
             shc.handshakeHash.update();
 
@@ -801,7 +806,7 @@ final class Finished {
                 SecretKey saltSecret = kd.deriveKey("TlsSaltSecret", null);
 
                 // derive application secrets
-                CipherSuite.HashAlg hashAlg = shc.negotiatedCipherSuite.hashAlg;
+                HashAlg hashAlg = shc.negotiatedCipherSuite.hashAlg;
                 HKDF hkdf = new HKDF(hashAlg.name);
                 byte[] zeros = new byte[hashAlg.hashLength];
                 SecretKeySpec sharedSecret =
@@ -823,7 +828,7 @@ final class Finished {
                         "TlsIv", null);
                 IvParameterSpec writeIv =
                         new IvParameterSpec(writeIvSecret.getEncoded());
-                SSLCipher.SSLWriteCipher writeCipher =
+                SSLWriteCipher writeCipher =
                         shc.negotiatedCipherSuite.bulkCipher.createWriteCipher(
                                 Authenticator.valueOf(shc.negotiatedProtocol),
                                 shc.negotiatedProtocol, writeKey, writeIv,
@@ -959,7 +964,7 @@ final class Finished {
                 SecretKey saltSecret = kd.deriveKey("TlsSaltSecret", null);
 
                 // derive application secrets
-                CipherSuite.HashAlg hashAlg = chc.negotiatedCipherSuite.hashAlg;
+                HashAlg hashAlg = chc.negotiatedCipherSuite.hashAlg;
                 HKDF hkdf = new HKDF(hashAlg.name);
                 byte[] zeros = new byte[hashAlg.hashLength];
                 SecretKeySpec sharedSecret =
@@ -981,7 +986,7 @@ final class Finished {
                         "TlsIv", null);
                 IvParameterSpec readIv =
                         new IvParameterSpec(readIvSecret.getEncoded());
-                SSLCipher.SSLReadCipher readCipher =
+                SSLReadCipher readCipher =
                         chc.negotiatedCipherSuite.bulkCipher.createReadCipher(
                                 Authenticator.valueOf(chc.negotiatedProtocol),
                                 chc.negotiatedProtocol, readKey, readIv,
@@ -1087,7 +1092,7 @@ final class Finished {
                         "TlsIv", null);
                 IvParameterSpec readIv =
                         new IvParameterSpec(readIvSecret.getEncoded());
-                SSLCipher.SSLReadCipher readCipher =
+                SSLReadCipher readCipher =
                         shc.negotiatedCipherSuite.bulkCipher.createReadCipher(
                                 Authenticator.valueOf(shc.negotiatedProtocol),
                                 shc.negotiatedProtocol, readKey, readIv,

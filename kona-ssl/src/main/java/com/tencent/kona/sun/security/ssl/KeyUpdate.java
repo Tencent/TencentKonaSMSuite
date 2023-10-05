@@ -34,6 +34,10 @@ import java.util.Locale;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.IvParameterSpec;
 
+import com.tencent.kona.sun.security.ssl.SSLHandshake.HandshakeMessage;
+import com.tencent.kona.sun.security.ssl.SSLCipher.SSLReadCipher;
+import com.tencent.kona.sun.security.ssl.SSLCipher.SSLWriteCipher;
+
 /**
  * Pack of the KeyUpdate handshake message.
  */
@@ -60,7 +64,7 @@ final class KeyUpdate {
      *           KeyUpdateRequest request_update;
      *       } KeyUpdate;
      */
-    static final class KeyUpdateMessage extends SSLHandshake.HandshakeMessage {
+    static final class KeyUpdateMessage extends HandshakeMessage {
         private final KeyUpdateRequest status;
 
         KeyUpdateMessage(PostHandshakeContext context,
@@ -215,7 +219,7 @@ final class KeyUpdate {
             IvParameterSpec ivSpec = new IvParameterSpec(
                     kd.deriveKey("TlsIv", null).getEncoded());
             try {
-                SSLCipher.SSLReadCipher rc =
+                SSLReadCipher rc =
                     hc.negotiatedCipherSuite.bulkCipher.createReadCipher(
                         Authenticator.valueOf(hc.conContext.protocolVersion),
                         hc.conContext.protocolVersion, key, ivSpec,
@@ -261,7 +265,7 @@ final class KeyUpdate {
 
         @Override
         public byte[] produce(ConnectionContext context,
-                SSLHandshake.HandshakeMessage message) throws IOException {
+                HandshakeMessage message) throws IOException {
             // The producing happens in server side only.
             PostHandshakeContext hc = (PostHandshakeContext)context;
             KeyUpdateMessage km = (KeyUpdateMessage)message;
@@ -294,7 +298,7 @@ final class KeyUpdate {
             IvParameterSpec ivSpec = new IvParameterSpec(
                     kd.deriveKey("TlsIv", null).getEncoded());
 
-            SSLCipher.SSLWriteCipher wc;
+            SSLWriteCipher wc;
             try {
                 wc = hc.negotiatedCipherSuite.bulkCipher.createWriteCipher(
                         Authenticator.valueOf(hc.conContext.protocolVersion),

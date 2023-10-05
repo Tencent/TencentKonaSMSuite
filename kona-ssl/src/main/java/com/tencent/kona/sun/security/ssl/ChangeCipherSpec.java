@@ -34,6 +34,8 @@ import javax.crypto.SecretKey;
 import javax.crypto.spec.IvParameterSpec;
 import javax.net.ssl.SSLException;
 
+import com.tencent.kona.sun.security.ssl.SSLTrafficKeyDerivation.LegacyTrafficKeyDerivation;
+
 /**
  * Pack of the ChangeCipherSpec message.
  */
@@ -61,10 +63,10 @@ final class ChangeCipherSpec {
             HandshakeContext hc = (HandshakeContext)context;
             SSLKeyDerivation kd = hc.handshakeKeyDerivation;
 
-            if (!(kd instanceof SSLTrafficKeyDerivation.LegacyTrafficKeyDerivation)) {
+            if (!(kd instanceof LegacyTrafficKeyDerivation)) {
                 throw new UnsupportedOperationException("Not supported.");
             }
-            SSLTrafficKeyDerivation.LegacyTrafficKeyDerivation tkd = (SSLTrafficKeyDerivation.LegacyTrafficKeyDerivation)kd;
+            LegacyTrafficKeyDerivation tkd = (LegacyTrafficKeyDerivation)kd;
             CipherSuite ncs = hc.negotiatedCipherSuite;
             Authenticator writeAuthenticator;
             if (ncs.bulkCipher.cipherType == CipherType.AEAD_CIPHER) {
@@ -160,8 +162,8 @@ final class ChangeCipherSpec {
             }
 
             SSLKeyDerivation kd = hc.handshakeKeyDerivation;
-            if (kd instanceof SSLTrafficKeyDerivation.LegacyTrafficKeyDerivation) {
-                SSLTrafficKeyDerivation.LegacyTrafficKeyDerivation tkd = (SSLTrafficKeyDerivation.LegacyTrafficKeyDerivation)kd;
+            if (kd instanceof LegacyTrafficKeyDerivation) {
+                LegacyTrafficKeyDerivation tkd = (LegacyTrafficKeyDerivation)kd;
                 CipherSuite ncs = hc.negotiatedCipherSuite;
                 Authenticator readAuthenticator;
                 if (ncs.bulkCipher.cipherType == CipherType.AEAD_CIPHER) {

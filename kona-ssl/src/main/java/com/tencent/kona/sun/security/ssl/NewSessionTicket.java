@@ -34,7 +34,11 @@ import java.util.Locale;
 import javax.crypto.SecretKey;
 import javax.net.ssl.SSLHandshakeException;
 
+import com.tencent.kona.sun.security.ssl.CipherSuite.HashAlg;
+import com.tencent.kona.sun.security.ssl.PskKeyExchangeModesExtension.PskKeyExchangeMode;
+import com.tencent.kona.sun.security.ssl.PskKeyExchangeModesExtension.PskKeyExchangeModesSpec;
 import com.tencent.kona.sun.security.ssl.SessionTicketExtension.SessionTicketSpec;
+import com.tencent.kona.sun.security.ssl.SSLHandshake.HandshakeMessage;
 import com.tencent.kona.sun.security.util.HexDumpEncoder;
 
 /**
@@ -54,7 +58,7 @@ final class NewSessionTicket {
     /**
      * The NewSessionTicketMessage handshake messages.
      */
-    abstract static class NewSessionTicketMessage extends SSLHandshake.HandshakeMessage {
+    abstract static class NewSessionTicketMessage extends HandshakeMessage {
         int ticketLifetime;
         byte[] ticket = new byte[0];
 
@@ -289,7 +293,7 @@ final class NewSessionTicket {
         }
     }
 
-    private static SecretKey derivePreSharedKey(CipherSuite.HashAlg hashAlg,
+    private static SecretKey derivePreSharedKey(HashAlg hashAlg,
             SecretKey resumptionMasterSecret, byte[] nonce) throws IOException {
         try {
             HKDF hkdf = new HKDF(hashAlg.name);
@@ -342,11 +346,11 @@ final class NewSessionTicket {
                 // Note that currently, the NewSessionTicket post-handshake is
                 // produced and delivered only in the current handshake context
                 // if required.
-                PskKeyExchangeModesExtension.PskKeyExchangeModesSpec pkemSpec =
-                        (PskKeyExchangeModesExtension.PskKeyExchangeModesSpec) hc.handshakeExtensions.get(
+                PskKeyExchangeModesSpec pkemSpec =
+                        (PskKeyExchangeModesSpec) hc.handshakeExtensions.get(
                                 SSLExtension.PSK_KEY_EXCHANGE_MODES);
                 if (pkemSpec == null ||
-                        !pkemSpec.contains(PskKeyExchangeModesExtension.PskKeyExchangeMode.PSK_DHE_KE)) {
+                        !pkemSpec.contains(PskKeyExchangeMode.PSK_DHE_KE)) {
                     if (SSLLogger.isOn && SSLLogger.isOn("ssl,handshake")) {
                         SSLLogger.fine(
                                 "No session ticket produced: " +
@@ -490,7 +494,7 @@ final class NewSessionTicket {
 
         @Override
         public byte[] produce(ConnectionContext context,
-                SSLHandshake.HandshakeMessage message) throws IOException {
+                HandshakeMessage message) throws IOException {
 
             ServerHandshakeContext shc = (ServerHandshakeContext)context;
 

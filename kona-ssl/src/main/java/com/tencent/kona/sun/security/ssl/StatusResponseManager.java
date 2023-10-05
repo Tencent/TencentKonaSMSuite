@@ -51,6 +51,8 @@ import com.tencent.kona.sun.security.provider.certpath.CertId;
 import com.tencent.kona.sun.security.provider.certpath.OCSP;
 import com.tencent.kona.sun.security.provider.certpath.OCSPResponse;
 import com.tencent.kona.sun.security.provider.certpath.ResponderId;
+import com.tencent.kona.sun.security.ssl.CertStatusExtension.*;
+import com.tencent.kona.sun.security.ssl.X509Authentication.X509Possession;
 import com.tencent.kona.sun.security.util.Cache;
 import com.tencent.kona.sun.security.x509.PKIXExtensions;
 import com.tencent.kona.sun.security.x509.SerialNumber;
@@ -176,9 +178,9 @@ final class StatusResponseManager {
      * @return an unmodifiable {@code Map} containing the certificate and
      *      its usually
      */
-    Map<X509Certificate, byte[]> get(CertStatusExtension.CertStatusRequestType type,
-                                     CertStatusExtension.CertStatusRequest request, X509Certificate[] chain, long delay,
-                                     TimeUnit unit) {
+    Map<X509Certificate, byte[]> get(CertStatusRequestType type,
+            CertStatusRequest request, X509Certificate[] chain, long delay,
+            TimeUnit unit) {
         Map<X509Certificate, byte[]> responseMap = new HashMap<>();
         List<OCSPFetchCall> requestList = new ArrayList<>();
 
@@ -195,10 +197,10 @@ final class StatusResponseManager {
             return Collections.emptyMap();
         }
 
-        if (type == CertStatusExtension.CertStatusRequestType.OCSP) {
+        if (type == CertStatusRequestType.OCSP) {
             try {
                 // For type OCSP, we only check the end-entity certificate
-                CertStatusExtension.OCSPStatusRequest ocspReq = (CertStatusExtension.OCSPStatusRequest)request;
+                OCSPStatusRequest ocspReq = (OCSPStatusRequest)request;
                 CertId cid = new CertId(chain[1],
                         new SerialNumber(chain[0].getSerialNumber()));
                 ResponseCacheEntry cacheEntry = getFromCache(cid, ocspReq);
@@ -214,12 +216,12 @@ final class StatusResponseManager {
                         "Exception during CertId creation: ", exc);
                 }
             }
-        } else if (type == CertStatusExtension.CertStatusRequestType.OCSP_MULTI) {
+        } else if (type == CertStatusRequestType.OCSP_MULTI) {
             // For type OCSP_MULTI, we check every cert in the chain that
             // has a direct issuer at the next index.  We won't have an
             // issuer certificate for the last certificate in the chain
             // and will not be able to create a CertId because of that.
-            CertStatusExtension.OCSPStatusRequest ocspReq = (CertStatusExtension.OCSPStatusRequest)request;
+            OCSPStatusRequest ocspReq = (OCSPStatusRequest)request;
             int ctr;
             for (ctr = 0; ctr < chain.length - 1; ctr++) {
                 try {
@@ -304,7 +306,7 @@ final class StatusResponseManager {
      *      requested by the caller.
      */
     private ResponseCacheEntry getFromCache(CertId cid,
-            CertStatusExtension.OCSPStatusRequest ocspRequest) {
+            OCSPStatusRequest ocspRequest) {
         // Determine if the nonce extension is present in the request.  If
         // so, then do not attempt to retrieve the response from the cache.
         for (Extension ext : ocspRequest.extensions) {
@@ -462,7 +464,7 @@ final class StatusResponseManager {
      */
     class OCSPFetchCall implements Callable<StatusInfo> {
         StatusInfo statInfo;
-        CertStatusExtension.OCSPStatusRequest ocspRequest;
+        OCSPStatusRequest ocspRequest;
         List<Extension> extensions;
         List<ResponderId> responderIds;
 
@@ -476,7 +478,7 @@ final class StatusResponseManager {
          * @param request the {@code OCSPStatusRequest} containing any
          * responder IDs and extensions.
          */
-        public OCSPFetchCall(StatusInfo info, CertStatusExtension.OCSPStatusRequest request) {
+        public OCSPFetchCall(StatusInfo info, OCSPStatusRequest request) {
             statInfo = Objects.requireNonNull(info,
                     "Null StatusInfo not allowed");
             ocspRequest = Objects.requireNonNull(request,
@@ -594,8 +596,8 @@ final class StatusResponseManager {
             ServerHandshakeContext shc) {
         StaplingParameters params = null;
         SSLExtension ext = null;
-        CertStatusExtension.CertStatusRequestType type = null;
-        CertStatusExtension.CertStatusRequest req = null;
+        CertStatusRequestType type = null;
+        CertStatusRequest req = null;
         Map<X509Certificate, byte[]> responses;
 
         // If this feature has not been enabled, then no more processing
@@ -611,9 +613,9 @@ final class StatusResponseManager {
         // Check if the client has asserted the status_request[_v2] extension(s)
         Map<SSLExtension, SSLExtension.SSLExtensionSpec> exts =
                 shc.handshakeExtensions;
-        CertStatusExtension.CertStatusRequestSpec statReq = (CertStatusExtension.CertStatusRequestSpec)exts.get(
+        CertStatusRequestSpec statReq = (CertStatusRequestSpec)exts.get(
                 SSLExtension.CH_STATUS_REQUEST);
-        CertStatusExtension.CertStatusRequestV2Spec statReqV2 = (CertStatusExtension.CertStatusRequestV2Spec)
+        CertStatusRequestV2Spec statReqV2 = (CertStatusRequestV2Spec)
                 exts.get(SSLExtension.CH_STATUS_REQUEST_V2);
 
         // Determine which type of stapling we are doing and assert the
@@ -632,22 +634,22 @@ final class StatusResponseManager {
             ext = SSLExtension.CH_STATUS_REQUEST_V2;
             int ocspIdx = -1;
             int ocspMultiIdx = -1;
-            CertStatusExtension.CertStatusRequest[] reqItems = statReqV2.certStatusRequests;
+            CertStatusRequest[] reqItems = statReqV2.certStatusRequests;
             for (int pos = 0; (pos < reqItems.length &&
                     (ocspIdx == -1 || ocspMultiIdx == -1)); pos++) {
-                CertStatusExtension.CertStatusRequest item = reqItems[pos];
-                CertStatusExtension.CertStatusRequestType curType =
-                        CertStatusExtension.CertStatusRequestType.valueOf(item.statusType);
-                if (ocspIdx < 0 && curType == CertStatusExtension.CertStatusRequestType.OCSP) {
-                    CertStatusExtension.OCSPStatusRequest ocspReq = (CertStatusExtension.OCSPStatusRequest)item;
+                CertStatusRequest item = reqItems[pos];
+                CertStatusRequestType curType =
+                        CertStatusRequestType.valueOf(item.statusType);
+                if (ocspIdx < 0 && curType == CertStatusRequestType.OCSP) {
+                    OCSPStatusRequest ocspReq = (OCSPStatusRequest)item;
                     // We currently only accept empty responder ID lists
                     // but may support them in the future
                     if (ocspReq.responderIds.isEmpty()) {
                         ocspIdx = pos;
                     }
                 } else if (ocspMultiIdx < 0 &&
-                        curType == CertStatusExtension.CertStatusRequestType.OCSP_MULTI) {
-                    CertStatusExtension.OCSPStatusRequest ocspReq = (CertStatusExtension.OCSPStatusRequest)item;
+                        curType == CertStatusRequestType.OCSP_MULTI) {
+                    OCSPStatusRequest ocspReq = (OCSPStatusRequest)item;
                     // We currently only accept empty responder ID lists
                     // but may support them in the future
                     if (ocspReq.responderIds.isEmpty()) {
@@ -657,10 +659,10 @@ final class StatusResponseManager {
             }
             if (ocspMultiIdx >= 0) {
                 req = reqItems[ocspMultiIdx];
-                type = CertStatusExtension.CertStatusRequestType.valueOf(req.statusType);
+                type = CertStatusRequestType.valueOf(req.statusType);
             } else if (ocspIdx >= 0) {
                 req = reqItems[ocspIdx];
-                type = CertStatusExtension.CertStatusRequestType.valueOf(req.statusType);
+                type = CertStatusRequestType.valueOf(req.statusType);
             } else {
                 if (SSLLogger.isOn &&
                         SSLLogger.isOn("ssl,handshake")) {
@@ -684,13 +686,13 @@ final class StatusResponseManager {
                 SSLLogger.fine("SH Processing status_request extension");
             }
             ext = SSLExtension.CH_STATUS_REQUEST;
-            type = CertStatusExtension.CertStatusRequestType.valueOf(
+            type = CertStatusRequestType.valueOf(
                     statReq.statusRequest.statusType);
-            if (type == CertStatusExtension.CertStatusRequestType.OCSP) {
+            if (type == CertStatusRequestType.OCSP) {
                 // If the type is OCSP, then the request is guaranteed
                 // to be OCSPStatusRequest
-                CertStatusExtension.OCSPStatusRequest ocspReq =
-                        (CertStatusExtension.OCSPStatusRequest)statReq.statusRequest;
+                OCSPStatusRequest ocspReq =
+                        (OCSPStatusRequest)statReq.statusRequest;
                 if (ocspReq.responderIds.isEmpty()) {
                     req = ocspReq;
                 } else {
@@ -714,10 +716,10 @@ final class StatusResponseManager {
         }
 
         // Get the cert chain since we'll need it for OCSP checking
-        X509Authentication.X509Possession x509Possession = null;
+        X509Possession x509Possession = null;
         for (SSLPossession possession : shc.handshakePossessions) {
-            if (possession instanceof X509Authentication.X509Possession) {
-                x509Possession = (X509Authentication.X509Possession)possession;
+            if (possession instanceof X509Possession) {
+                x509Possession = (X509Possession)possession;
                 break;
             }
         }
@@ -739,9 +741,9 @@ final class StatusResponseManager {
             // type when it is TLS 1.3 so it always gets responses for
             // all certs it can.  This should not change the type field
             // in the StaplingParameters though.
-            CertStatusExtension.CertStatusRequestType fetchType =
+            CertStatusRequestType fetchType =
                     shc.negotiatedProtocol.useTLS13PlusSpec() ?
-                    CertStatusExtension.CertStatusRequestType.OCSP_MULTI : type;
+                    CertStatusRequestType.OCSP_MULTI : type;
             responses = statRespMgr.get(fetchType, req, certs,
                     shc.statusRespTimeout, TimeUnit.MILLISECONDS);
             if (!responses.isEmpty()) {
@@ -751,7 +753,7 @@ final class StatusResponseManager {
                 }
                 // If this RFC 6066-style stapling (SSL cert only) then the
                 // response cannot be zero length
-                if (type == CertStatusExtension.CertStatusRequestType.OCSP) {
+                if (type == CertStatusRequestType.OCSP) {
                     byte[] respDER = responses.get(certs[0]);
                     if (respDER == null || respDER.length == 0) {
                         if (SSLLogger.isOn &&
@@ -789,12 +791,12 @@ final class StatusResponseManager {
      */
     static final class StaplingParameters {
         final SSLExtension statusRespExt;
-        final CertStatusExtension.CertStatusRequestType statReqType;
-        final CertStatusExtension.CertStatusRequest statReqData;
+        final CertStatusRequestType statReqType;
+        final CertStatusRequest statReqData;
         final Map<X509Certificate, byte[]> responseMap;
 
-        StaplingParameters(SSLExtension ext, CertStatusExtension.CertStatusRequestType type,
-                           CertStatusExtension.CertStatusRequest req, Map<X509Certificate, byte[]> responses) {
+        StaplingParameters(SSLExtension ext, CertStatusRequestType type,
+                CertStatusRequest req, Map<X509Certificate, byte[]> responses) {
             statusRespExt = ext;
             statReqType = type;
             statReqData = req;

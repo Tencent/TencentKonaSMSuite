@@ -32,6 +32,8 @@ import java.security.spec.AlgorithmParameterSpec;
 import javax.crypto.SecretKey;
 import javax.net.ssl.SSLHandshakeException;
 
+import com.tencent.kona.sun.security.ssl.CipherSuite.HashAlg;
+
 final class SSLSecretDerivation implements SSLKeyDerivation {
 
     /*
@@ -81,7 +83,7 @@ final class SSLSecretDerivation implements SSLKeyDerivation {
             (byte)0x50, (byte)0x82, (byte)0xAA, (byte)0x2B
     };
 
-    private final CipherSuite.HashAlg hashAlg;
+    private final HashAlg hashAlg;
     private final SecretKey secret;
     private final byte[] transcriptHash;  // handshake messages transcript hash
 
@@ -104,11 +106,11 @@ final class SSLSecretDerivation implements SSLKeyDerivation {
         try {
             byte[] expandContext;
             if (ks == SecretSchedule.TlsSaltSecret) {
-                if (hashAlg == CipherSuite.HashAlg.H_SHA256) {
+                if (hashAlg == HashAlg.H_SHA256) {
                     expandContext = sha256EmptyDigest;
-                } else if (hashAlg == CipherSuite.HashAlg.H_SHA384) {
+                } else if (hashAlg == HashAlg.H_SHA384) {
                     expandContext = sha384EmptyDigest;
-                } else if (hashAlg == CipherSuite.HashAlg.H_SM3) {
+                } else if (hashAlg == HashAlg.H_SM3) {
                     expandContext = sm3EmptyDigest;
                 } else {
                     // unlikely, but please update if more hash algorithm

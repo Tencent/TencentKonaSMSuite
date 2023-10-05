@@ -33,6 +33,9 @@ import java.util.Arrays;
 import java.util.Locale;
 import javax.net.ssl.SSLProtocolException;
 import com.tencent.kona.sun.security.ssl.ClientHello.ClientHelloMessage;
+import com.tencent.kona.sun.security.ssl.SSLExtension.ExtensionConsumer;
+import com.tencent.kona.sun.security.ssl.SSLExtension.SSLExtensionSpec;
+import com.tencent.kona.sun.security.ssl.SSLHandshake.HandshakeMessage;
 import com.tencent.kona.sun.security.util.ByteArrays;
 
 /**
@@ -41,14 +44,14 @@ import com.tencent.kona.sun.security.util.ByteArrays;
 final class RenegoInfoExtension {
     static final HandshakeProducer chNetworkProducer =
             new CHRenegotiationInfoProducer();
-    static final SSLExtension.ExtensionConsumer chOnLoadConsumer =
+    static final ExtensionConsumer chOnLoadConsumer =
             new CHRenegotiationInfoConsumer();
     static final HandshakeAbsence chOnLoadAbsence =
             new CHRenegotiationInfoAbsence();
 
     static final HandshakeProducer shNetworkProducer =
             new SHRenegotiationInfoProducer();
-    static final SSLExtension.ExtensionConsumer shOnLoadConsumer =
+    static final ExtensionConsumer shOnLoadConsumer =
             new SHRenegotiationInfoConsumer();
     static final HandshakeAbsence shOnLoadAbsence =
             new SHRenegotiationInfoAbsence();
@@ -59,7 +62,7 @@ final class RenegoInfoExtension {
     /**
      * The "renegotiation_info" extension.
      */
-    static final class RenegotiationInfoSpec implements SSLExtension.SSLExtensionSpec {
+    static final class RenegotiationInfoSpec implements SSLExtensionSpec {
         // A nominal object that does not hold any real renegotiation info.
         static final RenegotiationInfoSpec NOMINAL =
                 new RenegotiationInfoSpec(new byte[0]);
@@ -128,7 +131,7 @@ final class RenegoInfoExtension {
 
         @Override
         public byte[] produce(ConnectionContext context,
-                SSLHandshake.HandshakeMessage message) throws IOException {
+                HandshakeMessage message) throws IOException {
             // The producing happens in client side only.
             ClientHandshakeContext chc = (ClientHandshakeContext)context;
 
@@ -197,7 +200,7 @@ final class RenegoInfoExtension {
      * the ServerHello handshake message.
      */
     private static final
-            class CHRenegotiationInfoConsumer implements SSLExtension.ExtensionConsumer {
+            class CHRenegotiationInfoConsumer implements ExtensionConsumer {
         // Prevent instantiation of this class.
         private CHRenegotiationInfoConsumer() {
             // blank
@@ -205,7 +208,7 @@ final class RenegoInfoExtension {
 
         @Override
         public void consume(ConnectionContext context,
-                            SSLHandshake.HandshakeMessage message, ByteBuffer buffer) throws IOException {
+                HandshakeMessage message, ByteBuffer buffer) throws IOException {
 
             // The consuming happens in server side only.
             ServerHandshakeContext shc = (ServerHandshakeContext)context;
@@ -266,7 +269,7 @@ final class RenegoInfoExtension {
             class CHRenegotiationInfoAbsence implements HandshakeAbsence {
         @Override
         public void absent(ConnectionContext context,
-                SSLHandshake.HandshakeMessage message) throws IOException {
+                HandshakeMessage message) throws IOException {
             // The producing happens in server side only.
             ServerHandshakeContext shc = (ServerHandshakeContext)context;
             ClientHelloMessage clientHello = (ClientHelloMessage)message;
@@ -331,7 +334,7 @@ final class RenegoInfoExtension {
 
         @Override
         public byte[] produce(ConnectionContext context,
-                SSLHandshake.HandshakeMessage message) throws IOException {
+                HandshakeMessage message) throws IOException {
             // The producing happens in server side only.
             ServerHandshakeContext shc = (ServerHandshakeContext)context;
 
@@ -402,7 +405,7 @@ final class RenegoInfoExtension {
      * the ServerHello handshake message.
      */
     private static final
-            class SHRenegotiationInfoConsumer implements SSLExtension.ExtensionConsumer {
+            class SHRenegotiationInfoConsumer implements ExtensionConsumer {
         // Prevent instantiation of this class.
         private SHRenegotiationInfoConsumer() {
             // blank
@@ -410,7 +413,7 @@ final class RenegoInfoExtension {
 
         @Override
         public void consume(ConnectionContext context,
-                            SSLHandshake.HandshakeMessage message, ByteBuffer buffer) throws IOException {
+                HandshakeMessage message, ByteBuffer buffer) throws IOException {
             // The producing happens in client side only.
             ClientHandshakeContext chc = (ClientHandshakeContext)context;
 
@@ -488,7 +491,7 @@ final class RenegoInfoExtension {
             class SHRenegotiationInfoAbsence implements HandshakeAbsence {
         @Override
         public void absent(ConnectionContext context,
-                SSLHandshake.HandshakeMessage message) throws IOException {
+                HandshakeMessage message) throws IOException {
             // The producing happens in client side only.
             ClientHandshakeContext chc = (ClientHandshakeContext)context;
 

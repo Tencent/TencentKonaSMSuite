@@ -36,6 +36,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import javax.security.auth.x500.X500Principal;
+import com.tencent.kona.sun.security.ssl.CertificateRequest.ClientCertificateType;
 import com.tencent.kona.sun.security.ssl.CipherSuite.KeyExchange;
 import com.tencent.kona.sun.security.ssl.SSLHandshake.HandshakeMessage;
 
@@ -59,8 +60,8 @@ final class TLCPCertificateRequest {
             super(handshakeContext);
 
             this.types = new byte[] {
-                    CertificateRequest.ClientCertificateType.ECDSA_SIGN.id,
-                    CertificateRequest.ClientCertificateType.RSA_SIGN.id};
+                    ClientCertificateType.ECDSA_SIGN.id,
+                    ClientCertificateType.RSA_SIGN.id};
 
             if (handshakeContext.negotiatedProtocol.isTLS12()) {
                 if (signatureSchemes == null || signatureSchemes.isEmpty()) {
@@ -156,7 +157,7 @@ final class TLCPCertificateRequest {
         }
 
         String[] getKeyTypes() {
-            return CertificateRequest.ClientCertificateType.getKeyTypes(types);
+            return ClientCertificateType.getKeyTypes(types);
         }
 
         // This method will throw IllegalArgumentException if the
@@ -216,7 +217,7 @@ final class TLCPCertificateRequest {
 
             List<String> typeNames = new ArrayList<>(types.length);
             for (byte type : types) {
-                typeNames.add(CertificateRequest.ClientCertificateType.nameOf(type));
+                typeNames.add(ClientCertificateType.nameOf(type));
             }
 
             List<String> algorithmNames = new ArrayList<>(algorithmIds.length);

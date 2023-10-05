@@ -36,6 +36,8 @@ import java.util.Locale;
 import javax.crypto.SecretKey;
 
 import com.tencent.kona.crypto.spec.SM2ParameterSpec;
+import com.tencent.kona.sun.security.ssl.SM2KeyExchange.SM2PremasterSecret;
+import com.tencent.kona.sun.security.ssl.SSLHandshake.HandshakeMessage;
 import com.tencent.kona.sun.security.util.HexDumpEncoder;
 
 /**
@@ -52,13 +54,13 @@ final class SM2ClientKeyExchange {
      * The SM2 ClientKeyExchange handshake message.
      */
     private static final class SM2ClientKeyExchangeMessage
-            extends SSLHandshake.HandshakeMessage {
+            extends HandshakeMessage {
 
         final int protocolVersion;
         final byte[] encrypted;
 
         SM2ClientKeyExchangeMessage(HandshakeContext context,
-                                    SM2KeyExchange.SM2PremasterSecret premaster, PublicKey publicKey)
+                SM2PremasterSecret premaster, PublicKey publicKey)
                 throws GeneralSecurityException {
             super(context);
             this.protocolVersion = context.clientHelloVersion;
@@ -128,7 +130,7 @@ final class SM2ClientKeyExchange {
 
         @Override
         public byte[] produce(ConnectionContext context,
-                SSLHandshake.HandshakeMessage message) throws IOException {
+                HandshakeMessage message) throws IOException {
             // This happens in client side only.
             ClientHandshakeContext chc = (ClientHandshakeContext)context;
 
@@ -153,10 +155,10 @@ final class SM2ClientKeyExchange {
                     "Not SM2 public key for client key exchange");
             }
 
-            SM2KeyExchange.SM2PremasterSecret premaster;
+            SM2PremasterSecret premaster;
             SM2ClientKeyExchangeMessage ckem;
             try {
-                premaster = SM2KeyExchange.SM2PremasterSecret.createPremasterSecret(chc);
+                premaster = SM2PremasterSecret.createPremasterSecret(chc);
                 chc.handshakePossessions.add(premaster);
                 ckem = new SM2ClientKeyExchangeMessage(
                         chc, premaster, publicKey);
@@ -248,10 +250,10 @@ final class SM2ClientKeyExchange {
             }
 
             // create the credentials
-            SM2KeyExchange.SM2PremasterSecret premaster;
+            SM2PremasterSecret premaster;
             try {
                 premaster =
-                    SM2KeyExchange.SM2PremasterSecret.decode(shc, privateKey, ckem.encrypted);
+                    SM2PremasterSecret.decode(shc, privateKey, ckem.encrypted);
                 shc.handshakeCredentials.add(premaster);
             } catch (GeneralSecurityException gse) {
                 throw shc.conContext.fatal(Alert.ILLEGAL_PARAMETER,

@@ -33,9 +33,12 @@ import java.util.ArrayList;
 import java.util.Locale;
 import javax.net.ssl.SSLHandshakeException;
 import java.security.cert.X509Certificate;
+
 import com.tencent.kona.sun.security.provider.certpath.OCSPResponse;
+import com.tencent.kona.sun.security.ssl.SSLHandshake.HandshakeMessage;
 
 import static com.tencent.kona.sun.security.ssl.CertStatusExtension.*;
+import static com.tencent.kona.sun.security.ssl.CertificateMessage.*;
 
 /**
  * Consumers and producers for the CertificateStatus handshake message.
@@ -81,7 +84,7 @@ final class CertificateStatus {
     /**
      * The CertificateStatus handshake message.
      */
-    static final class CertificateStatusMessage extends SSLHandshake.HandshakeMessage {
+    static final class CertificateStatusMessage extends HandshakeMessage {
 
         final CertStatusRequestType statusType;
         final int encodedResponsesLen;
@@ -289,7 +292,7 @@ final class CertificateStatus {
             chc.handshakeSession.setStatusResponses(cst.encodedResponses);
 
             // Now perform the check
-            CertificateMessage.T12CertificateConsumer.checkServerCerts(chc, chc.deferredCerts);
+            T12CertificateConsumer.checkServerCerts(chc, chc.deferredCerts);
 
             // Update the handshake consumers to remove this message, indicating
             // that it has been processed.
@@ -309,7 +312,7 @@ final class CertificateStatus {
 
         @Override
         public byte[] produce(ConnectionContext context,
-                SSLHandshake.HandshakeMessage message) throws IOException {
+                HandshakeMessage message) throws IOException {
             // Only the server-side should be a producer of this message
             ServerHandshakeContext shc = (ServerHandshakeContext)context;
 
@@ -344,7 +347,7 @@ final class CertificateStatus {
 
         @Override
         public void absent(ConnectionContext context,
-                SSLHandshake.HandshakeMessage message) throws IOException {
+                HandshakeMessage message) throws IOException {
             ClientHandshakeContext chc = (ClientHandshakeContext)context;
 
             // Processing should only continue if stapling is active
@@ -358,7 +361,7 @@ final class CertificateStatus {
                     SSLLogger.fine("Server did not send CertificateStatus, " +
                             "checking cert chain without status info.");
                 }
-                CertificateMessage.T12CertificateConsumer.checkServerCerts(chc, chc.deferredCerts);
+                T12CertificateConsumer.checkServerCerts(chc, chc.deferredCerts);
             }
         }
     }

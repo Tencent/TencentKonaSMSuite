@@ -29,6 +29,7 @@ import com.tencent.kona.crypto.CryptoInsts;
 import com.tencent.kona.crypto.spec.SM2KeyAgreementParamSpec;
 import com.tencent.kona.crypto.util.Constants;
 import com.tencent.kona.ssl.SSLUtils;
+import com.tencent.kona.sun.security.ssl.TLCPAuthentication.TLCPPossession;
 import com.tencent.kona.sun.security.util.ECUtil;
 
 import javax.crypto.KeyAgreement;
@@ -113,7 +114,7 @@ public class SM2EKeyExchange {
         final ECPublicKey popEncPublicKey;
         final NamedGroup namedGroup;
 
-        SM2EPossession(TLCPAuthentication.TLCPPossession tlcpPossession,
+        SM2EPossession(TLCPPossession tlcpPossession,
                        NamedGroup namedGroup, SecureRandom random) {
             try {
                 KeyPairGenerator kpg
@@ -256,9 +257,9 @@ public class SM2EKeyExchange {
             }
 
             ServerHandshakeContext shc = (ServerHandshakeContext) context;
-            TLCPAuthentication.TLCPPossession tlcpPossession = null;
-            if (shc.interimAuthn instanceof TLCPAuthentication.TLCPPossession) {
-                tlcpPossession = ((TLCPAuthentication.TLCPPossession) shc.interimAuthn);
+            TLCPPossession tlcpPossession = null;
+            if (shc.interimAuthn instanceof TLCPPossession) {
+                tlcpPossession = ((TLCPPossession) shc.interimAuthn);
             }
             if (preferableNamedGroup == NamedGroup.CURVESM2) {
                 return new SM2EPossession(tlcpPossession,

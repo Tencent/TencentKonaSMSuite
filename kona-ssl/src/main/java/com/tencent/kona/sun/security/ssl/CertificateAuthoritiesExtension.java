@@ -33,18 +33,21 @@ import java.util.*;
 import javax.net.ssl.SSLProtocolException;
 import javax.security.auth.x500.X500Principal;
 
+import com.tencent.kona.sun.security.ssl.SSLExtension.ExtensionConsumer;
+import com.tencent.kona.sun.security.ssl.SSLExtension.SSLExtensionSpec;
+
 /**
  * Pack of the "certificate_authorities" extensions.
  */
 final class CertificateAuthoritiesExtension {
     static final HandshakeProducer chNetworkProducer =
             new CHCertificateAuthoritiesProducer();
-    static final SSLExtension.ExtensionConsumer chOnLoadConsumer =
+    static final ExtensionConsumer chOnLoadConsumer =
             new CHCertificateAuthoritiesConsumer();
 
     static final HandshakeProducer crNetworkProducer =
             new CRCertificateAuthoritiesProducer();
-    static final SSLExtension.ExtensionConsumer crOnLoadConsumer =
+    static final ExtensionConsumer crOnLoadConsumer =
             new CRCertificateAuthoritiesConsumer();
 
     static final SSLStringizer ssStringizer =
@@ -53,7 +56,7 @@ final class CertificateAuthoritiesExtension {
     /**
      * The "certificate_authorities" extension.
      */
-    static final class CertificateAuthoritiesSpec implements SSLExtension.SSLExtensionSpec {
+    static final class CertificateAuthoritiesSpec implements SSLExtensionSpec {
         final List<byte[]> authorities;     // certificate authorities
 
         private CertificateAuthoritiesSpec(List<byte[]> authorities) {
@@ -250,7 +253,7 @@ final class CertificateAuthoritiesExtension {
      * the ClientHello handshake message.
      */
     private static final
-        class CHCertificateAuthoritiesConsumer implements SSLExtension.ExtensionConsumer {
+        class CHCertificateAuthoritiesConsumer implements ExtensionConsumer {
 
         // Prevent instantiation of this class.
         private CHCertificateAuthoritiesConsumer() {
@@ -377,7 +380,7 @@ final class CertificateAuthoritiesExtension {
      * the CertificateRequest handshake message.
      */
     private static final
-        class CRCertificateAuthoritiesConsumer implements SSLExtension.ExtensionConsumer {
+        class CRCertificateAuthoritiesConsumer implements ExtensionConsumer {
 
         // Prevent instantiation of this class.
         private CRCertificateAuthoritiesConsumer() {

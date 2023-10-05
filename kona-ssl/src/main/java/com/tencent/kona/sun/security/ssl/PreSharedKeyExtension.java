@@ -38,6 +38,9 @@ import javax.net.ssl.SSLPeerUnverifiedException;
 import javax.net.ssl.SSLProtocolException;
 
 import com.tencent.kona.crypto.CryptoInsts;
+import com.tencent.kona.sun.security.ssl.ClientHello.ClientHelloMessage;
+import com.tencent.kona.sun.security.ssl.SSLExtension.ExtensionConsumer;
+import com.tencent.kona.sun.security.ssl.SSLExtension.SSLExtensionSpec;
 import com.tencent.kona.sun.security.ssl.SSLHandshake.HandshakeMessage;
 import com.tencent.kona.sun.security.ssl.SessionTicketExtension.SessionTicketSpec;
 import com.tencent.kona.sun.security.util.HexDumpEncoder;
@@ -48,7 +51,7 @@ import com.tencent.kona.sun.security.util.HexDumpEncoder;
 final class PreSharedKeyExtension {
     static final HandshakeProducer chNetworkProducer =
             new CHPreSharedKeyProducer();
-    static final SSLExtension.ExtensionConsumer chOnLoadConsumer =
+    static final ExtensionConsumer chOnLoadConsumer =
             new CHPreSharedKeyConsumer();
     static final HandshakeAbsence chOnLoadAbsence =
             new CHPreSharedKeyOnLoadAbsence();
@@ -61,7 +64,7 @@ final class PreSharedKeyExtension {
 
     static final HandshakeProducer shNetworkProducer =
             new SHPreSharedKeyProducer();
-    static final SSLExtension.ExtensionConsumer shOnLoadConsumer =
+    static final ExtensionConsumer shOnLoadConsumer =
             new SHPreSharedKeyConsumer();
     static final HandshakeAbsence shOnLoadAbsence =
             new SHPreSharedKeyAbsence();
@@ -94,7 +97,7 @@ final class PreSharedKeyExtension {
     }
 
     private static final
-            class CHPreSharedKeySpec implements SSLExtension.SSLExtensionSpec {
+            class CHPreSharedKeySpec implements SSLExtensionSpec {
         final List<PskIdentity> identities;
         final List<byte[]> binders;
 
@@ -266,7 +269,7 @@ final class PreSharedKeyExtension {
     }
 
     private static final
-            class SHPreSharedKeySpec implements SSLExtension.SSLExtensionSpec {
+            class SHPreSharedKeySpec implements SSLExtensionSpec {
         final int selectedIdentity;
 
         SHPreSharedKeySpec(int selectedIdentity) {
@@ -322,7 +325,7 @@ final class PreSharedKeyExtension {
     }
 
     private static final
-            class CHPreSharedKeyConsumer implements SSLExtension.ExtensionConsumer {
+            class CHPreSharedKeyConsumer implements ExtensionConsumer {
         // Prevent instantiation of this class.
         private CHPreSharedKeyConsumer() {
             // blank
@@ -332,7 +335,7 @@ final class PreSharedKeyExtension {
         public void consume(ConnectionContext context,
                             HandshakeMessage message,
                             ByteBuffer buffer) throws IOException {
-            ClientHello.ClientHelloMessage clientHello = (ClientHello.ClientHelloMessage) message;
+            ClientHelloMessage clientHello = (ClientHelloMessage) message;
             ServerHandshakeContext shc = (ServerHandshakeContext)context;
             // Is it a supported and enabled extension?
             if (!shc.sslConfig.isAvailable(SSLExtension.CH_PRE_SHARED_KEY)) {
@@ -423,8 +426,8 @@ final class PreSharedKeyExtension {
         }
     }
 
-    private static boolean canRejoin(ClientHello.ClientHelloMessage clientHello,
-                                     ServerHandshakeContext shc, SSLSessionImpl s) {
+    private static boolean canRejoin(ClientHelloMessage clientHello,
+            ServerHandshakeContext shc, SSLSessionImpl s) {
 
         boolean result = s.isRejoinable() && (s.getPreSharedKey() != null);
 
@@ -543,7 +546,7 @@ final class PreSharedKeyExtension {
             // skip the type and length
             messageBuf.position(4);
             // read to find the beginning of the binders
-            ClientHello.ClientHelloMessage.readPartial(shc.conContext, messageBuf);
+            ClientHelloMessage.readPartial(shc.conContext, messageBuf);
             int length = messageBuf.position();
             messageBuf.position(0);
             pskBinderHash.receive(messageBuf, length);
@@ -573,11 +576,11 @@ final class PreSharedKeyExtension {
     // Class that produces partial messages used to compute binder hash
     static final class PartialClientHelloMessage extends HandshakeMessage {
 
-        private final ClientHello.ClientHelloMessage msg;
+        private final ClientHelloMessage msg;
         private final CHPreSharedKeySpec psk;
 
         PartialClientHelloMessage(HandshakeContext ctx,
-                                  ClientHello.ClientHelloMessage msg,
+                                  ClientHelloMessage msg,
                                   CHPreSharedKeySpec psk) {
             super(ctx);
 
@@ -713,7 +716,7 @@ final class PreSharedKeyExtension {
 
             SecretKey binderKey =
                     deriveBinderKey(chc, psk, chc.resumingSession);
-            ClientHello.ClientHelloMessage clientHello = (ClientHello.ClientHelloMessage)message;
+            ClientHelloMessage clientHello = (ClientHelloMessage)message;
             CHPreSharedKeySpec pskPrototype = createPskPrototype(
                 chc.resumingSession.getSuite().hashAlg.hashLength, identities);
             HandshakeHash pskBinderHash = chc.handshakeHash.copy();
@@ -759,7 +762,7 @@ final class PreSharedKeyExtension {
     private static byte[] computeBinder(
             HandshakeContext context, SecretKey binderKey,
             HandshakeHash hash, SSLSessionImpl session,
-            HandshakeContext ctx, ClientHello.ClientHelloMessage hello,
+            HandshakeContext ctx, ClientHelloMessage hello,
             CHPreSharedKeySpec pskPrototype) throws IOException {
 
         PartialClientHelloMessage partialMsg =
@@ -872,7 +875,7 @@ final class PreSharedKeyExtension {
     }
 
     private static final
-            class SHPreSharedKeyConsumer implements SSLExtension.ExtensionConsumer {
+            class SHPreSharedKeyConsumer implements ExtensionConsumer {
         // Prevent instantiation of this class.
         private SHPreSharedKeyConsumer() {
             // blank

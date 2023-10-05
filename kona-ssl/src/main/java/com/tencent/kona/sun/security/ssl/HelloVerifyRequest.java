@@ -30,6 +30,7 @@ import java.nio.ByteBuffer;
 import java.text.MessageFormat;
 import java.util.Locale;
 
+import com.tencent.kona.sun.security.ssl.ClientHello.ClientHelloMessage;
 import com.tencent.kona.sun.security.ssl.SSLHandshake.HandshakeMessage;
 
 /**
@@ -54,7 +55,7 @@ final class HelloVerifyRequest {
             // This happens in server side only.
             ServerHandshakeContext shc =
                     (ServerHandshakeContext)context;
-            ClientHello.ClientHelloMessage clientHello = (ClientHello.ClientHelloMessage)message;
+            ClientHelloMessage clientHello = (ClientHelloMessage)message;
 
             HelloCookieManager hcMgr =
                 shc.sslContext.getHelloCookieManager(ProtocolVersion.DTLS10);

@@ -35,7 +35,9 @@ import java.util.List;
 import java.util.Locale;
 import javax.net.ssl.SSLProtocolException;
 import com.tencent.kona.sun.security.ssl.NamedGroup.NamedGroupSpec;
-import com.tencent.kona.sun.security.ssl.NamedGroup.SupportedGroups;
+import com.tencent.kona.sun.security.ssl.SSLExtension.ExtensionConsumer;
+import com.tencent.kona.sun.security.ssl.SSLExtension.SSLExtensionSpec;
+import com.tencent.kona.sun.security.ssl.SSLHandshake.HandshakeMessage;
 
 /**
  * Pack of the "supported_groups" extensions [RFC 4492/7919].
@@ -43,7 +45,7 @@ import com.tencent.kona.sun.security.ssl.NamedGroup.SupportedGroups;
 final class SupportedGroupsExtension {
     static final HandshakeProducer chNetworkProducer =
             new CHSupportedGroupsProducer();
-    static final SSLExtension.ExtensionConsumer chOnLoadConsumer =
+    static final ExtensionConsumer chOnLoadConsumer =
             new CHSupportedGroupsConsumer();
     static final HandshakeAbsence chOnTradAbsence =
             new CHSupportedGroupsOnTradeAbsence();
@@ -52,13 +54,13 @@ final class SupportedGroupsExtension {
 
     static final HandshakeProducer eeNetworkProducer =
             new EESupportedGroupsProducer();
-    static final SSLExtension.ExtensionConsumer eeOnLoadConsumer =
+    static final ExtensionConsumer eeOnLoadConsumer =
             new EESupportedGroupsConsumer();
 
     /**
      * The "supported_groups" extension.
      */
-    static final class SupportedGroupsSpec implements SSLExtension.SSLExtensionSpec {
+    static final class SupportedGroupsSpec implements SSLExtensionSpec {
         final int[] namedGroupsIds;
 
         private SupportedGroupsSpec(int[] namedGroupsIds) {
@@ -160,7 +162,7 @@ final class SupportedGroupsExtension {
 
         @Override
         public byte[] produce(ConnectionContext context,
-                SSLHandshake.HandshakeMessage message) throws IOException {
+                HandshakeMessage message) throws IOException {
             // The producing happens in client side only.
             ClientHandshakeContext chc = (ClientHandshakeContext)context;
 
@@ -232,7 +234,7 @@ final class SupportedGroupsExtension {
      * the ClientHello handshake message.
      */
     private static final
-            class CHSupportedGroupsConsumer implements SSLExtension.ExtensionConsumer {
+            class CHSupportedGroupsConsumer implements ExtensionConsumer {
         // Prevent instantiation of this class.
         private CHSupportedGroupsConsumer() {
             // blank
@@ -240,7 +242,7 @@ final class SupportedGroupsExtension {
 
         @Override
         public void consume(ConnectionContext context,
-                            SSLHandshake.HandshakeMessage message, ByteBuffer buffer) throws IOException {
+                HandshakeMessage message, ByteBuffer buffer) throws IOException {
             // The consuming happens in server side only.
             ServerHandshakeContext shc = (ServerHandshakeContext)context;
 
@@ -280,7 +282,7 @@ final class SupportedGroupsExtension {
             implements HandshakeAbsence {
         @Override
         public void absent(ConnectionContext context,
-                SSLHandshake.HandshakeMessage message) throws IOException {
+                HandshakeMessage message) throws IOException {
             // The producing happens in server side only.
             ServerHandshakeContext shc = (ServerHandshakeContext)context;
 
@@ -315,7 +317,7 @@ final class SupportedGroupsExtension {
 
         @Override
         public byte[] produce(ConnectionContext context,
-                SSLHandshake.HandshakeMessage message) throws IOException {
+                HandshakeMessage message) throws IOException {
             // The producing happens in server side only.
             ServerHandshakeContext shc = (ServerHandshakeContext)context;
 
@@ -387,7 +389,7 @@ final class SupportedGroupsExtension {
     }
 
     private static final
-            class EESupportedGroupsConsumer implements SSLExtension.ExtensionConsumer {
+            class EESupportedGroupsConsumer implements ExtensionConsumer {
         // Prevent instantiation of this class.
         private EESupportedGroupsConsumer() {
             // blank
@@ -395,7 +397,7 @@ final class SupportedGroupsExtension {
 
         @Override
         public void consume(ConnectionContext context,
-                            SSLHandshake.HandshakeMessage message, ByteBuffer buffer) throws IOException {
+                HandshakeMessage message, ByteBuffer buffer) throws IOException {
             // The consuming happens in client side only.
             ClientHandshakeContext chc = (ClientHandshakeContext)context;
 

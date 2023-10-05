@@ -41,6 +41,9 @@ import javax.net.ssl.SSLProtocolException;
 import com.tencent.kona.pkix.PKIXInsts;
 import com.tencent.kona.sun.security.provider.certpath.OCSPResponse;
 import com.tencent.kona.sun.security.provider.certpath.ResponderId;
+import com.tencent.kona.sun.security.ssl.SSLExtension.ExtensionConsumer;
+import com.tencent.kona.sun.security.ssl.SSLExtension.SSLExtensionSpec;
+import com.tencent.kona.sun.security.ssl.SSLHandshake.HandshakeMessage;
 import com.tencent.kona.sun.security.util.DerInputStream;
 import com.tencent.kona.sun.security.util.DerValue;
 import com.tencent.kona.sun.security.util.HexDumpEncoder;
@@ -51,17 +54,17 @@ import com.tencent.kona.sun.security.util.HexDumpEncoder;
 final class CertStatusExtension {
     static final HandshakeProducer chNetworkProducer =
             new CHCertStatusReqProducer();
-    static final SSLExtension.ExtensionConsumer chOnLoadConsumer =
+    static final ExtensionConsumer chOnLoadConsumer =
             new CHCertStatusReqConsumer();
 
     static final HandshakeProducer shNetworkProducer =
             new SHCertStatusReqProducer();
-    static final SSLExtension.ExtensionConsumer shOnLoadConsumer =
+    static final ExtensionConsumer shOnLoadConsumer =
             new SHCertStatusReqConsumer();
 
     static final HandshakeProducer ctNetworkProducer =
             new CTCertStatusResponseProducer();
-    static final SSLExtension.ExtensionConsumer ctOnLoadConsumer =
+    static final ExtensionConsumer ctOnLoadConsumer =
             new CTCertStatusResponseConsumer();
 
     static final SSLStringizer certStatusReqStringizer =
@@ -69,12 +72,12 @@ final class CertStatusExtension {
 
     static final HandshakeProducer chV2NetworkProducer =
             new CHCertStatusReqV2Producer();
-    static final SSLExtension.ExtensionConsumer chV2OnLoadConsumer =
+    static final ExtensionConsumer chV2OnLoadConsumer =
             new CHCertStatusReqV2Consumer();
 
     static final HandshakeProducer shV2NetworkProducer =
             new SHCertStatusReqV2Producer();
-    static final SSLExtension.ExtensionConsumer shV2OnLoadConsumer =
+    static final ExtensionConsumer shV2OnLoadConsumer =
             new SHCertStatusReqV2Consumer();
 
     static final SSLStringizer certStatusReqV2Stringizer =
@@ -110,7 +113,7 @@ final class CertStatusExtension {
      *      opaque ResponderID<1..2^16-1>;
      *      opaque Extensions<0..2^16-1>;
      */
-    static final class CertStatusRequestSpec implements SSLExtension.SSLExtensionSpec {
+    static final class CertStatusRequestSpec implements SSLExtensionSpec {
         static final CertStatusRequestSpec DEFAULT =
                 new CertStatusRequestSpec(OCSPStatusRequest.EMPTY_OCSP);
 
@@ -172,7 +175,7 @@ final class CertStatusExtension {
      *     } response;
      * } CertificateStatus;
      */
-    static final class CertStatusResponseSpec implements SSLExtension.SSLExtensionSpec {
+    static final class CertStatusResponseSpec implements SSLExtensionSpec {
         final CertStatusResponse statusResponse;
 
         private CertStatusResponseSpec(CertStatusResponse resp) {
@@ -542,7 +545,7 @@ final class CertStatusExtension {
 
         @Override
         public byte[] produce(ConnectionContext context,
-                SSLHandshake.HandshakeMessage message) throws IOException {
+                HandshakeMessage message) throws IOException {
             // The producing happens in client side only.
             ClientHandshakeContext chc = (ClientHandshakeContext)context;
 
@@ -578,7 +581,7 @@ final class CertStatusExtension {
      * ClientHello handshake message.
      */
     private static final
-            class CHCertStatusReqConsumer implements SSLExtension.ExtensionConsumer {
+            class CHCertStatusReqConsumer implements ExtensionConsumer {
         // Prevent instantiation of this class.
         private CHCertStatusReqConsumer() {
             // blank
@@ -586,7 +589,7 @@ final class CertStatusExtension {
 
         @Override
         public void consume(ConnectionContext context,
-                            SSLHandshake.HandshakeMessage message, ByteBuffer buffer) throws IOException {
+                HandshakeMessage message, ByteBuffer buffer) throws IOException {
 
             // The consuming happens in server side only.
             ServerHandshakeContext shc = (ServerHandshakeContext)context;
@@ -627,7 +630,7 @@ final class CertStatusExtension {
 
         @Override
         public byte[] produce(ConnectionContext context,
-                SSLHandshake.HandshakeMessage message) throws IOException {
+                HandshakeMessage message) throws IOException {
             // The producing happens in client side only.
             ServerHandshakeContext shc = (ServerHandshakeContext)context;
 
@@ -685,7 +688,7 @@ final class CertStatusExtension {
      * ServerHello handshake message.
      */
     private static final
-            class SHCertStatusReqConsumer implements SSLExtension.ExtensionConsumer {
+            class SHCertStatusReqConsumer implements ExtensionConsumer {
         // Prevent instantiation of this class.
         private SHCertStatusReqConsumer() {
             // blank
@@ -693,7 +696,7 @@ final class CertStatusExtension {
 
         @Override
         public void consume(ConnectionContext context,
-                            SSLHandshake.HandshakeMessage message, ByteBuffer buffer) throws IOException {
+                HandshakeMessage message, ByteBuffer buffer) throws IOException {
 
             // The producing happens in client side only.
             ClientHandshakeContext chc = (ClientHandshakeContext)context;
@@ -761,7 +764,7 @@ final class CertStatusExtension {
      *                         certificate_status_req_list<1..2^16-1>;
      *      } CertificateStatusRequestListV2;
      */
-    static final class CertStatusRequestV2Spec implements SSLExtension.SSLExtensionSpec {
+    static final class CertStatusRequestV2Spec implements SSLExtensionSpec {
         static final CertStatusRequestV2Spec DEFAULT =
                 new CertStatusRequestV2Spec(new CertStatusRequest[] {
                         OCSPStatusRequest.EMPTY_OCSP_MULTI});
@@ -900,7 +903,7 @@ final class CertStatusExtension {
 
         @Override
         public byte[] produce(ConnectionContext context,
-                SSLHandshake.HandshakeMessage message) throws IOException {
+                HandshakeMessage message) throws IOException {
             // The producing happens in client side only.
             ClientHandshakeContext chc = (ClientHandshakeContext)context;
 
@@ -937,7 +940,7 @@ final class CertStatusExtension {
      * ClientHello handshake message.
      */
     private static final
-            class CHCertStatusReqV2Consumer implements SSLExtension.ExtensionConsumer {
+            class CHCertStatusReqV2Consumer implements ExtensionConsumer {
         // Prevent instantiation of this class.
         private CHCertStatusReqV2Consumer() {
             // blank
@@ -945,7 +948,7 @@ final class CertStatusExtension {
 
         @Override
         public void consume(ConnectionContext context,
-                            SSLHandshake.HandshakeMessage message, ByteBuffer buffer) throws IOException {
+                HandshakeMessage message, ByteBuffer buffer) throws IOException {
 
             // The consuming happens in server side only.
             ServerHandshakeContext shc = (ServerHandshakeContext)context;
@@ -988,7 +991,7 @@ final class CertStatusExtension {
 
         @Override
         public byte[] produce(ConnectionContext context,
-                SSLHandshake.HandshakeMessage message) throws IOException {
+                HandshakeMessage message) throws IOException {
             // The producing happens in client side only.
 
             ServerHandshakeContext shc = (ServerHandshakeContext)context;
@@ -1045,7 +1048,7 @@ final class CertStatusExtension {
      * ServerHello handshake message.
      */
     private static final
-            class SHCertStatusReqV2Consumer implements SSLExtension.ExtensionConsumer {
+            class SHCertStatusReqV2Consumer implements ExtensionConsumer {
         // Prevent instantiation of this class.
         private SHCertStatusReqV2Consumer() {
             // blank
@@ -1053,7 +1056,7 @@ final class CertStatusExtension {
 
         @Override
         public void consume(ConnectionContext context,
-                            SSLHandshake.HandshakeMessage message, ByteBuffer buffer) throws IOException {
+                HandshakeMessage message, ByteBuffer buffer) throws IOException {
 
             // The consumption happens in client side only.
             ClientHandshakeContext chc = (ClientHandshakeContext)context;
@@ -1100,7 +1103,7 @@ final class CertStatusExtension {
 
         @Override
         public byte[] produce(ConnectionContext context,
-                SSLHandshake.HandshakeMessage message) throws IOException {
+                HandshakeMessage message) throws IOException {
             ServerHandshakeContext shc = (ServerHandshakeContext)context;
             byte[] producedData;
 
@@ -1170,7 +1173,7 @@ final class CertStatusExtension {
     }
 
     private static final
-        class CTCertStatusResponseConsumer implements SSLExtension.ExtensionConsumer {
+        class CTCertStatusResponseConsumer implements ExtensionConsumer {
         // Prevent instantiation of this class.
         private CTCertStatusResponseConsumer() {
             // blank
@@ -1178,7 +1181,7 @@ final class CertStatusExtension {
 
         @Override
         public void consume(ConnectionContext context,
-                            SSLHandshake.HandshakeMessage message, ByteBuffer buffer) throws IOException {
+                HandshakeMessage message, ByteBuffer buffer) throws IOException {
             // The consumption happens in client side only.
             ClientHandshakeContext chc = (ClientHandshakeContext)context;
 

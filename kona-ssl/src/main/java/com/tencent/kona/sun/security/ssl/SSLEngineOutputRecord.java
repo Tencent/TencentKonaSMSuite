@@ -30,6 +30,8 @@ import java.nio.ByteBuffer;
 import java.util.LinkedList;
 import javax.net.ssl.SSLHandshakeException;
 
+import com.tencent.kona.sun.security.ssl.SSLCipher.SSLWriteCipher;
+
 /**
  * {@code OutputRecord} implementation for {@code SSLEngine}.
  */
@@ -42,7 +44,7 @@ final class SSLEngineOutputRecord extends OutputRecord implements SSLRecord {
     private volatile boolean isCloseWaiting;
 
     SSLEngineOutputRecord(HandshakeHash handshakeHash) {
-        super(handshakeHash, SSLCipher.SSLWriteCipher.nullTlsWriteCipher());
+        super(handshakeHash, SSLWriteCipher.nullTlsWriteCipher());
 
         this.packetSize = maxRecordSize;
         this.protocolVersion = ProtocolVersion.NONE;
@@ -367,7 +369,7 @@ final class SSLEngineOutputRecord extends OutputRecord implements SSLRecord {
         byte            contentType;
         byte            majorVersion;
         byte            minorVersion;
-        SSLCipher.SSLWriteCipher encodeCipher;
+        SSLWriteCipher  encodeCipher;
         boolean         disposeCipher;
 
         byte[]          fragment;

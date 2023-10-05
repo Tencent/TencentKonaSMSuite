@@ -31,21 +31,24 @@ import java.text.MessageFormat;
 import java.util.Locale;
 import javax.net.ssl.SSLProtocolException;
 
-import com.tencent.kona.sun.security.ssl.SSLHandshake.HandshakeMessage;
+import com.tencent.kona.sun.security.ssl.ClientHello.ClientHelloMessage;
 import com.tencent.kona.sun.security.ssl.ServerHello.ServerHelloMessage;
+import com.tencent.kona.sun.security.ssl.SSLExtension.ExtensionConsumer;
+import com.tencent.kona.sun.security.ssl.SSLExtension.SSLExtensionSpec;
+import com.tencent.kona.sun.security.ssl.SSLHandshake.HandshakeMessage;
 import com.tencent.kona.sun.security.util.HexDumpEncoder;
 
 public class CookieExtension {
     static final HandshakeProducer chNetworkProducer =
             new CHCookieProducer();
-    static final SSLExtension.ExtensionConsumer chOnLoadConsumer =
+    static final ExtensionConsumer chOnLoadConsumer =
             new CHCookieConsumer();
     static final HandshakeConsumer chOnTradeConsumer =
             new CHCookieUpdate();
 
     static final HandshakeProducer hrrNetworkProducer =
             new HRRCookieProducer();
-    static final SSLExtension.ExtensionConsumer hrrOnLoadConsumer =
+    static final ExtensionConsumer hrrOnLoadConsumer =
             new HRRCookieConsumer();
 
     static final HandshakeProducer hrrNetworkReproducer =
@@ -57,7 +60,7 @@ public class CookieExtension {
     /**
      * The "cookie" extension.
      */
-    static class CookieSpec implements SSLExtension.SSLExtensionSpec {
+    static class CookieSpec implements SSLExtensionSpec {
         final byte[] cookie;
 
         private CookieSpec(HandshakeContext hc,
@@ -136,7 +139,7 @@ public class CookieExtension {
     }
 
     private static final
-            class CHCookieConsumer implements SSLExtension.ExtensionConsumer {
+            class CHCookieConsumer implements ExtensionConsumer {
         // Prevent instantiation of this class.
         private CHCookieConsumer() {
             // blank
@@ -180,7 +183,7 @@ public class CookieExtension {
                 HandshakeMessage message) throws IOException {
             // The consuming happens in server side only.
             ServerHandshakeContext shc = (ServerHandshakeContext)context;
-            ClientHello.ClientHelloMessage clientHello = (ClientHello.ClientHelloMessage)message;
+            ClientHelloMessage clientHello = (ClientHelloMessage)message;
 
             CookieSpec spec = (CookieSpec)
                     shc.handshakeExtensions.get(SSLExtension.CH_COOKIE);
@@ -235,7 +238,7 @@ public class CookieExtension {
     }
 
     private static final
-            class HRRCookieConsumer implements SSLExtension.ExtensionConsumer {
+            class HRRCookieConsumer implements ExtensionConsumer {
         // Prevent instantiation of this class.
         private HRRCookieConsumer() {
             // blank

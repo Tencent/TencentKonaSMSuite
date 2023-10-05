@@ -45,7 +45,11 @@ import javax.net.ssl.SSLProtocolException;
 
 import com.tencent.kona.java.util.HexFormat;
 import com.tencent.kona.sun.security.ssl.CipherSuite.KeyExchange;
+import com.tencent.kona.sun.security.ssl.ClientHello.ClientHelloMessage;
+import com.tencent.kona.sun.security.ssl.SSLCipher.SSLReadCipher;
+import com.tencent.kona.sun.security.ssl.SSLCipher.SSLWriteCipher;
 import com.tencent.kona.sun.security.ssl.SSLHandshake.HandshakeMessage;
+import com.tencent.kona.sun.security.ssl.SupportedVersionsExtension.SHSupportedVersionsSpec;
 
 /**
  * Pack of the ServerHello/HelloRetryRequest handshake message.
@@ -93,7 +97,7 @@ final class ServerHello {
         // The HelloRetryRequest producer needs to use the ClientHello message
         // for cookie generation.  Please don't use this field for other
         // purpose unless it is really necessary.
-        final ClientHello.ClientHelloMessage clientHello;
+        final ClientHelloMessage clientHello;
 
         // Reserved for HelloRetryRequest consumer.  Please don't use this
         // field for other purpose unless it is really necessary.
@@ -102,7 +106,7 @@ final class ServerHello {
         ServerHelloMessage(HandshakeContext context,
                 ProtocolVersion serverVersion, SessionId sessionId,
                 CipherSuite cipherSuite, RandomCookie serverRandom,
-                ClientHello.ClientHelloMessage clientHello) {
+                ClientHelloMessage clientHello) {
             super(context);
 
             this.serverVersion = serverVersion;
@@ -261,7 +265,7 @@ final class ServerHello {
                 HandshakeMessage message) throws IOException {
             // The producing happens in server side only.
             ServerHandshakeContext shc = (ServerHandshakeContext)context;
-            ClientHello.ClientHelloMessage clientHello = (ClientHello.ClientHelloMessage)message;
+            ClientHelloMessage clientHello = (ClientHelloMessage)message;
 
             // If client hasn't specified a session we can resume, start a
             // new one and choose its cipher suite and compression options,
@@ -401,7 +405,7 @@ final class ServerHello {
 
         private static KeyExchangeProperties chooseCipherSuite(
                 ServerHandshakeContext shc,
-                ClientHello.ClientHelloMessage clientHello) throws IOException {
+                ClientHelloMessage clientHello) throws IOException {
             List<CipherSuite> preferred;
             List<CipherSuite> proposed;
             if (shc.sslConfig.preferLocalCipherSuites) {
@@ -499,7 +503,7 @@ final class ServerHello {
                 HandshakeMessage message) throws IOException {
             // The producing happens in server side only.
             ServerHandshakeContext shc = (ServerHandshakeContext)context;
-            ClientHello.ClientHelloMessage clientHello = (ClientHello.ClientHelloMessage)message;
+            ClientHelloMessage clientHello = (ClientHelloMessage)message;
 
             SSLSessionContextImpl sessionCache = (SSLSessionContextImpl)
                     shc.sslContext.engineGetServerSessionContext();
@@ -627,7 +631,7 @@ final class ServerHello {
                     "TlsIv", null);
             IvParameterSpec readIv =
                     new IvParameterSpec(readIvSecret.getEncoded());
-            SSLCipher.SSLReadCipher readCipher;
+            SSLReadCipher readCipher;
             try {
                 readCipher =
                     shc.negotiatedCipherSuite.bulkCipher.createReadCipher(
@@ -661,7 +665,7 @@ final class ServerHello {
                     "TlsIv", null);
             IvParameterSpec writeIv =
                     new IvParameterSpec(writeIvSecret.getEncoded());
-            SSLCipher.SSLWriteCipher writeCipher;
+            SSLWriteCipher writeCipher;
             try {
                 writeCipher =
                     shc.negotiatedCipherSuite.bulkCipher.createWriteCipher(
@@ -699,7 +703,7 @@ final class ServerHello {
 
         private static CipherSuite chooseCipherSuite(
                 ServerHandshakeContext shc,
-                ClientHello.ClientHelloMessage clientHello) {
+                ClientHelloMessage clientHello) {
             List<CipherSuite> preferred;
             List<CipherSuite> proposed;
             if (shc.sslConfig.preferLocalCipherSuites) {
@@ -761,7 +765,7 @@ final class ServerHello {
         public byte[] produce(ConnectionContext context,
                 HandshakeMessage message) throws IOException {
             ServerHandshakeContext shc = (ServerHandshakeContext) context;
-            ClientHello.ClientHelloMessage clientHello = (ClientHello.ClientHelloMessage) message;
+            ClientHelloMessage clientHello = (ClientHelloMessage) message;
 
             // negotiate the cipher suite.
             CipherSuite cipherSuite =
@@ -824,7 +828,7 @@ final class ServerHello {
         public byte[] produce(ConnectionContext context,
                 HandshakeMessage message) throws IOException {
             ServerHandshakeContext shc = (ServerHandshakeContext) context;
-            ClientHello.ClientHelloMessage clientHello = (ClientHello.ClientHelloMessage) message;
+            ClientHelloMessage clientHello = (ClientHelloMessage) message;
 
             // negotiate the cipher suite.
             CipherSuite cipherSuite = shc.negotiatedCipherSuite;
@@ -904,8 +908,8 @@ final class ServerHello {
             helloRetryRequest.extensions.consumeOnLoad(chc, extTypes);
 
             ProtocolVersion serverVersion;
-            SupportedVersionsExtension.SHSupportedVersionsSpec svs =
-                    (SupportedVersionsExtension.SHSupportedVersionsSpec)chc.handshakeExtensions.get(
+            SHSupportedVersionsSpec svs =
+                    (SHSupportedVersionsSpec)chc.handshakeExtensions.get(
                             SSLExtension.HRR_SUPPORTED_VERSIONS);
             if (svs != null) {
                 serverVersion =            // could be null
@@ -956,8 +960,8 @@ final class ServerHello {
             serverHello.extensions.consumeOnLoad(chc, extTypes);
 
             ProtocolVersion serverVersion;
-            SupportedVersionsExtension.SHSupportedVersionsSpec svs =
-                    (SupportedVersionsExtension.SHSupportedVersionsSpec)chc.handshakeExtensions.get(
+            SHSupportedVersionsSpec svs =
+                    (SHSupportedVersionsSpec)chc.handshakeExtensions.get(
                             SSLExtension.SH_SUPPORTED_VERSIONS);
             if (svs != null) {
                 serverVersion =            // could be null
@@ -1314,7 +1318,7 @@ final class ServerHello {
                     "TlsIv", null);
             IvParameterSpec readIv =
                     new IvParameterSpec(readIvSecret.getEncoded());
-            SSLCipher.SSLReadCipher readCipher;
+            SSLReadCipher readCipher;
             try {
                 readCipher =
                     chc.negotiatedCipherSuite.bulkCipher.createReadCipher(
@@ -1348,7 +1352,7 @@ final class ServerHello {
                     "TlsIv", null);
             IvParameterSpec writeIv =
                     new IvParameterSpec(writeIvSecret.getEncoded());
-            SSLCipher.SSLWriteCipher writeCipher;
+            SSLWriteCipher writeCipher;
             try {
                 writeCipher =
                     chc.negotiatedCipherSuite.bulkCipher.createWriteCipher(

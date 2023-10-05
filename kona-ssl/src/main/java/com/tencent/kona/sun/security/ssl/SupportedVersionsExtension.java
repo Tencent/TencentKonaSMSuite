@@ -31,27 +31,31 @@ import java.text.MessageFormat;
 import java.util.Locale;
 import javax.net.ssl.SSLProtocolException;
 
+import com.tencent.kona.sun.security.ssl.SSLExtension.ExtensionConsumer;
+import com.tencent.kona.sun.security.ssl.SSLExtension.SSLExtensionSpec;
+import com.tencent.kona.sun.security.ssl.SSLHandshake.HandshakeMessage;
+
 /**
  * Pack of the "supported_versions" extensions.
  */
 final class SupportedVersionsExtension {
     static final HandshakeProducer chNetworkProducer =
             new CHSupportedVersionsProducer();
-    static final SSLExtension.ExtensionConsumer chOnLoadConsumer =
+    static final ExtensionConsumer chOnLoadConsumer =
             new CHSupportedVersionsConsumer();
     static final SSLStringizer chStringizer =
             new CHSupportedVersionsStringizer();
 
     static final HandshakeProducer shNetworkProducer =
             new SHSupportedVersionsProducer();
-    static final SSLExtension.ExtensionConsumer shOnLoadConsumer =
+    static final ExtensionConsumer shOnLoadConsumer =
             new SHSupportedVersionsConsumer();
     static final SSLStringizer shStringizer =
             new SHSupportedVersionsStringizer();
 
     static final HandshakeProducer hrrNetworkProducer =
             new HRRSupportedVersionsProducer();
-    static final SSLExtension.ExtensionConsumer hrrOnLoadConsumer =
+    static final ExtensionConsumer hrrOnLoadConsumer =
             new HRRSupportedVersionsConsumer();
     static final HandshakeProducer hrrReproducer =
             new HRRSupportedVersionsReproducer();
@@ -60,7 +64,7 @@ final class SupportedVersionsExtension {
     /**
      * The "supported_versions" extension in ClientHello.
      */
-    static final class CHSupportedVersionsSpec implements SSLExtension.SSLExtensionSpec {
+    static final class CHSupportedVersionsSpec implements SSLExtensionSpec {
         final int[] requestedProtocols;
 
         private CHSupportedVersionsSpec(int[] requestedProtocols) {
@@ -156,7 +160,7 @@ final class SupportedVersionsExtension {
 
         @Override
         public byte[] produce(ConnectionContext context,
-                SSLHandshake.HandshakeMessage message) throws IOException {
+                HandshakeMessage message) throws IOException {
             // The producing happens in client side only.
             ClientHandshakeContext chc = (ClientHandshakeContext)context;
 
@@ -196,7 +200,7 @@ final class SupportedVersionsExtension {
      * Network data consumer of a "supported_versions" extension in ClientHello.
      */
     private static final
-            class CHSupportedVersionsConsumer implements SSLExtension.ExtensionConsumer {
+            class CHSupportedVersionsConsumer implements ExtensionConsumer {
         // Prevent instantiation of this class.
         private CHSupportedVersionsConsumer() {
             // blank
@@ -204,7 +208,7 @@ final class SupportedVersionsExtension {
 
         @Override
         public void consume(ConnectionContext context,
-                            SSLHandshake.HandshakeMessage message, ByteBuffer buffer) throws IOException {
+                HandshakeMessage message, ByteBuffer buffer) throws IOException {
             // The consuming happens in server side only.
             ServerHandshakeContext shc = (ServerHandshakeContext)context;
 
@@ -236,7 +240,7 @@ final class SupportedVersionsExtension {
     /**
      * The "supported_versions" extension in ServerHello and HelloRetryRequest.
      */
-    static final class SHSupportedVersionsSpec implements SSLExtension.SSLExtensionSpec {
+    static final class SHSupportedVersionsSpec implements SSLExtensionSpec {
         final int selectedVersion;
 
         private SHSupportedVersionsSpec(ProtocolVersion selectedVersion) {
@@ -293,7 +297,7 @@ final class SupportedVersionsExtension {
 
         @Override
         public byte[] produce(ConnectionContext context,
-                SSLHandshake.HandshakeMessage message) throws IOException {
+                HandshakeMessage message) throws IOException {
             // The producing happens in server side only.
             ServerHandshakeContext shc = (ServerHandshakeContext)context;
 
@@ -336,7 +340,7 @@ final class SupportedVersionsExtension {
      * Network data consumer of a "supported_versions" extension in ServerHello.
      */
     private static final
-            class SHSupportedVersionsConsumer implements SSLExtension.ExtensionConsumer {
+            class SHSupportedVersionsConsumer implements ExtensionConsumer {
         // Prevent instantiation of this class.
         private SHSupportedVersionsConsumer() {
             // blank
@@ -344,7 +348,7 @@ final class SupportedVersionsExtension {
 
         @Override
         public void consume(ConnectionContext context,
-                            SSLHandshake.HandshakeMessage message, ByteBuffer buffer) throws IOException {
+                HandshakeMessage message, ByteBuffer buffer) throws IOException {
             // The consuming happens in client side only.
             ClientHandshakeContext chc = (ClientHandshakeContext)context;
 
@@ -387,7 +391,7 @@ final class SupportedVersionsExtension {
 
         @Override
         public byte[] produce(ConnectionContext context,
-                SSLHandshake.HandshakeMessage message) throws IOException {
+                HandshakeMessage message) throws IOException {
             // The producing happens in server side only.
             ServerHandshakeContext shc = (ServerHandshakeContext)context;
 
@@ -419,7 +423,7 @@ final class SupportedVersionsExtension {
      * HelloRetryRequest.
      */
     private static final
-            class HRRSupportedVersionsConsumer implements SSLExtension.ExtensionConsumer {
+            class HRRSupportedVersionsConsumer implements ExtensionConsumer {
 
         // Prevent instantiation of this class.
         private HRRSupportedVersionsConsumer() {
@@ -428,7 +432,7 @@ final class SupportedVersionsExtension {
 
         @Override
         public void consume(ConnectionContext context,
-                            SSLHandshake.HandshakeMessage message, ByteBuffer buffer) throws IOException {
+                HandshakeMessage message, ByteBuffer buffer) throws IOException {
 
             // The consuming happens in client side only.
             ClientHandshakeContext chc = (ClientHandshakeContext)context;
@@ -471,7 +475,7 @@ final class SupportedVersionsExtension {
 
         @Override
         public byte[] produce(ConnectionContext context,
-                SSLHandshake.HandshakeMessage message) throws IOException {
+                HandshakeMessage message) throws IOException {
             // The producing happens in server side only.
             ServerHandshakeContext shc = (ServerHandshakeContext)context;
 

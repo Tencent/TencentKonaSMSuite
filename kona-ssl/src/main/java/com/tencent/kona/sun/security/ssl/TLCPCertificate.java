@@ -54,6 +54,9 @@ import java.util.Locale;
 import com.tencent.kona.pkix.PKIXInsts;
 import com.tencent.kona.pkix.PKIXUtils;
 import com.tencent.kona.ssl.SSLUtils;
+import com.tencent.kona.sun.security.ssl.SSLHandshake.HandshakeMessage;
+import com.tencent.kona.sun.security.ssl.TLCPAuthentication.TLCPCredentials;
+import com.tencent.kona.sun.security.ssl.TLCPAuthentication.TLCPPossession;
 
 final class TLCPCertificate {
 
@@ -86,7 +89,7 @@ final class TLCPCertificate {
     static final CertListFormat DEF_CERT_LIST_FORMAT = CertListFormat.format(
             SSLUtils.getPropCertListFormat());
 
-    private static final class TLCPCertificateMessage extends SSLHandshake.HandshakeMessage {
+    private static final class TLCPCertificateMessage extends HandshakeMessage {
 
         private final List<byte[]> encodedCertChain;
 
@@ -219,7 +222,7 @@ final class TLCPCertificate {
 
         @Override
         public byte[] produce(ConnectionContext context,
-                              SSLHandshake.HandshakeMessage message) throws IOException {
+                HandshakeMessage message) throws IOException {
             // The producing happens in handshake context only.
             HandshakeContext hc = (HandshakeContext)context;
             if (hc.sslConfig.isClientMode) {
@@ -232,11 +235,11 @@ final class TLCPCertificate {
         }
 
         private byte[] onProduceCertificate(ServerHandshakeContext shc,
-                                            SSLHandshake.HandshakeMessage message) throws IOException {
-            TLCPAuthentication.TLCPPossession tlcpPossession = null;
+                HandshakeMessage message) throws IOException {
+            TLCPPossession tlcpPossession = null;
             for (SSLPossession possession : shc.handshakePossessions) {
-                if (possession instanceof TLCPAuthentication.TLCPPossession) {
-                    tlcpPossession = (TLCPAuthentication.TLCPPossession)possession;
+                if (possession instanceof TLCPPossession) {
+                    tlcpPossession = (TLCPPossession)possession;
                     break;
                 }
             }
@@ -268,12 +271,12 @@ final class TLCPCertificate {
         }
 
         private byte[] onProduceCertificate(ClientHandshakeContext chc,
-                                            SSLHandshake.HandshakeMessage message)
+                                            HandshakeMessage message)
                 throws IOException {
-            TLCPAuthentication.TLCPPossession tlcpPossession = null;
+            TLCPPossession tlcpPossession = null;
             for (SSLPossession possession : chc.handshakePossessions) {
-                if (possession instanceof TLCPAuthentication.TLCPPossession) {
-                    tlcpPossession = (TLCPAuthentication.TLCPPossession)possession;
+                if (possession instanceof TLCPPossession) {
+                    tlcpPossession = (TLCPPossession)possession;
                     break;
                 }
             }
@@ -290,7 +293,7 @@ final class TLCPCertificate {
                                         "use empty Certificate message instead");
                     }
 
-                    tlcpPossession = new TLCPAuthentication.TLCPPossession(
+                    tlcpPossession = new TLCPPossession(
                             null, new X509Certificate[0],
                             null, new X509Certificate[0]);
                 } else {
@@ -505,7 +508,7 @@ final class TLCPCertificate {
         // 2. sign_cert | sign_cert_CA_list | enc_cert (TASSL's preference)
         //
         // sign_cert and enc_cert are issued by the same CA.
-        private static TLCPAuthentication.TLCPCredentials createCredentials(
+        private static TLCPCredentials createCredentials(
                 X509Certificate[] certs, HandshakeContext hc) throws SSLException {
             X509Certificate signCert = null;
             X509Certificate encCert = null;
@@ -566,7 +569,7 @@ final class TLCPCertificate {
                         "keyEncipherment, dataEncipherment and keyAgreement.");
             }
 
-            return new TLCPAuthentication.TLCPCredentials(
+            return new TLCPCredentials(
                     signCert.getPublicKey(), signCertChain,
                     encCert.getPublicKey(), encCertChain);
         }
@@ -746,7 +749,7 @@ final class TLCPCertificate {
         }
 
         private static void checkClientCerts(ServerHandshakeContext shc,
-                                             X509Certificate[] certs) throws IOException {
+                X509Certificate[] certs) throws IOException {
             X509TrustManager tm = shc.sslContext.getX509TrustManager();
 
             // find out the types of client authentication used

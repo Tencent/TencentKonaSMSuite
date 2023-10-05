@@ -42,6 +42,11 @@ import java.util.EnumSet;
 import java.util.Locale;
 
 import com.tencent.kona.crypto.CryptoInsts;
+import com.tencent.kona.sun.security.ssl.RSAKeyExchange.EphemeralRSACredentials;
+import com.tencent.kona.sun.security.ssl.RSAKeyExchange.EphemeralRSAPossession;
+import com.tencent.kona.sun.security.ssl.SSLHandshake.HandshakeMessage;
+import com.tencent.kona.sun.security.ssl.X509Authentication.X509Credentials;
+import com.tencent.kona.sun.security.ssl.X509Authentication.X509Possession;
 import com.tencent.kona.sun.security.util.HexDumpEncoder;
 
 /**
@@ -59,7 +64,7 @@ final class RSAServerKeyExchange {
      * Used for RSA_EXPORT, SSL 3.0 and TLS 1.0 only.
      */
     private static final
-            class RSAServerKeyExchangeMessage extends SSLHandshake.HandshakeMessage {
+            class RSAServerKeyExchangeMessage extends HandshakeMessage {
         // public key encapsulated in this message
         private final byte[] modulus;     // 1 to 2^16 - 1 bytes
         private final byte[] exponent;    // 1 to 2^16 - 1 bytes
@@ -68,8 +73,8 @@ final class RSAServerKeyExchange {
         private final byte[] paramsSignature;
 
         private RSAServerKeyExchangeMessage(HandshakeContext handshakeContext,
-                X509Authentication.X509Possession x509Possession,
-                RSAKeyExchange.EphemeralRSAPossession rsaPossession) throws IOException {
+                X509Possession x509Possession,
+                EphemeralRSAPossession rsaPossession) throws IOException {
             super(handshakeContext);
 
             // This happens in server side only.
@@ -110,10 +115,10 @@ final class RSAServerKeyExchange {
             this.exponent = Record.getBytes16(m);
             this.paramsSignature = Record.getBytes16(m);
 
-            X509Authentication.X509Credentials x509Credentials = null;
+            X509Credentials x509Credentials = null;
             for (SSLCredentials cd : chc.handshakeCredentials) {
-                if (cd instanceof X509Authentication.X509Credentials) {
-                    x509Credentials = (X509Authentication.X509Credentials)cd;
+                if (cd instanceof X509Credentials) {
+                    x509Credentials = (X509Credentials)cd;
                     break;
                 }
             }
@@ -220,20 +225,20 @@ final class RSAServerKeyExchange {
 
         @Override
         public byte[] produce(ConnectionContext context,
-                SSLHandshake.HandshakeMessage message) throws IOException {
+                HandshakeMessage message) throws IOException {
             // The producing happens in server side only.
             ServerHandshakeContext shc = (ServerHandshakeContext)context;
 
-            RSAKeyExchange.EphemeralRSAPossession rsaPossession = null;
-            X509Authentication.X509Possession x509Possession = null;
+            EphemeralRSAPossession rsaPossession = null;
+            X509Possession x509Possession = null;
             for (SSLPossession possession : shc.handshakePossessions) {
-                if (possession instanceof RSAKeyExchange.EphemeralRSAPossession) {
-                    rsaPossession = (RSAKeyExchange.EphemeralRSAPossession)possession;
+                if (possession instanceof EphemeralRSAPossession) {
+                    rsaPossession = (EphemeralRSAPossession)possession;
                     if (x509Possession != null) {
                         break;
                     }
-                } else if (possession instanceof X509Authentication.X509Possession) {
-                    x509Possession = (X509Authentication.X509Possession)possession;
+                } else if (possession instanceof X509Possession) {
+                    x509Possession = (X509Possession)possession;
                     if (rsaPossession != null) {
                         break;
                     }
@@ -324,7 +329,7 @@ final class RSAServerKeyExchange {
             // update
             //
             chc.handshakeCredentials.add(
-                    new RSAKeyExchange.EphemeralRSACredentials(publicKey));
+                    new EphemeralRSACredentials(publicKey));
 
             //
             // produce

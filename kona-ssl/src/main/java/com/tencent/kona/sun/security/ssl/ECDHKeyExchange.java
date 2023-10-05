@@ -47,6 +47,9 @@ import javax.net.ssl.SSLHandshakeException;
 import com.tencent.kona.crypto.CryptoInsts;
 import com.tencent.kona.ssl.SSLUtils;
 import com.tencent.kona.sun.security.util.ECUtil;
+import com.tencent.kona.sun.security.ssl.NamedGroup.NamedGroupSpec;
+import com.tencent.kona.sun.security.ssl.X509Authentication.X509Credentials;
+import com.tencent.kona.sun.security.ssl.X509Authentication.X509Possession;
 
 final class ECDHKeyExchange {
     static final SSLPossessionGenerator poGenerator =
@@ -84,7 +87,7 @@ final class ECDHKeyExchange {
         static ECDHECredentials valueOf(NamedGroup namedGroup,
             byte[] encodedPoint) throws IOException, GeneralSecurityException {
 
-            if (namedGroup.spec != NamedGroup.NamedGroupSpec.NAMED_GROUP_ECDHE) {
+            if (namedGroup.spec != NamedGroupSpec.NAMED_GROUP_ECDHE) {
                 throw new RuntimeException(
                     "Credentials decoding:  Not ECDHE named group");
             }
@@ -241,16 +244,16 @@ final class ECDHKeyExchange {
                         context.sslConfig,
                         context.negotiatedProtocol,
                         context.algorithmConstraints,
-                        new NamedGroup.NamedGroupSpec[] {
-                            NamedGroup.NamedGroupSpec.NAMED_GROUP_ECDHE },
+                        new NamedGroupSpec[] {
+                            NamedGroupSpec.NAMED_GROUP_ECDHE },
                         context.clientRequestedNamedGroups);
             } else {
                 preferableNamedGroup = NamedGroup.getPreferredGroup(
                         context.sslConfig,
                         context.negotiatedProtocol,
                         context.algorithmConstraints,
-                        new NamedGroup.NamedGroupSpec[] {
-                            NamedGroup.NamedGroupSpec.NAMED_GROUP_ECDHE });
+                        new NamedGroupSpec[] {
+                            NamedGroupSpec.NAMED_GROUP_ECDHE });
             }
 
             if (preferableNamedGroup != null) {
@@ -285,15 +288,15 @@ final class ECDHKeyExchange {
 
         private SSLKeyDerivation createServerKeyDerivation(
                 ServerHandshakeContext shc) throws IOException {
-            X509Authentication.X509Possession x509Possession = null;
+            X509Possession x509Possession = null;
             ECDHECredentials ecdheCredentials = null;
             for (SSLPossession poss : shc.handshakePossessions) {
-                if (!(poss instanceof X509Authentication.X509Possession)) {
+                if (!(poss instanceof X509Possession)) {
                     continue;
                 }
 
                 ECParameterSpec params =
-                        ((X509Authentication.X509Possession)poss).getECParameterSpec();
+                        ((X509Possession)poss).getECParameterSpec();
                 if (params == null) {
                     continue;
                 }
@@ -317,7 +320,7 @@ final class ECDHKeyExchange {
                 }
 
                 if (ecdheCredentials != null) {
-                    x509Possession = (X509Authentication.X509Possession)poss;
+                    x509Possession = (X509Possession)poss;
                     break;
                 }
             }
@@ -334,7 +337,7 @@ final class ECDHKeyExchange {
         private SSLKeyDerivation createClientKeyDerivation(
                 ClientHandshakeContext chc) throws IOException {
             ECDHEPossession ecdhePossession = null;
-            X509Authentication.X509Credentials x509Credentials = null;
+            X509Credentials x509Credentials = null;
             for (SSLPossession poss : chc.handshakePossessions) {
                 if (!(poss instanceof ECDHEPossession)) {
                     continue;
@@ -342,11 +345,11 @@ final class ECDHKeyExchange {
 
                 NamedGroup ng = ((ECDHEPossession)poss).namedGroup;
                 for (SSLCredentials cred : chc.handshakeCredentials) {
-                    if (!(cred instanceof X509Authentication.X509Credentials)) {
+                    if (!(cred instanceof X509Credentials)) {
                         continue;
                     }
 
-                    PublicKey publicKey = ((X509Authentication.X509Credentials)cred).popPublicKey;
+                    PublicKey publicKey = ((X509Credentials)cred).popPublicKey;
                     if (!publicKey.getAlgorithm().equals("EC")) {
                         continue;
                     }
@@ -360,7 +363,7 @@ final class ECDHKeyExchange {
                     }
 
                     if (ng.equals(namedGroup)) {
-                        x509Credentials = (X509Authentication.X509Credentials)cred;
+                        x509Credentials = (X509Credentials)cred;
                         break;
                     }
                 }

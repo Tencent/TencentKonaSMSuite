@@ -31,6 +31,13 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+import com.tencent.kona.sun.security.ssl.CipherSuite.KeyExchange;
+import com.tencent.kona.sun.security.ssl.ClientHello.ClientHelloMessage;
+import com.tencent.kona.sun.security.ssl.ServerHello.ServerHelloMessage;
+import com.tencent.kona.sun.security.ssl.SSLCipher.SSLReadCipher;
+import com.tencent.kona.sun.security.ssl.SSLCipher.SSLWriteCipher;
+import com.tencent.kona.sun.security.ssl.SSLHandshake.HandshakeMessage;
+
 final class TLCPServerHello {
 
     static final HandshakeProducer tlcpHandshakeProducer
@@ -49,10 +56,10 @@ final class TLCPServerHello {
 
         @Override
         public byte[] produce(ConnectionContext context,
-                              SSLHandshake.HandshakeMessage message) throws IOException {
+                HandshakeMessage message) throws IOException {
             // The producing happens in server side only.
             ServerHandshakeContext shc = (ServerHandshakeContext)context;
-            ClientHello.ClientHelloMessage clientHello = (ClientHello.ClientHelloMessage)message;
+            ClientHelloMessage clientHello = (ClientHelloMessage)message;
 
             // If client hasn't specified a session we can resume, start a
             // new one and choose its cipher suite and compression options,
@@ -149,7 +156,7 @@ final class TLCPServerHello {
             }
 
             // Generate the ServerHello handshake message.
-            ServerHello.ServerHelloMessage shm = new ServerHello.ServerHelloMessage(shc,
+            ServerHelloMessage shm = new ServerHelloMessage(shc,
                     shc.negotiatedProtocol,
                     shc.handshakeSession.getSessionId(),
                     shc.negotiatedCipherSuite,
@@ -194,7 +201,7 @@ final class TLCPServerHello {
 
         private static KeyExchangeProperties chooseCipherSuite(
                 ServerHandshakeContext shc,
-                ClientHello.ClientHelloMessage clientHello) throws IOException {
+                ClientHelloMessage clientHello) throws IOException {
             List<CipherSuite> preferred;
             List<CipherSuite> proposed;
             if (shc.sslConfig.preferLocalCipherSuites) {
@@ -248,7 +255,7 @@ final class TLCPServerHello {
             final SSLPossession[] possessions;
 
             private KeyExchangeProperties(CipherSuite cipherSuite,
-                                          SSLKeyExchange keyExchange, SSLPossession[] possessions) {
+                    SSLKeyExchange keyExchange, SSLPossession[] possessions) {
                 this.cipherSuite = cipherSuite;
                 this.keyExchange = keyExchange;
                 this.possessions = possessions;
@@ -264,10 +271,10 @@ final class TLCPServerHello {
 
         @Override
         public void consume(ConnectionContext context,
-                            SSLHandshake.HandshakeMessage message) throws IOException {
+                            HandshakeMessage message) throws IOException {
             // The consuming happens in client side only.
             ClientHandshakeContext chc = (ClientHandshakeContext)context;
-            ServerHello.ServerHelloMessage serverHello = (ServerHello.ServerHelloMessage)message;
+            ServerHelloMessage serverHello = (ServerHelloMessage)message;
             if (!chc.isNegotiable(serverHello.serverVersion)) {
                 throw chc.conContext.fatal(Alert.PROTOCOL_VERSION,
                         "Server chose " + serverHello.serverVersion +

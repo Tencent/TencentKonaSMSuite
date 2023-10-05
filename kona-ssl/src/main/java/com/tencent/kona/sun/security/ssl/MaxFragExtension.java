@@ -29,25 +29,29 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import javax.net.ssl.SSLProtocolException;
 
+import com.tencent.kona.sun.security.ssl.SSLExtension.ExtensionConsumer;
+import com.tencent.kona.sun.security.ssl.SSLExtension.SSLExtensionSpec;
+import com.tencent.kona.sun.security.ssl.SSLHandshake.HandshakeMessage;
+
 /**
  * Pack of the "max_fragment_length" extensions [RFC6066].
  */
 final class MaxFragExtension {
     static final HandshakeProducer chNetworkProducer =
             new CHMaxFragmentLengthProducer();
-    static final SSLExtension.ExtensionConsumer chOnLoadConsumer =
+    static final ExtensionConsumer chOnLoadConsumer =
             new CHMaxFragmentLengthConsumer();
 
     static final HandshakeProducer shNetworkProducer =
             new SHMaxFragmentLengthProducer();
-    static final SSLExtension.ExtensionConsumer shOnLoadConsumer =
+    static final ExtensionConsumer shOnLoadConsumer =
             new SHMaxFragmentLengthConsumer();
     static final HandshakeConsumer shOnTradeConsumer =
             new SHMaxFragmentLengthUpdate();
 
     static final HandshakeProducer eeNetworkProducer =
             new EEMaxFragmentLengthProducer();
-    static final SSLExtension.ExtensionConsumer eeOnLoadConsumer =
+    static final ExtensionConsumer eeOnLoadConsumer =
             new EEMaxFragmentLengthConsumer();
     static final HandshakeConsumer eeOnTradeConsumer =
             new EEMaxFragmentLengthUpdate();
@@ -58,7 +62,7 @@ final class MaxFragExtension {
     /**
      * The "max_fragment_length" extension [RFC 6066].
      */
-    static final class MaxFragLenSpec implements SSLExtension.SSLExtensionSpec {
+    static final class MaxFragLenSpec implements SSLExtensionSpec {
         byte id;
 
         private MaxFragLenSpec(byte id) {
@@ -164,7 +168,7 @@ final class MaxFragExtension {
 
         @Override
         public byte[] produce(ConnectionContext context,
-                SSLHandshake.HandshakeMessage message) throws IOException {
+                HandshakeMessage message) throws IOException {
             // The producing happens in client side only.
             ClientHandshakeContext chc = (ClientHandshakeContext)context;
 
@@ -224,7 +228,7 @@ final class MaxFragExtension {
      * the ClientHello handshake message.
      */
     private static final
-            class CHMaxFragmentLengthConsumer implements SSLExtension.ExtensionConsumer {
+            class CHMaxFragmentLengthConsumer implements ExtensionConsumer {
         // Prevent instantiation of this class.
         private CHMaxFragmentLengthConsumer() {
             // blank
@@ -232,7 +236,7 @@ final class MaxFragExtension {
 
         @Override
         public void consume(ConnectionContext context,
-                            SSLHandshake.HandshakeMessage message, ByteBuffer buffer) throws IOException {
+                HandshakeMessage message, ByteBuffer buffer) throws IOException {
             // The consuming happens in server side only.
             ServerHandshakeContext shc = (ServerHandshakeContext)context;
 
@@ -274,7 +278,7 @@ final class MaxFragExtension {
 
         @Override
         public byte[] produce(ConnectionContext context,
-                SSLHandshake.HandshakeMessage message) throws IOException {
+                HandshakeMessage message) throws IOException {
             // The producing happens in server side only.
             ServerHandshakeContext shc = (ServerHandshakeContext)context;
 
@@ -331,7 +335,7 @@ final class MaxFragExtension {
      * the ServerHello handshake message.
      */
     private static final
-            class SHMaxFragmentLengthConsumer implements SSLExtension.ExtensionConsumer {
+            class SHMaxFragmentLengthConsumer implements ExtensionConsumer {
         // Prevent instantiation of this class.
         private SHMaxFragmentLengthConsumer() {
             // blank
@@ -339,7 +343,7 @@ final class MaxFragExtension {
 
         @Override
         public void consume(ConnectionContext context,
-                            SSLHandshake.HandshakeMessage message, ByteBuffer buffer) throws IOException {
+                HandshakeMessage message, ByteBuffer buffer) throws IOException {
 
             // The consuming happens in client side only.
             ClientHandshakeContext chc = (ClientHandshakeContext)context;
@@ -386,7 +390,7 @@ final class MaxFragExtension {
 
         @Override
         public void consume(ConnectionContext context,
-                SSLHandshake.HandshakeMessage message) throws IOException {
+                HandshakeMessage message) throws IOException {
             // The consuming happens in client side only.
             ClientHandshakeContext chc = (ClientHandshakeContext)context;
 
@@ -441,7 +445,7 @@ final class MaxFragExtension {
 
         @Override
         public byte[] produce(ConnectionContext context,
-                SSLHandshake.HandshakeMessage message) throws IOException {
+                HandshakeMessage message) throws IOException {
             // The producing happens in server side only.
             ServerHandshakeContext shc = (ServerHandshakeContext)context;
 
@@ -498,7 +502,7 @@ final class MaxFragExtension {
      * EncryptedExtensions handshake message.
      */
     private static final
-            class EEMaxFragmentLengthConsumer implements SSLExtension.ExtensionConsumer {
+            class EEMaxFragmentLengthConsumer implements ExtensionConsumer {
         // Prevent instantiation of this class.
         private EEMaxFragmentLengthConsumer() {
             // blank
@@ -506,7 +510,7 @@ final class MaxFragExtension {
 
         @Override
         public void consume(ConnectionContext context,
-                            SSLHandshake.HandshakeMessage message, ByteBuffer buffer) throws IOException {
+                HandshakeMessage message, ByteBuffer buffer) throws IOException {
             // The consuming happens in client side only.
             ClientHandshakeContext chc = (ClientHandshakeContext)context;
 
@@ -551,7 +555,7 @@ final class MaxFragExtension {
 
         @Override
         public void consume(ConnectionContext context,
-                SSLHandshake.HandshakeMessage message) throws IOException {
+                HandshakeMessage message) throws IOException {
             // The consuming happens in client side only.
             ClientHandshakeContext chc = (ClientHandshakeContext)context;
 

@@ -25,13 +25,13 @@
 
 package com.tencent.kona.sun.security.ssl;
 
-import com.tencent.kona.sun.security.ssl.Authenticator.SSLAuthenticator;
-import com.tencent.kona.sun.security.ssl.Authenticator.MAC;
-
 import javax.crypto.SecretKey;
 import java.nio.ByteBuffer;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+
+import com.tencent.kona.sun.security.ssl.Authenticator.SSLAuthenticator;
+import com.tencent.kona.sun.security.ssl.Authenticator.MAC;
 
 final class TLCPAuthenticator {
 

@@ -39,6 +39,10 @@ import java.util.Locale;
 import java.util.Map;
 import javax.net.ssl.SSLProtocolException;
 
+import com.tencent.kona.sun.security.ssl.NamedGroup.NamedGroupSpec;
+import com.tencent.kona.sun.security.ssl.SSLExtension.ExtensionConsumer;
+import com.tencent.kona.sun.security.ssl.SSLExtension.SSLExtensionSpec;
+import com.tencent.kona.sun.security.ssl.SSLHandshake.HandshakeMessage;
 import com.tencent.kona.sun.security.util.HexDumpEncoder;
 
 /**
@@ -47,7 +51,7 @@ import com.tencent.kona.sun.security.util.HexDumpEncoder;
 final class KeyShareExtension {
     static final HandshakeProducer chNetworkProducer =
             new CHKeyShareProducer();
-    static final SSLExtension.ExtensionConsumer chOnLoadConsumer =
+    static final ExtensionConsumer chOnLoadConsumer =
             new CHKeyShareConsumer();
     static final HandshakeAbsence chOnTradAbsence =
             new CHKeyShareOnTradeAbsence();
@@ -56,7 +60,7 @@ final class KeyShareExtension {
 
     static final HandshakeProducer shNetworkProducer =
             new SHKeyShareProducer();
-    static final SSLExtension.ExtensionConsumer shOnLoadConsumer =
+    static final ExtensionConsumer shOnLoadConsumer =
             new SHKeyShareConsumer();
     static final HandshakeAbsence shOnLoadAbsence =
             new SHKeyShareAbsence();
@@ -65,7 +69,7 @@ final class KeyShareExtension {
 
     static final HandshakeProducer hrrNetworkProducer =
             new HRRKeyShareProducer();
-    static final SSLExtension.ExtensionConsumer hrrOnLoadConsumer =
+    static final ExtensionConsumer hrrOnLoadConsumer =
             new HRRKeyShareConsumer();
     static final HandshakeProducer hrrNetworkReproducer =
             new HRRKeyShareReproducer();
@@ -130,7 +134,7 @@ final class KeyShareExtension {
     /**
      * The "key_share" extension in a ClientHello handshake message.
      */
-    static final class CHKeyShareSpec implements SSLExtension.SSLExtensionSpec {
+    static final class CHKeyShareSpec implements SSLExtensionSpec {
         final List<KeyShareEntry> clientShares;
 
         private CHKeyShareSpec(List<KeyShareEntry> clientShares) {
@@ -217,7 +221,7 @@ final class KeyShareExtension {
 
         @Override
         public byte[] produce(ConnectionContext context,
-                SSLHandshake.HandshakeMessage message) throws IOException {
+                HandshakeMessage message) throws IOException {
             // The producing happens in client side only.
             ClientHandshakeContext chc = (ClientHandshakeContext)context;
 
@@ -250,8 +254,8 @@ final class KeyShareExtension {
             // group from two categories (i.e. XDH and ECDHE).  Once we have
             // the most preferred group from two types we can exit the loop.
             List<KeyShareEntry> keyShares = new LinkedList<>();
-            EnumSet<NamedGroup.NamedGroupSpec> ngTypes =
-                    EnumSet.noneOf(NamedGroup.NamedGroupSpec.class);
+            EnumSet<NamedGroupSpec> ngTypes =
+                    EnumSet.noneOf(NamedGroupSpec.class);
             byte[] keyExchangeData;
             for (NamedGroup ng : namedGroups) {
                 if (!ngTypes.contains(ng.spec)) {
@@ -311,7 +315,7 @@ final class KeyShareExtension {
      * Network data consumer of the extension in a ClientHello
      * handshake message.
      */
-    private static final class CHKeyShareConsumer implements SSLExtension.ExtensionConsumer {
+    private static final class CHKeyShareConsumer implements ExtensionConsumer {
         // Prevent instantiation of this class.
         private CHKeyShareConsumer() {
             // blank
@@ -319,7 +323,7 @@ final class KeyShareExtension {
 
         @Override
         public void consume(ConnectionContext context,
-                            SSLHandshake.HandshakeMessage message, ByteBuffer buffer) throws IOException {
+                HandshakeMessage message, ByteBuffer buffer) throws IOException {
             // The consuming happens in server side only.
             ServerHandshakeContext shc = (ServerHandshakeContext)context;
 
@@ -411,7 +415,7 @@ final class KeyShareExtension {
             implements HandshakeAbsence {
         @Override
         public void absent(ConnectionContext context,
-                SSLHandshake.HandshakeMessage message) throws IOException {
+                HandshakeMessage message) throws IOException {
             // The producing happens in server side only.
             ServerHandshakeContext shc = (ServerHandshakeContext)context;
 
@@ -436,7 +440,7 @@ final class KeyShareExtension {
     /**
      * The key share entry used in ServerHello "key_share" extensions.
      */
-    static final class SHKeyShareSpec implements SSLExtension.SSLExtensionSpec {
+    static final class SHKeyShareSpec implements SSLExtensionSpec {
         final KeyShareEntry serverShare;
 
         SHKeyShareSpec(KeyShareEntry serverShare) {
@@ -513,7 +517,7 @@ final class KeyShareExtension {
 
         @Override
         public byte[] produce(ConnectionContext context,
-                SSLHandshake.HandshakeMessage message) throws IOException {
+                HandshakeMessage message) throws IOException {
             // The producing happens in client side only.
             ServerHandshakeContext shc = (ServerHandshakeContext)context;
 
@@ -620,7 +624,7 @@ final class KeyShareExtension {
      * Network data consumer of the extension in a ServerHello
      * handshake message.
      */
-    private static final class SHKeyShareConsumer implements SSLExtension.ExtensionConsumer {
+    private static final class SHKeyShareConsumer implements ExtensionConsumer {
         // Prevent instantiation of this class.
         private SHKeyShareConsumer() {
             // blank
@@ -628,7 +632,7 @@ final class KeyShareExtension {
 
         @Override
         public void consume(ConnectionContext context,
-                            SSLHandshake.HandshakeMessage message, ByteBuffer buffer) throws IOException {
+                HandshakeMessage message, ByteBuffer buffer) throws IOException {
             // Happens in client side only.
             ClientHandshakeContext chc = (ClientHandshakeContext)context;
             if (chc.clientRequestedNamedGroups == null ||
@@ -706,7 +710,7 @@ final class KeyShareExtension {
     private static final class SHKeyShareAbsence implements HandshakeAbsence {
         @Override
         public void absent(ConnectionContext context,
-                SSLHandshake.HandshakeMessage message) throws IOException {
+                HandshakeMessage message) throws IOException {
             // The producing happens in client side only.
             ClientHandshakeContext chc = (ClientHandshakeContext)context;
 
@@ -723,7 +727,7 @@ final class KeyShareExtension {
     /**
      * The key share entry used in HelloRetryRequest "key_share" extensions.
      */
-    static final class HRRKeyShareSpec implements SSLExtension.SSLExtensionSpec {
+    static final class HRRKeyShareSpec implements SSLExtensionSpec {
         final int selectedGroup;
 
         HRRKeyShareSpec(NamedGroup serverGroup) {
@@ -783,7 +787,7 @@ final class KeyShareExtension {
 
         @Override
         public byte[] produce(ConnectionContext context,
-                SSLHandshake.HandshakeMessage message) throws IOException {
+                HandshakeMessage message) throws IOException {
             // The producing happens in server side only.
             ServerHandshakeContext shc = (ServerHandshakeContext) context;
 
@@ -847,7 +851,7 @@ final class KeyShareExtension {
 
         @Override
         public byte[] produce(ConnectionContext context,
-                SSLHandshake.HandshakeMessage message) throws IOException {
+                HandshakeMessage message) throws IOException {
             // The producing happens in server side only.
             ServerHandshakeContext shc = (ServerHandshakeContext) context;
 
@@ -878,7 +882,7 @@ final class KeyShareExtension {
      * handshake message.
      */
     private static final
-            class HRRKeyShareConsumer implements SSLExtension.ExtensionConsumer {
+            class HRRKeyShareConsumer implements ExtensionConsumer {
         // Prevent instantiation of this class.
         private HRRKeyShareConsumer() {
             // blank
@@ -886,7 +890,7 @@ final class KeyShareExtension {
 
         @Override
         public void consume(ConnectionContext context,
-                            SSLHandshake.HandshakeMessage message, ByteBuffer buffer) throws IOException {
+                HandshakeMessage message, ByteBuffer buffer) throws IOException {
             // The producing happens in client side only.
             ClientHandshakeContext chc = (ClientHandshakeContext)context;
 
