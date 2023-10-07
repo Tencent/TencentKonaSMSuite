@@ -50,15 +50,23 @@ tasks {
 
     val testOnCurrent = register("testOnCurrent", CommonTest::class) {
         systemProperty("test.classpath", classpath.joinToString(separator = ":"))
+
+        doFirst {
+            println("Testing JDK: " + javaLauncher.get().metadata.installationPath)
+        }
     }
 
     register("testOnAdop8", CommonTest::class) {
         systemProperty("test.classpath", classpath.joinToString(separator = ":"))
 
         javaLauncher.set(javaToolchains.launcherFor {
-            languageVersion.set(JavaLanguageVersion.of(17))
+            languageVersion.set(JavaLanguageVersion.of(8))
             vendor.set(JvmVendorSpec.ADOPTIUM)
         })
+
+        doFirst {
+            println("Testing JDK: " + javaLauncher.get().metadata.installationPath)
+        }
     }
 
     register("testOnAdop11", CommonTest::class) {
@@ -68,6 +76,10 @@ tasks {
             languageVersion.set(JavaLanguageVersion.of(11))
             vendor.set(JvmVendorSpec.ADOPTIUM)
         })
+
+        doFirst {
+            println("Testing JDK: " + javaLauncher.get().metadata.installationPath)
+        }
     }
 
     register("testOnAdop17", CommonTest::class) {
@@ -77,6 +89,10 @@ tasks {
             languageVersion.set(JavaLanguageVersion.of(17))
             vendor.set(JvmVendorSpec.ADOPTIUM)
         })
+
+        doFirst {
+            println("Testing JDK: " + javaLauncher.get().metadata.installationPath)
+        }
     }
 
     test {
