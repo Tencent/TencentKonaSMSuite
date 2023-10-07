@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1999, 2022, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1999, 2023, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -730,6 +730,7 @@ public final class PKCS12KeyStore extends KeyStoreSpi {
             // set the alias
             entry.alias = alias.toLowerCase(Locale.ENGLISH);
             // add the entry
+            populateAttributes(entry);
             entries.put(alias.toLowerCase(Locale.ENGLISH), entry);
 
         } catch (KeyStoreException kse) {
@@ -810,6 +811,7 @@ public final class PKCS12KeyStore extends KeyStoreSpi {
 
         // add the entry
         privateKeyCount++;
+        populateAttributes(entry);
         entries.put(alias.toLowerCase(Locale.ENGLISH), entry);
     }
 
@@ -1335,7 +1337,7 @@ public final class PKCS12KeyStore extends KeyStoreSpi {
                     }
 
                     return new KeyStore.TrustedCertificateEntry(
-                            ((CertEntry)entry).cert, getAttributes(entry));
+                            ((CertEntry)entry).cert, entry.attributes);
                 }
             } else {
                 throw new UnrecoverableKeyException
@@ -1362,13 +1364,13 @@ public final class PKCS12KeyStore extends KeyStoreSpi {
 
                     KeyStore.PrivateKeyEntry privateKeyEntry
                             = new KeyStore.PrivateKeyEntry(
-                                    (PrivateKey)key, chain, getAttributes(entry));
+                                    (PrivateKey)key, chain, entry.attributes);
                     entryCache.put(alias, privateKeyEntry);
                     return privateKeyEntry;
                 } else if (key instanceof SecretKey) {
                     KeyStore.SecretKeyEntry secretKeyEntry
                             = new KeyStore.SecretKeyEntry(
-                                    (SecretKey)key, getAttributes(entry));
+                                    (SecretKey)key, entry.attributes);
                     entryCache.put(alias, secretKeyEntry);
                     return secretKeyEntry;
                 }
@@ -1459,9 +1461,9 @@ public final class PKCS12KeyStore extends KeyStoreSpi {
     }
 
     /*
-     * Assemble the entry attributes
+     * Populate the entry with additional attributes used by the implementation.
      */
-    private Set<KeyStore.Entry.Attribute> getAttributes(Entry entry) {
+    private void populateAttributes(Entry entry) {
 
         if (entry.attributes == null) {
             entry.attributes = new HashSet<>();
@@ -1494,8 +1496,6 @@ public final class PKCS12KeyStore extends KeyStoreSpi {
                 }
             }
         }
-
-        return entry.attributes;
     }
 
     /*
@@ -2559,6 +2559,7 @@ public final class PKCS12KeyStore extends KeyStoreSpi {
                     alias = getUnfriendlyName();
                 }
                 entry.alias = alias;
+                populateAttributes(entry);
                 entries.put(alias.toLowerCase(Locale.ENGLISH), entry);
 
             } else if (bagItem instanceof X509Certificate) {
@@ -2581,6 +2582,7 @@ public final class PKCS12KeyStore extends KeyStoreSpi {
                     CertEntry certEntry =
                             new CertEntry(cert, keyId, alias, trustedKeyUsage,
                                     attributes);
+                    populateAttributes(certEntry);
                     entries.put(alias.toLowerCase(Locale.ENGLISH), certEntry);
                 } else {
                     certEntries.add(new CertEntry(cert, keyId, alias));
