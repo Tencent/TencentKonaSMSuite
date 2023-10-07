@@ -608,7 +608,7 @@ public final class PKCS12KeyStore extends KeyStoreSpi {
      * this operation fails for some other reason
      */
     public synchronized void engineSetKeyEntry(String alias, Key key,
-                                               char[] password, Certificate[] chain)
+            char[] password, Certificate[] chain)
             throws KeyStoreException
     {
         KeyStore.PasswordProtection passwordProtection =
@@ -630,8 +630,8 @@ public final class PKCS12KeyStore extends KeyStoreSpi {
      * Sets a key entry (with attributes, when present)
      */
     private void setKeyEntry(String alias, Key key,
-                             KeyStore.PasswordProtection passwordProtection, Certificate[] chain,
-                             Set<KeyStore.Entry.Attribute> attributes)
+            KeyStore.PasswordProtection passwordProtection, Certificate[] chain,
+            Set<KeyStore.Entry.Attribute> attributes)
             throws KeyStoreException
     {
         try {
@@ -815,7 +815,6 @@ public final class PKCS12KeyStore extends KeyStoreSpi {
         entries.put(alias.toLowerCase(Locale.ENGLISH), entry);
     }
 
-
     /*
      * Generate random salt
      */
@@ -895,7 +894,7 @@ public final class PKCS12KeyStore extends KeyStoreSpi {
      *         EncryptedPrivateKeyInfo
      */
     private byte[] encryptPrivateKey(byte[] data,
-                                     KeyStore.PasswordProtection passwordProtection)
+            KeyStore.PasswordProtection passwordProtection)
             throws UnrecoverableKeyException
     {
         byte[] key;
@@ -1266,7 +1265,7 @@ public final class PKCS12KeyStore extends KeyStoreSpi {
         ContentInfo contentInfo = new ContentInfo(authenticatedSafe);
         contentInfo.encode(authSafe);
         byte[] authSafeData = authSafe.toByteArray();
-        pfx.write(authSafeData);
+        pfx.write(authSafeData, 0, authSafeData.length);
 
         // -- MAC
         if (macAlgorithm == null) {
@@ -1313,7 +1312,7 @@ public final class PKCS12KeyStore extends KeyStoreSpi {
      */
     @Override
     public KeyStore.Entry engineGetEntry(String alias,
-                                         KeyStore.ProtectionParameter protParam)
+            KeyStore.ProtectionParameter protParam)
             throws KeyStoreException, NoSuchAlgorithmException,
             UnrecoverableEntryException {
 
@@ -1404,7 +1403,7 @@ public final class PKCS12KeyStore extends KeyStoreSpi {
      */
     @Override
     public synchronized void engineSetEntry(String alias, KeyStore.Entry entry,
-                                            KeyStore.ProtectionParameter protParam) throws KeyStoreException {
+            KeyStore.ProtectionParameter protParam) throws KeyStoreException {
 
         // get password
         if (protParam != null &&
@@ -1613,13 +1612,13 @@ public final class PKCS12KeyStore extends KeyStoreSpi {
      * add it, and assign it to the DN of the cert.
      */
     private byte[] getBagAttributes(String alias, byte[] keyId,
-                                    Set<KeyStore.Entry.Attribute> attributes) throws IOException {
+            Set<KeyStore.Entry.Attribute> attributes) {
         return getBagAttributes(alias, keyId, null, attributes);
     }
 
     private byte[] getBagAttributes(String alias, byte[] keyId,
-                                    ObjectIdentifier[] trustedUsage,
-                                    Set<KeyStore.Entry.Attribute> attributes) throws IOException {
+            ObjectIdentifier[] trustedUsage,
+            Set<KeyStore.Entry.Attribute> attributes) {
 
         byte[] localKeyID = null;
         byte[] friendlyName = null;
@@ -1673,13 +1672,13 @@ public final class PKCS12KeyStore extends KeyStoreSpi {
 
         DerOutputStream attrs = new DerOutputStream();
         if (friendlyName != null) {
-            attrs.write(friendlyName);
+            attrs.write(friendlyName, 0, friendlyName.length);
         }
         if (localKeyID != null) {
-            attrs.write(localKeyID);
+            attrs.write(localKeyID, 0, localKeyID.length);
         }
         if (trustedKeyUsage != null) {
-            attrs.write(trustedKeyUsage);
+            attrs.write(trustedKeyUsage, 0, trustedKeyUsage.length);
         }
 
         if (attributes != null) {
@@ -1691,7 +1690,8 @@ public final class PKCS12KeyStore extends KeyStoreSpi {
                         CORE_ATTRIBUTES[2].value().equals(attributeName)) {
                     continue;
                 }
-                attrs.write(((PKCS12Attribute) attribute).getEncoded());
+                byte[] attrEncoded = ((PKCS12Attribute) attribute).getEncoded();
+                attrs.write(attrEncoded, 0, attrEncoded.length);
             }
         }
 
@@ -1704,9 +1704,7 @@ public final class PKCS12KeyStore extends KeyStoreSpi {
      * SafeBags of type CertBag. Each CertBag may include pkcs12 attributes
      * (see comments in getBagAttributes)
      */
-    private byte[] getCertificateData()
-            throws CertificateException, IOException
-    {
+    private byte[] getCertificateData() throws CertificateException {
         DerOutputStream out = new DerOutputStream();
         for (Enumeration<String> e = engineAliases(); e.hasMoreElements(); ) {
 
@@ -1749,7 +1747,7 @@ public final class PKCS12KeyStore extends KeyStoreSpi {
 
                 // Wrap the CertBag encoding in a context-specific tag.
                 DerOutputStream bagValue = new DerOutputStream();
-                bagValue.write(certBagValue);
+                bagValue.write(certBagValue, 0, certBagValue.length);
                 // write SafeBag Value
                 safeBag.write(DerValue.createTag(DerValue.TAG_CONTEXT,
                         true, (byte) 0), bagValue);
@@ -1784,7 +1782,7 @@ public final class PKCS12KeyStore extends KeyStoreSpi {
                             entry.attributes);
                 }
                 if (bagAttrs != null) {
-                    safeBag.write(bagAttrs);
+                    safeBag.write(bagAttrs, 0, bagAttrs.length);
                 }
 
                 // wrap as Sequence
@@ -1805,8 +1803,7 @@ public final class PKCS12KeyStore extends KeyStoreSpi {
      * Each PKCS8ShroudedKeyBag includes pkcs12 attributes
      * (see comments in getBagAttributes)
      */
-    private byte[] createSafeContent()
-            throws CertificateException, IOException {
+    private byte[] createSafeContent() throws IOException {
 
         DerOutputStream out = new DerOutputStream();
         for (Enumeration<String> e = engineAliases(); e.hasMoreElements(); ) {
@@ -1838,7 +1835,8 @@ public final class PKCS12KeyStore extends KeyStoreSpi {
 
                 // Wrap the EncryptedPrivateKeyInfo in a context-specific tag.
                 DerOutputStream bagValue = new DerOutputStream();
-                bagValue.write(encrInfo.getEncoded());
+                byte[] encrInfoEncoded = encrInfo.getEncoded();
+                bagValue.write(encrInfoEncoded, 0, encrInfoEncoded.length);
                 safeBag.write(DerValue.createTag(DerValue.TAG_CONTEXT,
                         true, (byte) 0), bagValue);
 
@@ -1865,7 +1863,7 @@ public final class PKCS12KeyStore extends KeyStoreSpi {
 
                 // Wrap the secret bag in a context-specific tag.
                 DerOutputStream bagValue = new DerOutputStream();
-                bagValue.write(secretBagValue);
+                bagValue.write(secretBagValue, 0, secretBagValue.length);
 
                 // Write SafeBag value
                 safeBag.write(DerValue.createTag(DerValue.TAG_CONTEXT,
@@ -1877,7 +1875,7 @@ public final class PKCS12KeyStore extends KeyStoreSpi {
             // write SafeBag Attributes
             byte[] bagAttrs =
                     getBagAttributes(alias, entry.keyId, entry.attributes);
-            safeBag.write(bagAttrs);
+            safeBag.write(bagAttrs, 0, bagAttrs.length);
 
             // wrap as Sequence
             out.write(DerValue.tag_Sequence, safeBag);
@@ -1933,7 +1931,7 @@ public final class PKCS12KeyStore extends KeyStoreSpi {
             // create EncryptedContentInfo
             DerOutputStream bytes2 = new DerOutputStream();
             bytes2.putOID(ContentInfo.DATA_OID);
-            bytes2.write(encodedAlgId);
+            bytes2.write(encodedAlgId, 0, encodedAlgId.length);
 
             // Wrap encrypted data in a context-specific tag.
             DerOutputStream tmpout2 = new DerOutputStream();
