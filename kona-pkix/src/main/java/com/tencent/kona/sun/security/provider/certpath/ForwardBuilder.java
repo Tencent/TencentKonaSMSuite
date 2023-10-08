@@ -107,7 +107,7 @@ class ForwardBuilder extends Builder {
      */
     @Override
     Collection<X509Certificate> getMatchingCerts(State currentState,
-                                                 List<CertStore> certStores)
+            List<CertStore> certStores)
             throws IOException
     {
         if (debug != null) {
@@ -141,8 +141,8 @@ class ForwardBuilder extends Builder {
      * and requirements specified in the parameters and PKIX state.
      */
     private void getMatchingEECerts(ForwardState currentState,
-                                    List<CertStore> certStores,
-                                    Collection<X509Certificate> eeCerts)
+            List<CertStore> certStores,
+            Collection<X509Certificate> eeCerts)
             throws IOException
     {
         if (debug != null) {
@@ -185,8 +185,8 @@ class ForwardBuilder extends Builder {
      * and requirements specified in the parameters and PKIX state.
      */
     private void getMatchingCACerts(ForwardState currentState,
-                                    List<CertStore> certStores,
-                                    Collection<X509Certificate> caCerts)
+            List<CertStore> certStores,
+            Collection<X509Certificate> caCerts)
             throws IOException
     {
         if (debug != null) {
@@ -353,7 +353,7 @@ class ForwardBuilder extends Builder {
     // because of the selector, so the cast is safe
     @SuppressWarnings("unchecked")
     private boolean getCerts(AuthorityInfoAccessExtension aiaExt,
-                             Collection<X509Certificate> certs)
+            Collection<X509Certificate> certs)
     {
         if (!USE_AIA) {
             return false;
@@ -434,7 +434,7 @@ class ForwardBuilder extends Builder {
         private final X509CertSelector certSkidSelector;
 
         PKIXCertComparator(Set<X500Principal> trustedSubjectDNs,
-                           X509CertImpl previousCert) throws IOException {
+                X509CertImpl previousCert) throws IOException {
             this.trustedSubjectDNs = trustedSubjectDNs;
             this.certSkidSelector = getSelector(previousCert);
         }
@@ -683,7 +683,7 @@ class ForwardBuilder extends Builder {
      */
     @Override
     void verifyCert(X509Certificate cert, State currentState,
-                    List<X509Certificate> certPathList)
+            List<X509Certificate> certPathList)
             throws GeneralSecurityException
     {
         if (debug != null) {
@@ -921,7 +921,7 @@ class ForwardBuilder extends Builder {
      */
     @Override
     void addCertToPath(X509Certificate cert,
-                       LinkedList<X509Certificate> certPathList)
+        LinkedList<X509Certificate> certPathList)
     {
         certPathList.addFirst(cert);
     }

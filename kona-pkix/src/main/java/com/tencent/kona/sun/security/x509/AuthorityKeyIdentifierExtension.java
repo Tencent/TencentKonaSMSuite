@@ -105,7 +105,7 @@ public class AuthorityKeyIdentifierExtension extends Extension {
      *         this extension.
      */
     public AuthorityKeyIdentifierExtension(KeyIdentifier kid, GeneralNames names,
-                                           SerialNumber sn) {
+            SerialNumber sn) {
         if (kid == null && names == null && sn == null) {
             throw new IllegalArgumentException(
                     "AuthorityKeyIdentifierExtension cannot be empty");
@@ -128,7 +128,7 @@ public class AuthorityKeyIdentifierExtension extends Extension {
      * @exception IOException on error.
      */
     public AuthorityKeyIdentifierExtension(Boolean critical, Object value)
-    throws IOException {
+            throws IOException {
         this.extensionId = PKIXExtensions.AuthorityKey_Id;
         this.critical = critical.booleanValue();
 

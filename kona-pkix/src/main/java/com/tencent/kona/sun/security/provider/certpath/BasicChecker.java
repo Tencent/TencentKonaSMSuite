@@ -268,7 +268,7 @@ class BasicChecker extends PKIXCertPathChecker {
      * for this operation
      */
     static PublicKey makeInheritedParamsKey(PublicKey keyValueKey,
-                                            PublicKey keyParamsKey) throws CertPathValidatorException
+            PublicKey keyParamsKey) throws CertPathValidatorException
     {
         if (!(keyValueKey instanceof DSAPublicKey) ||
                 !(keyParamsKey instanceof DSAPublicKey))

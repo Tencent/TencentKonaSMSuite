@@ -138,7 +138,7 @@ public class Extension implements java.security.cert.Extension, DerEncoder {
      * is not the encoded OctetString).
      */
     public static Extension newExtension(ObjectIdentifier extensionId,
-                                         boolean critical, byte[] rawExtensionValue) throws IOException {
+            boolean critical, byte[] rawExtensionValue) throws IOException {
         Extension ext = new Extension();
         ext.extensionId = extensionId;
         ext.critical = critical;

@@ -107,7 +107,7 @@ public class KeyStoreDelegator extends KeyStoreSpi {
 
     @Override
     public void engineSetKeyEntry(String alias, Key key, char[] password,
-                                  Certificate[] chain) throws KeyStoreException {
+            Certificate[] chain) throws KeyStoreException {
         keystore.engineSetKeyEntry(alias, key, password, chain);
     }
 
@@ -160,7 +160,7 @@ public class KeyStoreDelegator extends KeyStoreSpi {
 
     @Override
     public KeyStore.Entry engineGetEntry(String alias,
-                                         KeyStore.ProtectionParameter protParam)
+            KeyStore.ProtectionParameter protParam)
             throws KeyStoreException, NoSuchAlgorithmException,
             UnrecoverableEntryException {
         return keystore.engineGetEntry(alias, protParam);
@@ -168,14 +168,14 @@ public class KeyStoreDelegator extends KeyStoreSpi {
 
     @Override
     public void engineSetEntry(String alias, KeyStore.Entry entry,
-                               KeyStore.ProtectionParameter protParam)
+            KeyStore.ProtectionParameter protParam)
             throws KeyStoreException {
         keystore.engineSetEntry(alias, entry, protParam);
     }
 
     @Override
     public boolean engineEntryInstanceOf(String alias,
-                                         Class<? extends KeyStore.Entry> entryClass) {
+            Class<? extends KeyStore.Entry> entryClass) {
         return keystore.engineEntryInstanceOf(alias, entryClass);
     }
 

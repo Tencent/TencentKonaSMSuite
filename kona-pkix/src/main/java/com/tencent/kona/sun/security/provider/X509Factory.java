@@ -392,7 +392,7 @@ public class X509Factory extends CertificateFactorySpi {
      */
     @Override
     public CRL engineGenerateCRL(InputStream is)
-        throws CRLException
+            throws CRLException
     {
         if (is == null) {
             // clear the cache (for debugging)
@@ -500,8 +500,8 @@ public class X509Factory extends CertificateFactorySpi {
      * encoded blob (in binary or base 64 encoded format).
      */
     private Collection<? extends CRL>
-        parseX509orPKCS7CRL(InputStream is)
-        throws CRLException, IOException
+            parseX509orPKCS7CRL(InputStream is)
+            throws CRLException, IOException
     {
         int peekByte;
         byte[] data;

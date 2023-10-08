@@ -134,7 +134,7 @@ public class X509CRLImpl extends X509CRL implements DerEncoder {
          * @exception CRLException on parsing/construction errors.
          */
         public TBSCertList(X500Name issuer, Date thisDate, Date nextDate,
-                           X509CRLEntry[] badCerts)
+                X509CRLEntry[] badCerts)
                 throws CRLException
         {
             this.issuer = issuer;
@@ -170,7 +170,7 @@ public class X509CRLImpl extends X509CRL implements DerEncoder {
          * @exception CRLException on parsing/construction errors.
          */
         public TBSCertList(X500Name issuer, Date thisDate, Date nextDate,
-                           X509CRLEntry[] badCerts, CRLExtensions crlExts)
+                X509CRLEntry[] badCerts, CRLExtensions crlExts)
                 throws CRLException
         {
             this(issuer, thisDate, nextDate, badCerts);
@@ -286,7 +286,7 @@ public class X509CRLImpl extends X509CRL implements DerEncoder {
          *   prevCertIssuer if it does not exist
          */
         private X500Principal getCertIssuer(X509CRLEntryImpl entry,
-                                            X500Principal prevCertIssuer) {
+                X500Principal prevCertIssuer) {
 
             CertificateIssuerExtension ciExt =
                     entry.getCertificateIssuerExtension();
@@ -364,7 +364,7 @@ public class X509CRLImpl extends X509CRL implements DerEncoder {
      * {@link #newSigned}.
      */
     public X509CRLImpl(TBSCertList info, AlgorithmId sigAlgId, byte[] signature,
-                       byte[] tbsCertList, byte[] signedCRL) {
+            byte[] tbsCertList, byte[] signedCRL) {
         this.info = info;
         this.sigAlgId = sigAlgId;
         this.signature = signature;
@@ -579,7 +579,8 @@ public class X509CRLImpl extends X509CRL implements DerEncoder {
      * @exception SignatureException on signature errors.
      * @exception CRLException if any mandatory data was omitted.
      */
-    public static X509CRLImpl newSigned(TBSCertList info, PrivateKey key, String algorithm)
+    public static X509CRLImpl newSigned(TBSCertList info, PrivateKey key,
+            String algorithm)
             throws CRLException, NoSuchAlgorithmException, InvalidKeyException,
                    NoSuchProviderException, SignatureException {
         return newSigned(info, key, algorithm, null);
@@ -600,7 +601,8 @@ public class X509CRLImpl extends X509CRL implements DerEncoder {
      * @exception SignatureException on signature errors.
      * @exception CRLException if any mandatory data was omitted.
      */
-    public static X509CRLImpl newSigned(TBSCertList info, PrivateKey key, String algorithm, String provider)
+    public static X509CRLImpl newSigned(TBSCertList info, PrivateKey key,
+            String algorithm, String provider)
             throws CRLException, NoSuchAlgorithmException, InvalidKeyException,
                    NoSuchProviderException, SignatureException {
         Signature sigEngine = SignatureUtil.fromKey(algorithm, key, provider);

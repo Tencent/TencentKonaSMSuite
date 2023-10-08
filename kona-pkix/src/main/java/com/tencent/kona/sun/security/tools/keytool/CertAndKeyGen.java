@@ -137,7 +137,7 @@ public final class CertAndKeyGen {
      * because you may be able to take advantage of strong sources
      * of randomness/entropy in your environment.
      */
-    public void         setRandom (SecureRandom generator)
+    public void setRandom (SecureRandom generator)
     {
         prng = generator;
     }

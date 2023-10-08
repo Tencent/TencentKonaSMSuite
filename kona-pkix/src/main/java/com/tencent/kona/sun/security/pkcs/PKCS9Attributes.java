@@ -132,7 +132,7 @@ public class PKCS9Attributes {
      * @see PKCS9Attribute
      */
     public PKCS9Attributes(DerInputStream in,
-                           boolean ignoreUnsupportedAttributes) throws IOException {
+            boolean ignoreUnsupportedAttributes) throws IOException {
 
         this.ignoreUnsupportedAttributes = ignoreUnsupportedAttributes;
         // derEncoding initialized in <code>decode()</code>

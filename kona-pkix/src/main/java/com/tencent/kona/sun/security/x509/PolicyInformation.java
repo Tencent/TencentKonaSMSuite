@@ -84,7 +84,7 @@ public class PolicyInformation implements DerEncoder {
      * @exception IOException on decoding errors.
      */
     public PolicyInformation(CertificatePolicyId policyIdentifier,
-                             Set<PolicyQualifierInfo> policyQualifiers) throws IOException {
+            Set<PolicyQualifierInfo> policyQualifiers) throws IOException {
         if (policyQualifiers == null) {
             throw new NullPointerException("policyQualifiers is null");
         }

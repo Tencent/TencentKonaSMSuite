@@ -58,7 +58,8 @@ public final class AccessDescription {
     public static final ObjectIdentifier Ad_CAREPOSITORY_Id =
             Oid.of(KnownOIDs.caRepository);
 
-    public AccessDescription(ObjectIdentifier accessMethod, GeneralName accessLocation) {
+    public AccessDescription(ObjectIdentifier accessMethod,
+            GeneralName accessLocation) {
         this.accessMethod = accessMethod;
         this.accessLocation = accessLocation;
     }

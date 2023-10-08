@@ -222,14 +222,16 @@ public class EDIPartyName implements GeneralNameInterface {
      * @throws UnsupportedOperationException if name is same type, but comparison operations are
      *          not supported for this name type.
      */
-    public int constrains(GeneralNameInterface inputName) throws UnsupportedOperationException {
+    public int constrains(GeneralNameInterface inputName)
+            throws UnsupportedOperationException {
         int constraintType;
         if (inputName == null)
             constraintType = NAME_DIFF_TYPE;
         else if (inputName.getType() != NAME_EDI)
             constraintType = NAME_DIFF_TYPE;
         else {
-            throw new UnsupportedOperationException("Narrowing, widening, and matching of names not supported for EDIPartyName");
+            throw new UnsupportedOperationException(
+                    "Narrowing, widening, and matching of names not supported for EDIPartyName");
         }
         return constraintType;
     }
@@ -243,7 +245,8 @@ public class EDIPartyName implements GeneralNameInterface {
      * @throws UnsupportedOperationException if not supported for this name type
      */
     public int subtreeDepth() throws UnsupportedOperationException {
-        throw new UnsupportedOperationException("subtreeDepth() not supported for EDIPartyName");
+        throw new UnsupportedOperationException(
+                "subtreeDepth() not supported for EDIPartyName");
     }
 
 }

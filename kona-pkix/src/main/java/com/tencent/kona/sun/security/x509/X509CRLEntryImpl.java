@@ -105,7 +105,7 @@ public class X509CRLEntryImpl extends X509CRLEntry
      * @param crlEntryExts the extensions for this entry.
      */
     public X509CRLEntryImpl(BigInteger num, Date date,
-                            CRLExtensions crlEntryExts) {
+            CRLExtensions crlEntryExts) {
         this.serialNumber = new SerialNumber(num);
         this.revocationDate = date;
         this.extensions = crlEntryExts;
@@ -201,7 +201,8 @@ public class X509CRLEntryImpl extends X509CRLEntry
         return certIssuer;
     }
 
-    void setCertificateIssuer(X500Principal crlIssuer, X500Principal certIssuer) {
+    void setCertificateIssuer(X500Principal crlIssuer,
+            X500Principal certIssuer) {
         if (crlIssuer.equals(certIssuer)) {
             this.certIssuer = null;
         } else {

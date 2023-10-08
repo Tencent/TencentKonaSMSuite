@@ -70,7 +70,7 @@ public final class UntrustedChecker extends PKIXCertPathChecker {
 
     @Override
     public void check(Certificate cert,
-                      Collection<String> unresolvedCritExts)
+            Collection<String> unresolvedCritExts)
             throws CertPathValidatorException {
 
         X509Certificate currCert = (X509Certificate)cert;

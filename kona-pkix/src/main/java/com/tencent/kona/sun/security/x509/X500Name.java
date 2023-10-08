@@ -204,7 +204,7 @@ public class X500Name implements GeneralNameInterface, Principal {
      * @param country two-letter country code, e.g. "CH"
      */
     public X500Name(String commonName, String organizationUnit,
-                    String organizationName, String country)
+            String organizationName, String country)
             throws IOException {
         names = new RDN[4];
         /*
@@ -241,8 +241,8 @@ public class X500Name implements GeneralNameInterface, Principal {
      * @param country two-letter country code, e.g. "CH"
      */
     public X500Name(String commonName, String organizationUnit,
-                    String organizationName, String localityName,
-                    String stateName, String country)
+                String organizationName, String localityName,
+                String stateName, String country)
             throws IOException {
         RDN name;
         List<RDN> list = new ArrayList<>(6);

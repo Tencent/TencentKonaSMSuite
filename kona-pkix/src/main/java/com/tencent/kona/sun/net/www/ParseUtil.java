@@ -166,7 +166,6 @@ public final class ParseUtil {
         return (byte) Integer.parseInt(s.substring(i+1,i+3), 16);
     }
 
-
     /**
      * Returns a new String constructed from the specified String by replacing
      * the URL escape sequences and UTF8 encoding with the characters they

@@ -166,7 +166,7 @@ public abstract class Validator {
      * anchors.
      */
     public static Validator getInstance(String type, String variant,
-                                        Collection<X509Certificate> trustedCerts) {
+            Collection<X509Certificate> trustedCerts) {
         if (type.equals(TYPE_SIMPLE)) {
             return new SimpleValidator(variant, trustedCerts);
         } else if (type.equals(TYPE_PKIX)) {
@@ -182,7 +182,7 @@ public abstract class Validator {
      * This method can only be used with the PKIX validator.
      */
     public static Validator getInstance(String type, String variant,
-                                        PKIXBuilderParameters params) {
+            PKIXBuilderParameters params) {
         if (!type.equals(TYPE_PKIX)) {
             throw new IllegalArgumentException
                     ("getInstance(PKIXBuilderParameters) can only be used "
@@ -205,7 +205,7 @@ public abstract class Validator {
      * path building.
      */
     public final X509Certificate[] validate(X509Certificate[] chain,
-                                            Collection<X509Certificate> otherCerts) throws CertificateException {
+            Collection<X509Certificate> otherCerts) throws CertificateException {
         return validate(chain, otherCerts, null);
     }
 
@@ -218,7 +218,7 @@ public abstract class Validator {
      * end entity cert is at index 0, the trust anchor at index n-1.
      */
     public final X509Certificate[] validate(X509Certificate[] chain,
-                                            Collection<X509Certificate> otherCerts, Object parameter)
+            Collection<X509Certificate> otherCerts, Object parameter)
             throws CertificateException {
         return validate(chain, otherCerts, Collections.emptyList(), null,
                 parameter);
@@ -249,10 +249,10 @@ public abstract class Validator {
      *        end entity cert is at index 0, the trust anchor at index n-1.
      */
     public final X509Certificate[] validate(X509Certificate[] chain,
-                                            Collection<X509Certificate> otherCerts,
-                                            List<byte[]> responseList,
-                                            AlgorithmConstraints constraints,
-                                            Object parameter) throws CertificateException {
+            Collection<X509Certificate> otherCerts,
+            List<byte[]> responseList,
+            AlgorithmConstraints constraints,
+            Object parameter) throws CertificateException {
         chain = engineValidate(chain, otherCerts, responseList, constraints,
                 parameter);
 
@@ -274,10 +274,10 @@ public abstract class Validator {
     }
 
     abstract X509Certificate[] engineValidate(X509Certificate[] chain,
-                                              Collection<X509Certificate> otherCerts,
-                                              List<byte[]> responseList,
-                                              AlgorithmConstraints constraints,
-                                              Object parameter) throws CertificateException;
+            Collection<X509Certificate> otherCerts,
+            List<byte[]> responseList,
+            AlgorithmConstraints constraints,
+            Object parameter) throws CertificateException;
 
     /**
      * Returns an immutable Collection of the X509Certificates this instance

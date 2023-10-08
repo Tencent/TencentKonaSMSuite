@@ -193,9 +193,9 @@ class AlgIdDSA extends AlgorithmId implements DSAParams
             return " null\n";
         } else {
             return "\n    p:\n" + Debug.toHexString(p) +
-                    "\n    q:\n" + Debug.toHexString(q) +
-                    "\n    g:\n" + Debug.toHexString(g) +
-                    "\n";
+                   "\n    q:\n" + Debug.toHexString(q) +
+                   "\n    g:\n" + Debug.toHexString(g) +
+                   "\n";
         }
     }
 }

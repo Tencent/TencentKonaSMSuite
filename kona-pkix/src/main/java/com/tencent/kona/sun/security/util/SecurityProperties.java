@@ -47,7 +47,8 @@ public class SecurityProperties {
         if (System.getSecurityManager() == null) {
             return getOverridableProperty(propName);
         } else {
-            return AccessController.doPrivileged((PrivilegedAction<String>) () -> getOverridableProperty(propName));
+            return AccessController.doPrivileged(
+                    (PrivilegedAction<String>) () -> getOverridableProperty(propName));
         }
     }
 

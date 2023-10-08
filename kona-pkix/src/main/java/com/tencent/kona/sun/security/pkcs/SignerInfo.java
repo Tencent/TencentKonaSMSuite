@@ -494,7 +494,7 @@ public class SignerInfo implements DerEncoder {
      *                   directly. This makes difference for Ed448.
      */
     public static String makeSigAlg(AlgorithmId digAlgId, AlgorithmId encAlgId,
-                                    boolean directSign) throws NoSuchAlgorithmException {
+            boolean directSign) throws NoSuchAlgorithmException {
         String encAlg = encAlgId.getName();
         switch (encAlg) {
             case "RSASSA-PSS":

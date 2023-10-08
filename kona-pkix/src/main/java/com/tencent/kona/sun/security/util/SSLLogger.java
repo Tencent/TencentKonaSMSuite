@@ -63,7 +63,8 @@ public class SSLLogger {
     public static final boolean isOn;
 
     static {
-        String p = GetPropertyAction.privilegedGetProperty("com.tencent.kona.ssl.debug");
+        String p = GetPropertyAction.privilegedGetProperty(
+                "com.tencent.kona.ssl.debug");
         if (p != null) {
             if (p.isEmpty()) {
                 property = "";

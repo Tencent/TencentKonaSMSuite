@@ -120,7 +120,8 @@ public class ExtendedKeyUsageExtension extends Extension {
      * @param keyUsages the Vector of KeyUsages (ObjectIdentifiers),
      *                  cannot be null or empty.
      */
-    public ExtendedKeyUsageExtension(Boolean critical, Vector<ObjectIdentifier> keyUsages) {
+    public ExtendedKeyUsageExtension(Boolean critical,
+            Vector<ObjectIdentifier> keyUsages) {
         if (keyUsages == null || keyUsages.isEmpty()) {
             throw new IllegalArgumentException(
                     "key usages cannot be null or empty");

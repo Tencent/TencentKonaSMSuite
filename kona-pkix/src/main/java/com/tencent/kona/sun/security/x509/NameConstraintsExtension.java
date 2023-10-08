@@ -137,7 +137,7 @@ public class NameConstraintsExtension extends Extension
      * @param excluded the excluded GeneralSubtrees (null for optional).
      */
     public NameConstraintsExtension(GeneralSubtrees permitted,
-                                    GeneralSubtrees excluded) {
+            GeneralSubtrees excluded) {
         if (permitted == null && excluded == null) {
             throw new IllegalArgumentException(
                     "permitted and excluded cannot both be null");
