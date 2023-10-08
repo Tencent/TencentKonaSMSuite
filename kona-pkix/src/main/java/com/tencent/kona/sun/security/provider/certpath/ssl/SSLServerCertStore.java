@@ -173,28 +173,28 @@ public final class SSLServerCertStore extends CertStoreSpi {
 
         @Override
         public void checkClientTrusted(X509Certificate[] chain,
-                                       String authType) throws CertificateException {
+                String authType) throws CertificateException {
 
             throw new UnsupportedOperationException();
         }
 
         @Override
         public void checkClientTrusted(X509Certificate[] chain, String authType,
-                                       Socket socket) throws CertificateException {
+                Socket socket) throws CertificateException {
 
             throw new UnsupportedOperationException();
         }
 
         @Override
         public void checkClientTrusted(X509Certificate[] chain, String authType,
-                                       SSLEngine engine) throws CertificateException {
+                SSLEngine engine) throws CertificateException {
 
             throw new UnsupportedOperationException();
         }
 
         @Override
         public void checkServerTrusted(X509Certificate[] chain,
-                                       String authType) throws CertificateException {
+                String authType) throws CertificateException {
 
             exchangedServerCerts = true;
             this.serverChain = (chain == null)
@@ -205,14 +205,14 @@ public final class SSLServerCertStore extends CertStoreSpi {
 
         @Override
         public void checkServerTrusted(X509Certificate[] chain, String authType,
-                                       Socket socket) throws CertificateException {
+                Socket socket) throws CertificateException {
 
             checkServerTrusted(chain, authType);
         }
 
         @Override
         public void checkServerTrusted(X509Certificate[] chain, String authType,
-                                       SSLEngine engine) throws CertificateException {
+            SSLEngine engine) throws CertificateException {
 
             checkServerTrusted(chain, authType);
         }

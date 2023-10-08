@@ -274,7 +274,7 @@ class PKIX {
          * is fetched that matches the specified X509CertSelector.
          */
         private static X500Principal getTargetSubject(List<CertStore> stores,
-                                                      X509CertSelector sel)
+                X509CertSelector sel)
                 throws InvalidAlgorithmParameterException
         {
             X500Principal subject = sel.getSubject();

@@ -221,8 +221,8 @@ class RevocationChecker extends PKIXRevocationChecker {
     }
 
     private static X509Certificate getResponderCert(RevocationProperties rp,
-                                                    Set<TrustAnchor> anchors,
-                                                    List<CertStore> stores)
+            Set<TrustAnchor> anchors,
+            List<CertStore> stores)
             throws CertPathValidatorException
     {
         if (rp.ocspSubject != null) {
@@ -239,8 +239,8 @@ class RevocationChecker extends PKIXRevocationChecker {
     }
 
     private static X509Certificate getResponderCert(String subject,
-                                                    Set<TrustAnchor> anchors,
-                                                    List<CertStore> stores)
+            Set<TrustAnchor> anchors,
+            List<CertStore> stores)
             throws CertPathValidatorException
     {
         X509CertSelector sel = new X509CertSelector();
@@ -254,9 +254,9 @@ class RevocationChecker extends PKIXRevocationChecker {
     }
 
     private static X509Certificate getResponderCert(String issuer,
-                                                    String serial,
-                                                    Set<TrustAnchor> anchors,
-                                                    List<CertStore> stores)
+            String serial,
+            Set<TrustAnchor> anchors,
+            List<CertStore> stores)
             throws CertPathValidatorException
     {
         X509CertSelector sel = new X509CertSelector();
@@ -276,8 +276,8 @@ class RevocationChecker extends PKIXRevocationChecker {
     }
 
     private static X509Certificate getResponderCert(X509CertSelector sel,
-                                                    Set<TrustAnchor> anchors,
-                                                    List<CertStore> stores)
+            Set<TrustAnchor> anchors,
+            List<CertStore> stores)
             throws CertPathValidatorException
     {
         // first check TrustAnchors
@@ -354,8 +354,8 @@ class RevocationChecker extends PKIXRevocationChecker {
     }
 
     private void check(X509Certificate xcert,
-                       Collection<String> unresolvedCritExts,
-                       PublicKey pubKey, boolean crlSignFlag)
+            Collection<String> unresolvedCritExts,
+            PublicKey pubKey, boolean crlSignFlag)
             throws CertPathValidatorException
     {
         if (debug != null) {
@@ -471,9 +471,9 @@ class RevocationChecker extends PKIXRevocationChecker {
     // validity of CRLs
     private static final long MAX_CLOCK_SKEW = 900000;
     private void checkCRLs(X509Certificate cert,
-                           Collection<String> unresolvedCritExts,
-                           Set<X509Certificate> stackedCerts,
-                           PublicKey pubKey, boolean signFlag)
+            Collection<String> unresolvedCritExts,
+            Set<X509Certificate> stackedCerts,
+            PublicKey pubKey, boolean signFlag)
             throws CertPathValidatorException
     {
         checkCRLs(cert, pubKey, null, signFlag, true,
@@ -507,10 +507,10 @@ class RevocationChecker extends PKIXRevocationChecker {
     }
 
     private void checkCRLs(X509Certificate cert, PublicKey prevKey,
-                           X509Certificate prevCert, boolean signFlag,
-                           boolean allowSeparateKey,
-                           Set<X509Certificate> stackedCerts,
-                           Set<TrustAnchor> anchors)
+            X509Certificate prevCert, boolean signFlag,
+            boolean allowSeparateKey,
+            Set<X509Certificate> stackedCerts,
+            Set<TrustAnchor> anchors)
             throws CertPathValidatorException
     {
         if (debug != null) {
@@ -646,7 +646,7 @@ class RevocationChecker extends PKIXRevocationChecker {
     }
 
     private void checkApprovedCRLs(X509Certificate cert,
-                                   Set<X509CRL> approvedCRLs)
+            Set<X509CRL> approvedCRLs)
             throws CertPathValidatorException
     {
         // See if the cert is in the set of approved crls.
@@ -707,7 +707,7 @@ class RevocationChecker extends PKIXRevocationChecker {
     }
 
     private void checkOCSP(X509Certificate cert,
-                           Collection<String> unresolvedCritExts)
+            Collection<String> unresolvedCritExts)
             throws CertPathValidatorException
     {
         X509CertImpl currCert;
@@ -868,11 +868,11 @@ class RevocationChecker extends PKIXRevocationChecker {
      * @return a collection of approved crls (or an empty collection)
      */
     private Collection<X509CRL> verifyPossibleCRLs(Set<X509CRL> crls,
-                                                   X509Certificate cert,
-                                                   PublicKey prevKey,
-                                                   boolean signFlag,
-                                                   boolean[] reasonsMask,
-                                                   Set<TrustAnchor> anchors) {
+            X509Certificate cert,
+            PublicKey prevKey,
+            boolean signFlag,
+            boolean[] reasonsMask,
+            Set<TrustAnchor> anchors) {
         try {
             X509CertImpl certImpl = X509CertImpl.toImpl(cert);
             if (debug != null) {
@@ -942,9 +942,9 @@ class RevocationChecker extends PKIXRevocationChecker {
      *         cannot be verified successfully with another key
      */
     private void verifyWithSeparateSigningKey(X509Certificate cert,
-                                              PublicKey prevKey,
-                                              boolean signFlag,
-                                              Set<X509Certificate> stackedCerts)
+            PublicKey prevKey,
+            boolean signFlag,
+            Set<X509Certificate> stackedCerts)
             throws CertPathValidatorException
     {
         String msg = "revocation status";
@@ -997,8 +997,8 @@ class RevocationChecker extends PKIXRevocationChecker {
      * @throws CertPathValidatorException on failure
      */
     private void buildToNewKey(X509Certificate currCert,
-                               PublicKey prevKey,
-                               Set<X509Certificate> stackedCerts)
+            PublicKey prevKey,
+            Set<X509Certificate> stackedCerts)
             throws CertPathValidatorException
     {
 

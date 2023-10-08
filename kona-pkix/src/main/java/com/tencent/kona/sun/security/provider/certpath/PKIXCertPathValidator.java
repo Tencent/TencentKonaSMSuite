@@ -73,7 +73,7 @@ public final class PKIXCertPathValidator extends CertPathValidatorSpi {
      */
     @Override
     public CertPathValidatorResult engineValidate(CertPath cp,
-                                                  CertPathParameters params)
+            CertPathParameters params)
             throws CertPathValidatorException, InvalidAlgorithmParameterException
     {
         PKIX.ValidatorParams valParams = PKIX.checkParams(cp, params);
@@ -157,7 +157,7 @@ public final class PKIXCertPathValidator extends CertPathValidatorSpi {
     }
 
     private static PKIXCertPathValidatorResult validate(TrustAnchor anchor,
-                                                        PKIX.ValidatorParams params)
+            PKIX.ValidatorParams params)
             throws CertPathValidatorException
     {
         // check if anchor is untrusted

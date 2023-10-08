@@ -50,7 +50,7 @@ public class PKIXExtendedParameters extends PKIXBuilderParameters {
     private final String variant;
 
     public PKIXExtendedParameters(PKIXBuilderParameters params,
-                                  Timestamp timestamp, String variant)
+            Timestamp timestamp, String variant)
             throws InvalidAlgorithmParameterException {
         super(params.getTrustAnchors(), null);
         p = params;

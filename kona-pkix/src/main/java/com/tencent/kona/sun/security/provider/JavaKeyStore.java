@@ -254,7 +254,7 @@ public abstract class JavaKeyStore extends KeyStoreSpi {
      * cannot be protected, or this operation fails for some other reason
      */
     public void engineSetKeyEntry(String alias, Key key, char[] password,
-                                  Certificate[] chain)
+            Certificate[] chain)
         throws KeyStoreException
     {
         KeyProtector keyProtector;
@@ -315,7 +315,7 @@ public abstract class JavaKeyStore extends KeyStoreSpi {
      * @exception KeyStoreException if this operation fails.
      */
     public void engineSetKeyEntry(String alias, byte[] key,
-                                  Certificate[] chain)
+            Certificate[] chain)
         throws KeyStoreException
     {
         synchronized(entries) {

@@ -62,8 +62,8 @@ class PKIXMasterCertPathValidator {
      * @throws CertPathValidatorException if cert path does not validate
      */
     static void validate(CertPath cpOriginal,
-                         List<X509Certificate> reversedCertList,
-                         List<PKIXCertPathChecker> certPathCheckers)
+            List<X509Certificate> reversedCertList,
+            List<PKIXCertPathChecker> certPathCheckers)
             throws CertPathValidatorException
     {
         // we actually process reversedCertList, but we keep cpOriginal because

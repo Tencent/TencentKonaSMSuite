@@ -137,7 +137,7 @@ public class X509CertImpl extends X509Certificate
      * {@link #newSigned}.
      */
     public X509CertImpl(X509CertInfo info, AlgorithmId algId, byte[] signature,
-                        byte[] signedCert) {
+            byte[] signedCert) {
         this.info = info;
         this.algId = algId;
         this.signature = signature;
@@ -488,7 +488,8 @@ public class X509CertImpl extends X509Certificate
      * @exception SignatureException on signature errors.
      * @exception CertificateException on encoding errors.
      */
-    public static X509CertImpl newSigned(X509CertInfo info, PrivateKey key, String algorithm)
+    public static X509CertImpl newSigned(X509CertInfo info, PrivateKey key,
+            String algorithm)
             throws CertificateException, NoSuchAlgorithmException,
             InvalidKeyException, NoSuchProviderException, SignatureException {
         return newSigned(info, key, algorithm, null);
@@ -512,7 +513,8 @@ public class X509CertImpl extends X509Certificate
      * @exception SignatureException on signature errors.
      * @exception CertificateException on encoding errors.
      */
-    public static X509CertImpl newSigned(X509CertInfo info, PrivateKey key, String algorithm, String provider)
+    public static X509CertImpl newSigned(X509CertInfo info, PrivateKey key,
+            String algorithm, String provider)
             throws CertificateException, NoSuchAlgorithmException,
             InvalidKeyException, NoSuchProviderException, SignatureException {
         Signature sigEngine = SignatureUtil.fromKey(
@@ -1008,7 +1010,8 @@ public class X509CertImpl extends X509Certificate
                 return null;
             }
             Set<String> extSet = new TreeSet<>();
-            for (com.tencent.kona.sun.security.x509.Extension ex : exts.getAllExtensions()) {
+            for (com.tencent.kona.sun.security.x509.Extension ex
+                    : exts.getAllExtensions()) {
                 if (ex.isCritical()) {
                     extSet.add(ex.getExtensionId().toString());
                 }
@@ -1037,7 +1040,8 @@ public class X509CertImpl extends X509Certificate
                 return null;
             }
             Set<String> extSet = new TreeSet<>();
-            for (com.tencent.kona.sun.security.x509.Extension ex : exts.getAllExtensions()) {
+            for (com.tencent.kona.sun.security.x509.Extension ex
+                    : exts.getAllExtensions()) {
                 if (!ex.isCritical()) {
                     extSet.add(ex.getExtensionId().toString());
                 }
@@ -1514,7 +1518,7 @@ public class X509CertImpl extends X509Certificate
      * ASN.1 encoding.
      */
     private static X500Principal getX500Principal(X509Certificate cert,
-                                                  boolean getIssuer) throws Exception {
+            boolean getIssuer) throws Exception {
         byte[] encoded = cert.getEncoded();
         DerInputStream derIn = new DerInputStream(encoded);
         DerValue tbsCert = derIn.getSequence(3)[0];
@@ -1606,7 +1610,7 @@ public class X509CertImpl extends X509Certificate
      * the certificate. In case of exception, returns false.
      */
     public static boolean isSelfSigned(X509Certificate cert,
-                                       String sigProvider) {
+            String sigProvider) {
         if (isSelfIssued(cert)) {
             try {
                 if (sigProvider == null) {
@@ -1640,7 +1644,7 @@ public class X509CertImpl extends X509Certificate
     }
 
     private static String getFingerprintInternal(String algorithm,
-                                                 byte[] encodedCert, Debug debug) {
+            byte[] encodedCert, Debug debug) {
         try {
             MessageDigest md = CryptoInsts.getMessageDigest(algorithm);
             byte[] digest = md.digest(encodedCert);
@@ -1664,7 +1668,7 @@ public class X509CertImpl extends X509Certificate
      *     of an exception
      */
     public static String getFingerprint(String algorithm,
-                                        X509Certificate cert, Debug debug) {
+            X509Certificate cert, Debug debug) {
         if (cert instanceof X509CertImpl) {
             return ((X509CertImpl)cert).getFingerprint(algorithm, debug);
         } else {

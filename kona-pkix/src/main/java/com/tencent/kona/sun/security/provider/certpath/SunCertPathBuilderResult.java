@@ -65,8 +65,8 @@ public class SunCertPathBuilderResult extends PKIXCertPathBuilderResult {
      * @param adjList an Adjacency list containing debug information
      */
     SunCertPathBuilderResult(CertPath certPath,
-                             TrustAnchor trustAnchor, PolicyNode policyTree,
-                             PublicKey subjectPublicKey, AdjacencyList adjList)
+            TrustAnchor trustAnchor, PolicyNode policyTree,
+            PublicKey subjectPublicKey, AdjacencyList adjList)
     {
         super(certPath, trustAnchor, policyTree, subjectPublicKey);
         this.adjList = adjList;

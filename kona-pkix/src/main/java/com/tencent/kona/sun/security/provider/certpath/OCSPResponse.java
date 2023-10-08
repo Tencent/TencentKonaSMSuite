@@ -384,8 +384,8 @@ public final class OCSPResponse {
     }
 
     void verify(List<CertId> certIds, IssuerInfo issuerInfo,
-                X509Certificate responderCert, Date date, byte[] nonce,
-                String variant)
+            X509Certificate responderCert, Date date, byte[] nonce,
+            String variant)
             throws CertPathValidatorException
     {
         switch (responseStatus) {

@@ -86,9 +86,9 @@ class PolicyChecker extends PKIXCertPathChecker {
      * @param rootNode the initial root node of the valid policy tree
      */
     PolicyChecker(Set<String> initialPolicies, int certPathLen,
-                  boolean expPolicyRequired, boolean polMappingInhibited,
-                  boolean anyPolicyInhibited, boolean rejectPolicyQualifiers,
-                  PolicyNodeImpl rootNode)
+            boolean expPolicyRequired, boolean polMappingInhibited,
+            boolean anyPolicyInhibited, boolean rejectPolicyQualifiers,
+            PolicyNodeImpl rootNode)
     {
         if (initialPolicies.isEmpty()) {
             // if no initialPolicies are specified by user, set
@@ -389,9 +389,9 @@ class PolicyChecker extends PKIXCertPathChecker {
      * error occurs while processing policies.
      */
     static PolicyNodeImpl processPolicies(int certIndex, Set<String> initPolicies,
-                                          int explicitPolicy, int policyMapping, int inhibitAnyPolicy,
-                                          boolean rejectPolicyQualifiers, PolicyNodeImpl origRootNode,
-                                          X509CertImpl currCert, boolean finalCert)
+            int explicitPolicy, int policyMapping, int inhibitAnyPolicy,
+            boolean rejectPolicyQualifiers, PolicyNodeImpl origRootNode,
+            X509CertImpl currCert, boolean finalCert)
             throws CertPathValidatorException
     {
         boolean policiesCritical = false;
@@ -552,7 +552,7 @@ class PolicyChecker extends PKIXCertPathChecker {
      * @param rootNode the root of the policy tree
      */
     private static PolicyNodeImpl rewriteLeafNodes(int certIndex,
-                                                   Set<String> initPolicies, PolicyNodeImpl rootNode) {
+            Set<String> initPolicies, PolicyNodeImpl rootNode) {
         Set<PolicyNodeImpl> anyNodes =
                 rootNode.getPolicyNodesValid(certIndex, ANY_POLICY);
         if (anyNodes.isEmpty()) {
@@ -610,10 +610,10 @@ class PolicyChecker extends PKIXCertPathChecker {
      * @return a boolean indicating whether a match was found
      */
     private static boolean processParents(int certIndex,
-                                          boolean policiesCritical, boolean rejectPolicyQualifiers,
-                                          PolicyNodeImpl rootNode, String curPolicy,
-                                          Set<PolicyQualifierInfo> pQuals,
-                                          boolean matchAny) {
+            boolean policiesCritical, boolean rejectPolicyQualifiers,
+            PolicyNodeImpl rootNode, String curPolicy,
+            Set<PolicyQualifierInfo> pQuals,
+            boolean matchAny) {
         boolean foundMatch = false;
 
         if (debug != null)
@@ -692,8 +692,8 @@ class PolicyChecker extends PKIXCertPathChecker {
      * occurs while processing policy mappings
      */
     private static PolicyNodeImpl processPolicyMappings(X509CertImpl currCert,
-                                                        int certIndex, int policyMapping, PolicyNodeImpl rootNode,
-                                                        boolean policiesCritical, Set<PolicyQualifierInfo> anyQuals)
+            int certIndex, int policyMapping, PolicyNodeImpl rootNode,
+            boolean policiesCritical, Set<PolicyQualifierInfo> anyQuals)
             throws CertPathValidatorException
     {
         PolicyMappingsExtension polMappingsExt
@@ -799,8 +799,8 @@ class PolicyChecker extends PKIXCertPathChecker {
      * @exception CertPathValidatorException Exception thrown if error occurs.
      */
     private static PolicyNodeImpl removeInvalidNodes(PolicyNodeImpl rootNode,
-                                                     int certIndex, Set<String> initPolicies,
-                                                     CertificatePoliciesExtension currCertPolicies)
+            int certIndex, Set<String> initPolicies,
+            CertificatePoliciesExtension currCertPolicies)
             throws CertPathValidatorException
     {
         List<PolicyInformation> policyInfo = currCertPolicies.getCertPolicies();

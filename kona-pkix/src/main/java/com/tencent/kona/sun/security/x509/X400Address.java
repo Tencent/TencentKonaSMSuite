@@ -387,7 +387,8 @@ public class X400Address implements GeneralNameInterface {
      * @throws UnsupportedOperationException if name is same type, but comparison operations are
      *          not supported for this name type.
      */
-    public int constrains(GeneralNameInterface inputName) throws UnsupportedOperationException {
+    public int constrains(GeneralNameInterface inputName)
+            throws UnsupportedOperationException {
         int constraintType;
         if (inputName == null)
             constraintType = NAME_DIFF_TYPE;

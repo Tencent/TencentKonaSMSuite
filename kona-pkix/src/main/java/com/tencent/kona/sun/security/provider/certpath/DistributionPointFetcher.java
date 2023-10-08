@@ -83,16 +83,16 @@ public class DistributionPointFetcher {
      * an X509CRLSelector with certificateChecking set.
      */
     public static Collection<X509CRL> getCRLs(X509CRLSelector selector,
-                                              boolean signFlag,
-                                              PublicKey prevKey,
-                                              X509Certificate prevCert,
-                                              String provider,
-                                              List<CertStore> certStores,
-                                              boolean[] reasonsMask,
-                                              Set<TrustAnchor> trustAnchors,
-                                              Date validity,
-                                              String variant,
-                                              TrustAnchor anchor)
+            boolean signFlag,
+            PublicKey prevKey,
+            X509Certificate prevCert,
+            String provider,
+            List<CertStore> certStores,
+            boolean[] reasonsMask,
+            Set<TrustAnchor> trustAnchors,
+            Date validity,
+            String variant,
+            TrustAnchor anchor)
             throws CertStoreException
     {
         X509Certificate cert = selector.getCertificateChecking();
@@ -143,11 +143,11 @@ public class DistributionPointFetcher {
      *         exception then the one from the last GeneralName is thrown.
      */
     private static Collection<X509CRL> getCRLs(X509CRLSelector selector,
-                                               X509CertImpl certImpl, DistributionPoint point, boolean[] reasonsMask,
-                                               boolean signFlag, PublicKey prevKey, X509Certificate prevCert,
-                                               String provider, List<CertStore> certStores,
-                                               Set<TrustAnchor> trustAnchors, Date validity, String variant,
-                                               TrustAnchor anchor)
+            X509CertImpl certImpl, DistributionPoint point, boolean[] reasonsMask,
+            boolean signFlag, PublicKey prevKey, X509Certificate prevCert,
+            String provider, List<CertStore> certStores,
+            Set<TrustAnchor> trustAnchors, Date validity, String variant,
+            TrustAnchor anchor)
             throws CertStoreException {
 
         // check for full name
@@ -262,8 +262,8 @@ public class DistributionPointFetcher {
      *         exception then the one from the last CertStore is thrown.
      */
     private static Collection<X509CRL> getCRLs(X500Name name,
-                                               X500Principal certIssuer,
-                                               List<CertStore> certStores)
+            X500Principal certIssuer,
+            List<CertStore> certStores)
             throws CertStoreException
     {
         if (debug != null) {
@@ -317,10 +317,10 @@ public class DistributionPointFetcher {
      * @return true if ok, false if not
      */
     static boolean verifyCRL(X509CertImpl certImpl, DistributionPoint point,
-                             X509CRL crl, boolean[] reasonsMask, boolean signFlag,
-                             PublicKey prevKey, X509Certificate prevCert, String provider,
-                             Set<TrustAnchor> trustAnchors, List<CertStore> certStores,
-                             Date validity, String variant, TrustAnchor anchor)
+            X509CRL crl, boolean[] reasonsMask, boolean signFlag,
+            PublicKey prevKey, X509Certificate prevCert, String provider,
+            Set<TrustAnchor> trustAnchors, List<CertStore> certStores,
+            Date validity, String variant, TrustAnchor anchor)
             throws CRLException, IOException {
 
         if (debug != null) {
@@ -732,7 +732,7 @@ public class DistributionPointFetcher {
      * @param provider the name of the signature provider
      */
     private static boolean issues(X509CertImpl cert, X509CRLImpl crl,
-                                  String provider) throws IOException
+            String provider) throws IOException
     {
         boolean matched;
 

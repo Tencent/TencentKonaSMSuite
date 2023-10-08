@@ -79,7 +79,8 @@ public interface GeneralNameInterface extends DerEncoder {
      * @throws UnsupportedOperationException if name is same type, but comparison operations are
      *          not supported for this name type.
      */
-    int constrains(GeneralNameInterface inputName) throws UnsupportedOperationException;
+    int constrains(GeneralNameInterface inputName)
+            throws UnsupportedOperationException;
 
     /**
      * Return subtree depth of this name for purposes of determining

@@ -119,9 +119,9 @@ public final class OCSP {
      *    encoding the OCSP Request or validating the OCSP Response
      */
     static OCSPResponse check(List<CertId> certIds, URI responderURI,
-                              OCSPResponse.IssuerInfo issuerInfo,
-                              X509Certificate responderCert, Date date,
-                              List<Extension> extensions, String variant)
+            OCSPResponse.IssuerInfo issuerInfo,
+            X509Certificate responderCert, Date date,
+            List<Extension> extensions, String variant)
             throws IOException, CertPathValidatorException
     {
         byte[] nonce = null;
@@ -147,7 +147,6 @@ public final class OCSP {
 
         return ocspResponse;
     }
-
 
     /**
      * Send an OCSP request, then read and return the OCSP response bytes.

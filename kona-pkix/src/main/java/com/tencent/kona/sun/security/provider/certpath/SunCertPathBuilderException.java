@@ -113,7 +113,7 @@ public class SunCertPathBuilderException extends CertPathBuilderException {
      * @param adjList Adjacency list
      */
     SunCertPathBuilderException(String msg, Throwable cause,
-                                AdjacencyList adjList)
+            AdjacencyList adjList)
     {
         this(msg, cause);
         this.adjList = adjList;

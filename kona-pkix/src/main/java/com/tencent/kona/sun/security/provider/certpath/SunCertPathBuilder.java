@@ -208,8 +208,8 @@ public final class SunCertPathBuilder extends CertPathBuilderSpi {
      * Private build forward method.
      */
     private void buildForward(List<List<Vertex>> adjacencyList,
-                              LinkedList<X509Certificate> certPathList,
-                              boolean searchAllCertStores)
+            LinkedList<X509Certificate> certPathList,
+            boolean searchAllCertStores)
             throws GeneralSecurityException, IOException
     {
         if (debug != null) {
@@ -248,10 +248,10 @@ public final class SunCertPathBuilder extends CertPathBuilderSpi {
      * @param currentState the current PKIX validation state
      */
     private void depthFirstSearchForward(X500Principal dN,
-                                         ForwardState currentState,
-                                         ForwardBuilder builder,
-                                         List<List<Vertex>> adjList,
-                                         LinkedList<X509Certificate> cpList)
+            ForwardState currentState,
+            ForwardBuilder builder,
+            List<List<Vertex>> adjList,
+            LinkedList<X509Certificate> cpList)
             throws GeneralSecurityException, IOException
     {
         if (debug != null) {
@@ -563,7 +563,7 @@ public final class SunCertPathBuilder extends CertPathBuilderSpi {
      * adjacency list.
      */
     private static List<Vertex> addVertices(Collection<X509Certificate> certs,
-                                            List<List<Vertex>> adjList)
+            List<List<Vertex>> adjList)
     {
         List<Vertex> l = adjList.get(adjList.size() - 1);
 
@@ -580,7 +580,7 @@ public final class SunCertPathBuilder extends CertPathBuilderSpi {
      * certificate constraints.
      */
     private static boolean anchorIsTarget(TrustAnchor anchor,
-                                          CertSelector sel)
+            CertSelector sel)
     {
         X509Certificate anchorCert = anchor.getTrustedCert();
         if (anchorCert != null) {

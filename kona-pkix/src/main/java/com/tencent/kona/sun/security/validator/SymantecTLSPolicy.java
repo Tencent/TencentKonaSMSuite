@@ -165,7 +165,8 @@ final class SymantecTLSPolicy {
         }
         if (FINGERPRINTS.contains(fp)) {
             Date notBefore = chain[0].getNotBefore();
-            LocalDate ldNotBefore = notBefore.toInstant().atZone(ZoneOffset.UTC).toLocalDate();
+            LocalDate ldNotBefore = notBefore.toInstant().atZone(
+                    ZoneOffset.UTC).toLocalDate();
             // check if chain goes through one of the subCAs
             if (chain.length > 2) {
                 X509Certificate subCA = chain[chain.length-2];
@@ -191,7 +192,7 @@ final class SymantecTLSPolicy {
     }
 
     private static void checkNotBefore(LocalDate notBeforeDate,
-                                       LocalDate distrustDate, X509Certificate anchor)
+            LocalDate distrustDate, X509Certificate anchor)
             throws ValidatorException {
         if (notBeforeDate.isAfter(distrustDate)) {
             throw new ValidatorException

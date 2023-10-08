@@ -56,14 +56,14 @@ public abstract class CertPathHelper {
     }
 
     protected abstract void implSetPathToNames(X509CertSelector sel,
-                                               Set<GeneralNameInterface> names);
+            Set<GeneralNameInterface> names);
 
     protected abstract void implSetDateAndTime(X509CRLSelector sel, Date date, long skew);
 
     protected abstract boolean implIsJdkCA(TrustAnchor anchor);
 
     static void setPathToNames(X509CertSelector sel,
-                               Set<GeneralNameInterface> names) {
+            Set<GeneralNameInterface> names) {
         instance.implSetPathToNames(sel, names);
     }
 

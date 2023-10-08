@@ -416,11 +416,11 @@ public class IPAddressName implements GeneralNameInterface {
                     if ((byte)(otherAddress[i] & otherAddress[i+maskOffset]) != otherAddress[i])
                         otherEmpty=true;
                     if (!(((byte)(address[i+maskOffset] & otherAddress[i+maskOffset]) == address[i+maskOffset]) &&
-                            ((byte)(address[i]   & address[i+maskOffset])      == (byte)(otherAddress[i] & address[i+maskOffset])))) {
+                            ((byte)(address[i] & address[i+maskOffset]) == (byte)(otherAddress[i] & address[i+maskOffset])))) {
                         otherSubsetOfThis = false;
                     }
-                    if (!(((byte)(otherAddress[i+maskOffset] & address[i+maskOffset])      == otherAddress[i+maskOffset]) &&
-                            ((byte)(otherAddress[i]   & otherAddress[i+maskOffset]) == (byte)(address[i] & otherAddress[i+maskOffset])))) {
+                    if (!(((byte)(otherAddress[i+maskOffset] & address[i+maskOffset]) == otherAddress[i+maskOffset]) &&
+                            ((byte)(otherAddress[i] & otherAddress[i+maskOffset]) == (byte)(address[i] & otherAddress[i+maskOffset])))) {
                         thisSubsetOfOther = false;
                     }
                 }

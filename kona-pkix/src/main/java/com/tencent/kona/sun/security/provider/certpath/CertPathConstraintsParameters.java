@@ -56,17 +56,17 @@ public class CertPathConstraintsParameters implements ConstraintsParameters {
     private final X509Certificate cert;
 
     public CertPathConstraintsParameters(X509Certificate cert,
-                                         String variant, TrustAnchor anchor, Date date) {
+            String variant, TrustAnchor anchor, Date date) {
         this(cert.getPublicKey(), variant, anchor, date, cert);
     }
 
     public CertPathConstraintsParameters(Key key, String variant,
-                                         TrustAnchor anchor, Date date) {
+            TrustAnchor anchor, Date date) {
         this(key, variant, anchor, date, null);
     }
 
     private CertPathConstraintsParameters(Key key, String variant,
-                                          TrustAnchor anchor, Date date, X509Certificate cert) {
+            TrustAnchor anchor, Date date, X509Certificate cert) {
         this.key = key;
         this.variant = (variant == null ? Validator.VAR_GENERIC : variant);
         this.anchor = anchor;

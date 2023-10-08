@@ -131,7 +131,7 @@ public final class AlgorithmChecker extends PKIXCertPathChecker {
      *                passed will set it to Validator.GENERIC.
      */
     public AlgorithmChecker(TrustAnchor anchor,
-                            AlgorithmConstraints constraints, Date date, String variant) {
+            AlgorithmConstraints constraints, Date date, String variant) {
 
         if (anchor != null) {
             setTrustAnchorAndKeys(anchor);
@@ -185,7 +185,7 @@ public final class AlgorithmChecker extends PKIXCertPathChecker {
 
     @Override
     public void check(Certificate cert,
-                      Collection<String> unresolvedCritExts)
+            Collection<String> unresolvedCritExts)
             throws CertPathValidatorException {
 
         if (!(cert instanceof X509Certificate)) {
@@ -369,7 +369,7 @@ public final class AlgorithmChecker extends PKIXCertPathChecker {
      * @param anchor the trust anchor selected to validate the public key
      */
     static void check(PublicKey key, AlgorithmId algorithmId, String variant,
-                      TrustAnchor anchor) throws CertPathValidatorException {
+            TrustAnchor anchor) throws CertPathValidatorException {
 
         DisabledAlgorithmConstraints.certPathConstraints().permits(algorithmId.getName(),
                 algorithmId.getParameters(),

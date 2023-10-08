@@ -96,7 +96,7 @@ public abstract class Builder {
      * @param certPathList the certPathList generated thus far
      */
     abstract void verifyCert(X509Certificate cert, State currentState,
-                             List<X509Certificate> certPathList)
+            List<X509Certificate> certPathList)
             throws GeneralSecurityException;
 
     /**
@@ -116,7 +116,7 @@ public abstract class Builder {
      * @param certPathList the certification path list
      */
     abstract void addCertToPath(X509Certificate cert,
-                                LinkedList<X509Certificate> certPathList);
+            LinkedList<X509Certificate> certPathList);
 
     /**
      * Removes final certificate from the certPathList
@@ -140,7 +140,7 @@ public abstract class Builder {
      *         is a grandparent, etc.
      */
     static int distance(GeneralNameInterface base,
-                        GeneralNameInterface test, int incomparable)
+            GeneralNameInterface test, int incomparable)
     {
         switch (base.constrains(test)) {
             case GeneralNameInterface.NAME_DIFF_TYPE:
@@ -185,7 +185,7 @@ public abstract class Builder {
      *         some number of down hops.
      */
     static int hops(GeneralNameInterface base, GeneralNameInterface test,
-                    int incomparable)
+            int incomparable)
     {
         int baseRtest = base.constrains(test);
         switch (baseRtest) {
@@ -275,7 +275,7 @@ public abstract class Builder {
      * @throws IOException if certificate does not get closer
      */
     static int targetDistance(NameConstraintsExtension constraints,
-                              X509Certificate cert, GeneralNameInterface target)
+            X509Certificate cert, GeneralNameInterface target)
             throws IOException
     {
         /* ensure that certificate satisfies existing name constraints */
@@ -418,9 +418,9 @@ public abstract class Builder {
      * Returns true iff resultCerts changed (a cert was added to the collection)
      */
     boolean addMatchingCerts(X509CertSelector selector,
-                             Collection<CertStore> certStores,
-                             Collection<X509Certificate> resultCerts,
-                             boolean checkAll)
+            Collection<CertStore> certStores,
+            Collection<X509Certificate> resultCerts,
+            boolean checkAll)
     {
         X509Certificate targetCert = selector.getCertificate();
         if (targetCert != null) {

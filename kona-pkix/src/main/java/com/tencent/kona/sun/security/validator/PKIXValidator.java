@@ -304,7 +304,7 @@ public final class PKIXValidator extends Validator {
     }
 
     private X509Certificate[] doValidate(X509Certificate[] chain,
-                                         PKIXBuilderParameters params) throws CertificateException {
+            PKIXBuilderParameters params) throws CertificateException {
         try {
             setDate(params);
 
@@ -358,8 +358,8 @@ public final class PKIXValidator extends Validator {
     }
 
     private X509Certificate[] doBuild(X509Certificate[] chain,
-                                      Collection<X509Certificate> otherCerts,
-                                      PKIXBuilderParameters params) throws CertificateException {
+            Collection<X509Certificate> otherCerts,
+            PKIXBuilderParameters params) throws CertificateException {
 
         try {
             setDate(params);
@@ -405,7 +405,7 @@ public final class PKIXValidator extends Validator {
      * chain parameter.
      */
     private static void addResponses(PKIXBuilderParameters pkixParams,
-                                     X509Certificate[] chain, List<byte[]> responseList) {
+            X509Certificate[] chain, List<byte[]> responseList) {
         try {
             boolean createdRevChk = false;
 

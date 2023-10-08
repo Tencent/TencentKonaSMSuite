@@ -306,7 +306,7 @@ public class IndexedCollectionCertStore extends CertStoreSpi {
      * collection.
      */
     private void matchX509Certs(CertSelector selector,
-                                Collection<Certificate> matches) {
+            Collection<Certificate> matches) {
 
         for (Object obj : certSubjects.values()) {
             if (obj instanceof X509Certificate) {

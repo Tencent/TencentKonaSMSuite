@@ -150,7 +150,7 @@ public class DistributionPoint implements DerEncoder {
      *        distribution point; may be null
      */
     public DistributionPoint(GeneralNames fullName, boolean[] reasonFlags,
-                             GeneralNames crlIssuer) {
+            GeneralNames crlIssuer) {
         if ((fullName == null) && (crlIssuer == null)) {
             throw new IllegalArgumentException
                     ("fullName and crlIssuer may not both be null");
@@ -172,7 +172,7 @@ public class DistributionPoint implements DerEncoder {
      *        distribution point; may not be null or empty.
      */
     public DistributionPoint(RDN relativeName, boolean[] reasonFlags,
-                             GeneralNames crlIssuer) {
+            GeneralNames crlIssuer) {
         if ((relativeName == null) && (crlIssuer == null)) {
             throw new IllegalArgumentException
                     ("relativeName and crlIssuer may not both be null");
@@ -345,9 +345,9 @@ public class DistributionPoint implements DerEncoder {
         int hash = hashCode;
         if (hash == 0) {
             hash = 1 + Objects.hashCode(fullName)
-                    + Objects.hashCode(relativeName)
-                    + Objects.hash(crlIssuer)
-                    + Arrays.hashCode(reasonFlags);
+                     + Objects.hashCode(relativeName)
+                     + Objects.hash(crlIssuer)
+                     + Arrays.hashCode(reasonFlags);
             hashCode = hash;
         }
         return hash;

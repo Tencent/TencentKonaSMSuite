@@ -126,10 +126,10 @@ public final class SimpleValidator extends Validator {
      */
     @Override
     X509Certificate[] engineValidate(X509Certificate[] chain,
-                                     Collection<X509Certificate> otherCerts,
-                                     List<byte[]> responseList,
-                                     AlgorithmConstraints constraints,
-                                     Object parameter) throws CertificateException {
+            Collection<X509Certificate> otherCerts,
+            List<byte[]> responseList,
+            AlgorithmConstraints constraints,
+            Object parameter) throws CertificateException {
         if ((chain == null) || (chain.length == 0)) {
             throw new CertificateException
                     ("null or zero-length certificate chain");
@@ -257,7 +257,7 @@ public final class SimpleValidator extends Validator {
     }
 
     private void checkNetscapeCertType(X509Certificate cert,
-                                       Set<String> critSet) throws CertificateException {
+            Set<String> critSet) throws CertificateException {
         if (variant.equals(VAR_GENERIC)) {
             // nothing
         } else if (variant.equals(VAR_TLS_CLIENT)
@@ -315,7 +315,7 @@ public final class SimpleValidator extends Validator {
     }
 
     private int checkBasicConstraints(X509Certificate cert,
-                                      Set<String> critSet, int maxPathLen) throws CertificateException {
+            Set<String> critSet, int maxPathLen) throws CertificateException {
 
         critSet.remove(OID_BASIC_CONSTRAINTS);
         int constraints = cert.getBasicConstraints();

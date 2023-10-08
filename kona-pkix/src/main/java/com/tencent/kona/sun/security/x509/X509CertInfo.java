@@ -246,13 +246,13 @@ public class X509CertInfo {
         StringBuilder sb = new StringBuilder();
 
         sb.append("[\n")
-                .append("  ").append(version).append('\n')
-                .append("  Subject: ").append(subject).append('\n')
-                .append("  Signature Algorithm: ").append(algId).append('\n')
-                .append("  Key:  ").append(pubKey).append('\n')
-                .append("  ").append(interval).append('\n')
-                .append("  Issuer: ").append(issuer).append('\n')
-                .append("  ").append(serialNum).append('\n');
+          .append("  ").append(version).append('\n')
+          .append("  Subject: ").append(subject).append('\n')
+          .append("  Signature Algorithm: ").append(algId).append('\n')
+          .append("  Key:  ").append(pubKey).append('\n')
+          .append("  ").append(interval).append('\n')
+          .append("  Issuer: ").append(issuer).append('\n')
+          .append("  ").append(serialNum).append('\n');
 
         // optional v2, v3 extras
         if (issuerUniqueId != null) {
@@ -435,7 +435,7 @@ public class X509CertInfo {
      * Verify if X.509 V3 Certificate is compliant with RFC 5280.
      */
     private void verifyCert(X500Name subject,
-                            CertificateExtensions extensions)
+            CertificateExtensions extensions)
             throws CertificateParsingException, IOException {
 
         // if SubjectName is empty, check for SubjectAlternativeNameExtension
@@ -627,7 +627,8 @@ public class X509CertInfo {
      * @param val the Object class value for the IssuerUniqueId
      * @exception CertificateException
      */
-    public void setIssuerUniqueId(UniqueIdentity val) throws CertificateException {
+    public void setIssuerUniqueId(UniqueIdentity val)
+            throws CertificateException {
         // set rawCertInfo to null, so that we are forced to re-encode
         rawCertInfo = null;
         if (version.compare(CertificateVersion.V2) < 0) {
@@ -642,7 +643,8 @@ public class X509CertInfo {
      * @param val the Object class value for the SubjectUniqueId
      * @exception CertificateException
      */
-    public void setSubjectUniqueId(UniqueIdentity val) throws CertificateException {
+    public void setSubjectUniqueId(UniqueIdentity val)
+            throws CertificateException {
         // set rawCertInfo to null, so that we are forced to re-encode
         rawCertInfo = null;
         if (version.compare(CertificateVersion.V2) < 0) {
@@ -657,7 +659,8 @@ public class X509CertInfo {
      * @param val the Object class value for the Extensions
      * @exception CertificateException
      */
-    public void setExtensions(CertificateExtensions val) throws CertificateException {
+    public void setExtensions(CertificateExtensions val)
+            throws CertificateException {
         // set rawCertInfo to null, so that we are forced to re-encode
         rawCertInfo = null;
         if (version.compare(CertificateVersion.V3) < 0) {

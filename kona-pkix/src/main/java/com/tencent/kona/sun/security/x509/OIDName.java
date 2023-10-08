@@ -149,7 +149,8 @@ public class OIDName implements GeneralNameInterface {
      * @throws UnsupportedOperationException if name is not exact match, but narrowing and widening are
      *          not supported for this name type.
      */
-    public int constrains(GeneralNameInterface inputName) throws UnsupportedOperationException {
+    public int constrains(GeneralNameInterface inputName)
+            throws UnsupportedOperationException {
         int constraintType;
         if (inputName == null)
             constraintType = NAME_DIFF_TYPE;
@@ -159,7 +160,8 @@ public class OIDName implements GeneralNameInterface {
             constraintType = NAME_MATCH;
         else
             //widens and narrows not defined in RFC 5280 for OIDName (aka registeredID)
-            throw new UnsupportedOperationException("Narrowing and widening are not supported for OIDNames");
+            throw new UnsupportedOperationException(
+                    "Narrowing and widening are not supported for OIDNames");
         return constraintType;
     }
 
@@ -172,6 +174,7 @@ public class OIDName implements GeneralNameInterface {
      * @throws UnsupportedOperationException if not supported for this name type
      */
     public int subtreeDepth() throws UnsupportedOperationException {
-        throw new UnsupportedOperationException("subtreeDepth() not supported for OIDName.");
+        throw new UnsupportedOperationException(
+                "subtreeDepth() not supported for OIDName.");
     }
 }
