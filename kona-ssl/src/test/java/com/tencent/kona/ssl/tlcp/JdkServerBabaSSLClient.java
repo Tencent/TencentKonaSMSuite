@@ -40,6 +40,7 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -49,11 +50,12 @@ import java.util.concurrent.Executors;
  */
 public class JdkServerBabaSSLClient {
 
-    private static final String SESS_FILE_NAME = "babassl.sess";
+    private static final Path SESS_FILE = Paths.get("build", "openssl.sess");
 
     @BeforeAll
     public static void setup() throws IOException {
         TestUtils.addProviders();
+        deleteSessFile();
     }
 
     @AfterAll
@@ -62,7 +64,7 @@ public class JdkServerBabaSSLClient {
     }
 
     private static void deleteSessFile() throws IOException {
-        Files.deleteIfExists(Paths.get(SESS_FILE_NAME));
+        Files.deleteIfExists(SESS_FILE);
     }
 
     @Test
@@ -289,7 +291,7 @@ public class JdkServerBabaSSLClient {
             try (BabaSSLClient client = createClientBuilder(
                     clientCertTuple, clientCipherSuite,
                     useSessionTicket,
-                    SESS_FILE_NAME, true).build()) {
+                    SESS_FILE, true).build()) {
                 client.connect("127.0.0.1", server.getPort());
                 firstCreationTime = server.getSession().getCreationTime();
             }
@@ -297,7 +299,7 @@ public class JdkServerBabaSSLClient {
             try (BabaSSLClient client = createClientBuilder(
                     clientCertTuple, clientCipherSuite,
                     useSessionTicket,
-                    SESS_FILE_NAME, false).build()) {
+                    SESS_FILE, false).build()) {
                 client.connect("127.0.0.1", server.getPort());
 
                 long secondCreationTime = server.getSession().getCreationTime();
@@ -309,8 +311,8 @@ public class JdkServerBabaSSLClient {
     }
 
     private BabaSSLClient.Builder createClientBuilder(CertTuple certTuple,
-                                                      CipherSuite cipherSuite, boolean useSessionTicket,
-                                                      String sessFile, boolean saveSess) {
+            CipherSuite cipherSuite, boolean useSessionTicket,
+            Path sessFile, boolean saveSess) {
         BabaSSLClient.Builder builder = new BabaSSLClient.Builder();
         builder.setCertTuple(certTuple);
         builder.setProtocols(Protocol.TLCPV1_1);
@@ -320,10 +322,11 @@ public class JdkServerBabaSSLClient {
         builder.setUseSessTicket(useSessionTicket);
 
         if (sessFile != null) {
+            String sessFilePath = sessFile.toAbsolutePath().toString();
             if (saveSess) {
-                builder.sessOut(sessFile);
+                builder.sessOut(sessFilePath);
             } else {
-                builder.sessIn(sessFile);
+                builder.sessIn(sessFilePath);
             }
         }
 

@@ -45,6 +45,7 @@ import org.junit.jupiter.api.Test;
 import javax.net.ssl.SSLContext;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.concurrent.ExecutorService;
@@ -73,16 +74,17 @@ public class BabaSSLServerJdkClientTest {
             "ee-sm2sm2-sm2sm2-sm2sm2.crt",
             "ee-sm2sm2-sm2sm2-sm2sm2.key");
 
-    private static final String PAGE_FILE_NAME = "page";
+    private static final Path PAGE_FILE = Paths.get("build", "page");
 
     @BeforeAll
     public static void setup() throws IOException {
         TestUtils.addProviders();
+        deleteWebPage();
         createWebPage();
     }
 
     private static void createWebPage() throws IOException {
-        Files.write(Paths.get(PAGE_FILE_NAME),
+        Files.write(PAGE_FILE,
                 "OpenSSL server".getBytes(Utilities.CHARSET),
                 StandardOpenOption.CREATE);
     }
@@ -93,7 +95,7 @@ public class BabaSSLServerJdkClientTest {
     }
 
     private static void deleteWebPage() throws IOException {
-        Files.deleteIfExists(Paths.get(PAGE_FILE_NAME));
+        Files.deleteIfExists(PAGE_FILE);
     }
 
     @Test
@@ -280,7 +282,7 @@ public class BabaSSLServerJdkClientTest {
         builder.setSignatureSchemes(signatureScheme);
         builder.setMessage(
                 // An HTTP request asks to access the page.
-                String.format("GET /%s HTTP/1.1\r\n", PAGE_FILE_NAME));
+                String.format("GET /%s HTTP/1.1\r\n", PAGE_FILE));
         builder.setReadResponse(true);
         return builder.build();
     }
@@ -442,7 +444,7 @@ public class BabaSSLServerJdkClientTest {
 //        builder.setSignatureSchemes(signatureScheme);
         builder.setMessage(
                 // An HTTP request asks to access the page.
-                String.format("GET /%s HTTP/1.1\r\n", PAGE_FILE_NAME));
+                String.format("GET /%s HTTP/1.1\r\n", PAGE_FILE));
         builder.setReadResponse(true);
         builder.setContext(context);
         return builder.build();

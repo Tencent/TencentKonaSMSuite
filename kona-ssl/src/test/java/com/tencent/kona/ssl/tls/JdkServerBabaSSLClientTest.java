@@ -43,6 +43,7 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -70,10 +71,11 @@ public class JdkServerBabaSSLClientTest {
             "ee-sm2sm2-sm2sm2-sm2sm2.crt",
             "ee-sm2sm2-sm2sm2-sm2sm2.key");
 
-    private static final String SESS_FILE_NAME = "openssl.sess";
+    private static final Path SESS_FILE = Paths.get("build", "openssl.sess");
 
     @BeforeAll
     public static void setup() throws IOException {
+        deleteSessFile();
         TestUtils.addProviders();
     }
 
@@ -83,7 +85,7 @@ public class JdkServerBabaSSLClientTest {
     }
 
     private static void deleteSessFile() throws IOException {
-        Files.deleteIfExists(Paths.get(SESS_FILE_NAME));
+        Files.deleteIfExists(SESS_FILE);
     }
 
     @Test
@@ -405,7 +407,7 @@ public class JdkServerBabaSSLClientTest {
                     certTuple, clientProtocol, clientCipherSuite,
                     clientNamedGroup, clientSignatureScheme,
                     isUseSessTicket,
-                    SESS_FILE_NAME, true)) {
+                    SESS_FILE, true)) {
                 client.connect("127.0.0.1", server.getPort());
                 firstCreationTime = server.getSession().getCreationTime();
             }
@@ -414,7 +416,7 @@ public class JdkServerBabaSSLClientTest {
                     certTuple, clientProtocol, clientCipherSuite,
                     clientNamedGroup, clientSignatureScheme,
                     isUseSessTicket,
-                    SESS_FILE_NAME, false)) {
+                    SESS_FILE, false)) {
                 client.connect("127.0.0.1", server.getPort());
 
                 long secondCreationTime = server.getSession().getCreationTime();
@@ -429,7 +431,7 @@ public class JdkServerBabaSSLClientTest {
             CipherSuite cipherSuite, NamedGroup namedGroup,
             SignatureScheme signatureScheme,
             boolean isUseSessTicket,
-            String sessFile, boolean saveSess) {
+            Path sessFile, boolean saveSess) {
         OpenSSLClient.Builder builder = new OpenSSLClient.Builder();
         builder.setCertTuple(certTuple);
         builder.setProtocols(protocol);
@@ -441,10 +443,11 @@ public class JdkServerBabaSSLClientTest {
         builder.setUseSessTicket(isUseSessTicket);
 
         if (sessFile != null) {
+            String sessFilePath = sessFile.toAbsolutePath().toString();
             if (saveSess) {
-                builder.sessOut(sessFile);
+                builder.sessOut(sessFilePath);
             } else {
-                builder.sessIn(sessFile);
+                builder.sessIn(sessFilePath);
             }
         }
 

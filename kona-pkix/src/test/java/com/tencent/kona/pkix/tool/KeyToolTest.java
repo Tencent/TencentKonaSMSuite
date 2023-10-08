@@ -40,7 +40,7 @@ import java.util.List;
  */
 public class KeyToolTest {
 
-    private static final Path BASE_DIR = Paths.get("KeyStoreToolTest");
+    private static final Path BASE_DIR = Paths.get("build", "KeyToolTest");
 
     private static final Path KEYSTORE = path("keystore.ks");
 
