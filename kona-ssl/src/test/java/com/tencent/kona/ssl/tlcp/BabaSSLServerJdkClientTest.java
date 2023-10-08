@@ -41,6 +41,7 @@ import org.junit.jupiter.api.Test;
 import javax.net.ssl.SSLContext;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.concurrent.ExecutorService;
@@ -59,16 +60,17 @@ import static com.tencent.kona.ssl.tlcp.TlcpUtils.SERVER_SIGN_CERT;
  */
 public class BabaSSLServerJdkClientTest {
 
-    private static final String PAGE_FILE_NAME = "tlcp-page";
+    private static final Path PAGE_FILE = Paths.get("build", "tlcp-page");
 
     @BeforeAll
     public static void setup() throws IOException {
         TestUtils.addProviders();
+        deleteWebPage();
         createWebPage();
     }
 
     private static void createWebPage() throws IOException {
-        Files.write(Paths.get(PAGE_FILE_NAME),
+        Files.write(PAGE_FILE,
                 "BabaSSL server".getBytes(Utilities.CHARSET),
                 StandardOpenOption.CREATE);
     }
@@ -79,7 +81,7 @@ public class BabaSSLServerJdkClientTest {
     }
 
     private static void deleteWebPage() throws IOException {
-        Files.deleteIfExists(Paths.get(PAGE_FILE_NAME));
+        Files.deleteIfExists(PAGE_FILE);
     }
 
     @Test
@@ -332,7 +334,7 @@ public class BabaSSLServerJdkClientTest {
         clientBuilder.setCipherSuites(cipherSuite);
         clientBuilder.setMessage(
                 // An HTTP request asks to access the page.
-                String.format("GET /%s HTTP/1.1\r\n", PAGE_FILE_NAME));
+                String.format("GET /%s HTTP/1.1\r\n", PAGE_FILE));
         clientBuilder.setReadResponse(true);
         clientBuilder.setContext(context);
         return clientBuilder;

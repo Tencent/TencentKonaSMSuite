@@ -60,6 +60,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.KeyFactory;
 import java.security.KeyStore;
@@ -252,8 +253,10 @@ public class TLCPWithoutCertValidationDemo {
             "aaiEOTrMdFQ5OFFtufGi5VPem396J75x04aWvRsB22OQaWLDD9YUvtZA";
 
     private static final String PASSWORD = "password";
-    private static final String TRUSTSTORE = "truststore";
-    private static final String KEYSTORE = "keystore";
+
+    private static final Path BASE_DIR = Paths.get("build");
+    private static final Path TRUSTSTORE = BASE_DIR.resolve("truststore");
+    private static final Path KEYSTORE = BASE_DIR.resolve("keystore");
 
     @BeforeAll
     public static void setup() throws Exception {
@@ -283,7 +286,7 @@ public class TLCPWithoutCertValidationDemo {
         trustStore.load(null, null);
         trustStore.setCertificateEntry("tlcp-trust-demo", loadCert(caStr, caId));
         try (FileOutputStream out = new FileOutputStream(
-                Paths.get(TRUSTSTORE).toFile())) {
+                TRUSTSTORE.toFile())) {
             trustStore.store(out, PASSWORD.toCharArray());
         }
     }
@@ -305,7 +308,7 @@ public class TLCPWithoutCertValidationDemo {
                 new Certificate[] { loadCert(encEeStr, encEeId) } );
 
         try (FileOutputStream out = new FileOutputStream(
-                Paths.get(KEYSTORE).toFile())) {
+                KEYSTORE.toFile())) {
             keyStore.store(out, PASSWORD.toCharArray());
         }
     }
@@ -338,8 +341,8 @@ public class TLCPWithoutCertValidationDemo {
     }
 
     private static void deleteStoreFiles() throws IOException {
-        Files.deleteIfExists(Paths.get(TRUSTSTORE));
-        Files.deleteIfExists(Paths.get(KEYSTORE));
+        Files.deleteIfExists(TRUSTSTORE);
+        Files.deleteIfExists(KEYSTORE);
     }
 
     @Test
@@ -402,7 +405,8 @@ public class TLCPWithoutCertValidationDemo {
     private static SSLContext createContext() throws Exception {
         // Load trust store
         KeyStore trustStore = PKIXInsts.getKeyStore("PKCS12");
-        try (FileInputStream keyStoreIn = new FileInputStream(TRUSTSTORE)) {
+        try (FileInputStream keyStoreIn = new FileInputStream(
+                TRUSTSTORE.toFile())) {
             trustStore.load(keyStoreIn, PASSWORD.toCharArray());
         }
 
@@ -421,7 +425,8 @@ public class TLCPWithoutCertValidationDemo {
 
         // Load key store
         KeyStore keyStore = PKIXInsts.getKeyStore("PKCS12");
-        try (FileInputStream keyStoreIn = new FileInputStream(KEYSTORE)) {
+        try (FileInputStream keyStoreIn = new FileInputStream(
+                KEYSTORE.toFile())) {
             keyStore.load(keyStoreIn, PASSWORD.toCharArray());
         }
         KeyManagerFactory kmf = SSLInsts.getKeyManagerFactory("NewSunX509");

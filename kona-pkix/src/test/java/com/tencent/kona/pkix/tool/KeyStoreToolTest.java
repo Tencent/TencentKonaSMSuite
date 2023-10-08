@@ -39,7 +39,7 @@ import java.security.KeyStore;
  */
 public class KeyStoreToolTest {
 
-    private static final Path BASE_DIR = Paths.get("KeyStoreToolTest");
+    private static final Path BASE_DIR = Paths.get("build", "KeyStoreToolTest");
 
     private static final Path TRUST_STORE = path("truststore.ks");
     private static final Path KEY_STORE = path("keystore.ks");
