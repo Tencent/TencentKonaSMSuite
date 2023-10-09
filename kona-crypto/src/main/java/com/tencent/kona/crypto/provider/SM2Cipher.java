@@ -48,6 +48,8 @@ import static java.math.BigInteger.ZERO;
 
 public class SM2Cipher extends CipherSpi {
 
+    private static final byte[] B0 = new byte[0];
+
     private final SM2Engine engine = new SM2Engine();
     private final Buffer buffer = new Buffer();
 
@@ -121,7 +123,7 @@ public class SM2Cipher extends CipherSpi {
     @Override
     public byte[] engineUpdate(byte[] input, int inputOffset, int inputLen) {
         buffer.write(input, inputOffset, inputLen);
-        return null;
+        return B0;
     }
 
     @Override
@@ -151,6 +153,9 @@ public class SM2Cipher extends CipherSpi {
 
         update(input, inputOffset, inputLen);
         byte[] result = doFinal();
+        int n = result.length;
+        System.arraycopy(result, 0, output, outputOffset, n);
+        Arrays.fill(result, (byte)0);
         return result.length;
     }
 
@@ -222,7 +227,9 @@ public class SM2Cipher extends CipherSpi {
 
     @Override
     public int engineGetOutputSize(int inputLen) {
-        return (1 + 2 * SM2_CURVE_FIELD_SIZE) + SM3_DIGEST_LEN + inputLen;
+        int offset = 1 + 2 * SM2_CURVE_FIELD_SIZE + SM3_DIGEST_LEN;
+        return engine.encrypted() ? inputLen + offset
+                                  : Math.max(0, inputLen - offset);
     }
 
     @Override

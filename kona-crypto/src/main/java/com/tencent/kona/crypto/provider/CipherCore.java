@@ -524,8 +524,7 @@ final class CipherCore {
         byte[] output = null;
         try {
             output = new byte[getOutputSizeByOperation(inputLen, false)];
-            int len = update(input, inputOffset, inputLen, output,
-                             0);
+            int len = update(input, inputOffset, inputLen, output, 0);
             if (len == output.length) {
                 return output;
             } else {
