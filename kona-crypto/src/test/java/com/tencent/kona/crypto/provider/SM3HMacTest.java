@@ -55,7 +55,7 @@ public class SM3HMacTest {
         KeyGenerator sm3HMacKeyGen
                 = KeyGenerator.getInstance("HmacSM3", PROVIDER);
 
-        TestUtils.checkThrowable(
+        Assertions.assertThrows(
                 InvalidParameterException.class, ()-> sm3HMacKeyGen.init(127));
 
         sm3HMacKeyGen.init(128);

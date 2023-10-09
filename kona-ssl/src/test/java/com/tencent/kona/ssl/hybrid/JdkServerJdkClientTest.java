@@ -36,6 +36,7 @@ import com.tencent.kona.ssl.interop.ServerCaller;
 import com.tencent.kona.ssl.interop.Utilities;
 import com.tencent.kona.ssl.SSLUtils;
 import com.tencent.kona.ssl.TestUtils;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
@@ -216,7 +217,7 @@ public class JdkServerJdkClientTest {
                 ClientAuth.NONE);
 
         // No protocol can be negotiated
-        TestUtils.checkThrowable(SSLTestException.class,
+        Assertions.assertThrows(SSLTestException.class,
                 () -> testConnectWithProtocolProps(
                         "TLSv1.3",
                         "TLCPv1.1",

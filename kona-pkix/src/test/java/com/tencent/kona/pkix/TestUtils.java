@@ -340,29 +340,6 @@ public class TestUtils {
         }
     }
 
-    public static void checkThrowable(Class<? extends Throwable> throwableClass,
-                                      Executable executable,
-                                      boolean requiredExpectedException) {
-        try {
-            executable.execute();
-            if (requiredExpectedException) {
-                throw new AssertionError("Expected exception did not raise");
-            } else {
-                System.out.println("Expected exception did not raise, " +
-                        "though that's not a matter");
-            }
-        } catch(Throwable e) {
-            if (!throwableClass.isInstance(e)) {
-                throw new AssertionError("Unexpected exception: ", e);
-            }
-        }
-    }
-
-    public static void checkThrowable(Class<? extends Throwable> throwableClass,
-                                      Executable executable) {
-        checkThrowable(throwableClass, executable, true);
-    }
-
     public static void repeatTaskParallelly(Callable<Void> task, int count)
             throws Exception {
         List<Callable<Void>> tasks = new ArrayList<>(count);

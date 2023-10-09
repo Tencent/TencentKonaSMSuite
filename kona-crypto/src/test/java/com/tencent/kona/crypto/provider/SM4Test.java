@@ -644,7 +644,7 @@ public class SM4Test {
         Cipher cipher = Cipher.getInstance("SM4/GCM/NoPadding", PROVIDER);
         cipher.init(Cipher.ENCRYPT_MODE, secretKey, paramSpec);
         // Init encrypter with same key and IV is NOT acceptable.
-        TestUtils.checkThrowable(
+        Assertions.assertThrows(
                 InvalidAlgorithmParameterException.class,
                 () -> cipher.init(Cipher.ENCRYPT_MODE, secretKey, paramSpec));
         cipher.init(Cipher.ENCRYPT_MODE, secretKey, altParamSpec);

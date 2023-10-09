@@ -107,7 +107,7 @@ public class JdkServerJdkClientTest {
     @Test
     public void testFailedConnect() {
         // No enc cert
-        TestUtils.checkThrowable(SSLException.class,
+        Assertions.assertThrows(SSLException.class,
                 () -> connect(
                         TlcpUtils.CA_CERT,
                         TlcpUtils.SERVER_SIGN_CERT, TlcpUtils.SERVER_SIGN_CERT,
@@ -117,7 +117,7 @@ public class JdkServerJdkClientTest {
                         ClientAuth.NONE));
 
         // No sign cert
-        TestUtils.checkThrowable(SSLException.class,
+        Assertions.assertThrows(SSLException.class,
                 () -> connect(
                         TlcpUtils.CA_CERT,
                         TlcpUtils.SERVER_ENC_CERT, TlcpUtils.SERVER_ENC_CERT,
