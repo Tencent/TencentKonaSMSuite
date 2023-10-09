@@ -49,25 +49,29 @@ public final class SM2Engine {
     private SM2PrivateKey privateKey;
     private SecureRandom random;
 
-    private boolean forEncryption;
+    private boolean encrypted;
 
     private SM3Engine sm3;
 
-    public void init(boolean forEncryption, ECKey key, SecureRandom random) {
+    public void init(boolean encrypted, ECKey key, SecureRandom random) {
         publicKey = null;
         privateKey = null;
         sm3 = null;
 
-        if (forEncryption) {
+        if (encrypted) {
             publicKey = (SM2PublicKey) key;
         } else {
             privateKey = (SM2PrivateKey) key;
         }
         this.random = random;
 
-        this.forEncryption = forEncryption;
+        this.encrypted = encrypted;
 
         sm3 = new SM3Engine();
+    }
+
+    public boolean encrypted() {
+        return encrypted;
     }
 
     public byte[] processBlock(byte[] input, int inputOffset, int inputLen)
@@ -76,7 +80,7 @@ public final class SM2Engine {
             throw new BadPaddingException("Invalid input");
         }
 
-        if (forEncryption) {
+        if (encrypted) {
             return encrypt(input, inputOffset, inputLen);
         } else {
             return decrypt(input, inputOffset, inputLen);
@@ -138,7 +142,7 @@ public final class SM2Engine {
     }
 
     private static boolean isAllZero(byte[] byteArr) {
-        boolean result = true;
+        boolean result = byteArr.length > 0;
 
         for (byte b : byteArr){
             result &= b == 0;
@@ -256,7 +260,7 @@ public final class SM2Engine {
 
     private static boolean checkInputBound(byte[] input, int offset, int len) {
         return input != null
-                && offset >= 0 && len > 0
+                && offset >= 0 && len >= 0
                 && (input.length >= (offset + len));
     }
 }

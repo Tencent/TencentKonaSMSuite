@@ -48,7 +48,7 @@ import java.util.concurrent.Executors;
 /**
  * The interop test between JDK server and BabaSSL(OpenSSL) client.
  */
-public class JdkServerBabaSSLClient {
+public class JdkServerBabaSSLClientTest {
 
     private static final Path SESS_FILE = Paths.get("build", "openssl.sess");
 
