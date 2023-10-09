@@ -174,11 +174,11 @@ public class SM2CipherTest {
         testKeyRange(1);
 
         // privateKey = order
-        TestUtils.checkThrowable(InvalidKeyException.class,
+        Assertions.assertThrows(InvalidKeyException.class,
                 () -> testKeyRange(0));
 
         // privateKey = order + 1
-        TestUtils.checkThrowable(InvalidKeyException.class,
+        Assertions.assertThrows(InvalidKeyException.class,
                 () -> testKeyRange(-1));
     }
 
@@ -223,7 +223,7 @@ public class SM2CipherTest {
         }
 
         cipher.init(Cipher.DECRYPT_MODE, priKey);
-        TestUtils.checkThrowable(BadPaddingException.class,
+        Assertions.assertThrows(BadPaddingException.class,
                 () -> cipher.doFinal(ciphertext));
     }
 
@@ -280,7 +280,7 @@ public class SM2CipherTest {
         KeyPair altKeyPair = keyPairGenerator.generateKeyPair();
 
         cipher.init(Cipher.DECRYPT_MODE, altKeyPair.getPrivate());
-        TestUtils.checkThrowable(
+        Assertions.assertThrows(
                 BadPaddingException.class, () -> cipher.doFinal(ciphertext));
     }
 
@@ -298,7 +298,7 @@ public class SM2CipherTest {
         byte[] ciphertext = cipher.doFinal(EMPTY);
 
         cipher.init(Cipher.DECRYPT_MODE, priKey);
-        TestUtils.checkThrowable(BadPaddingException.class,
+        Assertions.assertThrows(BadPaddingException.class,
                 () -> cipher.doFinal(EMPTY));
         byte[] cleartext = cipher.doFinal(ciphertext);
         Assertions.assertArrayEquals(EMPTY, cleartext);
@@ -321,7 +321,7 @@ public class SM2CipherTest {
 
         cipher.init(Cipher.DECRYPT_MODE, priKey);
         ByteBuffer cleartextBuf = ByteBuffer.allocate(150);
-        TestUtils.checkThrowable(BadPaddingException.class,
+        Assertions.assertThrows(BadPaddingException.class,
                 () -> cipher.doFinal(ByteBuffer.allocate(0), cleartextBuf));
         cipher.doFinal(ciphertextBuf, cleartextBuf);
 

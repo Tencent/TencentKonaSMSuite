@@ -75,10 +75,12 @@ public class SM2SignatureTest {
                 = new SM2SignatureParameterSpec((ECPublicKey) keyPair.getPublic());
         Assertions.assertArrayEquals(Constants.defaultId(), paramSpec.getId());
 
-        TestUtils.checkIAE(()-> new SM2SignatureParameterSpec(
-                TestUtils.dataKB(8), (ECPublicKey) keyPair.getPublic()));
-        TestUtils.checkNPE(()-> new SM2SignatureParameterSpec(
-                TestUtils.dataKB(1), null));
+        Assertions.assertThrows(IllegalArgumentException.class,
+                ()-> new SM2SignatureParameterSpec(
+                        TestUtils.dataKB(8), (ECPublicKey) keyPair.getPublic()));
+        Assertions.assertThrows(NullPointerException.class,
+                ()-> new SM2SignatureParameterSpec(
+                        TestUtils.dataKB(1), null));
     }
 
     @Test
@@ -143,13 +145,13 @@ public class SM2SignatureTest {
         // privateKey = order - 1
         // Per the specification, the private key cannot be (order - 1)
         // on generating the signature.
-        TestUtils.checkThrowable(InvalidKeyException.class, () -> testKeyRange(1));
+        Assertions.assertThrows(InvalidKeyException.class, () -> testKeyRange(1));
 
         // privateKey = order
-        TestUtils.checkThrowable(InvalidKeyException.class, () -> testKeyRange(0));
+        Assertions.assertThrows(InvalidKeyException.class, () -> testKeyRange(0));
 
         // privateKey = order + 1
-        TestUtils.checkThrowable(InvalidKeyException.class, () -> testKeyRange(-1));
+        Assertions.assertThrows(InvalidKeyException.class, () -> testKeyRange(-1));
     }
 
     // orderOffset: the relative offset to the order
