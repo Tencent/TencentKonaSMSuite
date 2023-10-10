@@ -20,9 +20,6 @@
 
 package com.tencent.kona.crypto.spec;
 
-import com.tencent.kona.crypto.provider.SM2PublicKey;
-import com.tencent.kona.crypto.CryptoUtils;
-
 import java.security.interfaces.ECPublicKey;
 import java.security.spec.AlgorithmParameterSpec;
 import java.util.Objects;
@@ -32,9 +29,9 @@ import java.util.Objects;
  */
 public class SM2SignatureParameterSpec implements AlgorithmParameterSpec {
 
-    private byte[] id = CryptoUtils.toBytes("31323334353637383132333435363738");
+    private byte[] id = "1234567812345678".getBytes();
 
-    private final SM2PublicKey publicKey;
+    private final ECPublicKey publicKey;
 
     public SM2SignatureParameterSpec(byte[] id, ECPublicKey publicKey) {
         Objects.requireNonNull(publicKey);
@@ -48,7 +45,7 @@ public class SM2SignatureParameterSpec implements AlgorithmParameterSpec {
             this.id = id.clone();
         }
 
-        this.publicKey = new SM2PublicKey(publicKey);
+        this.publicKey = publicKey;
     }
 
     public SM2SignatureParameterSpec(ECPublicKey publicKey) {
