@@ -86,7 +86,7 @@ public class KonaCryptoProvider extends Provider {
         provider.put("KeyFactory.SM2", "com.tencent.kona.crypto.provider.SM2KeyFactory");
         provider.put("Cipher.SM2", "com.tencent.kona.crypto.provider.SM2Cipher");
         provider.put("Signature.SM2", "com.tencent.kona.crypto.provider.SM2Signature");
-        provider.put("Signature.SM3withSM2", "com.tencent.kona.crypto.provider.SM2Signature");
+        provider.put("Alg.Alias.Signature.SM3withSM2", "SM2");
         provider.put("KeyAgreement.SM2", "com.tencent.kona.crypto.provider.SM2KeyAgreement");
 
         // PBES2 on SM

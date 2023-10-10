@@ -85,6 +85,11 @@ public class SM2SignatureTest {
 
     @Test
     public void testSignature() throws Exception {
+        testSignature("SM2");
+        testSignature("SM3withSM2");
+    }
+
+    private void testSignature(String name) throws Exception {
         KeyFactory keyFactory = KeyFactory.getInstance("SM2", PROVIDER);
         SM2PublicKeySpec publicKeySpec = new SM2PublicKeySpec(toBytes(PUB_KEY));
         PublicKey pubKey = keyFactory.generatePublic(publicKeySpec);
@@ -94,14 +99,14 @@ public class SM2SignatureTest {
         SM2SignatureParameterSpec paramSpec
                 = new SM2SignatureParameterSpec(ID, (ECPublicKey) pubKey);
 
-        Signature signer = Signature.getInstance("SM2", PROVIDER);
+        Signature signer = Signature.getInstance(name, PROVIDER);
         signer.setParameter(paramSpec);
         signer.initSign(priKey);
 
         signer.update(MESSAGE);
         byte[] signature = signer.sign();
 
-        Signature verifier = Signature.getInstance("SM2", PROVIDER);
+        Signature verifier = Signature.getInstance(name, PROVIDER);
         verifier.setParameter(paramSpec);
         verifier.initVerify(pubKey);
         verifier.update(MESSAGE);
