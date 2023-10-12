@@ -25,7 +25,6 @@
 
 package com.tencent.kona.sun.security.ec;
 
-import com.tencent.kona.crypto.spec.SM2ParameterSpec;
 import com.tencent.kona.crypto.util.Constants;
 import com.tencent.kona.sun.security.ec.point.AffinePoint;
 import com.tencent.kona.sun.security.ec.point.MutablePoint;
@@ -55,13 +54,9 @@ import java.security.spec.ECFieldFp;
 import java.security.spec.ECParameterSpec;
 import java.security.spec.ECPoint;
 import java.security.spec.EllipticCurve;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-
-import static java.math.BigInteger.ONE;
-import static java.math.BigInteger.ZERO;
 
 /*
  * Elliptic curve point arithmetic for prime-order curves where a=-3.
@@ -99,16 +94,6 @@ public class ECOperations {
         orderFields.put(P256OrderField.MODULUS, P256OrderField.ONE);
         orderFields.put(P384OrderField.MODULUS, P384OrderField.ONE);
         orderFields.put(P521OrderField.MODULUS, P521OrderField.ONE);
-    }
-
-    public final static ECPoint INFINITY = new ECPoint(ZERO, ONE);
-
-    public static final ECOperations SM2OPS = sm2Ops();
-
-    private static ECOperations sm2Ops() {
-        EllipticCurve curve = SM2ParameterSpec.instance().getCurve();
-        ImmutableIntegerModuloP b = IntegerPolynomialSM2.ONE.getElement(curve.getB());
-        return new ECOperations(b, SM2OrderField.ONE);
     }
 
     public static Optional<ECOperations> forParameters(ECParameterSpec params) {
@@ -473,13 +458,6 @@ public class ECOperations {
 
         throw new ProviderException("Unable to produce private key after "
                                          + numAttempts + " attempts");
-    }
-
-    public static ECPoint toECPoint(Point point) {
-        AffinePoint affPoint = point.asAffine();
-        return new ECPoint(
-                affPoint.getX().asBigInteger(),
-                affPoint.getY().asBigInteger());
     }
 
     interface PointMultiplier {

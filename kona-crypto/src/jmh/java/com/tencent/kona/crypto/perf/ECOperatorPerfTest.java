@@ -21,7 +21,7 @@ package com.tencent.kona.crypto.perf;
 
 import com.tencent.kona.crypto.CryptoUtils;
 import com.tencent.kona.crypto.spec.SM2ParameterSpec;
-import com.tencent.kona.sun.security.ec.ECOperations;
+import com.tencent.kona.sun.security.ec.SM2Operations;
 import org.bouncycastle.math.ec.FixedPointCombMultiplier;
 import org.bouncycastle.math.ec.custom.gm.SM2P256V1Curve;
 import org.openjdk.jmh.annotations.Benchmark;
@@ -55,8 +55,6 @@ public class ECOperatorPerfTest {
     private static final SM2ParameterSpec SM2SPEC = SM2ParameterSpec.instance();
     private static final ECPoint GENERATOR = SM2SPEC.getGenerator();
 
-    private static final ECOperations SM2OP = ECOperations.SM2OPS;
-
     private final static byte[] PRIV_KEY = CryptoUtils.toBytes(
             "00000000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF00000000");
     private static final BigInteger PRIV_KEY_BIG_INT = CryptoUtils.toBigInt(PRIV_KEY);
@@ -79,7 +77,7 @@ public class ECOperatorPerfTest {
 
     @Benchmark
     public Object multiple() {
-        return SM2OP.multiply(GENERATOR, PRIV_KEY);
+        return SM2Operations.SM2OPS.multiply(GENERATOR, PRIV_KEY);
     }
 
     @Benchmark

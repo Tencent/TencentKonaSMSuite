@@ -23,11 +23,17 @@ package com.tencent.kona.crypto.util;
 import com.tencent.kona.crypto.CryptoUtils;
 
 import java.math.BigInteger;
+import java.security.spec.ECPoint;
+
+import static java.math.BigInteger.ONE;
+import static java.math.BigInteger.ZERO;
 
 public class Constants {
 
     public static final BigInteger TWO = BigInteger.valueOf(2);
     public static final BigInteger THREE = BigInteger.valueOf(3);
+
+    public final static ECPoint INFINITY = new ECPoint(ZERO, ONE);
 
     public static final String JDK_VERSION = CryptoUtils.privilegedGetProperty(
             "java.specification.version");
@@ -58,8 +64,7 @@ public class Constants {
     public static final int SM4_GCM_TAG_LEN = 16;
 
     // The default ID: 1234567812345678
-    private static final byte[] DEFAULT_ID
-            = CryptoUtils.toBytes("31323334353637383132333435363738");
+    private static final byte[] DEFAULT_ID = "1234567812345678".getBytes();
 
     public static byte[] defaultId() {
         return DEFAULT_ID.clone();
