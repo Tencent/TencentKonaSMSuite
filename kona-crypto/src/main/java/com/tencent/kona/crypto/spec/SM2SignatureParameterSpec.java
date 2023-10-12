@@ -25,14 +25,22 @@ import java.security.spec.AlgorithmParameterSpec;
 import java.util.Objects;
 
 /**
- * The SM2 signature parameter specification.
+ * The parameters used by SM2 signature.
  */
 public class SM2SignatureParameterSpec implements AlgorithmParameterSpec {
 
-    private byte[] id = "1234567812345678".getBytes();
+    private final byte[] id;
 
     private final ECPublicKey publicKey;
 
+    /**
+     * Create a new {@code SM2SignatureParameterSpec}.
+     *
+     * @param id the ID. it must not longer than 8192-bytes.
+     * @param publicKey the SM2 public key.
+     *
+     * @throws NullPointerException if {@code publicKey} is null.
+     */
     public SM2SignatureParameterSpec(byte[] id, ECPublicKey publicKey) {
         Objects.requireNonNull(publicKey);
 
@@ -43,11 +51,23 @@ public class SM2SignatureParameterSpec implements AlgorithmParameterSpec {
             }
 
             this.id = id.clone();
+        } else {
+            // The default ID 1234567812345678
+            this.id = new byte[] {49, 50, 51, 52, 53, 54, 55, 56,
+                                  49, 50, 51, 52, 53, 54, 55, 56};
         }
 
         this.publicKey = publicKey;
     }
 
+    /**
+     * Create a new {@code SM2SignatureParameterSpec}.
+     * It just uses the default ID, exactly {@code 1234567812345678}.
+     *
+     * @param publicKey the SM2 public key.
+     *
+     * @throws NullPointerException if {@code publicKey} is null.
+     */
     public SM2SignatureParameterSpec(ECPublicKey publicKey) {
         this(null, publicKey);
     }

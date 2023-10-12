@@ -27,8 +27,8 @@ import java.security.spec.ECPoint;
 import java.security.spec.EllipticCurve;
 
 /**
- * SM2 parameter spec. The EC-related parameters are defined by China's
- * specification GB/T 32918.5-2017.
+ * The EC domain parameters used by SM2.
+ * The parameters are defined by China's specification GB/T 32918.5-2017.
  */
 public class SM2ParameterSpec extends ECParameterSpec {
 

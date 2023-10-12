@@ -30,11 +30,22 @@ import java.security.spec.ECPublicKeySpec;
  */
 public class SM2PublicKeySpec extends ECPublicKeySpec {
 
+    /**
+     * Create a new {@code SM2PublicKeySpec}.
+     *
+     * @param pubPoint the public point.
+     */
     public SM2PublicKeySpec(ECPoint pubPoint) {
         super(pubPoint, SM2ParameterSpec.instance());
     }
 
-    public SM2PublicKeySpec(byte[] encodedKey) {
-        this(CryptoUtils.pubKeyPoint(encodedKey));
+    /**
+     * Create a new {@code SM2PublicKeySpec}.
+     *
+     * @param encodedPubPoint the public point encoded in the format {@code 0x04|x|y}.
+     *                        Here, {@code x} and {@code y} are the point coordinates.
+     */
+    public SM2PublicKeySpec(byte[] encodedPubPoint) {
+        this(CryptoUtils.pubKeyPoint(encodedPubPoint));
     }
 }

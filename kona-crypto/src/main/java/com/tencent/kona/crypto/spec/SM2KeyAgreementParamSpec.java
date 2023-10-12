@@ -23,13 +23,17 @@ package com.tencent.kona.crypto.spec;
 import java.security.interfaces.ECPrivateKey;
 import java.security.interfaces.ECPublicKey;
 import java.security.spec.AlgorithmParameterSpec;
+import java.util.Objects;
 
 /**
- * The parameters for SM2 key agreement.
+ * The parameters used by SM2 key agreement.
  */
 public class SM2KeyAgreementParamSpec implements AlgorithmParameterSpec {
 
-    private static final byte[] DEFAULT_ID = "1234567812345678".getBytes();
+    // The default ID 1234567812345678
+    private static final byte[] DEFAULT_ID = new byte[] {
+            49, 50, 51, 52, 53, 54, 55, 56,
+            49, 50, 51, 52, 53, 54, 55, 56};
 
     private final byte[] id;
     private final ECPrivateKey privateKey;
@@ -43,10 +47,30 @@ public class SM2KeyAgreementParamSpec implements AlgorithmParameterSpec {
     // The length in bytes.
     private final int sharedKeyLength;
 
+    /**
+     * Create a new {@code SM2KeyAgreementParamSpec}.
+     *
+     * @param id the ID.
+     * @param privateKey the private key.
+     * @param publicKey the public key.
+     * @param peerId the peer's ID.
+     * @param peerPublicKey the peer's public key.
+     * @param isInitiator true indicates it initiates the key exchanging;
+     *                    false indicates peer initiates the key exchange.
+     * @param sharedKeyLength the length of the shared key.
+     *
+     * @exception NullPointerException any parameter is null.
+     */
     public SM2KeyAgreementParamSpec(
             byte[] id, ECPrivateKey privateKey, ECPublicKey publicKey,
             byte[] peerId, ECPublicKey peerPublicKey,
             boolean isInitiator, int sharedKeyLength) {
+        Objects.requireNonNull(id, "id must not null");
+        Objects.requireNonNull(privateKey, "privateKey must not null");
+        Objects.requireNonNull(publicKey, "publicKey must not null");
+        Objects.requireNonNull(peerId, "peerId must not null");
+        Objects.requireNonNull(peerPublicKey, "peerPublicKey must not null");
+
         this.id = id.clone();
         this.privateKey = privateKey;
         this.publicKey = publicKey;
@@ -58,6 +82,19 @@ public class SM2KeyAgreementParamSpec implements AlgorithmParameterSpec {
         this.sharedKeyLength = sharedKeyLength;
     }
 
+    /**
+     * Create a new {@code SM2KeyAgreementParamSpec}.
+     * It just uses the default ID, exactly {@code 1234567812345678}.
+     *
+     * @param privateKey the private key.
+     * @param publicKey the public key.
+     * @param peerPublicKey the peer's public key.
+     * @param isInitiator true indicates it initiates the key exchanging;
+     *                    false indicates peer initiates the key exchange.
+     * @param sharedKeyLength the length of the shared key.
+     *
+     * @exception NullPointerException any parameter is null.
+     */
     public SM2KeyAgreementParamSpec(
             ECPrivateKey privateKey, ECPublicKey publicKey,
             ECPublicKey peerPublicKey,
