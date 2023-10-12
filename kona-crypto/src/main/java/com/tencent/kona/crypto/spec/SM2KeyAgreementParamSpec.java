@@ -31,17 +31,17 @@ public class SM2KeyAgreementParamSpec implements AlgorithmParameterSpec {
 
     private static final byte[] DEFAULT_ID = "1234567812345678".getBytes();
 
-    public final byte[] id;
-    public final ECPrivateKey privateKey;
-    public final ECPublicKey publicKey;
+    private final byte[] id;
+    private final ECPrivateKey privateKey;
+    private final ECPublicKey publicKey;
 
-    public final byte[] peerId;
-    public final ECPublicKey peerPublicKey;
+    private final byte[] peerId;
+    private final ECPublicKey peerPublicKey;
 
-    public final boolean isInitiator;
+    private final boolean isInitiator;
 
     // The length in bytes.
-    public final int sharedKeyLength;
+    private final int sharedKeyLength;
 
     public SM2KeyAgreementParamSpec(
             byte[] id, ECPrivateKey privateKey, ECPublicKey publicKey,
@@ -64,5 +64,33 @@ public class SM2KeyAgreementParamSpec implements AlgorithmParameterSpec {
             boolean isInitiator, int sharedKeyLength) {
         this(DEFAULT_ID, privateKey, publicKey,
              DEFAULT_ID, peerPublicKey, isInitiator, sharedKeyLength);
+    }
+
+    public byte[] id() {
+        return id.clone();
+    }
+
+    public ECPrivateKey privateKey() {
+        return privateKey;
+    }
+
+    public ECPublicKey publicKey() {
+        return publicKey;
+    }
+
+    public byte[] peerId() {
+        return peerId.clone();
+    }
+
+    public ECPublicKey peerPublicKey() {
+        return peerPublicKey;
+    }
+
+    public boolean isInitiator() {
+        return isInitiator;
+    }
+
+    public int sharedKeyLength() {
+        return sharedKeyLength;
     }
 }

@@ -65,11 +65,16 @@ public class SM2KeyAgreementTest {
                 32);
 
         KeyAgreement keyAgreement = KeyAgreement.getInstance("SM2", PROVIDER);
+        keyAgreement.init(priKey, paramSpec);
+    }
 
+    @Test
+    public void testKeyAgreementInitWithoutParams() throws Exception {
+        ECPrivateKey priKey = new SM2PrivateKey(toBytes(PRI_KEY));
+        KeyAgreement keyAgreement = KeyAgreement.getInstance("SM2", PROVIDER);
         Assertions.assertThrows(
                 UnsupportedOperationException.class,
                 () -> keyAgreement.init(priKey));
-        keyAgreement.init(priKey, paramSpec);
     }
 
     @Test
