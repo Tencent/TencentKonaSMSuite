@@ -35,8 +35,8 @@ import java.security.spec.ECParameterSpec;
 import java.security.spec.ECPoint;
 import java.util.Arrays;
 
-import static com.tencent.kona.sun.security.ec.ECOperations.SM2OPS;
-import static com.tencent.kona.sun.security.ec.ECOperations.toECPoint;
+import static com.tencent.kona.sun.security.ec.SM2Operations.SM2OPS;
+import static com.tencent.kona.sun.security.ec.SM2Operations.toECPoint;
 
 public class SM2KeyPairGenerator extends KeyPairGeneratorSpi {
 

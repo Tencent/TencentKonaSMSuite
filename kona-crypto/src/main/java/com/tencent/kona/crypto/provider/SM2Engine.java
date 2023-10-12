@@ -20,7 +20,6 @@
 
 package com.tencent.kona.crypto.provider;
 
-import com.tencent.kona.crypto.CryptoUtils;
 import com.tencent.kona.sun.security.util.DerInputStream;
 import com.tencent.kona.sun.security.util.DerOutputStream;
 import com.tencent.kona.sun.security.util.DerValue;
@@ -41,7 +40,7 @@ import static com.tencent.kona.crypto.CryptoUtils.toByteArrayLE;
 import static com.tencent.kona.crypto.spec.SM2ParameterSpec.GENERATOR;
 import static com.tencent.kona.crypto.spec.SM2ParameterSpec.COFACTOR;
 import static com.tencent.kona.crypto.util.Constants.SM3_DIGEST_LEN;
-import static com.tencent.kona.sun.security.ec.ECOperations.SM2OPS;
+import static com.tencent.kona.sun.security.ec.SM2Operations.SM2OPS;
 
 public final class SM2Engine {
 
@@ -230,8 +229,8 @@ public final class SM2Engine {
     }
 
     private byte[] kdf(ECPoint point, int keyLen) {
-        byte[] xArr = CryptoUtils.bigIntToBytes32(point.getAffineX());
-        byte[] yArr = CryptoUtils.bigIntToBytes32(point.getAffineY());
+        byte[] xArr = bigIntToBytes32(point.getAffineX());
+        byte[] yArr = bigIntToBytes32(point.getAffineY());
 
         byte[] input = new byte[xArr.length + yArr.length];
         System.arraycopy(xArr, 0, input, 0, xArr.length);
