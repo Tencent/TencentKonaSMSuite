@@ -25,19 +25,33 @@ import java.security.spec.EncodedKeySpec;
 /**
  * An encoded EC private key in compliant with RFC 5915.
  *
+ * <pre>
  * ECPrivateKey ::= SEQUENCE {
  *   version        INTEGER { ecPrivkeyVer1(1) } (ecPrivkeyVer1),
  *   privateKey     OCTET STRING,
  *   parameters [0] ECParameters {{ NamedCurve }} OPTIONAL,
  *   publicKey  [1] BIT STRING OPTIONAL
  * }
+ * </pre>
  */
 public class RFC5915EncodedKeySpec extends EncodedKeySpec {
 
+    /**
+     * Creates a new {@code RFC5915EncodedKeySpec} with the given encoded key.
+     *
+     * @param encodedKey the encoded key in compliant with RFC 5915.
+     *
+     * @exception NullPointerException if {@code encodedKey} is null.
+     */
     public RFC5915EncodedKeySpec(byte[] encodedKey) {
         super(encodedKey);
     }
 
+    /**
+     * Returns {@code RFC5915} as the format.
+     *
+     * @return the format name.
+     */
     @Override
     public String getFormat() {
         return "RFC5915";

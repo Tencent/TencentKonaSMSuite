@@ -28,10 +28,20 @@ import java.security.spec.ECPrivateKeySpec;
  */
 public class SM2PrivateKeySpec extends ECPrivateKeySpec {
 
+    /**
+     * Create a new {code SM2PrivateKeySpec}.
+     *
+     * @param s the private key value.
+     */
     public SM2PrivateKeySpec(BigInteger s) {
         super(s, SM2ParameterSpec.instance());
     }
 
+    /**
+     * Create a new {code SM2PrivateKeySpec}.
+     *
+     * @param sKey the private key value represented by a byte array.
+     */
     public SM2PrivateKeySpec(byte[] sKey) {
         this(new BigInteger(1, sKey));
     }
