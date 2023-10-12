@@ -132,7 +132,7 @@ public class SM2KeyAgreement extends KeyAgreementSpi {
         BigInteger x1Bar = TWO_POW_W.add(x1.and(TWO_POW_W_SUB_ONE));
 
         // tA = (dA + x1Bar * rA) mod n
-        BigInteger dA = paramSpec.privateKey.getS();
+        BigInteger dA = paramSpec.privateKey().getS();
         BigInteger tA = dA.add(x1Bar.multiply(rA)).mod(ORDER);
 
         // RB = (x2, y2)
@@ -143,7 +143,7 @@ public class SM2KeyAgreement extends KeyAgreementSpi {
         BigInteger x2Bar = TWO_POW_W.add(x2.and(TWO_POW_W_SUB_ONE));
 
         // U = (h * tA) * (PB + x2Bar * RB)
-        ECPoint pBPubPoint = paramSpec.peerPublicKey.getW();
+        ECPoint pBPubPoint = paramSpec.peerPublicKey().getW();
         MutablePoint interimMutablePoint = SM2OPS.multiply(
                 rBPubPoint, toByteArrayLE(x2Bar));
         SM2OPS.setSum(interimMutablePoint, SM2OPS.toAffinePoint(pBPubPoint));
@@ -158,8 +158,8 @@ public class SM2KeyAgreement extends KeyAgreementSpi {
         byte[] vX = bigIntToBytes32(uPoint.getAffineX());
         byte[] vY = bigIntToBytes32(uPoint.getAffineY());
 
-        byte[] zA = z(paramSpec.id, paramSpec.publicKey.getW());
-        byte[] zB = z(paramSpec.peerId, paramSpec.peerPublicKey.getW());
+        byte[] zA = z(paramSpec.id(), paramSpec.publicKey().getW());
+        byte[] zB = z(paramSpec.peerId(), paramSpec.peerPublicKey().getW());
 
         byte[] combined = combine(vX, vY, zA, zB);
         return kdf(combined);
@@ -168,8 +168,8 @@ public class SM2KeyAgreement extends KeyAgreementSpi {
     @Override
     protected int engineGenerateSecret(byte[] sharedSecret, int offset)
             throws IllegalStateException, ShortBufferException {
-        if (offset + paramSpec.sharedKeyLength > sharedSecret.length) {
-            throw new ShortBufferException("Need " + paramSpec.sharedKeyLength
+        if (offset + paramSpec.sharedKeyLength() > sharedSecret.length) {
+            throw new ShortBufferException("Need " + paramSpec.sharedKeyLength()
                     + " bytes, only " + (sharedSecret.length - offset)
                     + " available");
         }
@@ -214,11 +214,11 @@ public class SM2KeyAgreement extends KeyAgreementSpi {
     }
 
     private byte[] kdf(byte[] input) {
-        byte[] derivedKey = new byte[paramSpec.sharedKeyLength];
+        byte[] derivedKey = new byte[paramSpec.sharedKeyLength()];
         byte[] digest = new byte[SM3_DIGEST_LEN];
 
-        int remainder = paramSpec.sharedKeyLength % SM3_DIGEST_LEN;
-        int count = paramSpec.sharedKeyLength / SM3_DIGEST_LEN + (remainder == 0 ? 0 : 1);
+        int remainder = paramSpec.sharedKeyLength() % SM3_DIGEST_LEN;
+        int count = paramSpec.sharedKeyLength() / SM3_DIGEST_LEN + (remainder == 0 ? 0 : 1);
         for (int i = 1; i <= count; i++) {
             sm3.update(input);
             sm3.update(intToBytes4(i));
@@ -239,7 +239,7 @@ public class SM2KeyAgreement extends KeyAgreementSpi {
         System.arraycopy(vX, 0, result, 0, vX.length);
         System.arraycopy(vY, 0, result, vX.length, vY.length);
 
-        if (paramSpec.isInitiator) {
+        if (paramSpec.isInitiator()) {
             System.arraycopy(zA, 0, result, vX.length + vY.length, zA.length);
             System.arraycopy(zB, 0, result, vX.length + vY.length + zA.length, zB.length);
         } else {
