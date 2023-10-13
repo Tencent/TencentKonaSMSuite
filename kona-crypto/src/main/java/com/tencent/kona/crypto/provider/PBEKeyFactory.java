@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1997, 2022, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997, 2023, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -46,7 +46,7 @@ import java.util.Locale;
 abstract class PBEKeyFactory extends SecretKeyFactorySpi {
 
     private String type;
-    private static HashSet<String> validTypes;
+    private static final HashSet<String> validTypes;
 
     /**
      * Simple constructor
@@ -57,7 +57,6 @@ abstract class PBEKeyFactory extends SecretKeyFactorySpi {
 
     static {
         validTypes = new HashSet<String>(18);
-
         validTypes.add("PBEWithHmacSM3AndSM4".toUpperCase(Locale.ENGLISH));
     }
 
