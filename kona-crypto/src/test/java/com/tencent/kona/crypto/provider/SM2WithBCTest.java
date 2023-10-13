@@ -76,19 +76,15 @@ public class SM2WithBCTest {
 
     @Test
     public void testKonaCipherWithBCKeyPair() throws Exception {
-        KeyPair keyPairBC = keyPairBC();
-        KeyPair keyPair = toKonaKeyPair(keyPairBC);
-        testCipher(keyPair, keyPairBC);
+        testCipher(keyPairBC());
     }
 
     @Test
     public void testBCCipherWithKonaKeyPair() throws Exception {
-        KeyPair keyPair = keyPair();
-        KeyPair keyPairBC = toBCKeyPair(keyPair);
-        testCipher(keyPair, keyPairBC);
+        testCipher(keyPair());
     }
 
-    private void testCipher(KeyPair keyPair, KeyPair keyPairBC)
+    private void testCipher(KeyPair keyPair)
             throws Exception {
         Cipher cipher = Cipher.getInstance("SM2", PROVIDER);
         cipher.init(Cipher.ENCRYPT_MODE, keyPair.getPublic());
@@ -97,7 +93,7 @@ public class SM2WithBCTest {
         byte[] ciphertext = cipher.doFinal(MESSAGE);
 
         Cipher cipherBC = Cipher.getInstance("SM2", "BC");
-        cipherBC.init(Cipher.ENCRYPT_MODE, keyPairBC.getPublic());
+        cipherBC.init(Cipher.ENCRYPT_MODE, keyPair.getPublic());
         // Ciphertext produced by BC
         // The format is C1||C2||C3
         byte[] ciphertextBC = cipherBC.doFinal(MESSAGE);
@@ -112,7 +108,7 @@ public class SM2WithBCTest {
         byte[] cleartext = cipher.doFinal(derC1C3C2);
         Assertions.assertArrayEquals(MESSAGE, cleartext);
 
-        cipherBC.init(Cipher.DECRYPT_MODE, keyPairBC.getPrivate());
+        cipherBC.init(Cipher.DECRYPT_MODE, keyPair.getPrivate());
         // Convert Kona ciphertext to BC ciphertext
         byte[] rawC1C2C3 = SM2Ciphertext.builder()
                 .format(SM2Ciphertext.Format.DER_C1C3C2)
@@ -125,20 +121,15 @@ public class SM2WithBCTest {
 
     @Test
     public void testKonaSignatureWithBCKeyPair() throws Exception {
-        KeyPair keyPairBC = keyPairBC();
-        KeyPair keyPair = toKonaKeyPair(keyPairBC);
-        testSignature(keyPair, keyPairBC);
+        testSignature(keyPairBC());
     }
 
     @Test
     public void testBCSignatureWithKonaKeyPair() throws Exception {
-        KeyPair keyPair = keyPair();
-        KeyPair keyPairBC = toBCKeyPair(keyPair);
-        testSignature(keyPair, keyPairBC);
+        testSignature(keyPair());
     }
 
-    private void testSignature(KeyPair keyPair, KeyPair keyPairBC)
-            throws Exception {
+    private void testSignature(KeyPair keyPair) throws Exception {
         Signature signature = Signature.getInstance("SM2", PROVIDER);
         SM2SignatureParameterSpec paramSpec = new SM2SignatureParameterSpec(
                 Constants.defaultId(),
@@ -154,11 +145,12 @@ public class SM2WithBCTest {
         SM2ParameterSpec paramSpecBC = new SM2ParameterSpec(
                 Constants.defaultId());
         signatureBC.setParameter(paramSpecBC);
-        signatureBC.initSign(keyPairBC.getPrivate());
+        signatureBC.initSign(keyPair.getPrivate());
         signatureBC.update(MESSAGE);
         // Signature produced by BC
         byte[] signBC = signatureBC.sign();
 
+        signature = Signature.getInstance("SM2", PROVIDER);
         signature.setParameter(paramSpec);
         signature.initVerify(keyPair.getPublic());
         signature.update(MESSAGE);
@@ -166,7 +158,7 @@ public class SM2WithBCTest {
         Assertions.assertTrue(signature.verify(signBC));
 
         signatureBC.setParameter(paramSpecBC);
-        signatureBC.initVerify(keyPairBC.getPublic());
+        signatureBC.initVerify(keyPair.getPublic());
         signatureBC.update(MESSAGE);
         // BC verifies the signature produced by Kona
         Assertions.assertTrue(signatureBC.verify(sign));
@@ -237,18 +229,9 @@ public class SM2WithBCTest {
         Assertions.assertArrayEquals(sharedKey, sharedKeyBC);
     }
 
-    private KeyPair toKonaKeyPair(KeyPair keyPairBC) {
-        BCECPublicKey pubKeyBC = (BCECPublicKey) keyPairBC.getPublic();
-        BCECPrivateKey priKeyBC = (BCECPrivateKey) keyPairBC.getPrivate();
-
-        return new KeyPair(
-                new SM2PublicKey(pubKeyBC.getW()),
-                new SM2PrivateKey(priKeyBC.getS()));
-    }
-
     private KeyPair toBCKeyPair(KeyPair keyPair) {
-        SM2PublicKey pubKey = (SM2PublicKey) keyPair.getPublic();
-        SM2PrivateKey priKey = (SM2PrivateKey) keyPair.getPrivate();
+        ECPublicKey pubKey = (ECPublicKey) keyPair.getPublic();
+        ECPrivateKey priKey = (ECPrivateKey) keyPair.getPrivate();
 
         BCECPublicKey pubKeyBC = new BCECPublicKey(pubKey, null);
         BCECPrivateKey priKeyBC = new BCECPrivateKey(priKey, null);
