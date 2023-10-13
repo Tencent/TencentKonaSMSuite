@@ -161,12 +161,16 @@ public class SM2SignatureTest {
 
     // orderOffset: the relative offset to the order
     private void testKeyRange(int orderOffset) throws Exception {
+        KeyFactory keyFactory = KeyFactory.getInstance("SM2");
+
         BigInteger privateKeyS = ECOperator.SM2.getOrder().subtract(
                 BigInteger.valueOf(orderOffset));
-        ECPrivateKey privateKey = new SM2PrivateKey(privateKeyS);
+        ECPrivateKey privateKey = (ECPrivateKey) keyFactory.generatePrivate(
+                new SM2PrivateKeySpec(privateKeyS.toByteArray()));
 
         ECPoint publicPoint = ECOperator.SM2.multiply(privateKeyS);
-        ECPublicKey publicKey = new SM2PublicKey(publicPoint);
+        ECPublicKey publicKey = (ECPublicKey) keyFactory.generatePublic(
+                new SM2PublicKeySpec(publicPoint));
 
         Signature signer = Signature.getInstance("SM2", PROVIDER);
         signer.initSign(privateKey);

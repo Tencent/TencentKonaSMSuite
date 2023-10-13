@@ -19,11 +19,16 @@
 
 package com.tencent.kona.crypto;
 
-import com.tencent.kona.crypto.provider.SM2PrivateKey;
-import com.tencent.kona.crypto.provider.SM2PublicKey;
+import com.tencent.kona.crypto.spec.SM2PrivateKeySpec;
+import com.tencent.kona.crypto.spec.SM2PublicKeySpec;
 
+import java.security.KeyFactory;
 import java.security.KeyPair;
+import java.security.PrivateKey;
+import java.security.PublicKey;
 import java.security.Security;
+import java.security.interfaces.ECPrivateKey;
+import java.security.interfaces.ECPublicKey;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
@@ -111,10 +116,29 @@ public class TestUtils {
     }
 
     public static KeyPair keyPair(String publicKeyHex, String privateKeyHex) {
-        SM2PublicKey publicKeySpec = new SM2PublicKey(toBytes(publicKeyHex));
-        SM2PrivateKey privateKeySpec = new SM2PrivateKey(toBytes(privateKeyHex));
+        try {
+            KeyFactory keyFactory = KeyFactory.getInstance("SM2");
 
-        return new KeyPair(publicKeySpec, privateKeySpec);
+            PrivateKey privateKey = keyFactory.generatePrivate(
+                    new SM2PrivateKeySpec(toBytes(privateKeyHex)));
+            PublicKey publicKey = keyFactory.generatePublic(
+                    new SM2PublicKeySpec(toBytes(publicKeyHex)));
+            return new KeyPair(publicKey, privateKey);
+        } catch (Exception e) {
+            throw new RuntimeException("Create key pair failed", e);
+        }
+    }
+
+    public static ECPrivateKey privateKey(String hex) throws Exception {
+        KeyFactory keyFactory = KeyFactory.getInstance("SM2");
+        return (ECPrivateKey) keyFactory.generatePrivate(
+                new SM2PrivateKeySpec(toBytes(hex)));
+    }
+
+    public static ECPublicKey publicKey(String hex) throws Exception {
+        KeyFactory keyFactory = KeyFactory.getInstance("SM2");
+        return (ECPublicKey) keyFactory.generatePublic(
+                new SM2PublicKeySpec(toBytes(hex)));
     }
 
     @FunctionalInterface

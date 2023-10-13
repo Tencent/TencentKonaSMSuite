@@ -29,12 +29,10 @@ import javax.crypto.Cipher;
 import javax.crypto.spec.GCMParameterSpec;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
-import java.nio.charset.StandardCharsets;
 import java.security.AlgorithmParameters;
 import java.security.spec.InvalidParameterSpecException;
 
 import static com.tencent.kona.crypto.CryptoUtils.toBytes;
-import static com.tencent.kona.crypto.CryptoUtils.toHex;
 
 /**
  * The test for the AlgorithmParameters on SM4.
@@ -42,8 +40,8 @@ import static com.tencent.kona.crypto.CryptoUtils.toHex;
 public class SM4ParametersTest {
 
     private static final byte[] KEY = toBytes("0123456789abcdef0123456789abcdef");
-    private static final byte[] IV = "0123456789abcdef".getBytes(StandardCharsets.UTF_8);
-    private static final byte[] GCM_IV = "0123456789ab".getBytes(StandardCharsets.UTF_8);
+    private static final byte[] IV = toBytes("30313233343536373839616263646566");
+    private static final byte[] GCM_IV = toBytes("303132333435363738396162");
     private static final byte[] ENCODED_PARAMS = toBytes("041030313233343536373839616263646566");
     private static final byte[] GCM_ENCODED_PARAMS = toBytes("3011040c303132333435363738396162020110");
 

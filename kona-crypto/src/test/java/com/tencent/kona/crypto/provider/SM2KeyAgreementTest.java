@@ -52,8 +52,8 @@ public class SM2KeyAgreementTest {
 
     @Test
     public void testKeyAgreementInit() throws Exception {
-        ECPrivateKey priKey = new SM2PrivateKey(toBytes(PRI_KEY));
-        ECPublicKey pubKey = new SM2PublicKey(toBytes(PUB_KEY));
+        ECPrivateKey priKey = TestUtils.privateKey(PRI_KEY);
+        ECPublicKey pubKey = TestUtils.publicKey(PUB_KEY);
 
         SM2KeyAgreementParamSpec paramSpec = new SM2KeyAgreementParamSpec(
                 ID,
@@ -70,7 +70,7 @@ public class SM2KeyAgreementTest {
 
     @Test
     public void testKeyAgreementInitWithoutParams() throws Exception {
-        ECPrivateKey priKey = new SM2PrivateKey(toBytes(PRI_KEY));
+        ECPrivateKey priKey = TestUtils.privateKey(PRI_KEY);
         KeyAgreement keyAgreement = KeyAgreement.getInstance("SM2", PROVIDER);
         Assertions.assertThrows(
                 UnsupportedOperationException.class,
@@ -79,8 +79,8 @@ public class SM2KeyAgreementTest {
 
     @Test
     public void testKeyAgreementDoPhase() throws Exception {
-        ECPrivateKey priKey = new SM2PrivateKey(toBytes(PRI_KEY));
-        ECPublicKey pubKey = new SM2PublicKey(toBytes(PUB_KEY));
+        ECPrivateKey priKey = TestUtils.privateKey(PRI_KEY);
+        ECPublicKey pubKey = TestUtils.publicKey(PUB_KEY);
 
         SM2KeyAgreementParamSpec paramSpec = new SM2KeyAgreementParamSpec(
                 ID,
@@ -153,15 +153,15 @@ public class SM2KeyAgreementTest {
         // Generate shared secret by the local endpoint
         SM2KeyAgreementParamSpec paramSpec = new SM2KeyAgreementParamSpec(
                 toBytes(idHex),
-                new SM2PrivateKey(toBytes(priKeyHex)),
-                new SM2PublicKey(toBytes(pubKeyHex)),
+                TestUtils.privateKey(priKeyHex),
+                TestUtils.publicKey(pubKeyHex),
                 toBytes(peerIdHex),
-                new SM2PublicKey(toBytes(peerPubKeyHex)),
+                TestUtils.publicKey(peerPubKeyHex),
                 true,
                 keySize);
         KeyAgreement keyAgreement = KeyAgreement.getInstance("SM2", PROVIDER);
-        keyAgreement.init(new SM2PrivateKey(toBytes(tmpPriKeyHex)), paramSpec);
-        keyAgreement.doPhase(new SM2PublicKey(toBytes(peerTmpPubKeyHex)), true);
+        keyAgreement.init(TestUtils.privateKey(tmpPriKeyHex), paramSpec);
+        keyAgreement.doPhase(TestUtils.publicKey(peerTmpPubKeyHex), true);
         SecretKey sharedKey = keyAgreement.generateSecret("SM2SharedSecret");
 
         Assertions.assertEquals(keySize, sharedKey.getEncoded().length);
@@ -172,15 +172,15 @@ public class SM2KeyAgreementTest {
         // Generate shared secret by the remote endpoint
         SM2KeyAgreementParamSpec peerParamSpec = new SM2KeyAgreementParamSpec(
                 toBytes(peerIdHex),
-                new SM2PrivateKey(toBytes(peerPriKeyHex)),
-                new SM2PublicKey(toBytes(peerPubKeyHex)),
+                TestUtils.privateKey(peerPriKeyHex),
+                TestUtils.publicKey(peerPubKeyHex),
                 toBytes(idHex),
-                new SM2PublicKey(toBytes(pubKeyHex)),
+                TestUtils.publicKey(pubKeyHex),
                 false,
                 keySize);
         KeyAgreement peerKeyAgreement = KeyAgreement.getInstance("SM2", PROVIDER);
-        peerKeyAgreement.init(new SM2PrivateKey(toBytes(peerTmpPriKeyHex)), peerParamSpec);
-        peerKeyAgreement.doPhase(new SM2PublicKey(toBytes(tmpPubKeyHex)), true);
+        peerKeyAgreement.init(TestUtils.privateKey(peerTmpPriKeyHex), peerParamSpec);
+        peerKeyAgreement.doPhase(TestUtils.publicKey(tmpPubKeyHex), true);
         SecretKey peerSharedKey = peerKeyAgreement.generateSecret("SM2SharedSecret");
 
         Assertions.assertArrayEquals(sharedKey.getEncoded(), peerSharedKey.getEncoded());
