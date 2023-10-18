@@ -27,6 +27,8 @@ package com.tencent.kona.crypto.provider;
 
 import com.tencent.kona.crypto.util.Sweeper;
 
+import java.io.IOException;
+import java.io.InvalidObjectException;
 import java.security.MessageDigest;
 import java.security.KeyRep;
 import java.security.spec.InvalidKeySpecException;
@@ -43,11 +45,11 @@ import javax.crypto.spec.PBEKeySpec;
  */
 final class PBEKey implements SecretKey {
 
-    static final long serialVersionUID = -2234768909660948176L;
+    private static final long serialVersionUID = -2234768909660948176L;
 
     private byte[] key;
 
-    private String type;
+    private final String type;
 
     private final Sweeper sweeper = Sweeper.instance();
 
@@ -141,14 +143,33 @@ final class PBEKey implements SecretKey {
     }
 
     /**
-     * readObject is called to restore the state of this key from
-     * a stream.
+     * Restores the state of this object from the stream.
+     *
+     * @param  s the {@code ObjectInputStream} from which data is read
+     * @throws IOException if an I/O error occurs
+     * @throws ClassNotFoundException if a serialized class cannot be loaded
      */
     private void readObject(java.io.ObjectInputStream s)
          throws java.io.IOException, ClassNotFoundException
     {
         s.defaultReadObject();
-        key = key.clone();
+        if (key == null) {
+            throw new InvalidObjectException(
+                    "PBEKey couldn't be deserialized");
+        }
+        byte[] temp = key;
+        key = temp.clone();
+        Arrays.fill(temp, (byte)0x00);
+
+        // Accept "\0" to signify "zero-length password with no terminator".
+        if (!(key.length == 1 && key[0] == 0)) {
+            for (int i = 0; i < key.length; i++) {
+                if ((key[i] < '\u0020') || (key[i] > '\u007E')) {
+                    throw new InvalidObjectException(
+                            "PBEKey had non-ASCII chars");
+                }
+            }
+        }
     }
 
 
