@@ -37,6 +37,8 @@ import com.tencent.kona.sun.security.util.ECUtil;
 import com.tencent.kona.sun.security.x509.AlgorithmId;
 
 import java.io.IOException;
+import java.io.InvalidObjectException;
+import java.io.ObjectInputStream;
 import java.math.BigInteger;
 import java.security.AlgorithmParameters;
 import java.security.InvalidKeyException;
@@ -50,7 +52,7 @@ import java.util.Arrays;
 
 /**
  * Key implementation for EC private keys.
- *
+ * <p>
  * ASN.1 syntax for EC private keys from SEC 1 v1.5 (draft):
  *
  * <pre>
@@ -228,5 +230,20 @@ public final class ECPrivateKeyImpl extends PKCS8Key implements ECPrivateKey {
             throw new ProviderException(
                     "Unexpected error calculating public key", e);
         }
+    }
+
+    /**
+     * Restores the state of this object from the stream.
+     * <p>
+     * Deserialization of this object is not supported.
+     *
+     * @param  stream the {@code ObjectInputStream} from which data is read
+     * @throws IOException if an I/O error occurs
+     * @throws ClassNotFoundException if a serialized class cannot be loaded
+     */
+    private void readObject(ObjectInputStream stream)
+            throws IOException, ClassNotFoundException {
+        throw new InvalidObjectException(
+                "ECPrivateKeyImpl keys are not directly deserializable");
     }
 }
