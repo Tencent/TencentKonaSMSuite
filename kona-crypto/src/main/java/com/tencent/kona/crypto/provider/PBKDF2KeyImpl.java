@@ -59,10 +59,10 @@ final class PBKDF2KeyImpl implements javax.crypto.interfaces.PBEKey {
 
     private static final long serialVersionUID = -2234868909660948157L;
 
-    private char[] passwd;
-    private byte[] salt;
-    private int iterCount;
-    private byte[] key;
+    private final char[] passwd;
+    private final byte[] salt;
+    private final int iterCount;
+    private final byte[] key;
 
     // The following fields are not Serializable. See writeReplace method.
     private final transient Mac prf;
@@ -91,9 +91,8 @@ final class PBKDF2KeyImpl implements javax.crypto.interfaces.PBEKey {
         this.passwd = keySpec.getPassword();
         // Convert the password from char[] to byte[]
         byte[] passwdBytes = getPasswordBytes(this.passwd);
-        // remove local copy
-        if (passwd != null) Arrays.fill(passwd, '\0');
 
+        byte[] key = null;
         try {
             this.salt = keySpec.getSalt();
             if (salt == null) {
@@ -113,7 +112,7 @@ final class PBKDF2KeyImpl implements javax.crypto.interfaces.PBEKey {
             }
 //            this.prf = Mac.getInstance(prfAlgo, SunJCE.getInstance());
             this.prf = CryptoInsts.getMac(prfAlgo);
-            this.key = deriveKey(prf, passwdBytes, salt, iterCount, keyLength);
+            key = deriveKey(prf, passwdBytes, salt, iterCount, keyLength);
         } catch (NoSuchAlgorithmException nsae) {
             // not gonna happen; re-throw just in case
             throw new InvalidKeySpecException(nsae);
@@ -124,7 +123,7 @@ final class PBKDF2KeyImpl implements javax.crypto.interfaces.PBEKey {
             }
         }
         // Use the cleaner to zero the key when no longer referenced
-        final byte[] k = this.key;
+        final byte[] k = this.key = key;
         final char[] p = this.passwd;
         sweeper.register(this,
                 () -> {

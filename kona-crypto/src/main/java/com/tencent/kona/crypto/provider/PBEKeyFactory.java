@@ -45,7 +45,7 @@ import java.util.Locale;
  */
 abstract class PBEKeyFactory extends SecretKeyFactorySpi {
 
-    private String type;
+    private final String type;
     private static final HashSet<String> validTypes;
 
     /**
