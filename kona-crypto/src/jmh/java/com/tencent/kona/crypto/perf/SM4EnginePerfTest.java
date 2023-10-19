@@ -62,30 +62,30 @@ public class SM4EnginePerfTest {
     };
 
     @State(Scope.Benchmark)
-    public static class EncrypterHolder {
+    public static class EngineHolder {
 
         SM4Engine engine;
 
         @Setup(Level.Invocation)
-        public void setup() throws Exception {
+        public void setup() {
             engine = new SM4Engine(KEY, true);
         }
     }
 
     @State(Scope.Benchmark)
-    public static class EncrypterHolderBC {
+    public static class EngineHolderBC {
 
         org.bouncycastle.crypto.engines.SM4Engine engine;
 
         @Setup(Level.Invocation)
-        public void setup() throws Exception {
+        public void setup() {
             engine = new org.bouncycastle.crypto.engines.SM4Engine();
             engine.init(true, new KeyParameter(KEY));
         }
     }
 
     @Benchmark
-    public byte[] processBlock(EncrypterHolder holder) {
+    public byte[] processBlock(EngineHolder holder) {
         byte[] ciphertext = new byte[16];
         holder.engine.processBlock(DATA, 0, ciphertext, 0);
         for (int i = 1; i < 10000; i++) {
@@ -95,7 +95,7 @@ public class SM4EnginePerfTest {
     }
 
     @Benchmark
-    public byte[] processBlockBC(EncrypterHolderBC holder) {
+    public byte[] processBlockBC(EngineHolderBC holder) {
         byte[] ciphertext = new byte[16];
         holder.engine.processBlock(DATA, 0, ciphertext, 0);
         for (int i = 1; i < 10000; i++) {
