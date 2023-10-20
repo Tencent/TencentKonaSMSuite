@@ -29,12 +29,17 @@ import java.util.Objects;
  */
 public class SM2SignatureParameterSpec implements AlgorithmParameterSpec {
 
+    // The default ID 1234567812345678
+    private static final byte[] DEFAULT_ID = new byte[] {
+            49, 50, 51, 52, 53, 54, 55, 56,
+            49, 50, 51, 52, 53, 54, 55, 56};
+
     private final byte[] id;
 
     private final ECPublicKey publicKey;
 
     /**
-     * Create a new {@code SM2SignatureParameterSpec}.
+     * Create a new {@code SM2SignatureParameterSpec} with ID and public key.
      *
      * @param id the ID. it must not longer than 8192-bytes.
      * @param publicKey the SM2 public key.
@@ -42,26 +47,20 @@ public class SM2SignatureParameterSpec implements AlgorithmParameterSpec {
      * @throws NullPointerException if {@code publicKey} is null.
      */
     public SM2SignatureParameterSpec(byte[] id, ECPublicKey publicKey) {
+        Objects.requireNonNull(id);
         Objects.requireNonNull(publicKey);
 
-        if (id != null) {
-            if (id.length >= 8192) {
-                throw new IllegalArgumentException(
-                        "The length of ID must be less than 8192-bytes");
-            }
-
-            this.id = id.clone();
-        } else {
-            // The default ID 1234567812345678
-            this.id = new byte[] {49, 50, 51, 52, 53, 54, 55, 56,
-                                  49, 50, 51, 52, 53, 54, 55, 56};
+        if (id.length >= 8192) {
+            throw new IllegalArgumentException(
+                    "The length of ID must be less than 8192-bytes");
         }
 
+        this.id = id.clone();
         this.publicKey = publicKey;
     }
 
     /**
-     * Create a new {@code SM2SignatureParameterSpec}.
+     * Create a new {@code SM2SignatureParameterSpec} with public key.
      * It just uses the default ID, exactly {@code 1234567812345678}.
      *
      * @param publicKey the SM2 public key.
@@ -69,7 +68,7 @@ public class SM2SignatureParameterSpec implements AlgorithmParameterSpec {
      * @throws NullPointerException if {@code publicKey} is null.
      */
     public SM2SignatureParameterSpec(ECPublicKey publicKey) {
-        this(null, publicKey);
+        this(DEFAULT_ID, publicKey);
     }
 
     public byte[] getId() {

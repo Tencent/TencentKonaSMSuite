@@ -75,7 +75,7 @@ public class SM2KeyAgreementParamSpec implements AlgorithmParameterSpec {
         this.privateKey = privateKey;
         this.publicKey = publicKey;
 
-        this.peerId = peerId;
+        this.peerId = peerId.clone();
         this.peerPublicKey = peerPublicKey;
 
         this.isInitiator = isInitiator;
