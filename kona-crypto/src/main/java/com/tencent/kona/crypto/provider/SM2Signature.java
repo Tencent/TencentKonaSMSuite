@@ -55,7 +55,7 @@ import static com.tencent.kona.crypto.spec.SM2ParameterSpec.CURVE;
 import static com.tencent.kona.crypto.spec.SM2ParameterSpec.GENERATOR;
 import static com.tencent.kona.crypto.spec.SM2ParameterSpec.ORDER;
 import static com.tencent.kona.crypto.util.Constants.defaultId;
-import static com.tencent.kona.crypto.util.Constants.INFINITY;
+import static com.tencent.kona.sun.security.ec.SM2Operations.isInfinitePoint;
 import static com.tencent.kona.sun.security.ec.SM2Operations.SM2OPS;
 import static com.tencent.kona.sun.security.ec.SM2Operations.toECPoint;
 import static java.math.BigInteger.ONE;
@@ -330,10 +330,10 @@ public class SM2Signature extends SignatureSpi {
         MutablePoint p = SM2OPS.multiply(GENERATOR, toByteArrayLE(s));
         MutablePoint p2 = SM2OPS.multiply(publicPoint, toByteArrayLE(t));
         SM2OPS.setSum(p, p2.asAffine());
-        ECPoint point = toECPoint(p);
-        if (point.equals(INFINITY)) {
+        if (isInfinitePoint(p)) {
             return false;
         }
+        ECPoint point = toECPoint(p);
 
         // B7
         BigInteger expectedR = e.add(point.getAffineX()).mod(ORDER);
