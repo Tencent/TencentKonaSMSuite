@@ -29,7 +29,7 @@ import java.security.spec.ECPrivateKeySpec;
 public class SM2PrivateKeySpec extends ECPrivateKeySpec {
 
     /**
-     * Create a new {code SM2PrivateKeySpec}.
+     * Create a new {@code SM2PrivateKeySpec}.
      *
      * @param s the private key value.
      */
@@ -38,7 +38,7 @@ public class SM2PrivateKeySpec extends ECPrivateKeySpec {
     }
 
     /**
-     * Create a new {code SM2PrivateKeySpec}.
+     * Create a new {@code SM2PrivateKeySpec}.
      *
      * @param sKey the private key value represented by a byte array.
      */
