@@ -49,4 +49,9 @@ public class SM2Operations extends ECOperations {
                 affPoint.getX().asBigInteger(),
                 affPoint.getY().asBigInteger());
     }
+
+    public static boolean isInfinitePoint(Point point) {
+        AffinePoint affPoint = point.asAffine();
+        return affPoint.getX() == null || affPoint.getY() == null;
+    }
 }

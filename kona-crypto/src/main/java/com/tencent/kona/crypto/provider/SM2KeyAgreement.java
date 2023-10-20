@@ -44,10 +44,10 @@ import static com.tencent.kona.crypto.spec.SM2ParameterSpec.GENERATOR;
 import static com.tencent.kona.crypto.spec.SM2ParameterSpec.ORDER;
 import static com.tencent.kona.crypto.util.Constants.defaultId;
 import static com.tencent.kona.crypto.util.Constants.SM3_DIGEST_LEN;
-import static com.tencent.kona.crypto.util.Constants.INFINITY;
 import static com.tencent.kona.crypto.CryptoUtils.bigIntToBytes32;
 import static com.tencent.kona.crypto.CryptoUtils.intToBytes4;
 import static com.tencent.kona.crypto.CryptoUtils.toByteArrayLE;
+import static com.tencent.kona.sun.security.ec.SM2Operations.isInfinitePoint;
 import static com.tencent.kona.sun.security.ec.SM2Operations.SM2OPS;
 import static com.tencent.kona.sun.security.ec.SM2Operations.toECPoint;
 
@@ -147,16 +147,16 @@ public class SM2KeyAgreement extends KeyAgreementSpi {
         MutablePoint interimMutablePoint = SM2OPS.multiply(
                 rBPubPoint, toByteArrayLE(x2Bar));
         SM2OPS.setSum(interimMutablePoint, SM2OPS.toAffinePoint(pBPubPoint));
-        ECPoint uPoint = toECPoint(SM2OPS.multiply(
+        MutablePoint uPoint = SM2OPS.multiply(
                 interimMutablePoint.asAffine(),
-                toByteArrayLE(COFACTOR.multiply(tA))));
-
-        if (uPoint.equals(INFINITY)) {
+                toByteArrayLE(COFACTOR.multiply(tA)));
+        if (isInfinitePoint(uPoint)) {
             throw new IllegalStateException("Generate secret failed");
         }
 
-        byte[] vX = bigIntToBytes32(uPoint.getAffineX());
-        byte[] vY = bigIntToBytes32(uPoint.getAffineY());
+        ECPoint uECPoint = toECPoint(uPoint);
+        byte[] vX = bigIntToBytes32(uECPoint.getAffineX());
+        byte[] vY = bigIntToBytes32(uECPoint.getAffineY());
 
         byte[] zA = z(paramSpec.id(), paramSpec.publicKey().getW());
         byte[] zB = z(paramSpec.peerId(), paramSpec.peerPublicKey().getW());

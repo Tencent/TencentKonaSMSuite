@@ -23,17 +23,11 @@ package com.tencent.kona.crypto.util;
 import com.tencent.kona.crypto.CryptoUtils;
 
 import java.math.BigInteger;
-import java.security.spec.ECPoint;
-
-import static java.math.BigInteger.ONE;
-import static java.math.BigInteger.ZERO;
 
 public class Constants {
 
     public static final BigInteger TWO = BigInteger.valueOf(2);
     public static final BigInteger THREE = BigInteger.valueOf(3);
-
-    public final static ECPoint INFINITY = new ECPoint(ZERO, ONE);
 
     public static final String JDK_VERSION = CryptoUtils.privilegedGetProperty(
             "java.specification.version");
