@@ -24,6 +24,8 @@ import com.tencent.kona.crypto.spec.SM2ParameterSpec;
 import com.tencent.kona.crypto.util.Constants;
 import com.tencent.kona.sun.security.ec.point.Point;
 import com.tencent.kona.sun.security.util.ArrayUtil;
+import com.tencent.kona.sun.security.util.KnownOIDs;
+import com.tencent.kona.sun.security.util.NamedCurve;
 
 import java.security.KeyPair;
 import java.security.KeyPairGeneratorSpi;
@@ -31,7 +33,6 @@ import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.SecureRandom;
 import java.security.spec.AlgorithmParameterSpec;
-import java.security.spec.ECParameterSpec;
 import java.security.spec.ECPoint;
 import java.util.Arrays;
 
@@ -54,9 +55,11 @@ public class SM2KeyPairGenerator extends KeyPairGeneratorSpi {
 
     @Override
     public void initialize(AlgorithmParameterSpec params, SecureRandom random) {
-        if (!(params instanceof ECParameterSpec)) {
+        if (!(params instanceof SM2ParameterSpec)
+                && !KnownOIDs.curveSM2.value().equals(
+                        ((NamedCurve) params).getObjectId())) {
             throw new IllegalArgumentException(
-                    "params must be ECParameterSpec: " + params);
+                    "params must be SM2ParameterSpec or NamedCurve (curveSM2)");
         }
 
         this.random = random;
