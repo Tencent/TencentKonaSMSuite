@@ -33,6 +33,7 @@ import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.interfaces.ECPrivateKey;
 import java.security.interfaces.ECPublicKey;
+import java.security.spec.InvalidKeySpecException;
 import java.security.spec.KeySpec;
 
 import static com.tencent.kona.crypto.TestUtils.PROVIDER;
@@ -65,7 +66,30 @@ public class SM2KeyFactoryTest {
     }
 
     @Test
-    public void testGenerateRawKeys() throws Exception {
+    public void testGetKeySpecsFailed() throws Exception {
+        KeyPairGenerator keyPairGenerator
+                = KeyPairGenerator.getInstance("SM2", PROVIDER);
+        KeyPair keyPair = keyPairGenerator.generateKeyPair();
+
+        KeyFactory keyFactory = KeyFactory.getInstance("SM2", PROVIDER);
+
+        Assertions.assertThrows(InvalidKeySpecException.class,
+                () -> keyFactory.getKeySpec(null, SM2PrivateKeySpec.class));
+
+        Assertions.assertThrows(InvalidKeySpecException.class,
+                () -> keyFactory.getKeySpec(keyPair.getPublic(),
+                        SM2PrivateKeySpec.class));
+
+        Assertions.assertThrows(InvalidKeySpecException.class,
+                () -> keyFactory.getKeySpec(keyPair.getPrivate(),
+                        SM2PublicKeySpec.class));
+
+        Assertions.assertThrows(InvalidKeySpecException.class,
+                () -> keyFactory.getKeySpec(null, SM2PublicKeySpec.class));
+    }
+
+    @Test
+    public void testGenerateKeys() throws Exception {
         KeyPairGenerator keyPairGenerator
                 = KeyPairGenerator.getInstance("SM2", PROVIDER);
         KeyPair keyPair = keyPairGenerator.generateKeyPair();
@@ -87,5 +111,26 @@ public class SM2KeyFactoryTest {
                 privateKeySpec);
         Assertions.assertArrayEquals(
                 privateKey.getEncoded(), ecPrivateKey.getEncoded());
+    }
+
+    @Test
+    public void testGenerateKeysFailed() throws Exception {
+        KeyPairGenerator keyPairGenerator
+                = KeyPairGenerator.getInstance("SM2", PROVIDER);
+        KeyPair keyPair = keyPairGenerator.generateKeyPair();
+        PublicKey publicKey = keyPair.getPublic();
+        PrivateKey privateKey = keyPair.getPrivate();
+
+        KeyFactory keyFactory = KeyFactory.getInstance("SM2", PROVIDER);
+
+        KeySpec publicKeySpec = keyFactory.getKeySpec(
+                publicKey, SM2PublicKeySpec.class);
+        Assertions.assertThrows(InvalidKeySpecException.class,
+                () -> keyFactory.generatePrivate(publicKeySpec));
+
+        KeySpec privateKeySpec = keyFactory.getKeySpec(
+                privateKey, SM2PrivateKeySpec.class);
+        Assertions.assertThrows(InvalidKeySpecException.class,
+                () -> keyFactory.generatePublic(privateKeySpec));
     }
 }
