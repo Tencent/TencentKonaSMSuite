@@ -20,10 +20,7 @@
 
 package com.tencent.kona.crypto.provider;
 
-import com.tencent.kona.crypto.spec.SM2PrivateKeySpec;
-import com.tencent.kona.crypto.spec.SM2PublicKeySpec;
-import com.tencent.kona.crypto.CryptoUtils;
-
+import java.math.BigInteger;
 import java.security.InvalidKeyException;
 import java.security.Key;
 import java.security.KeyFactorySpi;
@@ -31,60 +28,76 @@ import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.interfaces.ECPrivateKey;
 import java.security.interfaces.ECPublicKey;
+import java.security.spec.ECPoint;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.KeySpec;
+
+import com.tencent.kona.crypto.spec.SM2PrivateKeySpec;
+import com.tencent.kona.crypto.spec.SM2PublicKeySpec;
 
 public class SM2KeyFactory extends KeyFactorySpi {
 
     @Override
     protected PublicKey engineGeneratePublic(KeySpec keySpec)
             throws InvalidKeySpecException {
-        if (keySpec instanceof SM2PublicKeySpec) {
-            SM2PublicKeySpec spec = (SM2PublicKeySpec) keySpec;
-            byte[] key = CryptoUtils.pubKey(spec.getW());
-            if (key == null || key.length == 0) {
-                throw new InvalidKeySpecException(
-                        "Invalid SM2PublicKeySpec, empty Key");
-            }
-
-            return new SM2PublicKey(key);
+        if (!(keySpec instanceof SM2PublicKeySpec)) {
+            throw new InvalidKeySpecException("Only accept SM2PublicKeySpec");
         }
 
-        throw new InvalidKeySpecException(
-                "Only accept SM2PublicKeySpec: " + keySpec);
+        SM2PublicKeySpec spec = (SM2PublicKeySpec) keySpec;
+        ECPoint pubPoint = spec.getW();
+        if (pubPoint == null || pubPoint.getAffineY() == null
+                || pubPoint.getAffineY() == null) {
+            throw new InvalidKeySpecException("No public key");
+        }
+
+        return new SM2PublicKey(pubPoint);
     }
 
     @Override
     protected PrivateKey engineGeneratePrivate(KeySpec keySpec)
             throws InvalidKeySpecException {
-        if (keySpec instanceof SM2PrivateKeySpec) {
-            SM2PrivateKeySpec spec = (SM2PrivateKeySpec) keySpec;
-            byte[] key = spec.getS().toByteArray();
-            if (key == null || key.length == 0) {
-                throw new InvalidKeySpecException("No private key");
-            }
-
-            return new SM2PrivateKey(key);
+        if (!(keySpec instanceof SM2PrivateKeySpec)) {
+            throw new InvalidKeySpecException("Only accept SM2PrivateKeySpec");
         }
 
-        throw new InvalidKeySpecException(
-                "Only accept SM2PrivateKeySpec: " + keySpec);
+        SM2PrivateKeySpec spec = (SM2PrivateKeySpec) keySpec;
+        BigInteger keyS = spec.getS();
+        if (keyS == null) {
+            throw new InvalidKeySpecException("No private key");
+        }
+
+        return new SM2PrivateKey(keyS);
     }
 
     @Override
-    protected <T extends KeySpec> T engineGetKeySpec(Key key, Class<T> keySpec)
+    protected <T extends KeySpec> T engineGetKeySpec(Key key, Class<T> keySpecClass)
             throws InvalidKeySpecException {
-        byte[] encoded = key.getEncoded();
+        try {
+            key = engineTranslateKey(key);
+        } catch (InvalidKeyException e) {
+            throw new InvalidKeySpecException(e);
+        }
+
         if (key instanceof ECPrivateKey) {
-            return keySpec.cast(new SM2PrivateKeySpec(encoded));
+            if (keySpecClass.isAssignableFrom(SM2PrivateKeySpec.class)) {
+                ECPrivateKey privateKey = (ECPrivateKey) key;
+                return keySpecClass.cast(new SM2PrivateKeySpec(privateKey.getS()));
+            } else {
+                throw new InvalidKeySpecException(
+                        "keySpecClass must be SM2PrivateKeySpec for SM2 private key");
+            }
+        } else if (key instanceof ECPublicKey) {
+            if (keySpecClass.isAssignableFrom(SM2PublicKeySpec.class)) {
+                ECPublicKey publicKey = (ECPublicKey) key;
+                return keySpecClass.cast(new SM2PublicKeySpec(publicKey.getW()));
+            } else {
+                throw new InvalidKeySpecException(
+                        "keySpecClass must be SM2PublicKeySpec for SM2 public key");
+            }
         }
 
-        if (key instanceof ECPublicKey) {
-            return keySpec.cast(new SM2PublicKeySpec(encoded));
-        }
-
-        throw new InvalidKeySpecException(
-                "The key must be ECPrivateKey or ECPublicKey");
+        throw new InvalidKeySpecException("Neither public nor private key");
     }
 
     @Override
@@ -98,6 +111,6 @@ public class SM2KeyFactory extends KeyFactorySpi {
         }
 
         throw new InvalidKeyException(
-                "The key must be ECPrivateKey or ECPublicKey: " + key);
+                "key must be ECPrivateKey or ECPublicKey");
     }
 }
