@@ -21,6 +21,7 @@ package com.tencent.kona.crypto.provider;
 
 import com.tencent.kona.crypto.TestUtils;
 import com.tencent.kona.crypto.spec.SM2ParameterSpec;
+import com.tencent.kona.sun.security.util.CurveDB;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -49,10 +50,26 @@ public class SM2KeyPairGeneratorTest {
     }
 
     @Test
-    public void testKeyPairGen() throws Exception {
-        KeyPairGenerator keyPairGenerator
+    public void testInitialize() throws Exception {
+        KeyPairGenerator keyPairGen
                 = KeyPairGenerator.getInstance("SM2", PROVIDER);
-        KeyPair keyPair = keyPairGenerator.generateKeyPair();
+
+        keyPairGen.initialize(256);
+        Assertions.assertThrows(IllegalArgumentException.class,
+                () -> keyPairGen.initialize(128));
+
+        keyPairGen.initialize(SM2ParameterSpec.instance());
+        Assertions.assertThrows(IllegalArgumentException.class,
+                () -> keyPairGen.initialize(CurveDB.P_256));
+        Assertions.assertThrows(NullPointerException.class,
+                () -> keyPairGen.initialize(null));
+    }
+
+    @Test
+    public void testKeyPairGen() throws Exception {
+        KeyPairGenerator keyPairGen
+                = KeyPairGenerator.getInstance("SM2", PROVIDER);
+        KeyPair keyPair = keyPairGen.generateKeyPair();
         ECPublicKey pubKey = (ECPublicKey) keyPair.getPublic();
         ECPrivateKey priKey = (ECPrivateKey) keyPair.getPrivate();
         Assertions.assertEquals(SM2_PUBKEY_LEN, pubKey.getEncoded().length);
@@ -77,9 +94,9 @@ public class SM2KeyPairGeneratorTest {
 
     @Test
     public void testPubKeyPointOnCurve() throws Exception {
-        KeyPairGenerator keyPairGenerator
+        KeyPairGenerator keyPairGen
                 = KeyPairGenerator.getInstance("SM2", PROVIDER);
-        KeyPair keyPair = keyPairGenerator.generateKeyPair();
+        KeyPair keyPair = keyPairGen.generateKeyPair();
         ECPublicKey pubKey = (ECPublicKey) keyPair.getPublic();
         ECPoint pubKeyPoint = pubKey.getW();
         boolean onCurve = checkPointOnCurve(pubKeyPoint);
