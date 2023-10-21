@@ -55,7 +55,7 @@ public class SM2KeyPairGenerator extends KeyPairGeneratorSpi {
 
     @Override
     public void initialize(AlgorithmParameterSpec params, SecureRandom random) {
-        if (!(params instanceof SM2ParameterSpec)
+        if (params == null || !(params instanceof SM2ParameterSpec)
                 && !KnownOIDs.curveSM2.value().equals(
                         ((NamedCurve) params).getObjectId())) {
             throw new IllegalArgumentException(
