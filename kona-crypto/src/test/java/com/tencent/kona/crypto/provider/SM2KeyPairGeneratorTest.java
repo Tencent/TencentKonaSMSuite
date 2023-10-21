@@ -61,7 +61,7 @@ public class SM2KeyPairGeneratorTest {
         keyPairGen.initialize(SM2ParameterSpec.instance());
         Assertions.assertThrows(IllegalArgumentException.class,
                 () -> keyPairGen.initialize(CurveDB.P_256));
-        Assertions.assertThrows(NullPointerException.class,
+        Assertions.assertThrows(IllegalArgumentException.class,
                 () -> keyPairGen.initialize(null));
     }
 
