@@ -53,13 +53,19 @@ public class SM3Test {
 
     @Test
     public void testKAT() throws Exception {
-        checkDigest(MESSAGE_SHORT, DIGEST_SHORT);
-        checkDigest(MESSAGE_LONG, DIGEST_LONG);
+        checkDigest("SM3", MESSAGE_SHORT, DIGEST_SHORT);
+        checkDigest("SM3", MESSAGE_LONG, DIGEST_LONG);
     }
 
-    private static void checkDigest(byte[] message, byte[] expectedDigest)
-            throws Exception {
-        MessageDigest md = MessageDigest.getInstance("SM3", PROVIDER);
+    @Test
+    public void testAlias() throws Exception {
+        checkDigest("OID.1.2.156.10197.1.401", MESSAGE_SHORT, DIGEST_SHORT);
+        checkDigest("OID.1.2.156.10197.1.401", MESSAGE_LONG, DIGEST_LONG);
+    }
+
+    private static void checkDigest(String name, byte[] message,
+            byte[] expectedDigest) throws Exception {
+        MessageDigest md = MessageDigest.getInstance(name, PROVIDER);
         byte[] digest = md.digest(message);
         Assertions.assertArrayEquals(expectedDigest, digest);
     }

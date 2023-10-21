@@ -67,7 +67,7 @@ public final class SM3MessageDigest extends MessageDigest implements Cloneable {
     protected int engineDigest(byte[] buf, int offset, int length)
             throws DigestException {
         if (length != SM3_DIGEST_LEN) {
-            throw new DigestException("THe length must be 32-bytes");
+            throw new DigestException("The length must be 32-bytes");
         }
 
         engine.doFinal(buf, offset);
