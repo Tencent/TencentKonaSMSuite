@@ -51,7 +51,7 @@ import com.tencent.kona.crypto.CryptoInsts;
  *
  * @author Jan Luehe
  */
-abstract class HmacCore extends MacSpi implements Cloneable {
+public abstract class HmacCore extends MacSpi implements Cloneable {
 
     private MessageDigest md;
     private byte[] k_ipad; // inner padding - key XORd with ipad
@@ -64,7 +64,7 @@ abstract class HmacCore extends MacSpi implements Cloneable {
      * Standard constructor, creates a new HmacCore instance instantiating
      * a MessageDigest of the specified name.
      */
-    HmacCore(String digestAlgo, int bl) throws NoSuchAlgorithmException {
+    public HmacCore(String digestAlgo, int bl) throws NoSuchAlgorithmException {
         MessageDigest md = CryptoInsts.getMessageDigest(digestAlgo);
         if (!(md instanceof Cloneable)) {
             // use SUN provider if the most preferred one does not support
