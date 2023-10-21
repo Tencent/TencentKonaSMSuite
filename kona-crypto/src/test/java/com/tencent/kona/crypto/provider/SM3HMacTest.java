@@ -51,67 +51,85 @@ public class SM3HMacTest {
     }
 
     @Test
-    public void testSM3HMacKeyGen() throws Exception {
-        KeyGenerator sm3HMacKeyGen
-                = KeyGenerator.getInstance("HmacSM3", PROVIDER);
+    public void testHmacSM3KeyGen() throws Exception {
+        testHmacSM3KeyGen("HmacSM3");
+    }
+
+    @Test
+    public void testHmacSM3KeyGenAlias() throws Exception {
+        testHmacSM3KeyGen("SM3Hmac");
+    }
+
+    private void testHmacSM3KeyGen(String name) throws Exception {
+        KeyGenerator hmacSM3KeyGen
+                = KeyGenerator.getInstance(name, PROVIDER);
 
         Assertions.assertThrows(
-                InvalidParameterException.class, ()-> sm3HMacKeyGen.init(127));
+                InvalidParameterException.class, ()-> hmacSM3KeyGen.init(127));
 
-        sm3HMacKeyGen.init(128);
-        SecretKey key = sm3HMacKeyGen.generateKey();
+        hmacSM3KeyGen.init(128);
+        SecretKey key = hmacSM3KeyGen.generateKey();
         Assertions.assertEquals(16, key.getEncoded().length);
 
-        sm3HMacKeyGen.init(new SecureRandom());
-        key = sm3HMacKeyGen.generateKey();
+        hmacSM3KeyGen.init(new SecureRandom());
+        key = hmacSM3KeyGen.generateKey();
         Assertions.assertEquals(32, key.getEncoded().length);
     }
 
     @Test
-    public void testSM3HMacKeyGenParallelly() throws Exception {
+    public void testHmacSM3KeyGenParallelly() throws Exception {
         TestUtils.repeatTaskParallelly(() -> {
-            testSM3HMacKeyGen();
+            testHmacSM3KeyGen();
             return null;
         });
     }
 
     @Test
-    public void testSM3HMacKeyGenSerially() throws Exception {
+    public void testHmacSM3KeyGenSerially() throws Exception {
         TestUtils.repeatTaskSerially(() -> {
-            testSM3HMacKeyGen();
+            testHmacSM3KeyGen();
             return null;
         });
     }
 
     @Test
-    public void testSM3HMac() throws Exception {
-        Mac sm3HMac = Mac.getInstance("HmacSM3", PROVIDER);
+    public void testHmacSM3() throws Exception {
+        testHmacSM3("HmacSM3");
+    }
+
+    @Test
+    public void testAlias() throws Exception {
+        testHmacSM3("hmacSM3");
+    }
+
+    public void testHmacSM3(String name) throws Exception {
+        Mac hmacSM3 = Mac.getInstance(name, PROVIDER);
         SecretKeySpec keySpec = new SecretKeySpec(KEY, "HmacSM3");
-        sm3HMac.init(keySpec);
-        byte[] mac = sm3HMac.doFinal(toBytes("616263"));
+        hmacSM3.init(keySpec);
+        byte[] mac = hmacSM3.doFinal(toBytes("616263"));
         Assertions.assertEquals(SM3_HMAC_LEN, mac.length);
     }
 
     @Test
     public void testUpdateByte() throws Exception {
-        Mac sm3HMac = Mac.getInstance("HmacSM3", PROVIDER);
+        Mac hmacSM3 = Mac.getInstance("HmacSM3", PROVIDER);
         SecretKeySpec keySpec = new SecretKeySpec(KEY, "HmacSM3");
-        sm3HMac.init(keySpec);
+        hmacSM3.init(keySpec);
         for (byte b : MESSAGE) {
-            sm3HMac.update(b);
+            hmacSM3.update(b);
         }
-        byte[] mac = sm3HMac.doFinal();
+        byte[] mac = hmacSM3.doFinal();
         Assertions.assertEquals(SM3_HMAC_LEN, mac.length);
     }
 
     @Test
     public void testUpdateBytes() throws Exception {
-        Mac sm3HMac = Mac.getInstance("HmacSM3", PROVIDER);
+        Mac hmacSM3 = Mac.getInstance("HmacSM3", PROVIDER);
         SecretKeySpec keySpec = new SecretKeySpec(KEY, "HmacSM3");
-        sm3HMac.init(keySpec);
-        sm3HMac.update(MESSAGE, 0, MESSAGE.length / 2);
-        sm3HMac.update(MESSAGE, MESSAGE.length / 2, MESSAGE.length - MESSAGE.length / 2);
-        byte[] mac = sm3HMac.doFinal();
+        hmacSM3.init(keySpec);
+        hmacSM3.update(MESSAGE, 0, MESSAGE.length / 2);
+        hmacSM3.update(MESSAGE, MESSAGE.length / 2, MESSAGE.length - MESSAGE.length / 2);
+        byte[] mac = hmacSM3.doFinal();
         Assertions.assertEquals(SM3_HMAC_LEN, mac.length);
     }
 
@@ -119,39 +137,39 @@ public class SM3HMacTest {
     public void testNullBytes() throws Exception {
         SecretKeySpec keySpec = new SecretKeySpec(KEY, "HmacSM3");
 
-        Mac sm3HMac1 = Mac.getInstance("HmacSM3", PROVIDER);
-        sm3HMac1.init(keySpec);
-        sm3HMac1.update((byte[]) null);
-        byte[] mac1 = sm3HMac1.doFinal();
+        Mac hmacSM31 = Mac.getInstance("HmacSM3", PROVIDER);
+        hmacSM31.init(keySpec);
+        hmacSM31.update((byte[]) null);
+        byte[] mac1 = hmacSM31.doFinal();
 
-        Mac sm3HMac2 = Mac.getInstance("HmacSM3", PROVIDER);
-        sm3HMac2.init(keySpec);
-        sm3HMac2.update(new byte[0]);
-        byte[] mac2 = sm3HMac2.doFinal();
+        Mac hmacSM32 = Mac.getInstance("HmacSM3", PROVIDER);
+        hmacSM32.init(keySpec);
+        hmacSM32.update(new byte[0]);
+        byte[] mac2 = hmacSM32.doFinal();
 
         Assertions.assertArrayEquals(mac1, mac2);
     }
 
     @Test
     public void testByteBuffer() throws Exception {
-        Mac sm3HMac = Mac.getInstance("HmacSM3", PROVIDER);
+        Mac hmacSM3 = Mac.getInstance("HmacSM3", PROVIDER);
         SecretKeySpec keySpec = new SecretKeySpec(KEY, "HmacSM3");
-        sm3HMac.init(keySpec);
+        hmacSM3.init(keySpec);
         ByteBuffer buffer = ByteBuffer.wrap(toBytes("616263"));
-        sm3HMac.update(buffer);
-        byte[] mac = sm3HMac.doFinal();
+        hmacSM3.update(buffer);
+        byte[] mac = hmacSM3.doFinal();
         Assertions.assertEquals(SM3_HMAC_LEN, mac.length);
     }
 
     @Test
     public void testNullByteBuffer() throws Exception {
-        Mac sm3HMac = Mac.getInstance("HmacSM3", PROVIDER);
+        Mac hmacSM3 = Mac.getInstance("HmacSM3", PROVIDER);
         SecretKeySpec keySpec = new SecretKeySpec(KEY, "HmacSM3");
-        sm3HMac.init(keySpec);
+        hmacSM3.init(keySpec);
         Assertions.assertThrows(
                 IllegalArgumentException.class,
                 () -> {
-                    sm3HMac.update((ByteBuffer) null);
+                    hmacSM3.update((ByteBuffer) null);
                 });
     }
 
@@ -159,15 +177,15 @@ public class SM3HMacTest {
     public void testEmptyInput() throws Exception {
         SecretKeySpec keySpec = new SecretKeySpec(KEY, "HmacSM3");
 
-        Mac sm3HMac1 = Mac.getInstance("HmacSM3", PROVIDER);
-        sm3HMac1.init(keySpec);
-        sm3HMac1.update(new byte[0]);
-        byte[] mac1 = sm3HMac1.doFinal();
+        Mac hmacSM31 = Mac.getInstance("HmacSM3", PROVIDER);
+        hmacSM31.init(keySpec);
+        hmacSM31.update(new byte[0]);
+        byte[] mac1 = hmacSM31.doFinal();
 
-        Mac sm3HMac2 = Mac.getInstance("HmacSM3", PROVIDER);
-        sm3HMac2.init(keySpec);
-        sm3HMac2.update(ByteBuffer.wrap(new byte[0]));
-        byte[] mac2 = sm3HMac2.doFinal();
+        Mac hmacSM32 = Mac.getInstance("HmacSM3", PROVIDER);
+        hmacSM32.init(keySpec);
+        hmacSM32.update(ByteBuffer.wrap(new byte[0]));
+        byte[] mac2 = hmacSM32.doFinal();
 
         Assertions.assertArrayEquals(mac1, mac2);
     }
@@ -176,24 +194,24 @@ public class SM3HMacTest {
     public void testNoInput() throws Exception {
         SecretKeySpec keySpec = new SecretKeySpec(KEY, "HmacSM3");
 
-        Mac sm3HMac1 = Mac.getInstance("HmacSM3", PROVIDER);
-        sm3HMac1.init(keySpec);
-        byte[] mac1 = sm3HMac1.doFinal();
+        Mac hmacSM31 = Mac.getInstance("HmacSM3", PROVIDER);
+        hmacSM31.init(keySpec);
+        byte[] mac1 = hmacSM31.doFinal();
 
-        Mac sm3HMac2 = Mac.getInstance("HmacSM3", PROVIDER);
-        sm3HMac2.init(keySpec);
-        sm3HMac2.update(new byte[0]);
-        byte[] mac2 = sm3HMac2.doFinal();
+        Mac hmacSM32 = Mac.getInstance("HmacSM3", PROVIDER);
+        hmacSM32.init(keySpec);
+        hmacSM32.update(new byte[0]);
+        byte[] mac2 = hmacSM32.doFinal();
 
         Assertions.assertArrayEquals(mac1, mac2);
     }
 
     @Test
     public void testBigData() throws Exception {
-        Mac sm3HMac = Mac.getInstance("HmacSM3", PROVIDER);
+        Mac hmacSM3 = Mac.getInstance("HmacSM3", PROVIDER);
         SecretKeySpec keySpec = new SecretKeySpec(KEY, "HmacSM3");
-        sm3HMac.init(keySpec);
-        byte[] mac = sm3HMac.doFinal(TestUtils.dataMB(10));
+        hmacSM3.init(keySpec);
+        byte[] mac = hmacSM3.doFinal(TestUtils.dataMB(10));
         Assertions.assertEquals(SM3_HMAC_LEN, mac.length);
     }
 
@@ -202,55 +220,55 @@ public class SM3HMacTest {
         byte[] data = TestUtils.dataMB(10);
         SecretKeySpec keySpec = new SecretKeySpec(KEY, "HmacSM3");
 
-        Mac sm3HMac = Mac.getInstance("HmacSM3", PROVIDER);
-        sm3HMac.init(keySpec);
-        byte[] mac = sm3HMac.doFinal(data);
+        Mac hmacSM3 = Mac.getInstance("HmacSM3", PROVIDER);
+        hmacSM3.init(keySpec);
+        byte[] mac = hmacSM3.doFinal(data);
 
-        Mac sm3HMacBuffer = Mac.getInstance("HmacSM3", PROVIDER);
-        sm3HMacBuffer.init(keySpec);
+        Mac hmacSM3Buffer = Mac.getInstance("HmacSM3", PROVIDER);
+        hmacSM3Buffer.init(keySpec);
         ByteBuffer buffer = ByteBuffer.wrap(data);
-        sm3HMacBuffer.update(buffer);
-        byte[] macBuffer = sm3HMacBuffer.doFinal();
+        hmacSM3Buffer.update(buffer);
+        byte[] macBuffer = hmacSM3Buffer.doFinal();
 
         Assertions.assertArrayEquals(mac, macBuffer);
     }
 
     @Test
-    public void testSM3HMacParallelly() throws Exception {
+    public void testHmacSM3Parallelly() throws Exception {
         TestUtils.repeatTaskParallelly(() -> {
-            testSM3HMac();
+            testHmacSM3();
             return null;
         });
     }
 
     @Test
-    public void testSM3HMacSerially() throws Exception {
+    public void testHmacSM3Serially() throws Exception {
         TestUtils.repeatTaskSerially(() -> {
-            testSM3HMac();
+            testHmacSM3();
             return null;
         });
     }
 
     @Test
     public void testClone() throws Exception {
-        Mac sm3HMac = Mac.getInstance("HmacSM3", PROVIDER);
+        Mac hmacSM3 = Mac.getInstance("HmacSM3", PROVIDER);
         SecretKeySpec keySpec = new SecretKeySpec(KEY, "HmacSM3");
-        sm3HMac.init(keySpec);
+        hmacSM3.init(keySpec);
 
-        sm3HMac.update(MESSAGE, 0, MESSAGE.length / 3);
-        sm3HMac.update(MESSAGE[MESSAGE.length / 3]);
+        hmacSM3.update(MESSAGE, 0, MESSAGE.length / 3);
+        hmacSM3.update(MESSAGE[MESSAGE.length / 3]);
 
-        Mac clone = (Mac) sm3HMac.clone();
+        Mac clone = (Mac) hmacSM3.clone();
 
-        sm3HMac.update(MESSAGE, MESSAGE.length / 3 + 1,
+        hmacSM3.update(MESSAGE, MESSAGE.length / 3 + 1,
                 MESSAGE.length - MESSAGE.length / 3 - 2);
         clone.update(MESSAGE, MESSAGE.length / 3 + 1,
                 MESSAGE.length - MESSAGE.length / 3 - 2);
 
-        sm3HMac.update(MESSAGE[MESSAGE.length - 1]);
+        hmacSM3.update(MESSAGE[MESSAGE.length - 1]);
         clone.update(MESSAGE[MESSAGE.length - 1]);
 
-        byte[] mac = sm3HMac.doFinal();
+        byte[] mac = hmacSM3.doFinal();
         byte[] macClone = clone.doFinal();
 
         Assertions.assertArrayEquals(mac, macClone);

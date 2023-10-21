@@ -86,7 +86,12 @@ public class SM2SignatureTest {
     @Test
     public void testSignature() throws Exception {
         testSignature("SM2");
+    }
+
+    @Test
+    public void testAlias() throws Exception {
         testSignature("SM3withSM2");
+        testSignature("OID.1.2.156.10197.1.501");
     }
 
     private void testSignature(String name) throws Exception {

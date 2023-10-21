@@ -80,7 +80,7 @@ public class KonaCryptoProvider extends Provider {
         provider.put("Alg.Alias.KeyGenerator.SM3HMac", "HmacSM3");
 
         provider.put("Alg.Alias.Cipher.OID.1.2.156.10197.1.301", "SM2");
-        provider.put("Alg.Alias.Signature.OID.1.2.156.10197.1.501", "SM3withSM2");
+        provider.put("Alg.Alias.Signature.OID.1.2.156.10197.1.501", "SM2");
         provider.put("KeyPairGenerator.SM2",
                 "com.tencent.kona.crypto.provider.SM2KeyPairGenerator");
         provider.put("KeyFactory.SM2", "com.tencent.kona.crypto.provider.SM2KeyFactory");

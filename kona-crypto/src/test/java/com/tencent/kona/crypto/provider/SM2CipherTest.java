@@ -65,13 +65,22 @@ public class SM2CipherTest {
 
     @Test
     public void testCipher() throws Exception {
+        testCipher("SM2");
+    }
+
+    @Test
+    public void testAlias() throws Exception {
+        testCipher("OID.1.2.156.10197.1.301");
+    }
+
+    private void testCipher(String name) throws Exception {
         KeyFactory keyFactory = KeyFactory.getInstance("SM2", PROVIDER);
         SM2PublicKeySpec pubKeySpec = new SM2PublicKeySpec(toBytes(PUB_KEY));
         PublicKey pubKey = keyFactory.generatePublic(pubKeySpec);
         SM2PrivateKeySpec privateKeySpec = new SM2PrivateKeySpec(toBytes(PRI_KEY));
         PrivateKey priKey = keyFactory.generatePrivate(privateKeySpec);
 
-        Cipher cipher = Cipher.getInstance("SM2", PROVIDER);
+        Cipher cipher = Cipher.getInstance(name, PROVIDER);
 
         cipher.init(Cipher.ENCRYPT_MODE, pubKey);
         byte[] ciphertext = cipher.doFinal(MESSAGE);
