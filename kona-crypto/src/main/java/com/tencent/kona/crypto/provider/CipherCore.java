@@ -26,6 +26,7 @@
 package com.tencent.kona.crypto.provider;
 
 import com.tencent.kona.crypto.CryptoInsts;
+import com.tencent.kona.sun.security.jca.JCAUtil;
 
 import java.util.Arrays;
 import java.util.Locale;
@@ -322,7 +323,7 @@ final class CipherCore {
         byte[] iv = getIV();
         if (iv == null) {
             iv = new byte[blockSize];
-            SecureRandomHolder.getRandom().nextBytes(iv);
+            JCAUtil.getSecureRandom().nextBytes(iv);
         }
         spec = new IvParameterSpec(iv);
         try {
@@ -443,7 +444,7 @@ final class CipherCore {
                 }
 
                 if (random == null) {
-                    random = SecureRandomHolder.getRandom();
+                    random = JCAUtil.getSecureRandom();
                 }
 
                 ivBytes = new byte[blockSize];
