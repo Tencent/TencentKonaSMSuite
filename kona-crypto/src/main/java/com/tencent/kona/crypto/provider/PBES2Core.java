@@ -34,6 +34,7 @@ import javax.crypto.*;
 import javax.crypto.spec.*;
 
 import com.tencent.kona.jdk.internal.misc.SharedSecretsUtil;
+import com.tencent.kona.sun.security.jca.JCAUtil;
 import com.tencent.kona.sun.security.util.PBEUtil;
 
 /**
@@ -122,7 +123,7 @@ abstract class PBES2Core extends CipherSpi {
 
     protected AlgorithmParameters engineGetParameters() {
         return pbes2Params.getAlgorithmParameters(
-                blkSize, pbeAlgo, SecureRandomHolder.getRandom());
+                blkSize, pbeAlgo, JCAUtil.getSecureRandom());
     }
 
     protected void engineInit(int opmode, Key key, SecureRandom random)
