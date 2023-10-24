@@ -25,6 +25,8 @@ import org.junit.jupiter.api.Test;
 import java.math.BigInteger;
 import java.security.spec.ECPoint;
 
+import static java.security.spec.ECPoint.POINT_INFINITY;
+
 /**
  * The test for EC operator.
  */
@@ -47,7 +49,7 @@ public class ECOperatorTest {
     @Test
     public void testIsOnCurve() {
         // The infinity point always be on the curve.
-        Assertions.assertTrue(DUMMY.isOnCurve(ECOperator.INFINITY));
+        Assertions.assertTrue(DUMMY.isOnCurve(POINT_INFINITY));
 
         // The generator point must be on the curve.
         Assertions.assertTrue(DUMMY.isOnCurve(DUMMY.getGenerator()));
@@ -63,7 +65,7 @@ public class ECOperatorTest {
 
     @Test
     public void testCheckOrder() {
-        Assertions.assertTrue(DUMMY.checkOrder(ECOperator.INFINITY));
+        Assertions.assertTrue(DUMMY.checkOrder(POINT_INFINITY));
         Assertions.assertTrue(DUMMY.checkOrder(DUMMY_GENERATOR));
         Assertions.assertTrue(DUMMY.checkOrder(new ECPoint(
                 BigInteger.valueOf(11), BigInteger.valueOf(1))));
@@ -83,11 +85,11 @@ public class ECOperatorTest {
         ECPoint point = new ECPoint(
                 BigInteger.valueOf(2), BigInteger.valueOf(7));
 
-        ECPoint sum = DUMMY.add(point, ECOperator.INFINITY);
+        ECPoint sum = DUMMY.add(point, POINT_INFINITY);
         Assertions.assertEquals(point.getAffineX(), sum.getAffineX());
         Assertions.assertEquals(point.getAffineY(), sum.getAffineY());
 
-        sum = DUMMY.add(ECOperator.INFINITY, point);
+        sum = DUMMY.add(POINT_INFINITY, point);
         Assertions.assertEquals(point.getAffineX(), sum.getAffineX());
         Assertions.assertEquals(point.getAffineY(), sum.getAffineY());
     }
@@ -106,11 +108,11 @@ public class ECOperatorTest {
         ECPoint point = new ECPoint(
                 BigInteger.valueOf(2), BigInteger.valueOf(10));
 
-        ECPoint diff = DUMMY.subtract(point, ECOperator.INFINITY);
+        ECPoint diff = DUMMY.subtract(point, POINT_INFINITY);
         Assertions.assertEquals(point.getAffineX(), diff.getAffineX());
         Assertions.assertEquals(point.getAffineY(), diff.getAffineY());
 
-        diff = DUMMY.subtract(ECOperator.INFINITY, point);
+        diff = DUMMY.subtract(POINT_INFINITY, point);
         Assertions.assertEquals(point.getAffineX(), diff.getAffineX());
         Assertions.assertEquals(point.getAffineY().negate(), diff.getAffineY());
     }
@@ -122,16 +124,16 @@ public class ECOperatorTest {
         Assertions.assertEquals(BigInteger.valueOf(8), product.getAffineY());
 
         product = DUMMY.multiply(DUMMY_GENERATOR, 0);
-        Assertions.assertEquals(ECOperator.INFINITY, product);
+        Assertions.assertEquals(POINT_INFINITY, product);
 
         // 18 is the order of this finite field.
         product = DUMMY.multiply(DUMMY_GENERATOR, 18);
-        Assertions.assertEquals(ECOperator.INFINITY, product);
+        Assertions.assertEquals(POINT_INFINITY, product);
     }
 
     @Test
     public void testMultiplyInfinity() {
-        ECPoint product = DUMMY.multiply(ECOperator.INFINITY, 6);
-        Assertions.assertEquals(ECOperator.INFINITY, product);
+        ECPoint product = DUMMY.multiply(POINT_INFINITY, 6);
+        Assertions.assertEquals(POINT_INFINITY, product);
     }
 }

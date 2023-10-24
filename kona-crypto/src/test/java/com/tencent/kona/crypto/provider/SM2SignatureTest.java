@@ -158,7 +158,7 @@ public class SM2SignatureTest {
         Assertions.assertThrows(InvalidKeyException.class, () -> testKeyRange(1));
 
         // privateKey = order
-        Assertions.assertThrows(InvalidKeyException.class, () -> testKeyRange(0));
+        Assertions.assertThrows(IllegalArgumentException.class, () -> testKeyRange(0));
 
         // privateKey = order + 1
         Assertions.assertThrows(InvalidKeyException.class, () -> testKeyRange(-1));
