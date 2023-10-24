@@ -33,20 +33,28 @@ public class SM2PrivateKey implements ECPrivateKey {
     private static final long serialVersionUID = 8891019868158427133L;
 
     private final BigInteger keyS;
-    private final byte[] key;
+    private final byte[] encoded;
 
     public SM2PrivateKey(byte[] key) {
-        CryptoUtils.checkKey(key);
+        if (key == null || key.length == 0) {
+            throw new IllegalArgumentException("Missing encoded private key");
+        }
 
-        keyS = CryptoUtils.toBigInt(key);
-        this.key = CryptoUtils.priKey(keyS);
+        if (key.length != 32 && !(key.length == 33 && key[0] == 0)) {
+            throw new IllegalArgumentException("Private key must be 32-bytes");
+        }
+
+        keyS = new BigInteger(1, key);
+        this.encoded = CryptoUtils.priKey(keyS);
     }
 
     public SM2PrivateKey(BigInteger keyS) {
-        CryptoUtils.checkKey(keyS);
+        if (keyS == null) {
+            throw new IllegalArgumentException("Missing private key");
+        }
 
+        encoded = CryptoUtils.priKey(keyS);
         this.keyS = keyS;
-        key = CryptoUtils.priKey(keyS);
     }
 
     public SM2PrivateKey(ECPrivateKey ecPrivateKey) {
@@ -65,7 +73,7 @@ public class SM2PrivateKey implements ECPrivateKey {
 
     @Override
     public byte[] getEncoded() {
-        return key.clone();
+        return encoded.clone();
     }
 
     @Override
@@ -87,11 +95,11 @@ public class SM2PrivateKey implements ECPrivateKey {
             return false;
         }
         SM2PrivateKey that = (SM2PrivateKey) o;
-        return Arrays.equals(key, that.key);
+        return Arrays.equals(encoded, that.encoded);
     }
 
     @Override
     public int hashCode() {
-        return Arrays.hashCode(key);
+        return Arrays.hashCode(encoded);
     }
 }

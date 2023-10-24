@@ -26,6 +26,7 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
+import java.math.BigInteger;
 import java.security.KeyFactory;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
@@ -33,6 +34,7 @@ import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.interfaces.ECPrivateKey;
 import java.security.interfaces.ECPublicKey;
+import java.security.spec.ECPoint;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.KeySpec;
 
@@ -45,8 +47,12 @@ import static com.tencent.kona.crypto.TestUtils.PROVIDER;
 public class SM2KeyFactoryTest {
 
     // starts with 0x05
-    private final static String INVALID_PUB_KEY
+    private final static String INVALID_PUB_KEY_1
             = "051D9E2952A06C913BAD21CCC358905ADB3A8097DB6F2F87EB5F393284EC2B7208C30B4D9834D0120216D6F1A73164FDA11A87B0A053F63D992BFB0E4FC1C5D9AD";
+
+    // 66-bytes
+    private final static String INVALID_PUB_KEY_2
+            = "04111D9E2952A06C913BAD21CCC358905ADB3A8097DB6F2F87EB5F393284EC2B7208C30B4D9834D0120216D6F1A73164FDA11A87B0A053F63D992BFB0E4FC1C5D9AD";
 
     // 33-bytes
     private final static String INVALID_PRI_KEY
@@ -144,6 +150,9 @@ public class SM2KeyFactoryTest {
 
         Assertions.assertThrows(IllegalArgumentException.class,
                 () -> keyFactory.generatePrivate(
+                        new SM2PrivateKeySpec(new BigInteger(INVALID_PRI_KEY, 16))));
+        Assertions.assertThrows(IllegalArgumentException.class,
+                () -> keyFactory.generatePrivate(
                         new SM2PrivateKeySpec(toBytes(INVALID_PRI_KEY))));
         Assertions.assertThrows(NullPointerException.class,
                 () -> keyFactory.generatePrivate(
@@ -151,7 +160,13 @@ public class SM2KeyFactoryTest {
 
         Assertions.assertThrows(IllegalArgumentException.class,
                 () -> keyFactory.generatePublic(
-                        new SM2PublicKeySpec(toBytes(INVALID_PUB_KEY))));
+                        new SM2PublicKeySpec(toBytes(INVALID_PUB_KEY_1))));
+        Assertions.assertThrows(IllegalArgumentException.class,
+                () -> keyFactory.generatePublic(
+                        new SM2PublicKeySpec(toBytes(INVALID_PUB_KEY_2))));
+        Assertions.assertThrows(IllegalArgumentException.class,
+                () -> keyFactory.generatePublic(
+                        new SM2PublicKeySpec(ECPoint.POINT_INFINITY)));
         Assertions.assertThrows(NullPointerException.class,
                 () -> keyFactory.generatePublic(
                         new SM2PublicKeySpec((byte[]) null)));
