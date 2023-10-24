@@ -243,8 +243,13 @@ public final class CryptoUtils {
     public static ECPoint pubKeyPoint(byte[] pubKey) {
         if (pubKey.length != Constants.SM2_PUBKEY_LEN) {
             throw new IllegalArgumentException(
-                    "The uncompressed raw public key must be 65-byte length: "
+                    "The encoded public key must be 65-bytes: "
                             + pubKey.length);
+        }
+
+        if (pubKey[0] != 0x04) {
+            throw new IllegalArgumentException(
+                    "The encoded public key must start with 0x04");
         }
 
         BigInteger x = toBigInt(copy(pubKey, 1, 32));

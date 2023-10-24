@@ -36,12 +36,21 @@ import java.security.interfaces.ECPublicKey;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.KeySpec;
 
+import static com.tencent.kona.crypto.CryptoUtils.toBytes;
 import static com.tencent.kona.crypto.TestUtils.PROVIDER;
 
 /**
  * The test for SM2KeyFactory.
  */
 public class SM2KeyFactoryTest {
+
+    // starts with 0x05
+    private final static String INVALID_PUB_KEY
+            = "051D9E2952A06C913BAD21CCC358905ADB3A8097DB6F2F87EB5F393284EC2B7208C30B4D9834D0120216D6F1A73164FDA11A87B0A053F63D992BFB0E4FC1C5D9AD";
+
+    // 33-bytes
+    private final static String INVALID_PRI_KEY
+            = "3B03B35C2F26DBC56F6D33677F1B28AF15E45FE9B594A6426BDCAD4A69FF976B00";
 
     @BeforeAll
     public static void setup() {
@@ -132,5 +141,19 @@ public class SM2KeyFactoryTest {
                 privateKey, SM2PrivateKeySpec.class);
         Assertions.assertThrows(InvalidKeySpecException.class,
                 () -> keyFactory.generatePublic(privateKeySpec));
+
+        Assertions.assertThrows(IllegalArgumentException.class,
+                () -> keyFactory.generatePrivate(
+                        new SM2PrivateKeySpec(toBytes(INVALID_PRI_KEY))));
+        Assertions.assertThrows(NullPointerException.class,
+                () -> keyFactory.generatePrivate(
+                        new SM2PrivateKeySpec((byte[]) null)));
+
+        Assertions.assertThrows(IllegalArgumentException.class,
+                () -> keyFactory.generatePublic(
+                        new SM2PublicKeySpec(toBytes(INVALID_PUB_KEY))));
+        Assertions.assertThrows(NullPointerException.class,
+                () -> keyFactory.generatePublic(
+                        new SM2PublicKeySpec((byte[]) null)));
     }
 }
