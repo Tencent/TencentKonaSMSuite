@@ -32,9 +32,6 @@ import static com.tencent.kona.crypto.util.Constants.SM4_KEY_SIZE;
 
 public final class SM4KeyGenerator extends KeyGeneratorSpi {
 
-    // The key size in bytes
-    private int keySize = SM4_KEY_SIZE;
-
     private SecureRandom random;
 
     @Override
@@ -55,7 +52,6 @@ public final class SM4KeyGenerator extends KeyGeneratorSpi {
             throw new InvalidParameterException("The key size must be 128-bits");
         }
 
-        this.keySize = SM4_KEY_SIZE;
         this.engineInit(random);
     }
 
@@ -65,7 +61,7 @@ public final class SM4KeyGenerator extends KeyGeneratorSpi {
             random = new SecureRandom();
         }
 
-        byte[] keyBytes = new byte[keySize];
+        byte[] keyBytes = new byte[SM4_KEY_SIZE];
         random.nextBytes(keyBytes);
         return new SecretKeySpec(keyBytes, "SM4");
     }
