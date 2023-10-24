@@ -216,44 +216,21 @@ public final class CryptoUtils {
         return concat(data1, 0, data1.length, data2, 0, data2.length);
     }
 
-    public static void checkKey(byte[] key) {
-        if (key == null) {
-            throw new IllegalArgumentException("Missing key");
-        }
-
-        if (key.length == 0) {
-            throw new IllegalArgumentException("Empty key");
-        }
-    }
-
-    public static void checkKey(BigInteger key) {
-        if (key == null) {
-            throw new IllegalArgumentException("Missing key");
-        }
-    }
-
-    public static void checkKey(ECPoint pubKey) {
-        if (pubKey == null || pubKey.getAffineX() == null
-                || pubKey.getAffineY() == null) {
-            throw new IllegalArgumentException("Missing key");
-        }
-    }
-
     // Format: 0x04<x-coordinate><y-coordinate>
-    public static ECPoint pubKeyPoint(byte[] pubKey) {
-        if (pubKey.length != Constants.SM2_PUBKEY_LEN) {
+    public static ECPoint pubKeyPoint(byte[] encodedPubKey) {
+        if (encodedPubKey.length != Constants.SM2_PUBKEY_LEN) {
             throw new IllegalArgumentException(
                     "The encoded public key must be 65-bytes: "
-                            + pubKey.length);
+                            + encodedPubKey.length);
         }
 
-        if (pubKey[0] != 0x04) {
+        if (encodedPubKey[0] != 0x04) {
             throw new IllegalArgumentException(
                     "The encoded public key must start with 0x04");
         }
 
-        BigInteger x = toBigInt(copy(pubKey, 1, 32));
-        BigInteger y = toBigInt(copy(pubKey, 33, 32));
+        BigInteger x = toBigInt(copy(encodedPubKey, 1, 32));
+        BigInteger y = toBigInt(copy(encodedPubKey, 33, 32));
         return new ECPoint(x, y);
     }
 

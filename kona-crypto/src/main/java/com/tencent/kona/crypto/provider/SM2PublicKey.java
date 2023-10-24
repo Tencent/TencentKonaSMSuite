@@ -32,21 +32,30 @@ public class SM2PublicKey implements ECPublicKey {
 
     private static final long serialVersionUID = 682873544399078680L;
 
-    private final byte[] key;
-    private final transient ECPoint w;
+    private final byte[] encoded;
+    private final transient ECPoint pubPoint;
 
-    public SM2PublicKey(byte[] key) {
-        CryptoUtils.checkKey(key);
+    public SM2PublicKey(byte[] encoded) {
+        if (encoded == null || encoded.length == 0) {
+            throw new IllegalArgumentException("Missing encoded public key");
+        }
 
-        this.key = key.clone();
-        w = CryptoUtils.pubKeyPoint(key);
+        pubPoint = CryptoUtils.pubKeyPoint(encoded);
+        this.encoded = encoded.clone();
     }
 
-    public SM2PublicKey(ECPoint w) {
-        CryptoUtils.checkKey(w);
+    public SM2PublicKey(ECPoint pubPoint) {
+        if (pubPoint == null) {
+            throw new IllegalArgumentException("Missing public key");
+        }
 
-        this.w = w;
-        key = CryptoUtils.pubKey(w);
+        if (pubPoint.equals(ECPoint.POINT_INFINITY)) {
+            throw new IllegalArgumentException(
+                    "Public point cannot be infinite point");
+        }
+
+        encoded = CryptoUtils.pubKey(pubPoint);
+        this.pubPoint = pubPoint;
     }
 
     public SM2PublicKey(ECPublicKey ecPublicKey) {
@@ -59,7 +68,7 @@ public class SM2PublicKey implements ECPublicKey {
     }
 
     /**
-     * Uncompressed EC point: 0x04||X||Y
+     * Uncompressed EC point: 0x04||x||y
      */
     @Override
     public String getFormat() {
@@ -68,12 +77,12 @@ public class SM2PublicKey implements ECPublicKey {
 
     @Override
     public byte[] getEncoded() {
-        return key.clone();
+        return encoded.clone();
     }
 
     @Override
     public ECPoint getW() {
-        return w;
+        return pubPoint;
     }
 
     @Override
@@ -90,11 +99,11 @@ public class SM2PublicKey implements ECPublicKey {
             return false;
         }
         SM2PublicKey that = (SM2PublicKey) o;
-        return Arrays.equals(key, that.key);
+        return Arrays.equals(encoded, that.encoded);
     }
 
     @Override
     public int hashCode() {
-        return Arrays.hashCode(key);
+        return Arrays.hashCode(encoded);
     }
 }

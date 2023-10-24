@@ -161,11 +161,11 @@ public class SM2Signature extends SignatureSpi {
             if (publicKey != null) {
                 if (!Arrays.equals(publicKey.getEncoded(), encodedKey)) {
                     throw new InvalidParameterException(
-                            "public key of parameter is not match");
+                            "Public key of parameter is not match");
                 }
             }
         } else {
-            throw new InvalidParameterException("unsupported parameter: " + param);
+            throw new InvalidParameterException("Unsupported parameter: " + param);
         }
     }
 
@@ -228,7 +228,7 @@ public class SM2Signature extends SignatureSpi {
     @Override
     protected byte[] engineSign() throws SignatureException {
         if (privateKey == null) {
-            throw new SignatureException("Private Key not initialized");
+            throw new SignatureException("Private key not initialized");
         }
 
         BigInteger d = privateKey.getS();
@@ -288,7 +288,7 @@ public class SM2Signature extends SignatureSpi {
     @Override
     protected boolean engineVerify(byte[] sigBytes) throws SignatureException {
         if (publicKey == null) {
-            throw new SignatureException("Public Key not initialized");
+            throw new SignatureException("Public key not initialized");
         }
 
         ECPoint publicPoint = publicKey.getW();
