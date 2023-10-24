@@ -28,16 +28,18 @@ import java.security.spec.ECParameterSpec;
 import java.security.spec.ECPoint;
 import java.security.spec.EllipticCurve;
 
-import static java.math.BigInteger.*;
+import static java.math.BigInteger.ONE;
+import static java.math.BigInteger.ZERO;
+import static java.security.spec.ECPoint.POINT_INFINITY;
 
 import static com.tencent.kona.crypto.CryptoUtils.toBigInt;
 
-/**
+/*
  * The operator for EC point arithmetic operations.
  * The main algorithms refer to the wikipedia page:
  * https://en.wikipedia.org/wiki/Elliptic_curve_point_multiplication
  *
- * CAUTION: Just for demonstration purposes, not use it in real products.
+ * CAUTION: Just for demonstration purposes, don't use it in real products.
  */
 @Deprecated
 public class ECOperator {
@@ -65,8 +67,6 @@ public class ECOperator {
                         toBigInt("483ADA7726A3C4655DA4FBFC0E1108A8FD17B448A68554199C47D08FFB10D4B8")),
             toBigInt("FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEBAAEDCE6AF48A03BBFD25E8CD0364141"),
             1);
-
-    public final static ECPoint INFINITY = new ECPoint(ZERO, ONE);
 
     private final static BigInteger TWO = new BigInteger("2");
     private final static BigInteger THREE = new BigInteger("3");
@@ -162,7 +162,7 @@ public class ECOperator {
     public ECPoint add(ECPoint p1, ECPoint p2) {
         if (isInfinity(p1)) {
             return isInfinity(p2)
-                    ? INFINITY
+                    ? POINT_INFINITY
                     : new ECPoint(p2.getAffineX(), p2.getAffineY());
         }
 
@@ -176,10 +176,10 @@ public class ECOperator {
                 // Here, p1 == p2
                 lambda = lambda(p1, p2);
                 if (lambda == null) {
-                    return INFINITY;
+                    return POINT_INFINITY;
                 }
             } else {
-                return INFINITY;
+                return POINT_INFINITY;
             }
         } else {
             BigInteger nom = p2.getAffineY().subtract(p1.getAffineY());
@@ -205,12 +205,12 @@ public class ECOperator {
 
         BigInteger denom = p.getAffineY().multiply(TWO).mod(prime);
         if (ZERO.equals(denom)) {
-            return INFINITY;
+            return POINT_INFINITY;
         }
 
         BigInteger lambda = lambda(p, p);
         if (lambda == null) {
-            return INFINITY;
+            return POINT_INFINITY;
         }
 
         return calcPoint(p, p, lambda);
@@ -261,7 +261,7 @@ public class ECOperator {
 
     // Montgomery ladder algorithm
     private ECPoint montgomeryLadder(ECPoint p, BigInteger k) {
-        ECPoint p0 = INFINITY;
+        ECPoint p0 = POINT_INFINITY;
         ECPoint p1 = p;
         int idx = k.bitLength();
 
@@ -281,7 +281,7 @@ public class ECOperator {
     // Double-and-Add algorithm
     private ECPoint doubleAndAdd(ECPoint p, BigInteger k) {
         if (isInfinity(p) || k.equals(ZERO)) {
-            return INFINITY;
+            return POINT_INFINITY;
         }
 
         if (k.equals(ONE)) {
@@ -327,12 +327,12 @@ public class ECOperator {
     }
 
     private static boolean isInfinity(ECPoint p) {
-        return p.equals(INFINITY);
+        return p.equals(POINT_INFINITY);
     }
 
     private static ECPoint negate(ECPoint p) {
         return isInfinity(p)
-                ? INFINITY
+                ? POINT_INFINITY
                 : new ECPoint(p.getAffineX(), p.getAffineY().negate());
     }
 }

@@ -183,7 +183,7 @@ public class SM2CipherTest {
         testKeyRange(1);
 
         // privateKey = order
-        Assertions.assertThrows(InvalidKeyException.class,
+        Assertions.assertThrows(IllegalArgumentException.class,
                 () -> testKeyRange(0));
 
         // privateKey = order + 1
