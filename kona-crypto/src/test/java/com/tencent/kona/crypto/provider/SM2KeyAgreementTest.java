@@ -51,7 +51,7 @@ public class SM2KeyAgreementTest {
     }
 
     @Test
-    public void testKeyAgreementInit() throws Exception {
+    public void testInit() throws Exception {
         ECPrivateKey priKey = TestUtils.privateKey(PRI_KEY);
         ECPublicKey pubKey = TestUtils.publicKey(PUB_KEY);
 
@@ -69,7 +69,7 @@ public class SM2KeyAgreementTest {
     }
 
     @Test
-    public void testKeyAgreementInitWithoutParams() throws Exception {
+    public void testInitWithoutParams() throws Exception {
         ECPrivateKey priKey = TestUtils.privateKey(PRI_KEY);
         KeyAgreement keyAgreement = KeyAgreement.getInstance("SM2", PROVIDER);
         Assertions.assertThrows(
@@ -78,7 +78,7 @@ public class SM2KeyAgreementTest {
     }
 
     @Test
-    public void testKeyAgreementDoPhase() throws Exception {
+    public void testDoPhase() throws Exception {
         ECPrivateKey priKey = TestUtils.privateKey(PRI_KEY);
         ECPublicKey pubKey = TestUtils.publicKey(PUB_KEY);
 
@@ -115,28 +115,27 @@ public class SM2KeyAgreementTest {
     }
 
     @Test
-    public void testSM2KeyAgreement() throws Exception {
-        testSM2KeyAgreementKeySize(16, toBytes("6C89347354DE2484C60B4AB1FDE4C6E5"));
+    public void testGenerateSecret() throws Exception {
+        testGenerateSecret(16, toBytes("6C89347354DE2484C60B4AB1FDE4C6E5"));
     }
 
     @Test
-    public void testSM2KeyAgreementKeySize() throws Exception {
-        testSM2KeyAgreementKeySize(7);
-        testSM2KeyAgreementKeySize(15);
-        testSM2KeyAgreementKeySize(17);
-        testSM2KeyAgreementKeySize(32);
-        testSM2KeyAgreementKeySize(33);
-        testSM2KeyAgreementKeySize(63);
-        testSM2KeyAgreementKeySize(64);
-        testSM2KeyAgreementKeySize(65);
+    public void testGenerateSecretWithKeySize() throws Exception {
+        testGenerateSecretWithKeySize(7);
+        testGenerateSecretWithKeySize(15);
+        testGenerateSecretWithKeySize(17);
+        testGenerateSecretWithKeySize(32);
+        testGenerateSecretWithKeySize(33);
+        testGenerateSecretWithKeySize(63);
+        testGenerateSecretWithKeySize(64);
+        testGenerateSecretWithKeySize(65);
     }
 
-    private void testSM2KeyAgreementKeySize(int keySize)
-            throws Exception {
-        testSM2KeyAgreementKeySize(keySize, null);
+    private void testGenerateSecretWithKeySize(int keySize) throws Exception {
+        testGenerateSecret(keySize, null);
     }
 
-    private void testSM2KeyAgreementKeySize(int keySize, byte[] expectedSharedKey)
+    private void testGenerateSecret(int keySize, byte[] expectedSharedKey)
             throws Exception {
         String idHex = "31323334353637383132333435363738";
         String priKeyHex = "81EB26E941BB5AF16DF116495F90695272AE2CD63D6C4AE1678418BE48230029";
@@ -184,5 +183,31 @@ public class SM2KeyAgreementTest {
         SecretKey peerSharedKey = peerKeyAgreement.generateSecret("SM2SharedSecret");
 
         Assertions.assertArrayEquals(sharedKey.getEncoded(), peerSharedKey.getEncoded());
+    }
+
+    @Test
+    public void testReuseKeyAgreement() throws Exception {
+        ECPrivateKey priKey = TestUtils.privateKey(PRI_KEY);
+        ECPublicKey pubKey = TestUtils.publicKey(PUB_KEY);
+
+        SM2KeyAgreementParamSpec paramSpec = new SM2KeyAgreementParamSpec(
+                ID,
+                priKey,
+                pubKey,
+                ID,
+                pubKey,
+                true,
+                32);
+
+        KeyAgreement keyAgreement = KeyAgreement.getInstance("SM2", PROVIDER);
+
+        keyAgreement.init(priKey, paramSpec);
+        keyAgreement.doPhase(pubKey, true);
+        keyAgreement.generateSecret();
+
+        // Reuse the keyAgreement
+        keyAgreement.init(priKey, paramSpec);
+        keyAgreement.doPhase(pubKey, true);
+        keyAgreement.generateSecret();
     }
 }

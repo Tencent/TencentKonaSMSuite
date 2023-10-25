@@ -83,6 +83,7 @@ public final class SM2KeyAgreement extends KeyAgreementSpi {
 
         paramSpec = (SM2KeyAgreementParamSpec) params;
         ephemeralPrivateKey = (ECPrivateKey) key;
+        peerEphemeralPublicKey = null;
     }
 
     @Override
@@ -122,6 +123,21 @@ public final class SM2KeyAgreement extends KeyAgreementSpi {
 
     @Override
     protected byte[] engineGenerateSecret() throws IllegalStateException {
+        if (ephemeralPrivateKey == null || (peerEphemeralPublicKey == null)) {
+            throw new IllegalStateException("Not initialized correctly");
+        }
+
+        byte[] result;
+        try {
+            result = deriveKeyImpl();
+        } catch (Exception e) {
+            throw new IllegalStateException(e);
+        }
+        peerEphemeralPublicKey = null;
+        return result;
+    }
+
+    private byte[] deriveKeyImpl() {
         // RA = rA * G = (x1, y1)
         BigInteger rA = ephemeralPrivateKey.getS();
         MutablePoint rAMutablePoint = SM2OPS.multiply(
