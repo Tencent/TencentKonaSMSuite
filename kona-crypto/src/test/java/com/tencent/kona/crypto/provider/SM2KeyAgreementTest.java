@@ -28,6 +28,8 @@ import org.junit.jupiter.api.Test;
 import javax.crypto.KeyAgreement;
 import javax.crypto.SecretKey;
 import java.security.InvalidKeyException;
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
 import java.security.interfaces.ECPrivateKey;
 import java.security.interfaces.ECPublicKey;
 
@@ -209,5 +211,33 @@ public class SM2KeyAgreementTest {
         keyAgreement.init(priKey, paramSpec);
         keyAgreement.doPhase(pubKey, true);
         keyAgreement.generateSecret();
+    }
+
+    @Test
+    public void testGenerateSecretWithNoneSM2PubKey() throws Exception {
+        KeyPairGenerator sm2kpg = KeyPairGenerator.getInstance("SM2", PROVIDER);
+        KeyPair sm2KeyPair = sm2kpg.generateKeyPair();
+        KeyPair sm2EKeyPair = sm2kpg.generateKeyPair();
+
+        // SECP256R1
+        KeyPairGenerator eckpg = KeyPairGenerator.getInstance("EC");
+        eckpg.initialize(256);
+        KeyPair ecKeyPair = eckpg.generateKeyPair();
+        KeyPair ecEKeyPair = eckpg.generateKeyPair();
+
+        SM2KeyAgreementParamSpec paramSpec = new SM2KeyAgreementParamSpec(
+                ID,
+                (ECPrivateKey) sm2KeyPair.getPrivate(),
+                (ECPublicKey) sm2KeyPair.getPublic(),
+                ID,
+                (ECPublicKey) ecKeyPair.getPublic(),
+                true,
+                32);
+
+        KeyAgreement keyAgreement = KeyAgreement.getInstance("SM2", PROVIDER);
+
+        keyAgreement.init(sm2EKeyPair.getPrivate(), paramSpec);
+        Assertions.assertThrows(InvalidKeyException.class,
+                () -> keyAgreement.doPhase(ecEKeyPair.getPublic(), true));
     }
 }

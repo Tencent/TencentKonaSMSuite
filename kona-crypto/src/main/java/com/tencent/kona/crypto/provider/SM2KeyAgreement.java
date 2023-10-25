@@ -22,6 +22,8 @@ package com.tencent.kona.crypto.provider;
 
 import com.tencent.kona.crypto.spec.SM2KeyAgreementParamSpec;
 import com.tencent.kona.sun.security.ec.point.MutablePoint;
+import com.tencent.kona.sun.security.ec.point.Point;
+import com.tencent.kona.sun.security.util.ArrayUtil;
 
 import javax.crypto.KeyAgreementSpi;
 import javax.crypto.SecretKey;
@@ -106,9 +108,72 @@ public final class SM2KeyAgreement extends KeyAgreementSpi {
             throw new InvalidKeyException("Only accept ECPublicKey");
         }
 
+        // Validate public key
+        validate((ECPublicKey) key);
+
         peerEphemeralPublicKey = (ECPublicKey) key;
 
         return null;
+    }
+
+    // Verify that x and y are integers in the interval [0, p - 1].
+    private static void validateCoordinate(BigInteger c, BigInteger mod)
+        throws InvalidKeyException{
+        if (c.compareTo(BigInteger.ZERO) < 0) {
+            throw new InvalidKeyException("Invalid coordinate");
+        }
+
+        if (c.compareTo(mod) >= 0) {
+            throw new InvalidKeyException("Invalid coordinate");
+        }
+    }
+
+    // Check whether a public key is valid, following the ECC
+    // Full Public-key Validation Routine (See section 5.6.2.3.3,
+    // NIST SP 800-56A Revision 3).
+    private static void validate(ECPublicKey key)
+        throws InvalidKeyException {
+
+        // Note: Per the NIST 800-56A specification, it is required
+        // to verify that the public key is not the identity element
+        // (point of infinity).  However, the point of infinity has no
+        // affine coordinates, although the point of infinity could
+        // be encoded.  Per IEEE 1363.3-2013 (see section A.6.4.1),
+        // the point of infinity is represented by a pair of
+        // coordinates (x, y) not on the curve.  For EC prime finite
+        // field (q = p^m), the point of infinity is (0, 0) unless
+        // b = 0; in which case it is (0, 1).
+        //
+        // It means that this verification could be covered by the
+        // validation that the public key is on the curve.  As will be
+        // verified in the following steps.
+
+        // Ensure that integers are in proper range.
+        BigInteger x = key.getW().getAffineX();
+        BigInteger y = key.getW().getAffineY();
+
+        BigInteger p = SM2OPS.getField().getSize();
+        validateCoordinate(x, p);
+        validateCoordinate(y, p);
+
+        // Ensure the point is on the curve.
+        BigInteger rhs = x.modPow(BigInteger.valueOf(3), p).add(CURVE.getA()
+            .multiply(x)).add(CURVE.getB()).mod(p);
+        BigInteger lhs = y.modPow(BigInteger.valueOf(2), p);
+        if (!rhs.equals(lhs)) {
+            throw new InvalidKeyException("Point is not on curve");
+        }
+
+        // Check the order of the point.
+        //
+        // Compute nQ (using elliptic curve arithmetic), and verify that
+        // nQ is the identity element.
+        byte[] order = ORDER.toByteArray();
+        ArrayUtil.reverse(order);
+        Point product = SM2OPS.multiply(key.getW(), order);
+        if (!SM2OPS.isNeutral(product)) {
+            throw new InvalidKeyException("Point has incorrect order");
+        }
     }
 
     private static final BigInteger TWO_POW_W = BigInteger.ONE.shiftLeft(w());
