@@ -234,16 +234,15 @@ public final class CryptoUtils {
         return new ECPoint(x, y);
     }
 
-    public static byte[] pubKey(ECPoint pubKeyPoint) {
-        byte[] x = bigIntToBytes32(pubKeyPoint.getAffineX());
-        byte[] y = bigIntToBytes32(pubKeyPoint.getAffineY());
+    public static byte[] pubKey(ECPoint pubPoint) {
+        byte[] x = bigIntToBytes32(pubPoint.getAffineX());
+        byte[] y = bigIntToBytes32(pubPoint.getAffineY());
 
-        byte[] pubKey = new byte[Constants.SM2_PUBKEY_LEN];
-        byte[] flag = toBytes("04");
-        System.arraycopy(flag, 0, pubKey, 0, flag.length);
-        System.arraycopy(x, 0, pubKey, flag.length, x.length);
-        System.arraycopy(y, 0, pubKey, flag.length + x.length, y.length);
-        return pubKey;
+        byte[] encoded = new byte[65];
+        encoded[0] = 0x04;
+        System.arraycopy(x, 0, encoded, 1, 32);
+        System.arraycopy(y, 0, encoded, 33, 32);
+        return encoded;
     }
 
     public static byte[] priKey(BigInteger priKeyValue) {

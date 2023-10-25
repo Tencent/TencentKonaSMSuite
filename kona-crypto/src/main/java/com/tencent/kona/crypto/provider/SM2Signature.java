@@ -46,15 +46,12 @@ import java.security.interfaces.ECPrivateKey;
 import java.security.interfaces.ECPublicKey;
 import java.security.spec.AlgorithmParameterSpec;
 import java.security.spec.ECPoint;
-import java.util.Arrays;
-import java.util.Objects;
 
 import static com.tencent.kona.crypto.CryptoUtils.bigIntToBytes32;
 import static com.tencent.kona.crypto.CryptoUtils.toByteArrayLE;
 import static com.tencent.kona.crypto.spec.SM2ParameterSpec.CURVE;
 import static com.tencent.kona.crypto.spec.SM2ParameterSpec.GENERATOR;
 import static com.tencent.kona.crypto.spec.SM2ParameterSpec.ORDER;
-import static com.tencent.kona.crypto.util.Constants.defaultId;
 import static com.tencent.kona.sun.security.ec.SM2Operations.isInfinitePoint;
 import static com.tencent.kona.sun.security.ec.SM2Operations.SM2OPS;
 import static com.tencent.kona.sun.security.ec.SM2Operations.toECPoint;
@@ -63,8 +60,10 @@ import static java.math.BigInteger.ZERO;
 
 public class SM2Signature extends SignatureSpi {
 
-    private static final String PARAM_ID = "id";
-    private static final String PARAM_PUBLIC_KEY = "publicKey";
+    // The default ID 1234567812345678
+    private static final byte[] DEFAULT_ID = new byte[] {
+            49, 50, 51, 52, 53, 54, 55, 56,
+            49, 50, 51, 52, 53, 54, 55, 56};
 
     private SM2PrivateKey privateKey;
     private SM2PublicKey publicKey;
@@ -144,50 +143,15 @@ public class SM2Signature extends SignatureSpi {
     @Override
     protected void engineSetParameter(String param, Object value)
             throws InvalidParameterException {
-        Objects.requireNonNull(param);
-        Objects.requireNonNull(value);
-
-        if (isParamId(param)) {
-            id = ((byte[]) value).clone();
-        } else if (isParamPublicKey(param)) {
-            SM2PublicKey key = new SM2PublicKey((ECPublicKey) value);
-            byte[] encodedKey = key.getEncoded();
-
-            if (encodedKey.length == 0) {
-                throw new InvalidParameterException(
-                        "Invalid public key of parameter");
-            }
-
-            if (publicKey != null) {
-                if (!Arrays.equals(publicKey.getEncoded(), encodedKey)) {
-                    throw new InvalidParameterException(
-                            "Public key of parameter is not match");
-                }
-            }
-        } else {
-            throw new InvalidParameterException("Unsupported parameter: " + param);
-        }
+        throw new UnsupportedOperationException(
+                "Use setParameter(AlgorithmParameterSpec params) instead");
     }
 
     @Override
     protected Object engineGetParameter(String param)
             throws InvalidParameterException {
-        if (isParamId(param)) {
-            return id == null ? defaultId() : id.clone();
-        } else if (isParamPublicKey(param)) {
-            return publicKey;
-        } else {
-            throw new InvalidParameterException(
-                    "Only support id and publicKey: " + param);
-        }
-    }
-
-    private static boolean isParamId(String paramName) {
-        return PARAM_ID.equalsIgnoreCase(paramName);
-    }
-
-    private static boolean isParamPublicKey(String paramName) {
-        return PARAM_PUBLIC_KEY.equalsIgnoreCase(paramName);
+        throw new UnsupportedOperationException(
+                "getParameter(String param) not supported");
     }
 
     private void resetDigest() {
@@ -370,7 +334,7 @@ public class SM2Signature extends SignatureSpi {
     private byte[] z() {
         MessageDigest md = new SM3MessageDigest();
 
-        byte[] userId = id == null ? defaultId() : id;
+        byte[] userId = id == null ? DEFAULT_ID : id;
         int userIdLen = userId.length << 3;
         md.update((byte)(userIdLen >>> 8));
         md.update((byte)userIdLen);

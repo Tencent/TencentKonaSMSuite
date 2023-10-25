@@ -46,7 +46,7 @@ public class SM2KeyFactory extends KeyFactorySpi {
 
         SM2PublicKeySpec spec = (SM2PublicKeySpec) keySpec;
         ECPoint pubPoint = spec.getW();
-        if (pubPoint == null || pubPoint.getAffineY() == null
+        if (pubPoint == null || pubPoint.getAffineX() == null
                 || pubPoint.getAffineY() == null) {
             throw new InvalidKeySpecException("No public key");
         }
