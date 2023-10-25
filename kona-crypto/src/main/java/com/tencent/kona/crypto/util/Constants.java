@@ -57,8 +57,10 @@ public class Constants {
     public static final int SM4_GCM_IV_LEN = 12;
     public static final int SM4_GCM_TAG_LEN = 16;
 
-    // The default ID: 1234567812345678
-    private static final byte[] DEFAULT_ID = "1234567812345678".getBytes();
+    // The default ID 1234567812345678
+    private static final byte[] DEFAULT_ID = new byte[] {
+            49, 50, 51, 52, 53, 54, 55, 56,
+            49, 50, 51, 52, 53, 54, 55, 56};
 
     public static byte[] defaultId() {
         return DEFAULT_ID.clone();
