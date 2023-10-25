@@ -25,7 +25,7 @@ import javax.crypto.spec.IvParameterSpec;
 import java.security.InvalidParameterException;
 import java.security.spec.AlgorithmParameterSpec;
 
-public class SM4GenParameterSpec implements AlgorithmParameterSpec {
+public final class SM4GenParameterSpec implements AlgorithmParameterSpec {
 
     private final Class<? extends AlgorithmParameterSpec> paramSpecClass;
 

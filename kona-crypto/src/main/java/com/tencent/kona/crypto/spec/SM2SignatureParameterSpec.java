@@ -27,7 +27,7 @@ import java.util.Objects;
 /**
  * The parameters used by SM2 signature.
  */
-public class SM2SignatureParameterSpec implements AlgorithmParameterSpec {
+public final class SM2SignatureParameterSpec implements AlgorithmParameterSpec {
 
     // The default ID 1234567812345678
     private static final byte[] DEFAULT_ID = new byte[] {

@@ -35,7 +35,7 @@ import static com.tencent.kona.crypto.CryptoUtils.*;
  * SM2 ciphertext wrapper used to convert a ciphertext in one format,
  * say ASN.1 DER C1C3C2, to another encoding format, like raw C1C2C3.
  */
-public class SM2Ciphertext {
+public final class SM2Ciphertext {
 
     private static final byte UNCOMPRESSED = 0x04;
 

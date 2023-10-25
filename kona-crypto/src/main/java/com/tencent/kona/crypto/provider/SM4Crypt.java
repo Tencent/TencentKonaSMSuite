@@ -24,7 +24,7 @@ import com.tencent.kona.crypto.util.Constants;
 
 import java.security.InvalidKeyException;
 
-public class SM4Crypt extends SymmetricCipher {
+class SM4Crypt extends SymmetricCipher {
 
     private SM4Engine engine;
 

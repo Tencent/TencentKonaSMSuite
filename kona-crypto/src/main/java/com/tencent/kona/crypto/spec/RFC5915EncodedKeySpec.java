@@ -34,7 +34,7 @@ import java.security.spec.EncodedKeySpec;
  * }
  * </pre>
  */
-public class RFC5915EncodedKeySpec extends EncodedKeySpec {
+public final class RFC5915EncodedKeySpec extends EncodedKeySpec {
 
     /**
      * Creates a new {@code RFC5915EncodedKeySpec} with the given encoded key.

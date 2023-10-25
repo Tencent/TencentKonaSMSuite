@@ -54,7 +54,7 @@ import static com.tencent.kona.sun.security.ec.SM2Operations.toECPoint;
 /**
  * SM2 key agreement in compliance with GB/T 32918.3-2016.
  */
-public class SM2KeyAgreement extends KeyAgreementSpi {
+public final class SM2KeyAgreement extends KeyAgreementSpi {
 
     private SM2KeyAgreementParamSpec paramSpec;
     private ECPrivateKey ephemeralPrivateKey;

@@ -30,7 +30,7 @@ import java.security.spec.AlgorithmParameterSpec;
 
 import static com.tencent.kona.crypto.util.Constants.SM4_KEY_SIZE;
 
-public class SM3HMacKeyGenerator extends KeyGeneratorSpi {
+public final class SM3HMacKeyGenerator extends KeyGeneratorSpi {
 
     private int keySize = 32; // The key size in bytes.
     private SecureRandom random;

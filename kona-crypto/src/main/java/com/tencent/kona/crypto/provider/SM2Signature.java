@@ -58,7 +58,7 @@ import static com.tencent.kona.sun.security.ec.SM2Operations.toECPoint;
 import static java.math.BigInteger.ONE;
 import static java.math.BigInteger.ZERO;
 
-public class SM2Signature extends SignatureSpi {
+public final class SM2Signature extends SignatureSpi {
 
     // The default ID 1234567812345678
     private static final byte[] DEFAULT_ID = new byte[] {

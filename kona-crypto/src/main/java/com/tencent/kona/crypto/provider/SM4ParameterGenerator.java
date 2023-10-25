@@ -33,7 +33,7 @@ import java.security.ProviderException;
 import java.security.SecureRandom;
 import java.security.spec.AlgorithmParameterSpec;
 
-public class SM4ParameterGenerator extends AlgorithmParameterGeneratorSpi {
+public final class SM4ParameterGenerator extends AlgorithmParameterGeneratorSpi {
 
     private SM4GenParameterSpec paramSpec;
     private SecureRandom random;

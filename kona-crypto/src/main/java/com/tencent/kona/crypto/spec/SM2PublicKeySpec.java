@@ -28,7 +28,7 @@ import java.security.spec.ECPublicKeySpec;
 /**
  * A SM2 public key with the specified value.
  */
-public class SM2PublicKeySpec extends ECPublicKeySpec {
+public final class SM2PublicKeySpec extends ECPublicKeySpec {
 
     /**
      * Create a new {@code SM2PublicKeySpec} with a public point.

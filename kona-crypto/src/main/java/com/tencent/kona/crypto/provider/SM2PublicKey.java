@@ -28,7 +28,7 @@ import java.security.spec.ECParameterSpec;
 import java.security.spec.ECPoint;
 import java.util.Arrays;
 
-public class SM2PublicKey implements ECPublicKey {
+public final class SM2PublicKey implements ECPublicKey {
 
     private static final long serialVersionUID = 682873544399078680L;
 

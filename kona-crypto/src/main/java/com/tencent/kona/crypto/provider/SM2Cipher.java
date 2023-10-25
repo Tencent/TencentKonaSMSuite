@@ -46,7 +46,7 @@ import static com.tencent.kona.crypto.util.Constants.SM2_CURVE_FIELD_SIZE;
 import static com.tencent.kona.crypto.util.Constants.SM3_DIGEST_LEN;
 import static java.math.BigInteger.ZERO;
 
-public class SM2Cipher extends CipherSpi {
+public final class SM2Cipher extends CipherSpi {
 
     private static final byte[] B0 = new byte[0];
 

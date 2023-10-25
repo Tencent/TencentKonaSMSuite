@@ -39,7 +39,7 @@ import java.util.Arrays;
 import static com.tencent.kona.sun.security.ec.SM2Operations.SM2OPS;
 import static com.tencent.kona.sun.security.ec.SM2Operations.toECPoint;
 
-public class SM2KeyPairGenerator extends KeyPairGeneratorSpi {
+public final class SM2KeyPairGenerator extends KeyPairGeneratorSpi {
 
     private SecureRandom random;
 

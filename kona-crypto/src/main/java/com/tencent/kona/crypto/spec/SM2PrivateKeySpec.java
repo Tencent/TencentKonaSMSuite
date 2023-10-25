@@ -26,7 +26,7 @@ import java.security.spec.ECPrivateKeySpec;
 /**
  * A SM2 private key with the specified value.
  */
-public class SM2PrivateKeySpec extends ECPrivateKeySpec {
+public final class SM2PrivateKeySpec extends ECPrivateKeySpec {
 
     /**
      * Create a new {@code SM2PrivateKeySpec}.
