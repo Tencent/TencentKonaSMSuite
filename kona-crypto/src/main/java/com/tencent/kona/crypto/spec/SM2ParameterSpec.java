@@ -30,7 +30,7 @@ import java.security.spec.EllipticCurve;
  * The EC domain parameters used by SM2.
  * The parameters are defined by China's specification GB/T 32918.5-2017.
  */
-public class SM2ParameterSpec extends ECParameterSpec {
+public final class SM2ParameterSpec extends ECParameterSpec {
 
     private static class InstanceHolder {
 

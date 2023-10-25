@@ -29,7 +29,7 @@ import com.tencent.kona.com.sun.crypto.provider.HmacCore;
 
 import java.security.NoSuchAlgorithmException;
 
-public class SM3HMac extends HmacCore {
+public final class SM3HMac extends HmacCore {
 
     public SM3HMac() throws NoSuchAlgorithmException {
         super("SM3", 64);

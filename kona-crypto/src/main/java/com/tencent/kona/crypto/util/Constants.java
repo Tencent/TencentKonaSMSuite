@@ -24,7 +24,7 @@ import com.tencent.kona.crypto.CryptoUtils;
 
 import java.math.BigInteger;
 
-public class Constants {
+public final class Constants {
 
     public static final BigInteger TWO = BigInteger.valueOf(2);
     public static final BigInteger THREE = BigInteger.valueOf(3);

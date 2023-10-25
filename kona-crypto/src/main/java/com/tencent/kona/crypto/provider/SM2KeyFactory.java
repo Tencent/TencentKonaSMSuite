@@ -35,7 +35,7 @@ import java.security.spec.KeySpec;
 import com.tencent.kona.crypto.spec.SM2PrivateKeySpec;
 import com.tencent.kona.crypto.spec.SM2PublicKeySpec;
 
-public class SM2KeyFactory extends KeyFactorySpi {
+public final class SM2KeyFactory extends KeyFactorySpi {
 
     @Override
     protected PublicKey engineGeneratePublic(KeySpec keySpec)
