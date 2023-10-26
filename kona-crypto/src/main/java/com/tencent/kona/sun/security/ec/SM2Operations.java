@@ -20,6 +20,7 @@
 
 package com.tencent.kona.sun.security.ec;
 
+import com.tencent.kona.crypto.CryptoUtils;
 import com.tencent.kona.crypto.spec.SM2ParameterSpec;
 import com.tencent.kona.sun.security.ec.point.AffinePoint;
 import com.tencent.kona.sun.security.ec.point.Point;
@@ -28,6 +29,8 @@ import com.tencent.kona.sun.security.util.math.IntegerModuloP;
 import com.tencent.kona.sun.security.util.math.intpoly.IntegerPolynomialSM2;
 import com.tencent.kona.sun.security.util.math.intpoly.SM2OrderField;
 
+import java.security.MessageDigest;
+import java.security.SecureRandom;
 import java.security.spec.ECPoint;
 
 /**
@@ -35,12 +38,29 @@ import java.security.spec.ECPoint;
  */
 public class SM2Operations extends ECOperations {
 
+    // limit = order - 1
+    private static final byte[] LIMIT = CryptoUtils.toBytesLE(
+            "FFFFFFFEFFFFFFFFFFFFFFFFFFFFFFFF7203DF6B21C6052B53BBF40939D54122");
+
     public static final SM2Operations SM2OPS = new SM2Operations(
             IntegerPolynomialSM2.ONE.getElement(SM2ParameterSpec.CURVE.getB()),
             SM2OrderField.ONE);
 
     public SM2Operations(IntegerModuloP b, IntegerFieldModuloP orderField) {
         super(b, orderField);
+    }
+
+    @Override
+    public byte[] generatePrivateScalar(SecureRandom random) {
+        byte[] privArr = super.generatePrivateScalar(random);
+
+        // If the privArr is order - 1, just try once again.
+        if (MessageDigest.isEqual(LIMIT, privArr)) {
+            // It should unlikely get here
+            privArr = super.generatePrivateScalar(random);
+        }
+
+        return privArr;
     }
 
     public static ECPoint toECPoint(Point point) {

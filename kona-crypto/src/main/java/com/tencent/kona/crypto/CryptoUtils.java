@@ -77,6 +77,13 @@ public final class CryptoUtils {
         return HEX.parseHex(hex);
     }
 
+    // little-endian byte array
+    public static byte[] toBytesLE(String hex) {
+        byte[] byteArr = toBytes(hex);
+        ArrayUtil.reverse(byteArr);
+        return byteArr;
+    }
+
     public static BigInteger toBigInt(byte[] value, int offset, int length) {
         byte[] valueCopy = copy(value, offset, length);
         return new BigInteger(1, valueCopy);
