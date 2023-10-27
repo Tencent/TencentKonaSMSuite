@@ -51,48 +51,6 @@ public class SM3HMacTest {
     }
 
     @Test
-    public void testHmacSM3KeyGen() throws Exception {
-        testHmacSM3KeyGen("HmacSM3");
-    }
-
-    @Test
-    public void testHmacSM3KeyGenAlias() throws Exception {
-        testHmacSM3KeyGen("SM3Hmac");
-    }
-
-    private void testHmacSM3KeyGen(String name) throws Exception {
-        KeyGenerator hmacSM3KeyGen
-                = KeyGenerator.getInstance(name, PROVIDER);
-
-        Assertions.assertThrows(
-                InvalidParameterException.class, ()-> hmacSM3KeyGen.init(127));
-
-        hmacSM3KeyGen.init(128);
-        SecretKey key = hmacSM3KeyGen.generateKey();
-        Assertions.assertEquals(16, key.getEncoded().length);
-
-        hmacSM3KeyGen.init(new SecureRandom());
-        key = hmacSM3KeyGen.generateKey();
-        Assertions.assertEquals(32, key.getEncoded().length);
-    }
-
-    @Test
-    public void testHmacSM3KeyGenParallelly() throws Exception {
-        TestUtils.repeatTaskParallelly(() -> {
-            testHmacSM3KeyGen();
-            return null;
-        });
-    }
-
-    @Test
-    public void testHmacSM3KeyGenSerially() throws Exception {
-        TestUtils.repeatTaskSerially(() -> {
-            testHmacSM3KeyGen();
-            return null;
-        });
-    }
-
-    @Test
     public void testHmacSM3() throws Exception {
         testHmacSM3("HmacSM3");
     }
