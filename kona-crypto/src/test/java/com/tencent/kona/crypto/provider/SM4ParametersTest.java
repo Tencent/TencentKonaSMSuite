@@ -33,6 +33,7 @@ import java.security.AlgorithmParameters;
 import java.security.spec.InvalidParameterSpecException;
 
 import static com.tencent.kona.crypto.CryptoUtils.toBytes;
+import static com.tencent.kona.crypto.TestUtils.PROVIDER;
 
 /**
  * The test for the AlgorithmParameters on SM4.
@@ -55,12 +56,13 @@ public class SM4ParametersTest {
 
     @Test
     public void testEncode() throws Exception {
-        AlgorithmParameters params = AlgorithmParameters.getInstance("SM4");
+        AlgorithmParameters params
+                = AlgorithmParameters.getInstance("SM4", PROVIDER);
         params.init(new IvParameterSpec(IV));
         byte[] encodedParams = params.getEncoded();
         Assertions.assertArrayEquals(ENCODED_PARAMS, encodedParams);
 
-        params = AlgorithmParameters.getInstance("SM4");
+        params = AlgorithmParameters.getInstance("SM4", PROVIDER);
         params.init(new GCMParameterSpec(Constants.SM4_GCM_TAG_LEN << 3, GCM_IV));
         encodedParams = params.getEncoded();
         Assertions.assertArrayEquals(GCM_ENCODED_PARAMS, encodedParams);
@@ -68,13 +70,15 @@ public class SM4ParametersTest {
 
     @Test
     public void testDecode() throws Exception {
-        AlgorithmParameters params = AlgorithmParameters.getInstance("SM4");
+        AlgorithmParameters params
+                = AlgorithmParameters.getInstance("SM4", PROVIDER);
         params.init(ENCODED_PARAMS);
         IvParameterSpec decodedParams
                 = params.getParameterSpec(IvParameterSpec.class);
         Assertions.assertArrayEquals(IV, decodedParams.getIV());
 
-        final AlgorithmParameters gcmParams = AlgorithmParameters.getInstance("SM4");
+        final AlgorithmParameters gcmParams
+                = AlgorithmParameters.getInstance("SM4", PROVIDER);
         gcmParams.init(GCM_ENCODED_PARAMS);
         GCMParameterSpec decodedGcmParams
                 = gcmParams.getParameterSpec(GCMParameterSpec.class);
@@ -83,13 +87,15 @@ public class SM4ParametersTest {
 
     @Test
     public void testDecodeFailed() throws Exception {
-        final AlgorithmParameters params = AlgorithmParameters.getInstance("SM4");
+        final AlgorithmParameters params
+                = AlgorithmParameters.getInstance("SM4", PROVIDER);
         params.init(GCM_ENCODED_PARAMS);
         Assertions.assertThrows(
                 InvalidParameterSpecException.class,
                 () -> params.getParameterSpec(IvParameterSpec.class));
 
-        final AlgorithmParameters gcmParams = AlgorithmParameters.getInstance("SM4");
+        final AlgorithmParameters gcmParams
+                = AlgorithmParameters.getInstance("SM4", PROVIDER);
         gcmParams.init(ENCODED_PARAMS);
         Assertions.assertThrows(
                 InvalidParameterSpecException.class,
