@@ -23,6 +23,7 @@ package com.tencent.kona.crypto.provider;
 import com.tencent.kona.crypto.spec.SM2ParameterSpec;
 import com.tencent.kona.crypto.util.Constants;
 import com.tencent.kona.sun.security.ec.point.Point;
+import com.tencent.kona.sun.security.jca.JCAUtil;
 import com.tencent.kona.sun.security.util.ArrayUtil;
 import com.tencent.kona.sun.security.util.KnownOIDs;
 import com.tencent.kona.sun.security.util.NamedCurve;
@@ -68,7 +69,7 @@ public final class SM2KeyPairGenerator extends KeyPairGeneratorSpi {
     @Override
     public KeyPair generateKeyPair() {
         if (random == null) {
-            random = new SecureRandom();
+            random = JCAUtil.getSecureRandom();
         }
 
         byte[] privArr = SM2OPS.generatePrivateScalar(random);

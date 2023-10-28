@@ -20,6 +20,8 @@
 
 package com.tencent.kona.crypto.provider;
 
+import com.tencent.kona.sun.security.jca.JCAUtil;
+
 import javax.crypto.KeyGeneratorSpi;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
@@ -58,7 +60,7 @@ public final class SM4KeyGenerator extends KeyGeneratorSpi {
     @Override
     protected SecretKey engineGenerateKey() {
         if (random == null) {
-            random = new SecureRandom();
+            random = JCAUtil.getSecureRandom();
         }
 
         byte[] keyBytes = new byte[SM4_KEY_SIZE];

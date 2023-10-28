@@ -22,6 +22,7 @@ package com.tencent.kona.crypto.provider;
 
 import com.tencent.kona.crypto.CryptoInsts;
 import com.tencent.kona.crypto.util.Constants;
+import com.tencent.kona.sun.security.jca.JCAUtil;
 
 import javax.crypto.spec.GCMParameterSpec;
 import javax.crypto.spec.IvParameterSpec;
@@ -61,7 +62,7 @@ public final class SM4ParameterGenerator extends AlgorithmParameterGeneratorSpi 
     @Override
     protected AlgorithmParameters engineGenerateParameters() {
         if (random == null) {
-            random = new SecureRandom();
+            random = JCAUtil.getSecureRandom();
         }
 
         return paramSpec.getParamSpecClass().equals(IvParameterSpec.class)
