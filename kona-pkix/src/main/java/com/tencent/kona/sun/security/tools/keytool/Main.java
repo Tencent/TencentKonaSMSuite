@@ -409,26 +409,37 @@ public final class Main {
         collator.setStrength(Collator.PRIMARY);
     }
 
-    private Main() { }
-
     public static void main(String[] args) throws Exception {
         Main kt = new Main();
-        kt.run(args, System.out);
+        int exitCode = kt.run(args, System.out);
+        if (exitCode != 0) {
+            System.exit(exitCode);
+        }
     }
 
-    private void run(String[] args, PrintStream out) throws Exception {
+    private static class ExitException extends RuntimeException {
+        static final long serialVersionUID = 0L;
+        private final int errorCode;
+        public ExitException(int errorCode) {
+            this.errorCode = errorCode;
+        }
+    }
+
+    public int run(String[] args, PrintStream out) throws Exception {
         try {
-            args = parseArgs(args);
+            parseArgs(args);
             if (command != null) {
                 doCommands(out);
             }
+        } catch (ExitException ee) {
+            return ee.errorCode;
         } catch (Exception e) {
             System.out.println(rb.getString("keytool.error.") + e);
             if (verbose) {
                 e.printStackTrace(System.out);
             }
             if (!debug) {
-                System.exit(1);
+                return 1;
             } else {
                 throw e;
             }
@@ -440,11 +451,11 @@ public final class Main {
                     pass = null;
                 }
             }
-
             if (ksStream != null) {
                 ksStream.close();
             }
         }
+        return 0;
     }
 
     /**
@@ -5285,7 +5296,7 @@ public final class Main {
         if (debug) {
             throw new RuntimeException("NO BIG ERROR, SORRY");
         } else {
-            System.exit(1);
+            throw new ExitException(1);
         }
     }
 
