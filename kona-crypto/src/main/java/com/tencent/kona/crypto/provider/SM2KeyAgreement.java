@@ -49,9 +49,9 @@ import static com.tencent.kona.crypto.util.Constants.SM3_DIGEST_LEN;
 import static com.tencent.kona.crypto.CryptoUtils.bigIntToBytes32;
 import static com.tencent.kona.crypto.CryptoUtils.intToBytes4;
 import static com.tencent.kona.crypto.CryptoUtils.toByteArrayLE;
-import static com.tencent.kona.sun.security.ec.SM2Operations.isInfinitePoint;
-import static com.tencent.kona.sun.security.ec.SM2Operations.SM2OPS;
-import static com.tencent.kona.sun.security.ec.SM2Operations.toECPoint;
+import static com.tencent.kona.sun.security.ec.ECOperations.isInfinitePoint;
+import static com.tencent.kona.sun.security.ec.ECOperations.SM2OPS;
+import static com.tencent.kona.sun.security.ec.ECOperations.toECPoint;
 
 /**
  * SM2 key agreement in compliance with GB/T 32918.3-2016.

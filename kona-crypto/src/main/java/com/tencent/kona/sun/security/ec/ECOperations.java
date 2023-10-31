@@ -25,6 +25,8 @@
 
 package com.tencent.kona.sun.security.ec;
 
+import com.tencent.kona.crypto.CryptoUtils;
+import com.tencent.kona.crypto.spec.SM2ParameterSpec;
 import com.tencent.kona.crypto.util.Constants;
 import com.tencent.kona.sun.security.ec.point.AffinePoint;
 import com.tencent.kona.sun.security.ec.point.MutablePoint;
@@ -48,6 +50,7 @@ import com.tencent.kona.sun.security.util.math.intpoly.P521OrderField;
 import com.tencent.kona.sun.security.util.math.intpoly.SM2OrderField;
 
 import java.math.BigInteger;
+import java.security.MessageDigest;
 import java.security.ProviderException;
 import java.security.SecureRandom;
 import java.security.spec.ECFieldFp;
@@ -65,6 +68,11 @@ import java.util.Optional;
  */
 
 public class ECOperations {
+
+    public static final ECOperations SM2OPS = new ECOperations(
+            IntegerPolynomialSM2.ONE.getElement(SM2ParameterSpec.CURVE.getB()),
+            SM2OrderField.ONE);
+
     private static final ECOperations secp256r1Ops =
         new ECOperations(IntegerPolynomialP256.ONE.getElement(
                 CurveDB.lookup(KnownOIDs.secp256r1.value()).getCurve().getB()),
@@ -440,7 +448,24 @@ public class ECOperations {
         return isNeutral(this.multiply(ap, scalar));
     }
 
+    // SM2_KEY_CAP = order - 1 in little-endian
+    private static final byte[] SM2_KEY_CAP = CryptoUtils.toBytesLE(
+            "FFFFFFFEFFFFFFFFFFFFFFFFFFFFFFFF7203DF6B21C6052B53BBF40939D54122");
+
     public byte[] generatePrivateScalar(SecureRandom random) {
+        byte[] privArr = generatePrivateScalar0(random);
+
+        // For curveSM2, if the privArr is order - 1, just try once again.
+        if (orderField == SM2OrderField.ONE
+                && MessageDigest.isEqual(SM2_KEY_CAP, privArr)) {
+            // It should unlikely get here
+            privArr = generatePrivateScalar0(random);
+        }
+
+        return privArr;
+    }
+
+    private byte[] generatePrivateScalar0(SecureRandom random) {
         // Attempt to create the private scalar in a loop that uses new random
         // input each time. The chance of failure is very small assuming the
         // implementation derives the nonce using extra bits
@@ -458,6 +483,18 @@ public class ECOperations {
 
         throw new ProviderException("Unable to produce private key after "
                                          + numAttempts + " attempts");
+    }
+
+    public static ECPoint toECPoint(Point point) {
+        AffinePoint affPoint = point.asAffine();
+        return new ECPoint(
+                affPoint.getX().asBigInteger(),
+                affPoint.getY().asBigInteger());
+    }
+
+    public static boolean isInfinitePoint(Point point) {
+        AffinePoint affPoint = point.asAffine();
+        return affPoint.getX() == null || affPoint.getY() == null;
     }
 
     interface PointMultiplier {

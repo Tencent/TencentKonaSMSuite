@@ -52,9 +52,9 @@ import static com.tencent.kona.crypto.CryptoUtils.toByteArrayLE;
 import static com.tencent.kona.crypto.spec.SM2ParameterSpec.CURVE;
 import static com.tencent.kona.crypto.spec.SM2ParameterSpec.GENERATOR;
 import static com.tencent.kona.crypto.spec.SM2ParameterSpec.ORDER;
-import static com.tencent.kona.sun.security.ec.SM2Operations.isInfinitePoint;
-import static com.tencent.kona.sun.security.ec.SM2Operations.SM2OPS;
-import static com.tencent.kona.sun.security.ec.SM2Operations.toECPoint;
+import static com.tencent.kona.sun.security.ec.ECOperations.isInfinitePoint;
+import static com.tencent.kona.sun.security.ec.ECOperations.SM2OPS;
+import static com.tencent.kona.sun.security.ec.ECOperations.toECPoint;
 import static java.math.BigInteger.ONE;
 import static java.math.BigInteger.ZERO;
 
