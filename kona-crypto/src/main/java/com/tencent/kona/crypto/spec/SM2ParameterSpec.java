@@ -49,7 +49,7 @@ public final class SM2ParameterSpec extends ECParameterSpec {
 
     // 0x06082A811CCF5501822D
     // OBJECT IDENTIFIER 1.2.156.10197.1.301
-    private static final byte[] ENCODED = new byte[] {
+    private static final byte[] ENCODED_OID = new byte[] {
             6, 8, 42, -127, 28, -49, 85, 1, -126, 45 };
 
     private SM2ParameterSpec() {
@@ -84,7 +84,7 @@ public final class SM2ParameterSpec extends ECParameterSpec {
     }
 
     public byte[] encoded() {
-        return ENCODED.clone();
+        return ENCODED_OID.clone();
     }
 
     @Override

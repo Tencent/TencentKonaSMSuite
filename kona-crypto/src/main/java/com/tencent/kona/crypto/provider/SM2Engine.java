@@ -40,7 +40,7 @@ import static com.tencent.kona.crypto.CryptoUtils.toByteArrayLE;
 import static com.tencent.kona.crypto.spec.SM2ParameterSpec.GENERATOR;
 import static com.tencent.kona.crypto.spec.SM2ParameterSpec.COFACTOR;
 import static com.tencent.kona.crypto.util.Constants.SM3_DIGEST_LEN;
-import static com.tencent.kona.sun.security.ec.SM2Operations.SM2OPS;
+import static com.tencent.kona.sun.security.ec.ECOperations.SM2OPS;
 
 public final class SM2Engine {
 
