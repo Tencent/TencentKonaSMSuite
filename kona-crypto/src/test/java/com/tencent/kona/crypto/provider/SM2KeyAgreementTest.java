@@ -53,6 +53,46 @@ public class SM2KeyAgreementTest {
     }
 
     @Test
+    public void testParameterSpec() throws Exception {
+        KeyPairGenerator keyPairGenerator
+                = KeyPairGenerator.getInstance("SM2", PROVIDER);
+        KeyPair keyPair = keyPairGenerator.generateKeyPair();
+
+        SM2KeyAgreementParamSpec paramSpec = new SM2KeyAgreementParamSpec(
+                ID,
+                (ECPrivateKey) keyPair.getPrivate(),
+                (ECPublicKey) keyPair.getPublic(),
+                ID,
+                (ECPublicKey) keyPair.getPublic(),
+                true, 32);
+        Assertions.assertArrayEquals(ID, paramSpec.id());
+
+        Assertions.assertThrows(IllegalArgumentException.class,
+                ()-> new SM2KeyAgreementParamSpec(
+                        TestUtils.dataKB(8),
+                        (ECPrivateKey) keyPair.getPrivate(),
+                        (ECPublicKey) keyPair.getPublic(),
+                        TestUtils.dataKB(1),
+                        (ECPublicKey) keyPair.getPublic(),
+                        true, 32));
+        Assertions.assertThrows(IllegalArgumentException.class,
+                ()-> new SM2KeyAgreementParamSpec(
+                        TestUtils.dataKB(1),
+                        (ECPrivateKey) keyPair.getPrivate(),
+                        (ECPublicKey) keyPair.getPublic(),
+                        TestUtils.dataKB(8),
+                        (ECPublicKey) keyPair.getPublic(),
+                        true, 32));
+        Assertions.assertThrows(NullPointerException.class,
+                ()-> new SM2KeyAgreementParamSpec(
+                        TestUtils.dataKB(1),
+                        (ECPrivateKey) keyPair.getPrivate(),
+                        (ECPublicKey) keyPair.getPublic(),
+                        TestUtils.dataKB(1), null,
+                        true, 32));
+    }
+
+    @Test
     public void testInit() throws Exception {
         ECPrivateKey priKey = TestUtils.privateKey(PRI_KEY);
         ECPublicKey pubKey = TestUtils.publicKey(PUB_KEY);
