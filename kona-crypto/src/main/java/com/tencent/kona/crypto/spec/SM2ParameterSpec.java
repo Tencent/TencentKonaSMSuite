@@ -89,6 +89,6 @@ public final class SM2ParameterSpec extends ECParameterSpec {
 
     @Override
     public String toString() {
-        return "SM2 (" + OID + ")";
+        return "curveSM2 (" + OID + ")";
     }
 }
