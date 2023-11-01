@@ -65,7 +65,21 @@ public class ECKeyPairGeneratorTest {
         ECPrivateKey priKey = (ECPrivateKey) keyPair.getPrivate();
 
         ECPoint pubPoint = ECOperator.SM2.multiply(
-                SM2ParameterSpec.GENERATOR, priKey.getS());
+                ECOperator.SM2.getGenerator(), priKey.getS());
+        Assertions.assertEquals(pubKey.getW(), pubPoint);
+    }
+
+    @Test
+    public void testKeyPairGenKeySize() throws Exception {
+        KeyPairGenerator keyPairGen
+                = KeyPairGenerator.getInstance("EC");
+        keyPairGen.initialize(256); // should select secp256r1 rather than curveSM2
+        KeyPair keyPair = keyPairGen.generateKeyPair();
+        ECPublicKey pubKey = (ECPublicKey) keyPair.getPublic();
+        ECPrivateKey priKey = (ECPrivateKey) keyPair.getPrivate();
+
+        ECPoint pubPoint = ECOperator.SECP256R1.multiply(
+                ECOperator.SECP256R1.getGenerator(), priKey.getS());
         Assertions.assertEquals(pubKey.getW(), pubPoint);
     }
 }
