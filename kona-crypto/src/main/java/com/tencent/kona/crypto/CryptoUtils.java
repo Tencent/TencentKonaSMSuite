@@ -256,5 +256,12 @@ public final class CryptoUtils {
         return bigIntToBytes32(priKeyValue);
     }
 
+    public static void checkId(byte[] id) {
+        if (id.length >= 8192) {
+            throw new IllegalArgumentException(
+                    "The length of ID must be less than 8192-bytes");
+        }
+    }
+
     private CryptoUtils() { }
 }

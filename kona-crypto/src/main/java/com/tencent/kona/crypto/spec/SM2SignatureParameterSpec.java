@@ -20,6 +20,8 @@
 
 package com.tencent.kona.crypto.spec;
 
+import com.tencent.kona.crypto.CryptoUtils;
+
 import java.security.interfaces.ECPublicKey;
 import java.security.spec.AlgorithmParameterSpec;
 import java.util.Objects;
@@ -50,10 +52,7 @@ public final class SM2SignatureParameterSpec implements AlgorithmParameterSpec {
         Objects.requireNonNull(id);
         Objects.requireNonNull(publicKey);
 
-        if (id.length >= 8192) {
-            throw new IllegalArgumentException(
-                    "The length of ID must be less than 8192-bytes");
-        }
+        CryptoUtils.checkId(id);
 
         this.id = id.clone();
         this.publicKey = publicKey;

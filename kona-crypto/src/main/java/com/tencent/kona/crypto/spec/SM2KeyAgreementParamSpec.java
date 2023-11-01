@@ -20,6 +20,8 @@
 
 package com.tencent.kona.crypto.spec;
 
+import com.tencent.kona.crypto.CryptoUtils;
+
 import java.security.interfaces.ECPrivateKey;
 import java.security.interfaces.ECPublicKey;
 import java.security.spec.AlgorithmParameterSpec;
@@ -70,6 +72,9 @@ public final class SM2KeyAgreementParamSpec implements AlgorithmParameterSpec {
         Objects.requireNonNull(publicKey, "publicKey must not null");
         Objects.requireNonNull(peerId, "peerId must not null");
         Objects.requireNonNull(peerPublicKey, "peerPublicKey must not null");
+
+        CryptoUtils.checkId(id);
+        CryptoUtils.checkId(peerId);
 
         this.id = id.clone();
         this.privateKey = privateKey;
