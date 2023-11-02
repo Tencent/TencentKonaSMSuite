@@ -129,13 +129,17 @@ final class TLCPCertificate {
                     byte[] encodedCert = Record.getBytes24(m);
                     listLen -= (3 + encodedCert.length);
                     encodedCerts.add(encodedCert);
-                    if (encodedCerts.size() > SSLConfiguration.maxCertificateChainLength) {
+                    int maxAllowedChainLength = handshakeContext.sslConfig.isClientMode ?
+                            SSLConfiguration.maxInboundServerCertChainLen :
+                            SSLConfiguration.maxInboundClientCertChainLen;
+
+                    if (encodedCerts.size() > maxAllowedChainLength) {
                         throw new SSLProtocolException(
                                 "The certificate chain length ("
-                                        + encodedCerts.size()
-                                        + ") exceeds the maximum allowed length ("
-                                        + SSLConfiguration.maxCertificateChainLength
-                                        + ")");
+                                + encodedCerts.size()
+                                + ") exceeds the maximum allowed length ("
+                                + maxAllowedChainLength
+                                + ")");
                     }
 
                 }
