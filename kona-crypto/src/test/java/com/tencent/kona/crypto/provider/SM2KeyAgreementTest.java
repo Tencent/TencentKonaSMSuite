@@ -21,20 +21,28 @@ package com.tencent.kona.crypto.provider;
 
 import com.tencent.kona.crypto.TestUtils;
 import com.tencent.kona.crypto.spec.SM2KeyAgreementParamSpec;
-import org.junit.jupiter.api.Assertions;
+import com.tencent.kona.crypto.spec.SM2PrivateKeySpec;
+import com.tencent.kona.crypto.spec.SM2PublicKeySpec;
+import com.tencent.kona.sun.security.ec.ECOperator;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import javax.crypto.KeyAgreement;
 import javax.crypto.SecretKey;
+import java.math.BigInteger;
 import java.security.InvalidKeyException;
+import java.security.KeyFactory;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.interfaces.ECPrivateKey;
 import java.security.interfaces.ECPublicKey;
+import java.security.spec.ECPoint;
 
 import static com.tencent.kona.crypto.CryptoUtils.toBytes;
 import static com.tencent.kona.crypto.TestUtils.PROVIDER;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 /**
  * The test for SM2 key agreement.
@@ -53,7 +61,7 @@ public class SM2KeyAgreementTest {
     }
 
     @Test
-    public void testParameterSpec() throws Exception {
+    public void testParameterSpecOnId() throws Exception {
         KeyPairGenerator keyPairGenerator
                 = KeyPairGenerator.getInstance("SM2", PROVIDER);
         KeyPair keyPair = keyPairGenerator.generateKeyPair();
@@ -65,9 +73,9 @@ public class SM2KeyAgreementTest {
                 ID,
                 (ECPublicKey) keyPair.getPublic(),
                 true, 32);
-        Assertions.assertArrayEquals(ID, paramSpec.id());
+        assertArrayEquals(ID, paramSpec.id());
 
-        Assertions.assertThrows(IllegalArgumentException.class,
+        assertThrows(IllegalArgumentException.class,
                 ()-> new SM2KeyAgreementParamSpec(
                         TestUtils.dataKB(8),
                         (ECPrivateKey) keyPair.getPrivate(),
@@ -75,7 +83,7 @@ public class SM2KeyAgreementTest {
                         TestUtils.dataKB(1),
                         (ECPublicKey) keyPair.getPublic(),
                         true, 32));
-        Assertions.assertThrows(IllegalArgumentException.class,
+        assertThrows(IllegalArgumentException.class,
                 ()-> new SM2KeyAgreementParamSpec(
                         TestUtils.dataKB(1),
                         (ECPrivateKey) keyPair.getPrivate(),
@@ -83,13 +91,41 @@ public class SM2KeyAgreementTest {
                         TestUtils.dataKB(8),
                         (ECPublicKey) keyPair.getPublic(),
                         true, 32));
-        Assertions.assertThrows(NullPointerException.class,
+        assertThrows(NullPointerException.class,
                 ()-> new SM2KeyAgreementParamSpec(
                         TestUtils.dataKB(1),
                         (ECPrivateKey) keyPair.getPrivate(),
                         (ECPublicKey) keyPair.getPublic(),
                         TestUtils.dataKB(1), null,
                         true, 32));
+    }
+
+    @Test
+    public void testParameterSpecOnPrivateKey() throws Exception {
+        // privateKey = order - 1
+        testParameterSpecOnPrivateKey(1);
+
+        // privateKey = order
+        assertThrows(IllegalArgumentException.class,
+                () -> testParameterSpecOnPrivateKey(0));
+
+        // privateKey = order + 1
+        assertThrows(IllegalArgumentException.class,
+                () -> testParameterSpecOnPrivateKey(-1));
+
+    }
+
+    private void testParameterSpecOnPrivateKey(int orderOffset)
+            throws Exception {
+        KeyPair keyPair = keyPair(orderOffset);
+        new SM2KeyAgreementParamSpec(
+                ID,
+                (ECPrivateKey) keyPair.getPrivate(),
+                (ECPublicKey) keyPair.getPublic(),
+                ID,
+                (ECPublicKey) keyPair.getPublic(),
+                true,
+                32);
     }
 
     @Test
@@ -114,7 +150,7 @@ public class SM2KeyAgreementTest {
     public void testInitWithoutParams() throws Exception {
         ECPrivateKey priKey = TestUtils.privateKey(PRI_KEY);
         KeyAgreement keyAgreement = KeyAgreement.getInstance("SM2", PROVIDER);
-        Assertions.assertThrows(
+        assertThrows(
                 UnsupportedOperationException.class,
                 () -> keyAgreement.init(priKey));
     }
@@ -135,23 +171,23 @@ public class SM2KeyAgreementTest {
 
         KeyAgreement keyAgreement = KeyAgreement.getInstance("SM2", PROVIDER);
 
-        Assertions.assertThrows(
+        assertThrows(
                 IllegalStateException.class,
                 () -> keyAgreement.doPhase(priKey, true));
 
         keyAgreement.init(priKey, paramSpec);
 
-        Assertions.assertThrows(
+        assertThrows(
                 InvalidKeyException.class,
                 () -> keyAgreement.doPhase(priKey, true));
 
-        Assertions.assertThrows(
+        assertThrows(
                 IllegalStateException.class,
                 () -> keyAgreement.doPhase(pubKey, false));
 
         keyAgreement.doPhase(pubKey, true);
 
-        Assertions.assertThrows(
+        assertThrows(
                 IllegalStateException.class,
                 () -> keyAgreement.doPhase(pubKey, true));
     }
@@ -205,9 +241,9 @@ public class SM2KeyAgreementTest {
         keyAgreement.doPhase(TestUtils.publicKey(peerTmpPubKeyHex), true);
         SecretKey sharedKey = keyAgreement.generateSecret("SM2SharedSecret");
 
-        Assertions.assertEquals(keySize, sharedKey.getEncoded().length);
+        assertEquals(keySize, sharedKey.getEncoded().length);
         if (expectedSharedKey != null) {
-            Assertions.assertArrayEquals(expectedSharedKey, sharedKey.getEncoded());
+            assertArrayEquals(expectedSharedKey, sharedKey.getEncoded());
         }
 
         // Generate shared secret by the remote endpoint
@@ -224,7 +260,7 @@ public class SM2KeyAgreementTest {
         peerKeyAgreement.doPhase(TestUtils.publicKey(tmpPubKeyHex), true);
         SecretKey peerSharedKey = peerKeyAgreement.generateSecret("SM2SharedSecret");
 
-        Assertions.assertArrayEquals(sharedKey.getEncoded(), peerSharedKey.getEncoded());
+        assertArrayEquals(sharedKey.getEncoded(), peerSharedKey.getEncoded());
     }
 
     @Test
@@ -277,7 +313,56 @@ public class SM2KeyAgreementTest {
         KeyAgreement keyAgreement = KeyAgreement.getInstance("SM2", PROVIDER);
 
         keyAgreement.init(sm2EKeyPair.getPrivate(), paramSpec);
-        Assertions.assertThrows(InvalidKeyException.class,
+        assertThrows(InvalidKeyException.class,
                 () -> keyAgreement.doPhase(ecEKeyPair.getPublic(), true));
+    }
+
+    @Test
+    public void testKeyRange() throws Exception {
+        // privateKey = order - 1
+        testKeyRange(1);
+
+        // privateKey = order
+        assertThrows(IllegalArgumentException.class, () -> testKeyRange(0));
+
+        // privateKey = order + 1
+        assertThrows(InvalidKeyException.class, () -> testKeyRange(-1));
+    }
+
+    // orderOffset: the relative offset to the order
+    private void testKeyRange(int orderOffset) throws Exception {
+        ECPrivateKey priKey = TestUtils.privateKey(PRI_KEY);
+        ECPublicKey pubKey = TestUtils.publicKey(PUB_KEY);
+        SM2KeyAgreementParamSpec paramSpec = new SM2KeyAgreementParamSpec(
+                ID,
+                priKey,
+                pubKey,
+                ID,
+                pubKey,
+                true,
+                32);
+
+        KeyPair keyPair = keyPair(orderOffset);
+
+        KeyAgreement keyAgreement = KeyAgreement.getInstance("SM2", PROVIDER);
+        keyAgreement.init(keyPair.getPrivate(), paramSpec);
+        keyAgreement.doPhase(keyPair.getPublic(), true);
+        byte[] sharedSecret = keyAgreement.generateSecret();
+        assertEquals(32, sharedSecret.length);
+    }
+
+    private static KeyPair keyPair(int orderOffset) throws Exception {
+        KeyFactory keyFactory = KeyFactory.getInstance("SM2");
+
+        BigInteger privateKeyS = ECOperator.SM2.getOrder().subtract(
+                BigInteger.valueOf(orderOffset));
+        ECPrivateKey privateKey = (ECPrivateKey) keyFactory.generatePrivate(
+                new SM2PrivateKeySpec(privateKeyS.toByteArray()));
+
+        ECPoint publicPoint = ECOperator.SM2.multiply(privateKeyS);
+        ECPublicKey publicKey = (ECPublicKey) keyFactory.generatePublic(
+                new SM2PublicKeySpec(publicPoint));
+
+        return new KeyPair(publicKey, privateKey);
     }
 }

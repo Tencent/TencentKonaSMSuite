@@ -22,10 +22,14 @@ package com.tencent.kona.crypto.spec;
 
 import com.tencent.kona.crypto.CryptoUtils;
 
+import java.math.BigInteger;
 import java.security.interfaces.ECPrivateKey;
 import java.security.interfaces.ECPublicKey;
 import java.security.spec.AlgorithmParameterSpec;
 import java.util.Objects;
+
+import static com.tencent.kona.crypto.spec.SM2ParameterSpec.ORDER;
+import static java.math.BigInteger.ZERO;
 
 /**
  * The parameters used by SM2 key agreement.
@@ -75,6 +79,12 @@ public final class SM2KeyAgreementParamSpec implements AlgorithmParameterSpec {
 
         CryptoUtils.checkId(id);
         CryptoUtils.checkId(peerId);
+
+        BigInteger s = privateKey.getS();
+        if (s.compareTo(ZERO) <= 0 || s.compareTo(ORDER) >= 0) {
+            throw new IllegalArgumentException("The private key must be " +
+                    "within the range [1, n - 1]");
+        }
 
         this.id = id.clone();
         this.privateKey = privateKey;

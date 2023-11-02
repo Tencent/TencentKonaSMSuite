@@ -52,14 +52,15 @@ import static com.tencent.kona.crypto.CryptoUtils.toByteArrayLE;
 import static com.tencent.kona.sun.security.ec.ECOperations.isInfinitePoint;
 import static com.tencent.kona.sun.security.ec.ECOperations.SM2OPS;
 import static com.tencent.kona.sun.security.ec.ECOperations.toECPoint;
+import static java.math.BigInteger.ZERO;
 
 /**
  * SM2 key agreement in compliance with GB/T 32918.3-2016.
  */
 public final class SM2KeyAgreement extends KeyAgreementSpi {
 
-    private SM2KeyAgreementParamSpec paramSpec;
     private ECPrivateKey ephemeralPrivateKey;
+    private SM2KeyAgreementParamSpec paramSpec;
     private ECPublicKey peerEphemeralPublicKey;
 
     private final SM3Engine sm3 = new SM3Engine();
@@ -83,8 +84,15 @@ public final class SM2KeyAgreement extends KeyAgreementSpi {
                     "Only accept SM2KeyAgreementParamSpec");
         }
 
+        ECPrivateKey ecPrivateKey = (ECPrivateKey) key;
+        BigInteger s = ecPrivateKey.getS();
+        if (s.compareTo(ZERO) <= 0 || s.compareTo(ORDER) >= 0) {
+            throw new InvalidKeyException("The private key must be " +
+                    "within the range [1, n - 1]");
+        }
+
+        ephemeralPrivateKey = ecPrivateKey;
         paramSpec = (SM2KeyAgreementParamSpec) params;
-        ephemeralPrivateKey = (ECPrivateKey) key;
         peerEphemeralPublicKey = null;
     }
 
