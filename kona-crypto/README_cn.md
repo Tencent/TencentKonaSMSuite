@@ -39,12 +39,24 @@ position的值越小，代表的优先级越高，最小可为1。
 ### SM2
 
 #### 密钥对
-生成SM2密钥对与生成JDK自带的其它算法（如EC）密钥对的方式是完全相同的，仅需要调用标准的JDK API就可以生成密钥对。
+生成SM2密钥对与生成JDK自带的其它算法（如EC）密钥对的方式是完全相同的，仅需要调用标准的JDK API就可以了。`KonaCrypto`提供了两个`KeyPairGenerator`实现去生成SM2密钥对：
 
-创建KeyPairGenerator实例。
+- JDK自带的`ECKeyPairGenerator`。它生成的密钥对中，私钥格式为`PKCS#8`，公钥格式为`X.509`。
+- 新引入的`SM2KeyPairGenerator`。它生成的密钥对中，私钥和公钥格式均为`RAW`。私钥长度为32字节。公钥为长度为65字节，格式为`04||x||y`，其中`04`表示非压缩格式，`x`和`y`分别为该公钥点在椭圆曲线上的仿射横坐标和纵坐标的值。
+
+创建使用`ECKeyPairGenerator`的`KeyPairGenerator`实例。
 
 ```
-KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("SM2");
+KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("EC);
+keyPairGenerator.initialize(spec);
+```
+
+其中，`spec`可以为`SM2ParameterSpec`（使用`SM2ParameterSpec.instance()`创建它的实例）或者是`ECGenParameterSpec`（使用`new ECGenParameterSpec("curveSM2")`创建它的实例）。
+
+若创建使用`SM2KeyPairGenerator`的`KeyPairGenerator`实例，则代码如下。
+
+```
+KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("SM2);
 ```
 
 生成密钥对。
@@ -53,20 +65,6 @@ KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("SM2");
 KeyPair keyPair = keyPairGenerator.generateKeyPair();
 ECPublicKey publicKey = (ECPublicKey) keyPair.getPublic();
 ECPrivateKey privateKey = (ECPrivateKey) keyPair.getPrivate();
-```
-
-SM2的密钥对本质还是EC密钥对，所以其中的公钥与私钥也分别符合ECPublicKey与ECPrivateKey的属性。
-
-SM2公钥的编码长度固定为65字节，其格式为`04|x|y`，其中`04`表示非压缩格式，`x`和`y`分别为该公钥点在椭圆曲线上的仿射横坐标和纵坐标的值。
-
-```
-byte[] encodedPublicKey = publicKey.getEncoded();
-```
-
-SM2私钥的编码长度固定为32字节，无编码格式。
-
-```
-byte[] encodedPrivateKey = privateKey.getEncoded();
 ```
 
 关于密钥对生成器API的更详细用法，请参考[KeyPairGenerator]的官方文档。
