@@ -118,30 +118,66 @@ public final class SM2KeyAgreementParamSpec implements AlgorithmParameterSpec {
              DEFAULT_ID, peerPublicKey, isInitiator, sharedKeyLength);
     }
 
+    /**
+     * Returns the ID.
+     *
+     * @return the ID.
+     */
     public byte[] id() {
         return id.clone();
     }
 
+    /**
+     * Returns the private key.
+     *
+     * @return the private key.
+     */
     public ECPrivateKey privateKey() {
         return privateKey;
     }
 
+    /**
+     * Returns the public key.
+     *
+     * @return the public key.
+     */
     public ECPublicKey publicKey() {
         return publicKey;
     }
 
+    /**
+     * Returns the peer's ID.
+     *
+     * @return the peer's ID.
+     */
     public byte[] peerId() {
         return peerId.clone();
     }
 
+    /**
+     * Returns the peer's public key.
+     *
+     * @return the peer's public key.
+     */
     public ECPublicKey peerPublicKey() {
         return peerPublicKey;
     }
 
+    /**
+     * Indicates if it is initiator.
+     *
+     * @return true indicates it initiates the key exchanging;
+     *         false indicates peer initiates the key exchange.
+     */
     public boolean isInitiator() {
         return isInitiator;
     }
 
+    /**
+     * Returns the length of the shared key.
+     *
+     * @return the length of the shared key.
+     */
     public int sharedKeyLength() {
         return sharedKeyLength;
     }

@@ -41,10 +41,29 @@ public final class SM2ParameterSpec extends ECParameterSpec {
         return InstanceHolder.INSTANCE;
     }
 
+    /**
+     * The SM2 elliptic curve.
+     */
     public static final EllipticCurve CURVE = curve();
+
+    /**
+     * The generator or base point.
+     */
     public static final ECPoint GENERATOR = generator();
+
+    /**
+     * The order of the generator.
+     */
     public static final BigInteger ORDER = order();
+
+    /**
+     * The cofactor.
+     */
     public static final BigInteger COFACTOR = cofactor();
+
+    /**
+     * The OID of the SM2 elliptic curve.
+     */
     public static final String OID = "1.2.156.10197.1.301";
 
     // 0x06082A811CCF5501822D
@@ -77,14 +96,6 @@ public final class SM2ParameterSpec extends ECParameterSpec {
 
     private static BigInteger cofactor() {
         return BigInteger.ONE;
-    }
-
-    public String oid() {
-        return OID;
-    }
-
-    public byte[] encoded() {
-        return ENCODED_OID.clone();
     }
 
     @Override
