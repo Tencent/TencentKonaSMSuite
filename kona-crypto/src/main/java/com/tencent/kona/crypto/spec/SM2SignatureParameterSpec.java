@@ -70,10 +70,20 @@ public final class SM2SignatureParameterSpec implements AlgorithmParameterSpec {
         this(DEFAULT_ID, publicKey);
     }
 
+    /**
+     * Returns the ID.
+     *
+     * @return the ID.
+     */
     public byte[] getId() {
         return id.clone();
     }
 
+    /**
+     * Returns the public key.
+     *
+     * @return the public key.
+     */
     public ECPublicKey getPublicKey() {
         return publicKey;
     }
