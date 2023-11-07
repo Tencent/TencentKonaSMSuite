@@ -17,10 +17,6 @@
  * Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-import org.apache.tools.ant.taskdefs.condition.Os
-import org.gradle.api.tasks.testing.logging.TestExceptionFormat
-import org.gradle.api.tasks.testing.logging.TestLogEvent
-
 plugins {
     id("java-library")
     id("maven-publish")
@@ -40,12 +36,28 @@ sourceSets.create("jmh") {
 }
 
 tasks {
+    val passedTasks = project.gradle.startParameter.taskNames
+    println("Passed tasks: $passedTasks")
+
     compileJava {
         options.encoding = "UTF-8"
     }
 
     compileTestJava {
         options.encoding = "UTF-8"
+    }
+
+    withType(JavaCompile::class) {
+        if (!passedTasks.contains("test") && !passedTasks.contains("testOnCurrent")) {
+            javaCompiler = javaToolchains.compilerFor {
+                languageVersion = JavaLanguageVersion.of(8)
+                vendor = JvmVendorSpec.ADOPTIUM
+            }
+        }
+
+        doFirst {
+            println("Testing JDK: " + javaCompiler.get().metadata.installationPath)
+        }
     }
 
     val testOnCurrent = register("testOnCurrent", CommonTest::class) {
