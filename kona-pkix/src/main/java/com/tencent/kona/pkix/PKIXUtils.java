@@ -22,9 +22,9 @@ package com.tencent.kona.pkix;
 
 import com.tencent.kona.crypto.CryptoInsts;
 import com.tencent.kona.crypto.spec.RFC5915EncodedKeySpec;
+import com.tencent.kona.crypto.spec.SM2ParameterSpec;
 import com.tencent.kona.sun.security.util.DerInputStream;
 import com.tencent.kona.sun.security.util.KnownOIDs;
-import com.tencent.kona.sun.security.util.NamedCurve;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -38,6 +38,7 @@ import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.security.interfaces.ECPublicKey;
+import java.security.spec.ECParameterSpec;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
@@ -155,8 +156,8 @@ public class PKIXUtils {
             return false;
         }
 
-        NamedCurve curve = (NamedCurve) ((ECPublicKey) cert.getPublicKey()).getParams();
-        return KnownOIDs.curveSM2.value().equals(curve.getObjectId())
+        ECParameterSpec ecParams = ((ECPublicKey) cert.getPublicKey()).getParams();
+        return SM2ParameterSpec.ORDER.equals(ecParams.getOrder())
                 && KnownOIDs.SM3withSM2.value().equals(cert.getSigAlgOID());
     }
 

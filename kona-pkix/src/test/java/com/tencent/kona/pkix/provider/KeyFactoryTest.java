@@ -146,7 +146,7 @@ public class KeyFactoryTest {
 
         PKCS8EncodedKeySpec pkcs8KeySpec = keyFactory.getKeySpec(
                 privateKey, PKCS8EncodedKeySpec.class);
-        PKCS8Key pkcs8Key = (PKCS8Key) keyFactory.generatePrivate(
+        RSAPrivateKey pkcs8Key = (RSAPrivateKey) keyFactory.generatePrivate(
                 pkcs8KeySpec);
         Assertions.assertArrayEquals(
                 privateKey.getEncoded(), pkcs8Key.getEncoded());
@@ -164,7 +164,7 @@ public class KeyFactoryTest {
 
         PKCS8EncodedKeySpec pkcs8KeySpec = keyFactory.getKeySpec(
                 privateKey, PKCS8EncodedKeySpec.class);
-        PKCS8Key pkcs8Key = (PKCS8Key) keyFactory.generatePrivate(
+        ECPrivateKey pkcs8Key = (ECPrivateKey) keyFactory.generatePrivate(
                 pkcs8KeySpec);
         Assertions.assertArrayEquals(
                 privateKey.getEncoded(), pkcs8Key.getEncoded());

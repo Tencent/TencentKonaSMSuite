@@ -27,7 +27,6 @@ import com.tencent.kona.sun.security.util.KnownOIDs;
 import com.tencent.kona.sun.security.util.ObjectIdentifier;
 import com.tencent.kona.sun.security.x509.AlgorithmId;
 import com.tencent.kona.sun.security.x509.SMCertificate;
-import com.tencent.kona.sun.security.x509.X509Key;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -39,6 +38,8 @@ import java.security.cert.Certificate;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509CRL;
 import java.security.cert.X509Certificate;
+import java.security.interfaces.ECPublicKey;
+import java.security.interfaces.RSAPublicKey;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
@@ -65,10 +66,8 @@ public class CertificateFactoryTest {
         CertificateFactory cf = PKIXInsts.getCertificateFactory("X.509");
         X509Certificate cert = (X509Certificate) cf.generateCertificate(
                 new ByteArrayInputStream(TestUtils.certBytes("ca-rsarsa.crt")));
-        X509Key pubKey = (X509Key) cert.getPublicKey();
-        AlgorithmId algId = pubKey.getAlgorithmId();
-        Assertions.assertEquals(KnownOIDs.RSA.value(), algId.getOID().toString());
-        Assertions.assertEquals("RSA", algId.getName());
+        RSAPublicKey pubKey = (RSAPublicKey) cert.getPublicKey();
+        Assertions.assertEquals("RSA", pubKey.getAlgorithm());
         Assertions.assertEquals(KnownOIDs.SHA256withRSA.value(), cert.getSigAlgOID());
         Assertions.assertEquals("SHA256withRSA", cert.getSigAlgName());
     }
@@ -78,10 +77,8 @@ public class CertificateFactoryTest {
         CertificateFactory cf = PKIXInsts.getCertificateFactory("X.509");
         X509Certificate cert = (X509Certificate) cf.generateCertificate(
                 new ByteArrayInputStream(TestUtils.certBytes("ca-p256ecdsa.crt")));
-        X509Key pubKey = (X509Key) cert.getPublicKey();
-        AlgorithmId algId = pubKey.getAlgorithmId();
-        Assertions.assertEquals(KnownOIDs.EC.value(), algId.getOID().toString());
-        Assertions.assertEquals("EC", algId.getName());
+        ECPublicKey pubKey = (ECPublicKey) cert.getPublicKey();
+        Assertions.assertEquals("EC", pubKey.getAlgorithm());
         Assertions.assertEquals(KnownOIDs.SHA256withECDSA.value(), cert.getSigAlgOID());
         Assertions.assertEquals("SHA256withECDSA", cert.getSigAlgName());
     }
@@ -91,10 +88,8 @@ public class CertificateFactoryTest {
         CertificateFactory cf = PKIXInsts.getCertificateFactory("X.509");
         X509Certificate cert = (X509Certificate) cf.generateCertificate(
                 new ByteArrayInputStream(TestUtils.certBytes("ca-p256sm2.crt")));
-        X509Key pubKey = (X509Key) cert.getPublicKey();
-        AlgorithmId algId = pubKey.getAlgorithmId();
-        Assertions.assertEquals(KnownOIDs.EC.value(), algId.getOID().toString());
-        Assertions.assertEquals("EC", algId.getName());
+        ECPublicKey pubKey = (ECPublicKey) cert.getPublicKey();
+        Assertions.assertEquals("EC", pubKey.getAlgorithm());
         Assertions.assertEquals(
                 KnownOIDs.SM3withSM2.value(),
                 cert.getSigAlgOID());
@@ -106,10 +101,8 @@ public class CertificateFactoryTest {
         CertificateFactory cf = PKIXInsts.getCertificateFactory("X.509");
         X509Certificate cert = (X509Certificate) cf.generateCertificate(
                 new ByteArrayInputStream(TestUtils.certBytes("ca-sm2ecdsa.crt")));
-        X509Key pubKey = (X509Key) cert.getPublicKey();
-        AlgorithmId algId = pubKey.getAlgorithmId();
-        Assertions.assertEquals(KnownOIDs.EC.value(), algId.getOID().toString());
-        Assertions.assertEquals("EC", algId.getName());
+        ECPublicKey pubKey = (ECPublicKey) cert.getPublicKey();
+        Assertions.assertEquals("EC", pubKey.getAlgorithm());
         Assertions.assertEquals(
                 KnownOIDs.SHA256withECDSA.value(),
                 cert.getSigAlgOID());
@@ -121,10 +114,8 @@ public class CertificateFactoryTest {
         CertificateFactory cf = PKIXInsts.getCertificateFactory("X.509");
         X509Certificate cert = (X509Certificate) cf.generateCertificate(
                 new ByteArrayInputStream(TestUtils.certBytes("ca-sm2sm2.crt")));
-        X509Key pubKey = (X509Key) cert.getPublicKey();
-        AlgorithmId algId = pubKey.getAlgorithmId();
-        Assertions.assertEquals(KnownOIDs.EC.value(), algId.getOID().toString());
-        Assertions.assertEquals("EC", algId.getName());
+        ECPublicKey pubKey = (ECPublicKey) cert.getPublicKey();
+        Assertions.assertEquals("EC", pubKey.getAlgorithm());
         Assertions.assertEquals(
                 KnownOIDs.SM3withSM2.value(),
                 cert.getSigAlgOID());

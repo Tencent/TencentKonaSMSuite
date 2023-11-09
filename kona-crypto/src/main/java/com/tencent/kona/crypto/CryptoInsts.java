@@ -25,7 +25,6 @@ import javax.crypto.KeyAgreement;
 import javax.crypto.KeyGenerator;
 import javax.crypto.Mac;
 import javax.crypto.NoSuchPaddingException;
-import java.security.AlgorithmParameterGenerator;
 import java.security.AlgorithmParameters;
 import java.security.KeyFactory;
 import java.security.KeyPairGenerator;
@@ -44,7 +43,7 @@ public class CryptoInsts {
             "com.tencent.kona.crypto.provider.name", KonaCryptoProvider.NAME);
 
     private static final Set<String> ALGO_PARAMS_ALGOS
-            = new HashSet<>(Arrays.asList("EC", "SM4", "RSASSA-PSS", "PBES2"));
+            = new HashSet<>(Arrays.asList("EC", "SM4", "PBES2"));
 
     public static AlgorithmParameters getAlgorithmParameters(String algorithm)
             throws NoSuchAlgorithmException {
@@ -61,26 +60,8 @@ public class CryptoInsts {
         return algoParams;
     }
 
-    private static final Set<String> ALGO_PARAM_GEN_ALGOS
-            = new HashSet<>(Collections.singletonList("SM4"));
-
-    public static AlgorithmParameterGenerator getAlgorithmParameterGenerator(
-            String algorithm) throws NoSuchAlgorithmException {
-        AlgorithmParameterGenerator algoParamGen  = null;
-        if (ALGO_PARAM_GEN_ALGOS.contains(algorithm)) {
-            try {
-                algoParamGen = AlgorithmParameterGenerator.getInstance(algorithm, PROV_NAME);
-            } catch (NoSuchProviderException e) {
-                throw new IllegalStateException("No provider: " + PROV_NAME, e);
-            }
-        } else {
-            algoParamGen = AlgorithmParameterGenerator.getInstance(algorithm);
-        }
-        return algoParamGen;
-    }
-
     private static final Set<String> KEY_FACTORY_ALGOS
-            = new HashSet<>(Arrays.asList("EC", "SM2", "RSA", "RSASSA-PSS"));
+            = new HashSet<>(Arrays.asList("SM2"));
 
     public static KeyFactory getKeyFactory(String algorithm)
             throws NoSuchAlgorithmException {
@@ -98,7 +79,7 @@ public class CryptoInsts {
     }
 
     private static final Set<String> KEY_GEN_ALGOS
-            = new HashSet<>(Arrays.asList("SM3HMac", "SM4"));
+            = new HashSet<>(Arrays.asList("SM4", "HmacSM3", "SM3HMac"));
 
     public static KeyGenerator getKeyGenerator(String algorithm)
             throws NoSuchAlgorithmException {
@@ -116,7 +97,7 @@ public class CryptoInsts {
     }
 
     private static final Set<String> KEY_PAIR_GEN_ALGOS
-            = new HashSet<>(Arrays.asList("SM2", "RSA", "RSASSA-PSS"));
+            = new HashSet<>(Arrays.asList("SM2"));
 
     public static KeyPairGenerator getKeyPairGenerator(String algorithm)
             throws NoSuchAlgorithmException {
@@ -171,7 +152,7 @@ public class CryptoInsts {
     }
 
     private static final Set<String> MAC_ALGOS
-            = new HashSet<>(Collections.singletonList("SM3HMac"));
+            = new HashSet<>(Arrays.asList("HmacSM3", "SM3HMac"));
 
     public static Mac getMac(String algorithm) throws NoSuchAlgorithmException {
         Mac mac  = null;
@@ -192,13 +173,7 @@ public class CryptoInsts {
                     "SM2", "SM3withSM2",
                     "NONEwithECDSA", "SHA1withECDSA",
                     "SHA224withECDSA", "SHA256withECDSA",
-                    "SHA384withECDSA", "SHA512withECDSA",
-                    "SHA1withRSA", "SHA224withRSA",
-                    "SHA256withRSA", "SHA384withRSA",
-                    "SHA512withRSA", "SHA512/224withRSA",
-                    "SHA512/256withRSA", "SHA3-224withRSA",
-                    "SHA3-256withRSA", "SHA3-384withRSA",
-                    "SHA3-512withRSA"));
+                    "SHA384withECDSA", "SHA512withECDSA"));
 
     public static Signature getSignature(String algorithm)
             throws NoSuchAlgorithmException {
@@ -216,7 +191,7 @@ public class CryptoInsts {
     }
 
     private static final Set<String> KEY_AGREEMENT_ALGOS
-            = new HashSet<>(Arrays.asList("SM2", "ECDH"));
+            = new HashSet<>(Arrays.asList("SM2"));
 
     public static KeyAgreement getKeyAgreement(String algorithm)
             throws NoSuchAlgorithmException {
