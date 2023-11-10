@@ -28,7 +28,6 @@ import org.junit.jupiter.api.Test;
 import org.opentest4j.AssertionFailedError;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -184,16 +183,20 @@ public class KeyToolTest {
         args.add("-alias");
         args.add(alias);
 
-        OutputAnalyzer oa = TestUtils.java(KeyTool.class, args);
-        String cert = oa.getOutput();
-        try {
-            Assertions.assertTrue(cert.contains("-----BEGIN CERTIFICATE-----"));
-        } catch (AssertionFailedError error){
-            System.out.println(cert);
-            throw error;
-        }
         if (certPath != null) {
-            Files.write(certPath, cert.getBytes(StandardCharsets.UTF_8));
+            args.add("-file");
+            args.add(certPath.toString());
+        }
+
+        OutputAnalyzer oa = TestUtils.java(KeyTool.class, args);
+        if (certPath != null) {
+            try {
+                Assertions.assertTrue(Files.readAllLines(certPath).contains(
+                        "-----BEGIN CERTIFICATE-----"));
+            } catch (AssertionFailedError error){
+                System.out.println(oa.getOutput());
+                throw error;
+            }
         }
     }
 
