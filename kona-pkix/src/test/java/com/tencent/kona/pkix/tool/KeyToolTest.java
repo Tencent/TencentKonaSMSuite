@@ -19,20 +19,29 @@
 
 package com.tencent.kona.pkix.tool;
 
+import com.tencent.kona.pkix.PKIXUtils;
 import com.tencent.kona.pkix.TestUtils;
 import com.tencent.kona.pkix.process.OutputAnalyzer;
+import com.tencent.kona.sun.security.ec.ECOperator;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.opentest4j.AssertionFailedError;
 
 import java.io.IOException;
+import java.math.BigInteger;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.security.PublicKey;
+import java.security.cert.X509Certificate;
+import java.security.interfaces.ECPublicKey;
 import java.util.ArrayList;
 import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * The tests for KeyTool.
@@ -48,6 +57,11 @@ public class KeyToolTest {
     private static final Path EE_KEYSTORE = path("ee.ks");
 
     private static final String PASSWORD = "testpassword";
+
+    @BeforeAll
+    public static void setup() {
+        TestUtils.addProviders();
+    }
 
     @BeforeEach
     public void prepare() throws IOException {
@@ -95,9 +109,9 @@ public class KeyToolTest {
         genKeyPair(ROOT_KEYSTORE, storeType, "ec-secp256r1-root", "EC", "SECP256R1", "SHA256withECDSA");
         genKeyPair(ROOT_KEYSTORE, storeType, "ec-sm2-root", "EC", "curveSM2", "SM3withSM2");
 
-        genCSR(ROOT_KEYSTORE, storeType, "rsa-root", null);
-        genCSR(ROOT_KEYSTORE, storeType, "ec-secp256r1-root", null);
-        genCSR(ROOT_KEYSTORE, storeType, "ec-sm2-root", null);
+        genCSR(ROOT_KEYSTORE, storeType, "rsa-root", "SHA256withRSA", path("rsa-root.csr"));
+        genCSR(ROOT_KEYSTORE, storeType, "ec-secp256r1-root", "SHA256withECDSA", path("ec-secp256r1-root.csr"));
+        genCSR(ROOT_KEYSTORE, storeType, "ec-sm2-root", "SM3withSM2", path("ec-sm2-root.csr"));
     }
 
     @Test
@@ -147,11 +161,17 @@ public class KeyToolTest {
         genKeyPair(EE_KEYSTORE, storeType, eeAlias, keyAlg, group, sigAlg);
 
         outputCert(ROOT_KEYSTORE, storeType, rootAlias, path(rootAlias + ".crt"));
-        genCSR(CA_KEYSTORE, storeType, caAlias, caCSRPath);
-        genCert(ROOT_KEYSTORE, storeType, rootAlias, sigAlg, caCSRPath, path(caAlias + ".crt"));
+        genCSR(CA_KEYSTORE, storeType, caAlias, sigAlg, caCSRPath);
 
-        genCSR(EE_KEYSTORE, storeType, eeAlias, eeCSRPath);
-        genCert(CA_KEYSTORE, storeType, caAlias, sigAlg, eeCSRPath, path(eeAlias + ".crt"));
+        Path caCertPath = path(caAlias + ".crt");
+        genCert(ROOT_KEYSTORE, storeType, rootAlias, sigAlg, caCSRPath, caCertPath);
+        checkCert(caCertPath, keyAlg, group, sigAlg);
+
+        genCSR(EE_KEYSTORE, storeType, eeAlias, sigAlg, eeCSRPath);
+
+        Path eeCertPath = path(eeAlias + ".crt");
+        genCert(CA_KEYSTORE, storeType, caAlias, sigAlg, eeCSRPath, eeCertPath);
+        checkCert(eeCertPath, keyAlg, group, sigAlg);
     }
 
     private static String suffix(String keyAlg, String group, String sigAlg) {
@@ -167,6 +187,8 @@ public class KeyToolTest {
     private static void outputCert(Path keystore, String storeType,
             String alias, Path certPath) throws Throwable {
         List<String> args = new ArrayList<>();
+
+        args.add("-v");
 
         args.add("-exportcert");
         args.add("-rfc");
@@ -213,6 +235,8 @@ public class KeyToolTest {
             throws Throwable {
         List<String> args = new ArrayList<>();
 
+        args.add("-v");
+
         args.add("-genkeypair");
 
         args.add("-keystore");
@@ -258,6 +282,7 @@ public class KeyToolTest {
                     "-Dcom.tencent.kona.keystore.pkcs12.macAlgorithm=" + macAlg);
         }
 
+        System.out.println("genKeyPair: " + String.join(" ", args));
         OutputAnalyzer oa = TestUtils.java(jvmOptions, KeyTool.class, args);
         try {
             Assertions.assertEquals(0, oa.getExitValue());
@@ -268,8 +293,10 @@ public class KeyToolTest {
     }
 
     private static void genCSR(Path keystorePath, String storeType,
-            String alias, Path csrPath) throws Throwable {
+            String alias, String sigAlg, Path csrPath) throws Throwable {
         List<String> args = new ArrayList<>();
+
+        args.add("-v");
 
         args.add("-certreq");
 
@@ -288,11 +315,15 @@ public class KeyToolTest {
         args.add("-keypass");
         args.add(PASSWORD);
 
+        args.add("-sigalg");
+        args.add(sigAlg);
+
         if (csrPath != null) {
             args.add("-file");
             args.add(csrPath.toString());
         }
 
+        System.out.println("genCSR: " + String.join(" ", args));
         OutputAnalyzer oa = TestUtils.java(KeyTool.class, args);
         try {
             Assertions.assertEquals(0, oa.getExitValue());
@@ -306,6 +337,8 @@ public class KeyToolTest {
             String issuerAlias, String sigAlg , Path csrPath, Path certPath)
             throws Throwable {
         List<String> args = new ArrayList<>();
+
+        args.add("-v");
 
         args.add("-gencert");
         args.add("-rfc");
@@ -336,6 +369,7 @@ public class KeyToolTest {
             args.add(certPath.toString());
         }
 
+        System.out.println("genCert: " + String.join(" ", args));
         OutputAnalyzer oa = TestUtils.java(KeyTool.class, args);
         try {
             Assertions.assertEquals(0, oa.getExitValue());
@@ -343,6 +377,25 @@ public class KeyToolTest {
             System.out.println(oa.getOutput());
             throw error;
         }
+    }
+
+    private static void checkCert(Path certPath, String expectedKeyAlg,
+            String expectedGroup, String expectedSigAlg) throws Exception {
+        X509Certificate cert = PKIXUtils.getCertificate(String.join(
+                "\n", Files.readAllLines(certPath)));
+        PublicKey publicKey = cert.getPublicKey();
+        assertEquals(expectedKeyAlg, publicKey.getAlgorithm());
+        if (expectedGroup != null) {
+            ECPublicKey ecPublicKey = (ECPublicKey) publicKey;
+            BigInteger expectedOrder = null;
+            if ("CURVESM2".equalsIgnoreCase(expectedGroup)) {
+                expectedOrder = ECOperator.SM2.getOrder();
+            } else if ("SECP256R1".equalsIgnoreCase(expectedGroup)) {
+                expectedOrder = ECOperator.SECP256R1.getOrder();
+            }
+            assertEquals(expectedOrder, ecPublicKey.getParams().getOrder());
+        }
+        assertEquals(expectedSigAlg, cert.getSigAlgName());
     }
 
     private static Path path(String file) {
