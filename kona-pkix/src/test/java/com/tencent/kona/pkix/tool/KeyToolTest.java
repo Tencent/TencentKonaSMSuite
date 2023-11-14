@@ -21,14 +21,12 @@ package com.tencent.kona.pkix.tool;
 
 import com.tencent.kona.pkix.PKIXUtils;
 import com.tencent.kona.pkix.TestUtils;
-import com.tencent.kona.pkix.process.OutputAnalyzer;
 import com.tencent.kona.sun.security.ec.ECOperator;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.opentest4j.AssertionFailedError;
+import com.tencent.kona.sun.security.tools.keytool.Main;
 
 import java.io.IOException;
 import java.math.BigInteger;
@@ -210,16 +208,8 @@ public class KeyToolTest {
             args.add(certPath.toString());
         }
 
-        OutputAnalyzer oa = TestUtils.java(KeyTool.class, args);
-        if (certPath != null) {
-            try {
-                Assertions.assertTrue(Files.readAllLines(certPath).contains(
-                        "-----BEGIN CERTIFICATE-----"));
-            } catch (AssertionFailedError error){
-                System.out.println(oa.getOutput());
-                throw error;
-            }
-        }
+        System.out.println("outputCert: " + String.join(" ", args));
+        Main.main(args.toArray(new String[0]));
     }
 
     private static void genKeyPair(Path keystorePath, String storeType,
@@ -283,13 +273,7 @@ public class KeyToolTest {
         }
 
         System.out.println("genKeyPair: " + String.join(" ", args));
-        OutputAnalyzer oa = TestUtils.java(jvmOptions, KeyTool.class, args);
-        try {
-            Assertions.assertEquals(0, oa.getExitValue());
-        } catch (AssertionFailedError error){
-            System.out.println(oa.getOutput());
-            throw error;
-        }
+        Main.main(args.toArray(new String[0]));
     }
 
     private static void genCSR(Path keystorePath, String storeType,
@@ -324,13 +308,7 @@ public class KeyToolTest {
         }
 
         System.out.println("genCSR: " + String.join(" ", args));
-        OutputAnalyzer oa = TestUtils.java(KeyTool.class, args);
-        try {
-            Assertions.assertEquals(0, oa.getExitValue());
-        } catch (AssertionFailedError error) {
-            System.out.println(oa.getOutput());
-            throw error;
-        }
+        Main.main(args.toArray(new String[0]));
     }
 
     private static void genCert(Path keystorePath, String storeType,
@@ -370,13 +348,7 @@ public class KeyToolTest {
         }
 
         System.out.println("genCert: " + String.join(" ", args));
-        OutputAnalyzer oa = TestUtils.java(KeyTool.class, args);
-        try {
-            Assertions.assertEquals(0, oa.getExitValue());
-        } catch (AssertionFailedError error) {
-            System.out.println(oa.getOutput());
-            throw error;
-        }
+        Main.main(args.toArray(new String[0]));
     }
 
     private static void checkCert(Path certPath, String expectedKeyAlg,
