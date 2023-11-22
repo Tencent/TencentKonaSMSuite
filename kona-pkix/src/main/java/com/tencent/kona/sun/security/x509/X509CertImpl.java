@@ -38,7 +38,6 @@ import javax.security.auth.x500.X500Principal;
 
 import com.tencent.kona.crypto.CryptoInsts;
 import com.tencent.kona.crypto.spec.SM2SignatureParameterSpec;
-import com.tencent.kona.crypto.util.Constants;
 import com.tencent.kona.pkix.PKIXUtils;
 import com.tencent.kona.sun.security.provider.X509Factory;
 import com.tencent.kona.sun.security.util.Debug;
@@ -86,6 +85,11 @@ public class X509CertImpl extends X509Certificate
         implements DerEncoder, SMCertificate {
 
     private static final long serialVersionUID = -3457612960190864406L;
+
+    // The default ID 1234567812345678
+    private static final byte[] DEFAULT_ID = new byte[] {
+            49, 50, 51, 52, 53, 54, 55, 56,
+            49, 50, 51, 52, 53, 54, 55, 56};
 
     public static final String NAME = "x509";
 
@@ -230,7 +234,7 @@ public class X509CertImpl extends X509Certificate
         }
 
         return id == null || id.length == 0
-                ? Constants.defaultId()
+                ? DEFAULT_ID.clone()
                 : id.clone();
     }
 

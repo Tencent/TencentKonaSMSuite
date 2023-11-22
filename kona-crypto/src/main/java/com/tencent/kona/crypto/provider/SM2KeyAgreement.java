@@ -44,7 +44,6 @@ import static com.tencent.kona.crypto.spec.SM2ParameterSpec.COFACTOR;
 import static com.tencent.kona.crypto.spec.SM2ParameterSpec.CURVE;
 import static com.tencent.kona.crypto.spec.SM2ParameterSpec.GENERATOR;
 import static com.tencent.kona.crypto.spec.SM2ParameterSpec.ORDER;
-import static com.tencent.kona.crypto.util.Constants.defaultId;
 import static com.tencent.kona.crypto.util.Constants.SM3_DIGEST_LEN;
 import static com.tencent.kona.crypto.CryptoUtils.bigIntToBytes32;
 import static com.tencent.kona.crypto.CryptoUtils.intToBytes4;
@@ -58,6 +57,11 @@ import static java.math.BigInteger.ZERO;
  * SM2 key agreement in compliance with GB/T 32918.3-2016.
  */
 public final class SM2KeyAgreement extends KeyAgreementSpi {
+
+    // The default ID 1234567812345678
+    private static final byte[] DEFAULT_ID = new byte[] {
+            49, 50, 51, 52, 53, 54, 55, 56,
+            49, 50, 51, 52, 53, 54, 55, 56};
 
     private ECPrivateKey ephemeralPrivateKey;
     private SM2KeyAgreementParamSpec paramSpec;
@@ -284,7 +288,7 @@ public final class SM2KeyAgreement extends KeyAgreementSpi {
     private static final byte[] GEN_Y = bigIntToBytes32(GENERATOR.getAffineY());
 
     private byte[] z(byte[] origId, ECPoint pubPoint) {
-        byte[] id = origId == null ? defaultId() : origId;
+        byte[] id = origId == null ? DEFAULT_ID : origId;
         int idLen = id.length << 3;
         sm3.update((byte)(idLen >>> 8));
         sm3.update((byte)idLen);
