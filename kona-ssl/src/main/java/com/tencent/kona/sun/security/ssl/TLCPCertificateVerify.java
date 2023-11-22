@@ -26,7 +26,6 @@
 package com.tencent.kona.sun.security.ssl;
 
 import com.tencent.kona.crypto.spec.SM2SignatureParameterSpec;
-import com.tencent.kona.crypto.util.Constants;
 import com.tencent.kona.pkix.PKIXUtils;
 import com.tencent.kona.sun.security.util.HexDumpEncoder;
 
@@ -77,7 +76,7 @@ final class TLCPCertificateVerify {
             try {
                 Signature signer = SignatureScheme.SM2SIG_SM3.getSigner(
                         tlcpPossession.popSignPrivateKey,
-                        new SM2SignatureParameterSpec(Constants.defaultId(),
+                        new SM2SignatureParameterSpec(
                                 (ECPublicKey) tlcpPossession.popSignPublicKey));
                 signer.update(chc.handshakeHash.digest());
                 temporary = signer.sign();
@@ -155,7 +154,6 @@ final class TLCPCertificateVerify {
                 Signature signer = SignatureScheme.SM2SIG_SM3.getVerifier(
                         tlcpCredentials.popSignPublicKey,
                         new SM2SignatureParameterSpec(
-                                Constants.defaultId(),
                                 (ECPublicKey) tlcpCredentials.popSignPublicKey));
 
                 signer.update(shc.handshakeHash.digest());

@@ -678,7 +678,6 @@ final class CertificateVerify {
                 SM2SignatureParameterSpec smSignParamSpec = null;
                 if (PKIXUtils.isSM3withSM2(signatureScheme.name)) {
                     smSignParamSpec = new SM2SignatureParameterSpec(
-                            Constants.defaultId(),
                             (ECPublicKey) x509Credentials.popPublicKey);
                 }
 

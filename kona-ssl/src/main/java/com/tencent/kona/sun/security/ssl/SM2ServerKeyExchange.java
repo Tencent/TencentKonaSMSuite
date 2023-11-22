@@ -40,7 +40,6 @@ import java.util.Locale;
 
 import com.tencent.kona.crypto.CryptoInsts;
 import com.tencent.kona.crypto.spec.SM2SignatureParameterSpec;
-import com.tencent.kona.crypto.util.Constants;
 import com.tencent.kona.sun.security.ssl.TLCPAuthentication.TLCPCredentials;
 import com.tencent.kona.sun.security.ssl.TLCPAuthentication.TLCPPossession;
 import com.tencent.kona.sun.security.ssl.SSLHandshake.HandshakeMessage;
@@ -114,7 +113,6 @@ final class SM2ServerKeyExchange {
 
                 // Set ID and public key for SM3withSM2.
                 signer.setParameter(new SM2SignatureParameterSpec(
-                        Constants.defaultId(),
                         (ECPublicKey) tlcpPossession.popSignPublicKey));
 
                 signer.initSign(tlcpPossession.popSignPrivateKey);
@@ -188,7 +186,6 @@ final class SM2ServerKeyExchange {
 
                 // Set ID and public key for SM3withSM2.
                 signer.setParameter(new SM2SignatureParameterSpec(
-                        Constants.defaultId(),
                         (ECPublicKey) tlcpCredentials.popSignCert.getPublicKey()));
 
                 signer.initVerify(tlcpCredentials.popSignPublicKey);

@@ -509,10 +509,11 @@ enum SignatureScheme {
 
         // Just select sm2sig_sm3 for curveSM2.
         if (namedGroup == NamedGroup.CURVESM2) {
-            byte[] id = !version.useTLS13PlusSpec()
-                    ? Constants.defaultId() : Utilities.TLS13_SM_ID;
-            Signature signer = SignatureScheme.SM2SIG_SM3.getSigner(signingKey,
-                    new SM2SignatureParameterSpec(id, (ECPublicKey) publicKey));
+            SM2SignatureParameterSpec paramSpec = !version.useTLS13PlusSpec()
+                    ? new SM2SignatureParameterSpec((ECPublicKey) publicKey)
+                    : new SM2SignatureParameterSpec(Utilities.TLS13_SM_ID,
+                            (ECPublicKey) publicKey);
+            Signature signer = SignatureScheme.SM2SIG_SM3.getSigner(signingKey, paramSpec);
             return new SimpleImmutableEntry<>(SignatureScheme.SM2SIG_SM3, signer);
         }
 

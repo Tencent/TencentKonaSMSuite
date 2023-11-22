@@ -27,7 +27,6 @@ package com.tencent.kona.sun.security.ssl;
 
 import com.tencent.kona.crypto.CryptoInsts;
 import com.tencent.kona.crypto.spec.SM2KeyAgreementParamSpec;
-import com.tencent.kona.crypto.util.Constants;
 import com.tencent.kona.ssl.SSLUtils;
 import com.tencent.kona.sun.security.ssl.TLCPAuthentication.TLCPPossession;
 import com.tencent.kona.sun.security.util.ECUtil;
@@ -147,10 +146,8 @@ public class SM2EKeyExchange {
                 throws SSLHandshakeException {
             try {
                 SM2KeyAgreementParamSpec params = new SM2KeyAgreementParamSpec(
-                        Constants.defaultId(),
                         popEncPrivateKey,
                         popEncPublicKey,
-                        Constants.defaultId(),
                         peerEphemeralPublicKey,
                         isInitiator,
                         32);

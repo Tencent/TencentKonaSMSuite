@@ -27,7 +27,6 @@ package com.tencent.kona.sun.security.ssl;
 
 import com.tencent.kona.crypto.provider.SM2PublicKey;
 import com.tencent.kona.crypto.spec.SM2KeyAgreementParamSpec;
-import com.tencent.kona.crypto.util.Constants;
 import com.tencent.kona.sun.security.ssl.SM2EKeyExchange.SM2ECredentials;
 import com.tencent.kona.sun.security.ssl.SM2EKeyExchange.SM2EPossession;
 import com.tencent.kona.sun.security.ssl.SSLHandshake.HandshakeMessage;
@@ -200,10 +199,8 @@ public class SM2EClientKeyExchange {
                         "Not supported key exchange type");
             } else {
                 SM2KeyAgreementParamSpec params = new SM2KeyAgreementParamSpec(
-                        Constants.defaultId(),
                         (ECPrivateKey) tlcpPossession.popEncPrivateKey,
                         (ECPublicKey) tlcpPossession.popEncPublicKey,
-                        Constants.defaultId(),
                         (ECPublicKey) tlcpCredentials.popEncPublicKey,
                         false,
                         48);
@@ -299,10 +296,8 @@ public class SM2EClientKeyExchange {
 
             // update the states
             SM2KeyAgreementParamSpec params = new SM2KeyAgreementParamSpec(
-                    Constants.defaultId(),
                     sm2ePossession.popEncPrivateKey,
                     sm2ePossession.popEncPublicKey,
-                    Constants.defaultId(),
                     (ECPublicKey) tlcpCredentials.popEncPublicKey,
                     true,
                     48);
