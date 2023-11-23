@@ -56,7 +56,7 @@ tasks {
         }
 
         doFirst {
-            println("Testing JDK: " + javaCompiler.get().metadata.installationPath)
+            println("Compiling JDK: " + javaCompiler.get().metadata.installationPath)
         }
     }
 
@@ -99,6 +99,19 @@ tasks {
 
         javaLauncher.set(javaToolchains.launcherFor {
             languageVersion.set(JavaLanguageVersion.of(17))
+            vendor.set(JvmVendorSpec.ADOPTIUM)
+        })
+
+        doFirst {
+            println("Testing JDK: " + javaLauncher.get().metadata.installationPath)
+        }
+    }
+
+    register("testOnAdop21", CommonTest::class) {
+        systemProperty("test.classpath", classpath.joinToString(separator = ":"))
+
+        javaLauncher.set(javaToolchains.launcherFor {
+            languageVersion.set(JavaLanguageVersion.of(21))
             vendor.set(JvmVendorSpec.ADOPTIUM)
         })
 

@@ -24,7 +24,7 @@ This project provides a Spring Boot module, exactly [kona-demo], as a server-sid
 Tencent Kona SM Suite is 100% Java-coded, so it can run on any operating systems that can run JDK.
 
 ### JDK
-Tencent Kona SM Suite supports all the JDK long-term supported (LTS) releases, namely 8, 11 and 17.
+Tencent Kona SM Suite supports all the JDK long-term supported (LTS) releases, namely 8, 11, 17 and 21.
 
 Please note Tencent Kona SM Suite is already signed by Oracle-issued JCE code signing [certificate], so it also can run on Oracle JDK.
 
