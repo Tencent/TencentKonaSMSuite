@@ -61,7 +61,7 @@ public class CryptoInsts {
     }
 
     private static final Set<String> KEY_FACTORY_ALGOS
-            = new HashSet<>(Arrays.asList("SM2"));
+            = new HashSet<>(Arrays.asList("EC", "SM2"));
 
     public static KeyFactory getKeyFactory(String algorithm)
             throws NoSuchAlgorithmException {
