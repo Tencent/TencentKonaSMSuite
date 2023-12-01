@@ -26,6 +26,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import java.nio.ByteBuffer;
+import java.security.DigestException;
 import java.security.MessageDigest;
 import java.util.Random;
 
@@ -99,6 +100,17 @@ public class SM3Test {
         byte[] digest = md.digest();
 
         Assertions.assertArrayEquals(DIGEST_SHORT, digest);
+    }
+
+    @Test
+    public void testOutputBuf() throws Exception {
+        MessageDigest md = MessageDigest.getInstance("SM3", PROVIDER);
+        md.update(MESSAGE_SHORT);
+        byte[] out = new byte[Constants.SM3_DIGEST_LEN];
+        int length = md.digest(out, 0, out.length);
+
+        Assertions.assertEquals(Constants.SM3_DIGEST_LEN, length);
+        Assertions.assertArrayEquals(DIGEST_SHORT, out);
     }
 
     @Test
@@ -202,22 +214,44 @@ public class SM3Test {
     }
 
     @Test
-    public void testOutOfBounds() throws Exception {
-        outOfBounds(16, 0, 32);
-        outOfBounds(7, 0, 32);
-        outOfBounds(16, -8, 16);
-        outOfBounds(16, 8, -8);
-        outOfBounds(16, Integer.MAX_VALUE, 8);
+    public void testOutOfBoundsOnUpdate() throws Exception {
+        outOfBoundsOnUpdate(16, 0, 32);
+        outOfBoundsOnUpdate(7, 0, 32);
+        outOfBoundsOnUpdate(16, -8, 16);
+        outOfBoundsOnUpdate(16, 8, -8);
+        outOfBoundsOnUpdate(16, Integer.MAX_VALUE, 8);
     }
 
-    private static void outOfBounds(int arrayLen, int ofs, int len)
+    private static void outOfBoundsOnUpdate(int inputSize, int ofs, int len)
             throws Exception {
         MessageDigest md = MessageDigest.getInstance("SM3", PROVIDER);
 
         try {
-            md.update(new byte[arrayLen], ofs, len);
+            md.update(new byte[inputSize], ofs, len);
             throw new Exception("invalid call succeeded");
-        } catch (RuntimeException e) {
+        } catch (ArrayIndexOutOfBoundsException | IllegalArgumentException e) {
+            System.out.println("Expected: " + e);
+        }
+    }
+
+    @Test
+    public void testOutOfBoundsOnOutBuf() throws Exception {
+        outOfBoundsOnOutBuf(16, 0, 32);
+        outOfBoundsOnOutBuf(7, 0, 32);
+        outOfBoundsOnOutBuf(16, -8, 16);
+        outOfBoundsOnOutBuf(16, 8, -8);
+        outOfBoundsOnOutBuf(16, Integer.MAX_VALUE, 8);
+    }
+
+    private static void outOfBoundsOnOutBuf(int outSize, int ofs, int len)
+            throws Exception {
+        MessageDigest md = MessageDigest.getInstance("SM3", PROVIDER);
+        md.update(MESSAGE_SHORT);
+
+        try {
+            md.digest(new byte[outSize], ofs, len);
+            throw new Exception("invalid call succeeded");
+        } catch (IllegalArgumentException | DigestException e) {
             System.out.println("Expected: " + e);
         }
     }
