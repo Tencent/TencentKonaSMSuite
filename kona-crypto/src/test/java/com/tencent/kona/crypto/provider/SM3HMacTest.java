@@ -24,15 +24,11 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import javax.crypto.KeyGenerator;
 import javax.crypto.Mac;
-import javax.crypto.SecretKey;
+import javax.crypto.ShortBufferException;
 import javax.crypto.spec.SecretKeySpec;
 
 import java.nio.ByteBuffer;
-import java.security.InvalidParameterException;
-import java.security.SecureRandom;
-
 import static com.tencent.kona.crypto.TestUtils.PROVIDER;
 import static com.tencent.kona.crypto.util.Constants.SM3_HMAC_LEN;
 import static com.tencent.kona.crypto.CryptoUtils.toBytes;
@@ -44,6 +40,7 @@ public class SM3HMacTest {
 
     private static final byte[] KEY = toBytes("0123456789abcdef0123456789abcdef");
     private static final byte[] MESSAGE = toBytes("616263");
+    private static final byte[] MAC = toBytes("4d2e8eefcfaa97b2bea04cda000823a4f2e6e264cf7a819d67117ad12cc9a8af");
 
     @BeforeAll
     public static void setup() {
@@ -64,8 +61,8 @@ public class SM3HMacTest {
         Mac hmacSM3 = Mac.getInstance(name, PROVIDER);
         SecretKeySpec keySpec = new SecretKeySpec(KEY, "HmacSM3");
         hmacSM3.init(keySpec);
-        byte[] mac = hmacSM3.doFinal(toBytes("616263"));
-        Assertions.assertEquals(SM3_HMAC_LEN, mac.length);
+        byte[] mac = hmacSM3.doFinal(MESSAGE);
+        Assertions.assertArrayEquals(MAC, mac);
     }
 
     @Test
@@ -77,7 +74,7 @@ public class SM3HMacTest {
             hmacSM3.update(b);
         }
         byte[] mac = hmacSM3.doFinal();
-        Assertions.assertEquals(SM3_HMAC_LEN, mac.length);
+        Assertions.assertArrayEquals(MAC, mac);
     }
 
     @Test
@@ -88,7 +85,19 @@ public class SM3HMacTest {
         hmacSM3.update(MESSAGE, 0, MESSAGE.length / 2);
         hmacSM3.update(MESSAGE, MESSAGE.length / 2, MESSAGE.length - MESSAGE.length / 2);
         byte[] mac = hmacSM3.doFinal();
-        Assertions.assertEquals(SM3_HMAC_LEN, mac.length);
+        Assertions.assertArrayEquals(MAC, mac);
+    }
+
+    @Test
+    public void testOutputBuf() throws Exception {
+        Mac hmacSM3 = Mac.getInstance("HmacSM3", PROVIDER);
+        SecretKeySpec keySpec = new SecretKeySpec(KEY, "HmacSM3");
+        hmacSM3.init(keySpec);
+        hmacSM3.update(MESSAGE);
+
+        byte[] mac = new byte[SM3_HMAC_LEN];
+        hmacSM3.doFinal(mac, 0);
+        Assertions.assertArrayEquals(MAC, mac);
     }
 
     @Test
@@ -113,10 +122,10 @@ public class SM3HMacTest {
         Mac hmacSM3 = Mac.getInstance("HmacSM3", PROVIDER);
         SecretKeySpec keySpec = new SecretKeySpec(KEY, "HmacSM3");
         hmacSM3.init(keySpec);
-        ByteBuffer buffer = ByteBuffer.wrap(toBytes("616263"));
+        ByteBuffer buffer = ByteBuffer.wrap(MESSAGE);
         hmacSM3.update(buffer);
         byte[] mac = hmacSM3.doFinal();
-        Assertions.assertEquals(SM3_HMAC_LEN, mac.length);
+        Assertions.assertArrayEquals(MAC, mac);
     }
 
     @Test
@@ -208,6 +217,50 @@ public class SM3HMacTest {
     }
 
     @Test
+    public void testOutOfBoundsOnUpdate() throws Exception {
+        outOfBoundsOnUpdate(16, 0, 32);
+        outOfBoundsOnUpdate(7, 0, 32);
+        outOfBoundsOnUpdate(16, -8, 16);
+        outOfBoundsOnUpdate(16, 8, -8);
+        outOfBoundsOnUpdate(16, Integer.MAX_VALUE, 8);
+    }
+
+    private static void outOfBoundsOnUpdate(int inputSize, int ofs, int len)
+            throws Exception {
+        Mac hmacSM3 = Mac.getInstance("HmacSM3", PROVIDER);
+        hmacSM3.init(new SecretKeySpec(KEY, "HmacSM3"));
+
+        try {
+            hmacSM3.update(new byte[inputSize], ofs, len);
+            throw new Exception("invalid call succeeded");
+        } catch (IllegalArgumentException e) {
+            System.out.println("Expected: " + e);
+        }
+    }
+
+    @Test
+    public void testOutOfBoundsOnOutBuf() throws Exception {
+        outOfBoundsOnOutBuf(16, 0);
+        outOfBoundsOnOutBuf(31, 0);
+        outOfBoundsOnOutBuf(32, -1);
+        outOfBoundsOnOutBuf(32, Integer.MAX_VALUE);
+    }
+
+    private static void outOfBoundsOnOutBuf(int outSize, int ofs)
+            throws Exception {
+        Mac hmacSM3 = Mac.getInstance("HmacSM3", PROVIDER);
+        hmacSM3.init(new SecretKeySpec(KEY, "HmacSM3"));
+        hmacSM3.update(MESSAGE);
+
+        try {
+            hmacSM3.doFinal(new byte[outSize], ofs);
+            throw new Exception("invalid call succeeded");
+        } catch (ShortBufferException | ArrayIndexOutOfBoundsException e) {
+            System.out.println("Expected: " + e);
+        }
+    }
+
+    @Test
     public void testClone() throws Exception {
         Mac hmacSM3 = Mac.getInstance("HmacSM3", PROVIDER);
         SecretKeySpec keySpec = new SecretKeySpec(KEY, "HmacSM3");
@@ -229,6 +282,7 @@ public class SM3HMacTest {
         byte[] mac = hmacSM3.doFinal();
         byte[] macClone = clone.doFinal();
 
+        Assertions.assertArrayEquals(MAC, mac);
         Assertions.assertArrayEquals(mac, macClone);
     }
 }

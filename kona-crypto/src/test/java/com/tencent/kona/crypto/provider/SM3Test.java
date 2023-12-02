@@ -237,10 +237,9 @@ public class SM3Test {
     @Test
     public void testOutOfBoundsOnOutBuf() throws Exception {
         outOfBoundsOnOutBuf(16, 0, 32);
-        outOfBoundsOnOutBuf(7, 0, 32);
-        outOfBoundsOnOutBuf(16, -8, 16);
-        outOfBoundsOnOutBuf(16, 8, -8);
-        outOfBoundsOnOutBuf(16, Integer.MAX_VALUE, 8);
+        outOfBoundsOnOutBuf(32, 0, 31);
+        outOfBoundsOnOutBuf(32, -1, 32);
+        outOfBoundsOnOutBuf(32, Integer.MAX_VALUE, 32);
     }
 
     private static void outOfBoundsOnOutBuf(int outSize, int ofs, int len)
@@ -251,7 +250,8 @@ public class SM3Test {
         try {
             md.digest(new byte[outSize], ofs, len);
             throw new Exception("invalid call succeeded");
-        } catch (IllegalArgumentException | DigestException e) {
+        } catch (IllegalArgumentException | DigestException
+                 | ArrayIndexOutOfBoundsException e) {
             System.out.println("Expected: " + e);
         }
     }
