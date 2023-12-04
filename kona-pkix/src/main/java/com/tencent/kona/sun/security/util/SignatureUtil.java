@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, 2022, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2018, 2023, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -199,14 +199,39 @@ public class SignatureUtil {
      * @param signer Signature object that tells you RSASSA-PSS params
      * @param sigalg Signature algorithm
      * @param privateKey key tells you EdDSA params
+     * @param publicKey key tells you HSS/LMS hash algorithm
      * @param directsign Ed448 uses different digest algs depending on this
      * @return the digest algId
      * @throws NoSuchAlgorithmException
      */
     public static AlgorithmId getDigestAlgInPkcs7SignerInfo(
-            Signature signer, String sigalg, PrivateKey privateKey, boolean directsign)
+            Signature signer, String sigalg, PrivateKey privateKey, PublicKey publicKey, boolean directsign)
             throws NoSuchAlgorithmException {
         AlgorithmId digAlgID;
+        String kAlg = privateKey.getAlgorithm();
+//        if (privateKey instanceof EdECPrivateKey
+//                || kAlg.equalsIgnoreCase("Ed25519")
+//                || kAlg.equalsIgnoreCase("Ed448")) {
+//            if (privateKey instanceof EdECPrivateKey) {
+//                // Note: SunEC's kAlg is EdDSA, find out the real one
+//                kAlg = ((EdECPrivateKey) privateKey).getParams().getName();
+//            }
+//            // https://www.rfc-editor.org/rfc/rfc8419.html#section-3
+//            switch (kAlg.toUpperCase(Locale.ENGLISH)) {
+//                case "ED25519":
+//                    digAlgID = EdDSADigestAlgHolder.sha512;
+//                    break;
+//                case "ED448":
+//                    if (directsign) {
+//                        digAlgID = EdDSADigestAlgHolder.shake256;
+//                    } else {
+//                        digAlgID = EdDSADigestAlgHolder.shake256$512;
+//                    }
+//                    break;
+//                default:
+//                    throw new AssertionError("Unknown curve name: " + kAlg);
+//            }
+//        } else
         if (sigalg.equals("RSASSA-PSS")) {
             try {
                 digAlgID = AlgorithmId.get(signer.getParameters()
@@ -215,6 +240,8 @@ public class SignatureUtil {
             } catch (InvalidParameterSpecException e) {
                 throw new AssertionError("Should not happen", e);
             }
+        } else if (sigalg.equalsIgnoreCase("HSS/LMS")) {
+            digAlgID = AlgorithmId.get(KeyUtil.hashAlgFromHSS(publicKey));
         } else {
             digAlgID = AlgorithmId.get(extractDigestAlgFromDwithE(sigalg));
         }
@@ -431,12 +458,13 @@ public class SignatureUtil {
             case "EC":
                 return ecStrength(KeyUtil.getKeySize(k))
                     + "withECDSA";
-            case "RSASSA-PSS":
-            case "ED25519":
-            case "ED448":
-                return kAlg;
+//            case "EDDSA":
+//                return k instanceof EdECPrivateKey
+//                    ? ((EdECPrivateKey) k).getParams().getName()
+//                    : kAlg;
             default:
-                return null;
+                return kAlg; // All modern signature algorithms,
+                             // RSASSA-PSS, ED25519, ED448, HSS/LMS, etc
         }
     }
 
