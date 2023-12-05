@@ -184,6 +184,17 @@ public class SM3Test {
     }
 
     @Test
+    public void testReuse() throws Exception {
+        MessageDigest md = MessageDigest.getInstance("SM3", PROVIDER);
+
+        byte[] digestShort = md.digest(MESSAGE_SHORT);
+        Assertions.assertArrayEquals(DIGEST_SHORT, digestShort);
+
+        byte[] digestLong = md.digest(MESSAGE_LONG);
+        Assertions.assertArrayEquals(DIGEST_LONG, digestLong);
+    }
+
+    @Test
     public void testReset() throws Exception {
         MessageDigest md = MessageDigest.getInstance("SM3", PROVIDER);
 
