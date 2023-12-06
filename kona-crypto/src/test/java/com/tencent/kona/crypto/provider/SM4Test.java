@@ -634,6 +634,42 @@ public class SM4Test {
     }
 
     @Test
+    public void testReuse() throws Exception {
+        testReuse("SM4/CBC/NoPadding", new IvParameterSpec(IV));
+        testReuse("SM4/CBC/PKCS7Padding", new IvParameterSpec(IV));
+        testReuse("SM4/CTR/NoPadding", new IvParameterSpec(IV));
+        testReuse("SM4/ECB/NoPadding", null);
+        testReuse("SM4/ECB/PKCS7Padding", null);
+    }
+
+    private void testReuse(String algorithm,
+            AlgorithmParameterSpec paramSpec) throws Exception {
+        byte[] message1 = "0123456789abcdef".getBytes();
+        byte[] message2 = "0123456789ABCDEF".getBytes();
+
+        SecretKey secretKey = new SecretKeySpec(KEY, "SM4");
+
+        Cipher cipher = Cipher.getInstance(algorithm, PROVIDER);
+
+        if (paramSpec != null) {
+            cipher.init(Cipher.ENCRYPT_MODE, secretKey, paramSpec);
+        } else {
+            cipher.init(Cipher.ENCRYPT_MODE, secretKey);
+        }
+        cipher.doFinal(message1);
+        byte[] ciphertext2 = cipher.doFinal(message2);
+
+        if (paramSpec != null) {
+            cipher.init(Cipher.DECRYPT_MODE, secretKey, paramSpec);
+        } else {
+            cipher.init(Cipher.DECRYPT_MODE, secretKey);
+        }
+        byte[] cleartext2 = cipher.doFinal(ciphertext2);
+
+        Assertions.assertArrayEquals(message2, cleartext2);
+    }
+
+    @Test
     public void testReusedIv4GCMCipher() throws Exception {
         SecretKey secretKey = new SecretKeySpec(KEY, "SM4");
         GCMParameterSpec paramSpec = new GCMParameterSpec(
