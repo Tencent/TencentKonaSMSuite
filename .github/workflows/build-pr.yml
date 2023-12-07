@@ -40,15 +40,15 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest]
-        java-version: [8, 11, 17]
+        java-version: [8, 11, 17, 21]
     runs-on: ${{ matrix.os }}
 
     steps:
       - name: Checkout the source
         uses: actions/checkout@v4
 
-      - name: Set up JDK
-        uses: actions/setup-java@v3
+      - name: Setup JDK
+        uses: actions/setup-java@v4
         with:
           java-version: ${{ matrix.java-version }}
           distribution: 'temurin'
