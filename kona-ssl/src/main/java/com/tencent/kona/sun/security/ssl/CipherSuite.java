@@ -1180,7 +1180,7 @@ enum CipherSuite {
         H_NONE      ("NONE",    0,    0),
         H_SHA256    ("SHA-256", 32,  64),
         H_SHA384    ("SHA-384", 48, 128),
-        H_SM3       ("SM3",     32,  64),;
+        H_SM3       ("SM3",     32,  64);
 
         final String name;
         final int hashLength;
