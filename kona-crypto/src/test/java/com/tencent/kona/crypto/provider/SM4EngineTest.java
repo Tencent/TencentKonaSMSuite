@@ -75,7 +75,7 @@ public class SM4EngineTest {
     public void testEncryptMillionTimes() {
         SM4Engine engine = new SM4Engine(KEY, true);
         byte[] ciphertext = new byte[16];
-        engine.processBlock( PLAINTEXT, 0, ciphertext, 0);
+        engine.processBlock(PLAINTEXT, 0, ciphertext, 0);
         for (int i = 1; i < 1_000_000; i++) {
             engine.processBlock(ciphertext, 0, ciphertext, 0);
         }

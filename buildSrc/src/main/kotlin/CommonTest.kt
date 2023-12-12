@@ -18,9 +18,6 @@
  */
 
 import org.apache.tools.ant.taskdefs.condition.Os
-import org.gradle.api.Action
-import org.gradle.api.JavaVersion
-import org.gradle.api.Task
 import org.gradle.api.tasks.testing.Test
 import org.gradle.api.tasks.testing.TestDescriptor
 import org.gradle.api.tasks.testing.TestListener
@@ -92,7 +89,7 @@ abstract class CommonTest : Test() {
 }
 
 // Determine if BabaSSL is available
-fun isBabaSSLAvailable(babasslPath: String): Boolean {
+fun isBabaSSLAvailable(babasslPath : String): Boolean {
     var exitCode : Int = -1
     try {
         val process = ProcessBuilder()
@@ -100,6 +97,11 @@ fun isBabaSSLAvailable(babasslPath: String): Boolean {
             .start()
         process.waitFor(3, TimeUnit.SECONDS)
         exitCode = process.exitValue()
+
+        val versionInfo = process.getInputStream().bufferedReader().use {
+            it.readText()
+        }
+        System.out.print(versionInfo)
     } catch (e: Exception) {
         println("BabaSSL is unavailable: " + e.cause)
     }
