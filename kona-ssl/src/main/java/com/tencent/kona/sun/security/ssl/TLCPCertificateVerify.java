@@ -76,8 +76,8 @@ final class TLCPCertificateVerify {
             try {
                 Signature signer = SignatureScheme.SM2SIG_SM3.getSigner(
                         tlcpPossession.popSignPrivateKey,
-                        new SM2SignatureParameterSpec(
-                                (ECPublicKey) tlcpPossession.popSignPublicKey));
+                        tlcpPossession.popSignPublicKey,
+                        false);
                 signer.update(chc.handshakeHash.digest());
                 temporary = signer.sign();
             } catch (SignatureException se) {
@@ -152,9 +152,7 @@ final class TLCPCertificateVerify {
 
             try {
                 Signature signer = SignatureScheme.SM2SIG_SM3.getVerifier(
-                        tlcpCredentials.popSignPublicKey,
-                        new SM2SignatureParameterSpec(
-                                (ECPublicKey) tlcpCredentials.popSignPublicKey));
+                        tlcpCredentials.popSignPublicKey);
 
                 signer.update(shc.handshakeHash.digest());
                 if (!signer.verify(signature)) {
