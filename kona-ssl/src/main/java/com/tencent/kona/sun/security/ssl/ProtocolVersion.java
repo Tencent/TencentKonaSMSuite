@@ -365,6 +365,10 @@ enum ProtocolVersion {
         return this.id == TLS12.id;
     }
 
+    boolean isTLS13() {
+        return this.id == TLS13.id;
+    }
+
     /**
      * Return true if this ProtocolVersion object is of (D)TLS 1.3 or
      * newer version.

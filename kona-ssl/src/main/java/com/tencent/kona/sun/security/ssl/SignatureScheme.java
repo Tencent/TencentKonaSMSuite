@@ -44,7 +44,6 @@ import java.util.Set;
 
 import com.tencent.kona.crypto.CryptoInsts;
 import com.tencent.kona.crypto.spec.SM2SignatureParameterSpec;
-import com.tencent.kona.crypto.util.Constants;
 import com.tencent.kona.sun.security.ssl.NamedGroup.NamedGroupSpec;
 import com.tencent.kona.sun.security.ssl.X509Authentication.X509Possession;
 import com.tencent.kona.sun.security.util.KeyUtil;
@@ -507,16 +506,6 @@ enum SignatureScheme {
         NamedGroup namedGroup = params != null
                 ? NamedGroup.valueOf(params) : null;
 
-        // Just select sm2sig_sm3 for curveSM2.
-        if (namedGroup == NamedGroup.CURVESM2) {
-            SM2SignatureParameterSpec paramSpec = !version.useTLS13PlusSpec()
-                    ? new SM2SignatureParameterSpec((ECPublicKey) publicKey)
-                    : new SM2SignatureParameterSpec(Utilities.TLS13_SM_ID,
-                            (ECPublicKey) publicKey);
-            Signature signer = SignatureScheme.SM2SIG_SM3.getSigner(signingKey, paramSpec);
-            return new SimpleImmutableEntry<>(SignatureScheme.SM2SIG_SM3, signer);
-        }
-
         String keyAlgorithm = signingKey.getAlgorithm();
         int keySize;
         // Only need to check RSA algorithm at present.
@@ -534,7 +523,8 @@ enum SignatureScheme {
                 if ((ss.namedGroup != null) && (ss.namedGroup.spec ==
                         NamedGroupSpec.NAMED_GROUP_ECDHE)) {
                     if (namedGroup == ss.namedGroup) {
-                        Signature signer = ss.getSigner(signingKey);
+                        Signature signer = ss.getSigner(signingKey,
+                                publicKey, version.isTLS13());
                         if (signer != null) {
                             return new SimpleImmutableEntry<>(ss, signer);
                         }
@@ -603,8 +593,7 @@ enum SignatureScheme {
     // is bubbled up.  If the public key does not support this signature
     // scheme, it normally means the TLS handshaking cannot continue and
     // the connection should be terminated.
-    Signature getVerifier(PublicKey publicKey,
-            SM2SignatureParameterSpec smSignParamSpec)
+    Signature getVerifier(PublicKey publicKey, boolean isTLS13)
             throws NoSuchAlgorithmException, InvalidAlgorithmParameterException,
             InvalidKeyException {
         if (!isAvailable) {
@@ -612,9 +601,17 @@ enum SignatureScheme {
         }
 
         Signature verifier = CryptoInsts.getSignature(algorithm);
-        if (smSignParamSpec != null) {
-            verifier.setParameter(smSignParamSpec);
+
+        // sm2sig_sm3 always needs SM2SignatureParameterSpec containing public key.
+        // And for TLS 1.3, the spec has to set "TLSv1.3+GM+Cipher+Suite" as ID.
+        if (this == SM2SIG_SM3) {
+            SM2SignatureParameterSpec paramSpec = isTLS13
+                    ? new SM2SignatureParameterSpec(Utilities.TLS13_SM_ID,
+                            (ECPublicKey) publicKey)
+                    : new SM2SignatureParameterSpec((ECPublicKey) publicKey);
+            verifier.setParameter(paramSpec);
         }
+
         SignatureUtil.initVerifyWithParam(verifier, publicKey,
                 (signAlgParams != null ? signAlgParams.parameterSpec : null));
 
@@ -624,24 +621,31 @@ enum SignatureScheme {
     Signature getVerifier(PublicKey publicKey)
             throws InvalidAlgorithmParameterException,
             NoSuchAlgorithmException, InvalidKeyException {
-        return getVerifier(publicKey, null);
+        return getVerifier(publicKey, false);
     }
 
     // This method is also used to choose preferable signature scheme for the
     // specific private key.  If the private key does not support the signature
     // scheme, {@code null} is returned, and the caller may fail back to next
     // available signature scheme.
-    Signature getSigner(PrivateKey privateKey,
-            SM2SignatureParameterSpec smSignParamSpec) {
+    Signature getSigner(PrivateKey privateKey, PublicKey publicKey, boolean isTLS13) {
         if (!isAvailable) {
             return null;
         }
 
         try {
             Signature signer = CryptoInsts.getSignature(algorithm);
-            if (smSignParamSpec != null) {
-                signer.setParameter(smSignParamSpec);
+
+            // sm2sig_sm3 always needs SM2SignatureParameterSpec containing public key.
+            // And for TLS 1.3, the spec has to set "TLSv1.3+GM+Cipher+Suite" as ID.
+            if (this == SM2SIG_SM3) {
+                SM2SignatureParameterSpec paramSpec = isTLS13
+                        ? new SM2SignatureParameterSpec(Utilities.TLS13_SM_ID,
+                                (ECPublicKey) publicKey)
+                        : new SM2SignatureParameterSpec((ECPublicKey) publicKey);
+                signer.setParameter(paramSpec);
             }
+
             SignatureUtil.initSignWithParam(signer, privateKey,
                     (signAlgParams != null ?
                             signAlgParams.parameterSpec : null),
@@ -661,6 +665,6 @@ enum SignatureScheme {
     }
 
     Signature getSigner(PrivateKey privateKey) {
-        return getSigner(privateKey, null);
+        return getSigner(privateKey, null, false);
     }
 }

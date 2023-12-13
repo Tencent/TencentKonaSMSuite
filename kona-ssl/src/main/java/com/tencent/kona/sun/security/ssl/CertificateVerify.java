@@ -674,15 +674,8 @@ final class CertificateVerify {
             // opaque signature<0..2^16-1>;
             this.signature = Record.getBytes16(m);
             try {
-                // Set ID and public key for SM3withSM2.
-                SM2SignatureParameterSpec smSignParamSpec = null;
-                if (PKIXUtils.isSM3withSM2(signatureScheme.name)) {
-                    smSignParamSpec = new SM2SignatureParameterSpec(
-                            (ECPublicKey) x509Credentials.popPublicKey);
-                }
-
                 Signature signer = signatureScheme.getVerifier(
-                        x509Credentials.popPublicKey, smSignParamSpec);
+                        x509Credentials.popPublicKey);
                 signer.update(shc.handshakeHash.archived());
                 if (!signer.verify(signature)) {
                     throw shc.conContext.fatal(Alert.HANDSHAKE_FAILURE,
@@ -1019,18 +1012,8 @@ final class CertificateVerify {
             }
 
             try {
-                // Set ID and public key for SM3withSM2.
-                SM2SignatureParameterSpec smSignParamSpec = null;
-                X509Certificate popCert = x509Credentials.popCerts[0];
-                if (PKIXUtils.isSM3withSM2(popCert.getSigAlgName())) {
-                    smSignParamSpec = new SM2SignatureParameterSpec(
-                            Utilities.TLS13_SM_ID,
-                            (ECPublicKey) x509Credentials.popPublicKey);
-                }
-
                 Signature signer = signatureScheme.getVerifier(
-                        x509Credentials.popPublicKey, smSignParamSpec);
-
+                        x509Credentials.popPublicKey, true);
 
                 signer.update(contentCovered);
                 if (!signer.verify(signature)) {
