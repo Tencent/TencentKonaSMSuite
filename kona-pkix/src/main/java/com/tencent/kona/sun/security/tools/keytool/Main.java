@@ -1637,9 +1637,12 @@ public final class Main {
                 new X509CRLImpl.TBSCertList(owner, firstDate, lastDate, badCerts),
                 privateKey, sigAlgName);
         if (rfc) {
-            out.println("-----BEGIN X509 CRL-----");
-            out.println(Base64.getMimeEncoder(64, CRLF).encodeToString(crl.getEncodedInternal()));
-            out.println("-----END X509 CRL-----");
+            out.print("-----BEGIN X509 CRL-----");
+            out.print("\r\n");
+            out.print(Base64.getMimeEncoder(64, CRLF).encodeToString(crl.getEncodedInternal()));
+            out.print("\r\n");
+            out.print("-----END X509 CRL-----");
+            out.print("\r\n");
         } else {
             out.write(crl.getEncodedInternal());
         }
@@ -2814,9 +2817,12 @@ public final class Main {
             throws Exception {
         X509CRL xcrl = (X509CRL)crl;
         if (rfc) {
-            out.println("-----BEGIN X509 CRL-----");
-            out.println(Base64.getMimeEncoder(64, CRLF).encodeToString(xcrl.getEncoded()));
-            out.println("-----END X509 CRL-----");
+            out.print("-----BEGIN X509 CRL-----");
+            out.print("\r\n");
+            out.print(Base64.getMimeEncoder(64, CRLF).encodeToString(xcrl.getEncoded()));
+            out.print("\r\n");
+            out.print("-----END X509 CRL-----");
+            out.print("\r\n");
         } else {
             String s;
             if (crl instanceof X509CRLImpl) {
@@ -3832,9 +3838,12 @@ public final class Main {
         throws IOException, CertificateException
     {
         if (rfc) {
-            out.println(X509Factory.BEGIN_CERT);
-            out.println(Base64.getMimeEncoder(64, CRLF).encodeToString(cert.getEncoded()));
-            out.println(X509Factory.END_CERT);
+            out.print(X509Factory.BEGIN_CERT);
+            out.print("\r\n");
+            out.print(Base64.getMimeEncoder(64, CRLF).encodeToString(cert.getEncoded()));
+            out.print("\r\n");
+            out.print(X509Factory.END_CERT);
+            out.print("\r\n");
         } else {
             out.write(cert.getEncoded()); // binary
         }
