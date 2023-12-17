@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, 2022, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2018, 2023, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -26,6 +26,7 @@
 package com.tencent.kona.sun.security.util;
 
 import com.tencent.kona.sun.security.action.GetPropertyAction;
+import com.tencent.kona.sun.security.util.Debug;
 import com.tencent.kona.sun.security.x509.CertificateExtensions;
 import com.tencent.kona.sun.security.x509.X509CertImpl;
 import com.tencent.kona.sun.security.x509.X509CertInfo;
@@ -476,8 +477,7 @@ public class SSLLogger {
                 if (certExts == null) {
                     Object[] certFields = {
                             x509.getVersion(),
-                            Utilities.toHexString(
-                                    x509.getSerialNumber().toByteArray()),
+                            Debug.toString(x509.getSerialNumber()),
                             x509.getSigAlgName(),
                             x509.getIssuerX500Principal().toString(),
                             dateFormat.get().format(x509.getNotBefore()),
@@ -501,8 +501,7 @@ public class SSLLogger {
                     }
                     Object[] certFields = {
                             x509.getVersion(),
-                            Utilities.toHexString(
-                                    x509.getSerialNumber().toByteArray()),
+                            Debug.toString(x509.getSerialNumber()),
                             x509.getSigAlgName(),
                             x509.getIssuerX500Principal().toString(),
                             dateFormat.get().format(x509.getNotBefore()),

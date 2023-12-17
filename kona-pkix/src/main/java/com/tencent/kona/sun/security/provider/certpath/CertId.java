@@ -35,6 +35,7 @@ import java.util.Arrays;
 import javax.security.auth.x500.X500Principal;
 
 import com.tencent.kona.crypto.CryptoInsts;
+import com.tencent.kona.sun.security.util.Debug;
 import com.tencent.kona.sun.security.util.DerEncoder;
 import com.tencent.kona.sun.security.util.DerInputStream;
 import com.tencent.kona.sun.security.util.DerOutputStream;
@@ -114,7 +115,7 @@ public class CertId implements DerEncoder {
                     encoder.encodeBuffer(issuerNameHash));
             System.out.println("issuerKeyHash is " +
                     encoder.encodeBuffer(issuerKeyHash));
-            System.out.println("SerialNumber is " + serialNumber.getNumber());
+            System.out.println("SerialNumber is " + Debug.toString(serialNumber.getNumber()));
         }
     }
 
