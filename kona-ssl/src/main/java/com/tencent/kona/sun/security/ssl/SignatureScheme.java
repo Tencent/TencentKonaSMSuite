@@ -602,14 +602,10 @@ enum SignatureScheme {
 
         Signature verifier = CryptoInsts.getSignature(algorithm);
 
-        // sm2sig_sm3 always needs SM2SignatureParameterSpec containing public key.
-        // And for TLS 1.3, the spec has to set "TLSv1.3+GM+Cipher+Suite" as ID.
-        if (this == SM2SIG_SM3) {
-            SM2SignatureParameterSpec paramSpec = isTLS13
-                    ? new SM2SignatureParameterSpec(Utilities.TLS13_SM_ID,
-                            (ECPublicKey) publicKey)
-                    : new SM2SignatureParameterSpec((ECPublicKey) publicKey);
-            verifier.setParameter(paramSpec);
+        // sm2sig_sm3 uses "TLSv1.3+GM+Cipher+Suite" as ID for TLS 1.3.
+        if (this == SM2SIG_SM3 && isTLS13) {
+            verifier.setParameter(new SM2SignatureParameterSpec(
+                    Utilities.TLS13_SM_ID, (ECPublicKey) publicKey));
         }
 
         SignatureUtil.initVerifyWithParam(verifier, publicKey,
@@ -636,8 +632,8 @@ enum SignatureScheme {
         try {
             Signature signer = CryptoInsts.getSignature(algorithm);
 
-            // sm2sig_sm3 always needs SM2SignatureParameterSpec containing public key.
-            // And for TLS 1.3, the spec has to set "TLSv1.3+GM+Cipher+Suite" as ID.
+            // sm2sig_sm3 always needs public key for signing.
+            // And it uses "TLSv1.3+GM+Cipher+Suite" as ID for TLS 1.3.
             if (this == SM2SIG_SM3) {
                 SM2SignatureParameterSpec paramSpec = isTLS13
                         ? new SM2SignatureParameterSpec(Utilities.TLS13_SM_ID,
