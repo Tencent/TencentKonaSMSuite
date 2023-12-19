@@ -18,7 +18,7 @@
 #
 
 [versions]
-bouncycastle = "1.76"
+bouncycastle = "1.77"
 
 grpc = "1.58.0"
 tomcat = "9.0.78"
