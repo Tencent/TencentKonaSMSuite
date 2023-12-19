@@ -234,6 +234,12 @@ enum SignatureScheme {
     private static final Set<CryptoPrimitive> SIGNATURE_PRIMITIVE_SET =
         Collections.unmodifiableSet(EnumSet.of(CryptoPrimitive.SIGNATURE));
 
+    // This ID, exactly TLSv1.3+GM+Cipher+Suite, is defined by RFC 8998.
+    // It is only used by signature scheme sm2sig_sm3 for TLS 1.3 handshaking.
+    private static final byte[] TLS13_SM2_ID = new byte[] {
+            0x54, 0x4c, 0x53, 0x76, 0x31, 0x2e, 0x33, 0x2b,
+            0x47, 0x4d, 0x2b, 0x43, 0x69, 0x70, 0x68, 0x65,
+            0x72, 0x2b, 0x53, 0x75, 0x69, 0x74, 0x65};
 
     private SignatureScheme(int id, String name,
             String algorithm, String keyAlgorithm,
@@ -605,7 +611,7 @@ enum SignatureScheme {
         // sm2sig_sm3 uses "TLSv1.3+GM+Cipher+Suite" as ID for TLS 1.3.
         if (this == SM2SIG_SM3 && isTLS13) {
             verifier.setParameter(new SM2SignatureParameterSpec(
-                    Utilities.TLS13_SM_ID, (ECPublicKey) publicKey));
+                    TLS13_SM2_ID, (ECPublicKey) publicKey));
         }
 
         SignatureUtil.initVerifyWithParam(verifier, publicKey,
@@ -636,7 +642,7 @@ enum SignatureScheme {
             // And it uses "TLSv1.3+GM+Cipher+Suite" as ID for TLS 1.3.
             if (this == SM2SIG_SM3) {
                 SM2SignatureParameterSpec paramSpec = isTLS13
-                        ? new SM2SignatureParameterSpec(Utilities.TLS13_SM_ID,
+                        ? new SM2SignatureParameterSpec(TLS13_SM2_ID,
                                 (ECPublicKey) publicKey)
                         : new SM2SignatureParameterSpec((ECPublicKey) publicKey);
                 signer.setParameter(paramSpec);
