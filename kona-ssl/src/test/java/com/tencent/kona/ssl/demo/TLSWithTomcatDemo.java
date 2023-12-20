@@ -19,9 +19,6 @@
 
 package com.tencent.kona.ssl.demo;
 
-import com.tencent.kona.crypto.CryptoInsts;
-import com.tencent.kona.pkix.PKIXInsts;
-import com.tencent.kona.ssl.SSLInsts;
 import com.tencent.kona.ssl.TestUtils;
 import com.tencent.kona.sun.security.x509.SMCertificate;
 import org.apache.catalina.Context;
@@ -66,6 +63,7 @@ import java.security.KeyFactory;
 import java.security.KeyManagementException;
 import java.security.KeyStore;
 import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
 import java.security.PrivateKey;
 import java.security.SecureRandom;
 import java.security.cert.Certificate;
@@ -269,21 +267,21 @@ public class TLSWithTomcatDemo {
 
     private static SSLContext createContext() throws Exception {
         KeyStore trustStore = createTrustStore(CA, null);
-        TrustManagerFactory tmf = SSLInsts.getTrustManagerFactory("PKIX");
+        TrustManagerFactory tmf = TrustManagerFactory.getInstance("PKIX", "KonaSSL");
         tmf.init(trustStore);
 
         KeyStore keyStore = createKeyStore(EE, EE_ID, EE_KEY);
-        KeyManagerFactory kmf = SSLInsts.getKeyManagerFactory("NewSunX509");
+        KeyManagerFactory kmf = KeyManagerFactory.getInstance("NewSunX509", "KonaSSL");
         kmf.init(keyStore, PASSWORD.toCharArray());
 
-        SSLContext context = SSLInsts.getSSLContext("TLS");
+        SSLContext context = SSLContext.getInstance("TLS", "KonaSSL");
         context.init(kmf.getKeyManagers(), tmf.getTrustManagers(), new SecureRandom());
         return context;
     }
 
     private static KeyStore createTrustStore(String caStr, String caId)
             throws Exception {
-        KeyStore trustStore = PKIXInsts.getKeyStore("PKCS12");
+        KeyStore trustStore = KeyStore.getInstance("PKCS12", "KonaPKIX");
         trustStore.load(null, null);
         trustStore.setCertificateEntry("tls-trust-demo", loadCert(caStr, caId));
         return trustStore;
@@ -292,7 +290,7 @@ public class TLSWithTomcatDemo {
     private static KeyStore createKeyStore(
             String eeStr, String eeId, String eeKeyStr)
             throws Exception {
-        KeyStore keyStore = PKIXInsts.getKeyStore("PKCS12");
+        KeyStore keyStore = KeyStore.getInstance("PKCS12", "KonaPKIX");
         keyStore.load(null, null);
 
         PrivateKey privateKey = loadPrivateKey(eeKeyStr);
@@ -306,8 +304,8 @@ public class TLSWithTomcatDemo {
 
     private static X509Certificate loadCert(String certPEM, String id)
             throws Exception {
-        CertificateFactory certFactory = PKIXInsts.getCertificateFactory(
-                "X.509");
+        CertificateFactory certFactory = CertificateFactory.getInstance(
+                "X.509", "KonaPKIX");
         X509Certificate x509Cert = (X509Certificate) certFactory.generateCertificate(
                 new ByteArrayInputStream(certPEM.getBytes()));
 
@@ -322,7 +320,7 @@ public class TLSWithTomcatDemo {
     private static PrivateKey loadPrivateKey(String keyPEM) throws Exception {
         PKCS8EncodedKeySpec privateKeySpec = new PKCS8EncodedKeySpec(
                 Base64.getMimeDecoder().decode(keyPEM));
-        KeyFactory keyFactory = CryptoInsts.getKeyFactory("EC");
+        KeyFactory keyFactory = KeyFactory.getInstance("EC", "KonaCrypto");
         return keyFactory.generatePrivate(privateKeySpec);
     }
 
@@ -410,7 +408,8 @@ public class TLSWithTomcatDemo {
 
         @Override
         public org.apache.tomcat.util.net.SSLContext createSSLContextInternal(
-                List<String> negotiableProtocols) throws NoSuchAlgorithmException {
+                List<String> negotiableProtocols)
+                throws NoSuchAlgorithmException, NoSuchProviderException {
             return new KonaSSLContext(sslHostConfig.getSslProtocol());
         }
     }
@@ -422,8 +421,9 @@ public class TLSWithTomcatDemo {
         private KeyManager[] kms;
         private TrustManager[] tms;
 
-        public KonaSSLContext(String protocol) throws NoSuchAlgorithmException {
-            context = SSLInsts.getSSLContext(protocol);
+        public KonaSSLContext(String protocol)
+                throws NoSuchAlgorithmException, NoSuchProviderException {
+            context = SSLContext.getInstance(protocol, "KonaSSL");
         }
 
         @Override

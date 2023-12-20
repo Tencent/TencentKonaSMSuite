@@ -19,8 +19,6 @@
 
 package com.tencent.kona.pkix.provider;
 
-import com.tencent.kona.crypto.CryptoInsts;
-import com.tencent.kona.sun.security.pkcs.PKCS8Key;
 import com.tencent.kona.sun.security.x509.X509Key;
 import com.tencent.kona.pkix.TestUtils;
 import org.junit.jupiter.api.Assertions;
@@ -57,7 +55,7 @@ public class KeyFactoryTest {
         X509Certificate x509Cert = TestUtils.certAsFile("ca-sm2sm2.crt");
         PublicKey publicKey = x509Cert.getPublicKey();
 
-        KeyFactory keyFactory = CryptoInsts.getKeyFactory("EC");
+        KeyFactory keyFactory = KeyFactory.getInstance("EC", "KonaCrypto");
 
         ECPublicKeySpec publicKeySpec = keyFactory.getKeySpec(
                 publicKey, ECPublicKeySpec.class);
@@ -83,7 +81,7 @@ public class KeyFactoryTest {
         X509Certificate x509Cert = TestUtils.certAsFile("ca-sm2sm2.crt");
         ECPublicKey publicKey = (ECPublicKey) x509Cert.getPublicKey();
 
-        KeyFactory keyFactory = CryptoInsts.getKeyFactory("EC");
+        KeyFactory keyFactory = KeyFactory.getInstance("EC", "KonaCrypto");
 
         ECPublicKeySpec ecPublicKeySpec = keyFactory.getKeySpec(
                 publicKey, ECPublicKeySpec.class);
@@ -134,7 +132,7 @@ public class KeyFactoryTest {
 
     private void testGenerateRSAPrivateKey(RSAPrivateKey privateKey)
             throws Exception {
-        KeyFactory keyFactory = CryptoInsts.getKeyFactory("RSA");
+        KeyFactory keyFactory = KeyFactory.getInstance("RSA");
 
         RSAPrivateKeySpec rsaPrivateKeySpec = keyFactory.getKeySpec(
                 privateKey, RSAPrivateKeySpec.class);
@@ -154,7 +152,7 @@ public class KeyFactoryTest {
 
     private void testGenerateECPrivateKey(ECPrivateKey privateKey)
             throws Exception {
-        KeyFactory keyFactory = CryptoInsts.getKeyFactory("EC");
+        KeyFactory keyFactory = KeyFactory.getInstance("EC", "KonaCrypto");
 
         ECPrivateKeySpec ecPrivateKeySpec = keyFactory.getKeySpec(
                 privateKey, ECPrivateKeySpec.class);

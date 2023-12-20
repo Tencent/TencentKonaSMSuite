@@ -36,9 +36,6 @@
 
 package com.tencent.kona.ssl.tls;
 
-import com.tencent.kona.crypto.CryptoInsts;
-import com.tencent.kona.pkix.PKIXInsts;
-import com.tencent.kona.ssl.SSLInsts;
 import com.tencent.kona.ssl.TestUtils;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -409,12 +406,12 @@ public class SSLSocketOnTLS13Test {
         char passphrase[] = "passphrase".toCharArray();
 
         // Generate certificate from cert string.
-        CertificateFactory cf = PKIXInsts.getCertificateFactory("X.509");
+        CertificateFactory cf = CertificateFactory.getInstance("X.509", "KonaPKIX");
 
         // Import the trused certs.
         ByteArrayInputStream is;
         if (trustedCerts != null && trustedCerts.length != 0) {
-            ts = PKIXInsts.getKeyStore("PKCS12");
+            ts = KeyStore.getInstance("PKCS12", "KonaPKIX");
             ts.load(null, null);
 
             Certificate[] trustedCert = new Certificate[trustedCerts.length];
@@ -433,15 +430,15 @@ public class SSLSocketOnTLS13Test {
 
         // Import the key materials.
         if (endEntityCerts != null && endEntityCerts.length != 0) {
-            ks = PKIXInsts.getKeyStore("PKCS12");
+            ks = KeyStore.getInstance("PKCS12", "KonaPKIX");
             ks.load(null, null);
 
             for (int i = 0; i < endEntityCerts.length; i++) {
                 // generate the private key.
                 PKCS8EncodedKeySpec priKeySpec = new PKCS8EncodedKeySpec(
                     Base64.getMimeDecoder().decode(endEntityCerts[i].privKeyStr));
-                KeyFactory kf = CryptoInsts.getKeyFactory(
-                        endEntityCerts[i].keyAlgo);
+                KeyFactory kf = KeyFactory.getInstance(
+                        endEntityCerts[i].keyAlgo, "KonaCrypto");
                 PrivateKey priKey = kf.generatePrivate(priKeySpec);
 
                 // generate certificate chain
@@ -464,13 +461,13 @@ public class SSLSocketOnTLS13Test {
 
         // Create an SSLContext object.
         TrustManagerFactory tmf =
-                SSLInsts.getTrustManagerFactory(params.tmAlgorithm);
+                TrustManagerFactory.getInstance(params.tmAlgorithm, "KonaSSL");
         tmf.init(ts);
 
-        SSLContext context = SSLInsts.getSSLContext(params.contextProtocol);
+        SSLContext context = SSLContext.getInstance(params.contextProtocol, "KonaSSL");
         if (endEntityCerts != null && endEntityCerts.length != 0 && ks != null) {
             KeyManagerFactory kmf =
-                    SSLInsts.getKeyManagerFactory(params.kmAlgorithm);
+                    KeyManagerFactory.getInstance(params.kmAlgorithm, "KonaSSL");
             kmf.init(ks, passphrase);
 
             context.init(kmf.getKeyManagers(), tmf.getTrustManagers(), null);

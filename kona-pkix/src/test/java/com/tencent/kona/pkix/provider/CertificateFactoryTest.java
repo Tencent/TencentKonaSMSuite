@@ -21,7 +21,6 @@ package com.tencent.kona.pkix.provider;
 
 import com.tencent.kona.crypto.util.Constants;
 import com.tencent.kona.pkix.KonaPKIXProvider;
-import com.tencent.kona.pkix.PKIXInsts;
 import com.tencent.kona.pkix.TestUtils;
 import com.tencent.kona.sun.security.util.KnownOIDs;
 import com.tencent.kona.sun.security.util.ObjectIdentifier;
@@ -57,13 +56,13 @@ public class CertificateFactoryTest {
 
     @Test
     public void testGetCertificateFactory() throws Exception {
-        CertificateFactory cf = PKIXInsts.getCertificateFactory("X.509");;
+        CertificateFactory cf = CertificateFactory.getInstance("X.509", "KonaPKIX");
         Assertions.assertTrue(cf.getProvider() instanceof KonaPKIXProvider);
     }
 
     @Test
     public void testGenCertCaRsaRsa() throws Exception {
-        CertificateFactory cf = PKIXInsts.getCertificateFactory("X.509");
+        CertificateFactory cf = CertificateFactory.getInstance("X.509", "KonaPKIX");
         X509Certificate cert = (X509Certificate) cf.generateCertificate(
                 new ByteArrayInputStream(TestUtils.certBytes("ca-rsarsa.crt")));
         RSAPublicKey pubKey = (RSAPublicKey) cert.getPublicKey();
@@ -74,7 +73,7 @@ public class CertificateFactoryTest {
 
     @Test
     public void testGenCertCaP256Ecdsa() throws Exception {
-        CertificateFactory cf = PKIXInsts.getCertificateFactory("X.509");
+        CertificateFactory cf = CertificateFactory.getInstance("X.509", "KonaPKIX");
         X509Certificate cert = (X509Certificate) cf.generateCertificate(
                 new ByteArrayInputStream(TestUtils.certBytes("ca-p256ecdsa.crt")));
         ECPublicKey pubKey = (ECPublicKey) cert.getPublicKey();
@@ -85,7 +84,7 @@ public class CertificateFactoryTest {
 
     @Test
     public void testGenCertCaP256Sm2() throws Exception {
-        CertificateFactory cf = PKIXInsts.getCertificateFactory("X.509");
+        CertificateFactory cf = CertificateFactory.getInstance("X.509", "KonaPKIX");
         X509Certificate cert = (X509Certificate) cf.generateCertificate(
                 new ByteArrayInputStream(TestUtils.certBytes("ca-p256sm2.crt")));
         ECPublicKey pubKey = (ECPublicKey) cert.getPublicKey();
@@ -98,7 +97,7 @@ public class CertificateFactoryTest {
 
     @Test
     public void testGenCertCaSm2Ecdsa() throws Exception {
-        CertificateFactory cf = PKIXInsts.getCertificateFactory("X.509");
+        CertificateFactory cf = CertificateFactory.getInstance("X.509", "KonaPKIX");
         X509Certificate cert = (X509Certificate) cf.generateCertificate(
                 new ByteArrayInputStream(TestUtils.certBytes("ca-sm2ecdsa.crt")));
         ECPublicKey pubKey = (ECPublicKey) cert.getPublicKey();
@@ -111,7 +110,7 @@ public class CertificateFactoryTest {
 
     @Test
     public void testGenCertCaSm2Sm2() throws Exception {
-        CertificateFactory cf = PKIXInsts.getCertificateFactory("X.509");
+        CertificateFactory cf = CertificateFactory.getInstance("X.509", "KonaPKIX");
         X509Certificate cert = (X509Certificate) cf.generateCertificate(
                 new ByteArrayInputStream(TestUtils.certBytes("ca-sm2sm2.crt")));
         ECPublicKey pubKey = (ECPublicKey) cert.getPublicKey();
@@ -124,7 +123,7 @@ public class CertificateFactoryTest {
 
     @Test
     public void testSetId() throws Exception {
-        CertificateFactory cf = PKIXInsts.getCertificateFactory("X.509");
+        CertificateFactory cf = CertificateFactory.getInstance("X.509", "KonaPKIX");
         SMCertificate sm2Cert = (SMCertificate) cf.generateCertificate(
                 new ByteArrayInputStream(TestUtils.certBytes("ca-sm2sm2-id.crt")));
         Assertions.assertArrayEquals(
@@ -157,7 +156,7 @@ public class CertificateFactoryTest {
                 "ca-sm2sm2.crt",
                 "ca-sm2ecdsa.crt").getBytes(StandardCharsets.UTF_8);
 
-        CertificateFactory cf = PKIXInsts.getCertificateFactory("X.509");
+        CertificateFactory cf = CertificateFactory.getInstance("X.509", "KonaPKIX");
         Collection<? extends Certificate> certs = cf.generateCertificates(
                 new ByteArrayInputStream(certBytes));
         Iterator<? extends Certificate> iterator = certs.iterator();
@@ -175,7 +174,7 @@ public class CertificateFactoryTest {
 
     @Test
     public void testGetCertPathEncodings() throws Exception {
-        CertificateFactory cf = PKIXInsts.getCertificateFactory("X.509");
+        CertificateFactory cf = CertificateFactory.getInstance("X.509", "KonaPKIX");
         Iterator<String> it = cf.getCertPathEncodings();
         Assertions.assertEquals("PkiPath", it.next());
         Assertions.assertEquals("PKCS7", it.next());
@@ -190,7 +189,7 @@ public class CertificateFactoryTest {
         certs.add(TestUtils.certAsFile("ca-sm2sm2.crt"));
         certs.add(TestUtils.certAsFile("ca-sm2ecdsa.crt"));
 
-        CertificateFactory cf = PKIXInsts.getCertificateFactory("X.509");
+        CertificateFactory cf = CertificateFactory.getInstance("X.509", "KonaPKIX");
 
         CertPath certPath = cf.generateCertPath(certs);
         Assertions.assertEquals(certs.size(), certPath.getCertificates().size());
@@ -221,7 +220,7 @@ public class CertificateFactoryTest {
 
     private void testGenCRL(String crlFileName, ObjectIdentifier sigAlgOid)
             throws Exception {
-        CertificateFactory cf = PKIXInsts.getCertificateFactory("X.509");
+        CertificateFactory cf = CertificateFactory.getInstance("X.509", "KonaPKIX");
         X509CRL crl = (X509CRL) cf.generateCRL(new ByteArrayInputStream(
                 TestUtils.crlBytes(crlFileName)));
         Assertions.assertEquals(sigAlgOid.toString(), crl.getSigAlgOID());
@@ -229,7 +228,7 @@ public class CertificateFactoryTest {
 
     @Test
     public void testGenCRLs() throws Exception {
-        CertificateFactory cf = PKIXInsts.getCertificateFactory("X.509");
+        CertificateFactory cf = CertificateFactory.getInstance("X.509", "KonaPKIX");
 
         @SuppressWarnings("unchecked")
         List<? extends X509CRL> crls = (List<? extends X509CRL>) cf.generateCRLs(

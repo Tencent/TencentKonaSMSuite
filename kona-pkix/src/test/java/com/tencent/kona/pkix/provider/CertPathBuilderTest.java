@@ -20,7 +20,6 @@
 package com.tencent.kona.pkix.provider;
 
 import com.tencent.kona.pkix.KonaPKIXProvider;
-import com.tencent.kona.pkix.PKIXInsts;
 import com.tencent.kona.pkix.TestUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
@@ -52,7 +51,7 @@ public class CertPathBuilderTest {
 
     @Test
     public void testGetCertPathBuilder() throws Exception {
-        CertPathBuilder cpb = PKIXInsts.getCertPathBuilder("PKIX");
+        CertPathBuilder cpb = CertPathBuilder.getInstance("PKIX", "KonaPKIX");
         Assertions.assertTrue(cpb.getProvider() instanceof KonaPKIXProvider);
     }
 
@@ -79,11 +78,11 @@ public class CertPathBuilderTest {
         Collection<X509Certificate> certs = new HashSet<>();
         certs.add(TestUtils.certAsFile(ee));
         certs.add(TestUtils.certAsFile(intCa));
-        CertStore certStore = PKIXInsts.getCertStore("Collection",
-                new CollectionCertStoreParameters(certs));
+        CertStore certStore = CertStore.getInstance("Collection",
+                new CollectionCertStoreParameters(certs), "KonaPKIX");
         params.addCertStore(certStore);
 
-        CertPathBuilder cpb = PKIXInsts.getCertPathBuilder("PKIX");
+        CertPathBuilder cpb = CertPathBuilder.getInstance("PKIX", "KonaPKIX");
         CertPathBuilderResult result = cpb.build(params);
         CertPath certPath = result.getCertPath();
 
