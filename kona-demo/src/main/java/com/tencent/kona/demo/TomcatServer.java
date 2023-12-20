@@ -20,8 +20,6 @@
 package com.tencent.kona.demo;
 
 import com.tencent.kona.KonaProvider;
-import com.tencent.kona.pkix.PKIXInsts;
-import com.tencent.kona.ssl.SSLInsts;
 import org.apache.catalina.Context;
 import org.apache.catalina.connector.Connector;
 import org.apache.juli.logging.Log;
@@ -59,6 +57,7 @@ import java.security.KeyManagementException;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
 import java.security.SecureRandom;
 import java.security.Security;
 import java.security.cert.CertificateException;
@@ -96,7 +95,7 @@ public class TomcatServer {
     @Bean
     public TomcatServletWebServerFactory webServerFactory(AppConfig appConfig)
             throws CertificateException, KeyStoreException, IOException,
-            NoSuchAlgorithmException {
+            NoSuchAlgorithmException, NoSuchProviderException {
         TomcatServletWebServerFactory tomcat = new TomcatServletWebServerFactory() {
 
             @Override
@@ -115,7 +114,7 @@ public class TomcatServer {
 
     private Connector httpsConnector(AppConfig appConfig)
             throws CertificateException, KeyStoreException, IOException,
-            NoSuchAlgorithmException {
+            NoSuchAlgorithmException, NoSuchProviderException {
         Connector connector = new Connector(
                 TomcatServletWebServerFactory.DEFAULT_PROTOCOL);
         connector.setScheme("https");
@@ -142,8 +141,8 @@ public class TomcatServer {
     private static KeyStore createKeyStore(
             String storeType, String storePath, char[] password)
             throws KeyStoreException, IOException, CertificateException,
-            NoSuchAlgorithmException {
-        KeyStore keyStore = PKIXInsts.getKeyStore(storeType);
+            NoSuchAlgorithmException, NoSuchProviderException {
+        KeyStore keyStore = KeyStore.getInstance(storeType, "Kona");
         try (InputStream in = new FileInputStream(
                 ResourceUtils.getFile(storePath))) {
             keyStore.load(in, password);
@@ -212,7 +211,7 @@ public class TomcatServer {
 
         @Override
         public KeyManager[] getKeyManagers() throws Exception {
-            KeyManagerFactory kmf = SSLInsts.getKeyManagerFactory("NewSunX509");
+            KeyManagerFactory kmf = KeyManagerFactory.getInstance("NewSunX509", "Kona");
             kmf.init(certificate.getCertificateKeystore(),
                     certificate.getCertificateKeystorePassword().toCharArray());
             return kmf.getKeyManagers();
@@ -259,7 +258,8 @@ public class TomcatServer {
 
         @Override
         public org.apache.tomcat.util.net.SSLContext createSSLContextInternal(
-                List<String> negotiableProtocols) throws NoSuchAlgorithmException {
+                List<String> negotiableProtocols)
+                throws NoSuchAlgorithmException, NoSuchProviderException {
             return new KonaSSLContext(sslHostConfig.getSslProtocol());
         }
     }
@@ -271,8 +271,9 @@ public class TomcatServer {
         private KeyManager[] kms;
         private TrustManager[] tms;
 
-        public KonaSSLContext(String protocol) throws NoSuchAlgorithmException {
-            context = SSLInsts.getSSLContext(protocol);
+        public KonaSSLContext(String protocol)
+                throws NoSuchAlgorithmException, NoSuchProviderException {
+            context = SSLContext.getInstance(protocol, "Kona");
         }
 
         @Override

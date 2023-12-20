@@ -19,8 +19,6 @@
 
 package com.tencent.kona.pkix.demo;
 
-import com.tencent.kona.crypto.CryptoInsts;
-import com.tencent.kona.pkix.PKIXInsts;
 import com.tencent.kona.pkix.TestUtils;
 import org.junit.jupiter.api.Test;
 
@@ -218,7 +216,7 @@ public class PKIDemo {
                 = (X509Certificate) keyStore.getCertificate("ee-demo");
         CertPath certPath = createCertPath(new X509Certificate[] { eeCert });
 
-        CertPathValidator validator = PKIXInsts.getCertPathValidator("PKIX");
+        CertPathValidator validator = CertPathValidator.getInstance("PKIX", "KonaPKIX");
 
         // Validate the cert path with the trusted CA,
         // and not check the revocation status.
@@ -259,7 +257,7 @@ public class PKIDemo {
         X509Certificate eeCert = loadCert(eeStr);
 
         // Create a PKCS#12 key store
-        KeyStore keyStore = PKIXInsts.getKeyStore("PKCS12");
+        KeyStore keyStore = KeyStore.getInstance("PKCS12", "KonaPKIX");
         keyStore.load(null, null);
 
         // Add the CA as trusted certificate
@@ -279,8 +277,8 @@ public class PKIDemo {
 
     // Load a certificate
     private static X509Certificate loadCert(String certPEM) throws Exception {
-        CertificateFactory certFactory = PKIXInsts.getCertificateFactory(
-                "X.509");
+        CertificateFactory certFactory = CertificateFactory.getInstance(
+                "X.509", "KonaPKIX");
         return (X509Certificate) certFactory.generateCertificate(
                 new ByteArrayInputStream(certPEM.getBytes()));
     }
@@ -289,21 +287,21 @@ public class PKIDemo {
     private static PrivateKey loadPrivateKey(String keyPEM) throws Exception {
         PKCS8EncodedKeySpec privateKeySpec = new PKCS8EncodedKeySpec(
                 Base64.getMimeDecoder().decode(keyPEM));
-        KeyFactory keyFactory = CryptoInsts.getKeyFactory("EC");
+        KeyFactory keyFactory = KeyFactory.getInstance("EC", "KonaCrypto");
         return keyFactory.generatePrivate(privateKeySpec);
     }
 
     // Create a certificate path from a certificate collection
     private static CertPath createCertPath(X509Certificate[] certChain)
             throws Exception {
-        CertificateFactory cf = PKIXInsts.getCertificateFactory("X.509");
+        CertificateFactory cf = CertificateFactory.getInstance("X.509", "KonaPKIX");
         return cf.generateCertPath(Arrays.asList(certChain));
     }
 
     // Load a certificate revocation list
     private static X509CRL loadCrl(String crlPEM) throws Exception {
-        CertificateFactory certFactory = PKIXInsts.getCertificateFactory(
-                "X.509");
+        CertificateFactory certFactory = CertificateFactory.getInstance(
+                "X.509", "KonaPKIX");
         return (X509CRL) certFactory.generateCRL(
                 new ByteArrayInputStream(crlPEM.getBytes()));
     }
@@ -311,7 +309,7 @@ public class PKIDemo {
     // Create a cert store with certificate revocation lists
     private static CertStore createCertStore(Collection<X509CRL> crls)
             throws Exception {
-        return PKIXInsts.getCertStore("Collection",
-                new CollectionCertStoreParameters(crls));
+        return CertStore.getInstance("Collection",
+                new CollectionCertStoreParameters(crls), "KonaPKIX");
     }
 }

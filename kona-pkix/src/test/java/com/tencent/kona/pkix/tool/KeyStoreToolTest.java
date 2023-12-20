@@ -19,7 +19,6 @@
 
 package com.tencent.kona.pkix.tool;
 
-import com.tencent.kona.pkix.PKIXInsts;
 import com.tencent.kona.pkix.TestUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
@@ -120,7 +119,7 @@ public class KeyStoreToolTest {
         KeyStoreTool.main(args);
         Assertions.assertTrue(Files.exists(storePath));
 
-        KeyStore trustStore = PKIXInsts.getKeyStore(type);
+        KeyStore trustStore = KeyStore.getInstance(type, "KonaPKIX");
         try (InputStream in = new FileInputStream(storePath.toString())) {
             trustStore.load(in, storePasswd.toCharArray());
         }
@@ -173,7 +172,7 @@ public class KeyStoreToolTest {
                 "-storePasswd", storePasswd };
         KeyStoreTool.main(encArgs);
 
-        KeyStore trustStore = PKIXInsts.getKeyStore(type);
+        KeyStore trustStore = KeyStore.getInstance(type, "KonaPKIX");
         try (InputStream in = new FileInputStream(storePath.toString())) {
             trustStore.load(in, storePasswd.toCharArray());
         }

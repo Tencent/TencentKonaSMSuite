@@ -20,7 +20,6 @@
 package com.tencent.kona.pkix.provider;
 
 import com.tencent.kona.pkix.KonaPKIXProvider;
-import com.tencent.kona.pkix.PKIXInsts;
 import com.tencent.kona.pkix.TestUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
@@ -46,8 +45,8 @@ public class CertStoreTest {
 
     @Test
     public void testGetCertStore() throws Exception {
-        CertStore certStore = PKIXInsts.getCertStore("Collection",
-                new CollectionCertStoreParameters());
+        CertStore certStore = CertStore.getInstance("Collection",
+                new CollectionCertStoreParameters(), "KonaPKIX");
         Assertions.assertTrue(certStore.getProvider() instanceof KonaPKIXProvider);
     }
 
@@ -75,8 +74,8 @@ public class CertStoreTest {
         certs.add(TestUtils.certAsFile(intCa));
         certs.add(TestUtils.certAsFile(ca));
 
-        CertStore certStore = PKIXInsts.getCertStore("Collection",
-                new CollectionCertStoreParameters(certs));
+        CertStore certStore = CertStore.getInstance("Collection",
+                new CollectionCertStoreParameters(certs), "KonaPKIX");
 
         X509CertSelector certSelector = new X509CertSelector();
         certSelector.setCertificate(target);

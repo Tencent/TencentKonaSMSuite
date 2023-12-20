@@ -19,9 +19,6 @@
 
 package com.tencent.kona.ssl.demo;
 
-import com.tencent.kona.crypto.CryptoInsts;
-import com.tencent.kona.pkix.PKIXInsts;
-import com.tencent.kona.ssl.SSLInsts;
 import com.tencent.kona.ssl.TestUtils;
 import com.tencent.kona.sun.security.x509.SMCertificate;
 import org.apache.catalina.Context;
@@ -66,6 +63,7 @@ import java.security.KeyFactory;
 import java.security.KeyManagementException;
 import java.security.KeyStore;
 import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
 import java.security.PrivateKey;
 import java.security.SecureRandom;
 import java.security.cert.Certificate;
@@ -335,23 +333,23 @@ public class TLCPWithTomcatDemo {
 
     private static SSLContext createContext() throws Exception {
         KeyStore trustStore = createTrustStore(CA, null);
-        TrustManagerFactory tmf = SSLInsts.getTrustManagerFactory("PKIX");
+        TrustManagerFactory tmf = TrustManagerFactory.getInstance("PKIX", "KonaSSL");
         tmf.init(trustStore);
 
         KeyStore keyStore = createKeyStore(
                 SIGN_EE, SIGN_EE_ID, SIGN_EE_KEY,
                 ENC_EE, ENC_EE_ID, ENC_EE_KEY);
-        KeyManagerFactory kmf = SSLInsts.getKeyManagerFactory("NewSunX509");
+        KeyManagerFactory kmf = KeyManagerFactory.getInstance("NewSunX509", "KonaSSL");
         kmf.init(keyStore, PASSWORD.toCharArray());
 
-        SSLContext context = SSLInsts.getSSLContext("TLCPv1.1");
+        SSLContext context = SSLContext.getInstance("TLCPv1.1", "KonaSSL");
         context.init(kmf.getKeyManagers(), tmf.getTrustManagers(), new SecureRandom());
         return context;
     }
 
     private static KeyStore createTrustStore(String caStr, String caId)
             throws Exception {
-        KeyStore trustStore = PKIXInsts.getKeyStore("PKCS12");
+        KeyStore trustStore = KeyStore.getInstance("PKCS12", "KonaPKIX");
         trustStore.load(null, null);
         trustStore.setCertificateEntry("tlcp-trust-demo", loadCert(caStr, caId));
         return trustStore;
@@ -361,7 +359,7 @@ public class TLCPWithTomcatDemo {
             String signEeStr, String signEeId, String signEeKeyStr,
             String encEeStr, String encEeId, String encEeKeyStr)
             throws Exception {
-        KeyStore keyStore = PKIXInsts.getKeyStore("PKCS12");
+        KeyStore keyStore = KeyStore.getInstance("PKCS12", "KonaPKIX");
         keyStore.load(null, null);
 
         keyStore.setKeyEntry("tlcp-sign-ee-demo",
@@ -378,8 +376,8 @@ public class TLCPWithTomcatDemo {
 
     private static X509Certificate loadCert(String certPEM, String id)
             throws Exception {
-        CertificateFactory certFactory = PKIXInsts.getCertificateFactory(
-                "X.509");
+        CertificateFactory certFactory = CertificateFactory.getInstance(
+                "X.509", "KonaPKIX");
         X509Certificate x509Cert = (X509Certificate) certFactory.generateCertificate(
                 new ByteArrayInputStream(certPEM.getBytes()));
 
@@ -394,7 +392,7 @@ public class TLCPWithTomcatDemo {
     private static PrivateKey loadPrivateKey(String keyPEM) throws Exception {
         PKCS8EncodedKeySpec privateKeySpec = new PKCS8EncodedKeySpec(
                 Base64.getMimeDecoder().decode(keyPEM));
-        KeyFactory keyFactory = CryptoInsts.getKeyFactory("EC");
+        KeyFactory keyFactory = KeyFactory.getInstance("EC", "KonaCrypto");
         return keyFactory.generatePrivate(privateKeySpec);
     }
 
@@ -466,7 +464,7 @@ public class TLCPWithTomcatDemo {
 
         @Override
         public KeyManager[] getKeyManagers() throws Exception {
-            KeyManagerFactory kmf = SSLInsts.getKeyManagerFactory("NewSunX509");
+            KeyManagerFactory kmf = KeyManagerFactory.getInstance("NewSunX509", "KonaSSL");
             kmf.init(certificate.getCertificateKeystore(),
                     certificate.getCertificateKeystorePassword().toCharArray());
             return kmf.getKeyManagers();
@@ -495,7 +493,8 @@ public class TLCPWithTomcatDemo {
 
         @Override
         public org.apache.tomcat.util.net.SSLContext createSSLContextInternal(
-                List<String> negotiableProtocols) throws NoSuchAlgorithmException {
+                List<String> negotiableProtocols)
+                throws NoSuchAlgorithmException, NoSuchProviderException {
             return new KonaSSLContext(sslHostConfig.getSslProtocol());
         }
     }
@@ -507,8 +506,9 @@ public class TLCPWithTomcatDemo {
         private KeyManager[] kms;
         private TrustManager[] tms;
 
-        public KonaSSLContext(String protocol) throws NoSuchAlgorithmException {
-            context = SSLInsts.getSSLContext(protocol);
+        public KonaSSLContext(String protocol)
+                throws NoSuchAlgorithmException, NoSuchProviderException {
+            context = SSLContext.getInstance(protocol, "KonaSSL");
         }
 
         @Override

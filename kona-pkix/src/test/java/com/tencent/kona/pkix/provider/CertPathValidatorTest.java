@@ -20,7 +20,6 @@
 package com.tencent.kona.pkix.provider;
 
 import com.tencent.kona.pkix.KonaPKIXProvider;
-import com.tencent.kona.pkix.PKIXInsts;
 import com.tencent.kona.pkix.TestUtils;
 import com.tencent.kona.pkix.SimpleOCSPServer;
 import com.tencent.kona.sun.security.x509.SMCertificate;
@@ -72,7 +71,7 @@ public class CertPathValidatorTest {
 
     @Test
     public void testGetCertPathValidator() throws Exception {
-        CertPathValidator cpv = PKIXInsts.getCertPathValidator("PKIX");
+        CertPathValidator cpv = CertPathValidator.getInstance("PKIX", "KonaPKIX");
         Assertions.assertTrue(cpv.getProvider() instanceof KonaPKIXProvider);
     }
 
@@ -403,7 +402,7 @@ public class CertPathValidatorTest {
     private void validateWithCrl(String[] certChain, String[] ids,
             String[] cas, String[] crls, boolean checkCertStatus,
             Class<? extends Exception> expectedEx) throws Exception {
-        CertPathValidator cpv = PKIXInsts.getCertPathValidator("PKIX");
+        CertPathValidator cpv = CertPathValidator.getInstance("PKIX", "KonaPKIX");
         try {
             cpv.validate(certPath(certChain, ids), certPathParams(
                     cas, crls, checkCertStatus));
@@ -434,7 +433,7 @@ public class CertPathValidatorTest {
             certs.add(x509Cert);
         }
 
-        CertificateFactory cf = PKIXInsts.getCertificateFactory("X.509");;
+        CertificateFactory cf = CertificateFactory.getInstance("X.509", "KonaPKIX");;
         return cf.generateCertPath(certs);
     }
 
@@ -459,8 +458,8 @@ public class CertPathValidatorTest {
             for (String crl : crls) {
                 x509Crls.add(TestUtils.crlAsFile(crl));
             }
-            CertStore certStore = PKIXInsts.getCertStore("Collection",
-                    new CollectionCertStoreParameters(x509Crls));
+            CertStore certStore = CertStore.getInstance("Collection",
+                    new CollectionCertStoreParameters(x509Crls), "KonaPKIX");
             params.addCertStore(certStore);
         }
 
@@ -469,7 +468,7 @@ public class CertPathValidatorTest {
 
     private SimpleOCSPServer createOCSPServer(
             String issuerCertName, String issuerKeyName) throws Exception {
-        KeyStore keyStore = PKIXInsts.getKeyStore("PKCS12");
+        KeyStore keyStore = KeyStore.getInstance("PKCS12", "KonaPKIX");
         keyStore.load(null, null);
 
         String password = "password";

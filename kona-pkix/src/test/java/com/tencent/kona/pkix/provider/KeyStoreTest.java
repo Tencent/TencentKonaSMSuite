@@ -20,7 +20,6 @@
 package com.tencent.kona.pkix.provider;
 
 import com.tencent.kona.crypto.spec.SM2ParameterSpec;
-import com.tencent.kona.pkix.PKIXInsts;
 import com.tencent.kona.pkix.TestUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
@@ -61,7 +60,7 @@ public class KeyStoreTest {
     }
 
     private void testGetKeyStore(String type) throws Exception {
-        KeyStore keyStore = PKIXInsts.getKeyStore(type);
+        KeyStore keyStore = KeyStore.getInstance(type, "KonaPKIX");
         Assertions.assertEquals(
                 PROVIDER, keyStore.getProvider().getName());
         Assertions.assertEquals(type, keyStore.getType());
@@ -74,7 +73,7 @@ public class KeyStoreTest {
     }
 
     private void testCreateTrustStore(String type) throws Exception {
-        KeyStore keyStore = PKIXInsts.getKeyStore(type);
+        KeyStore keyStore = KeyStore.getInstance(type, "KonaPKIX");
         keyStore.load(null, null);
 
         keyStore.setCertificateEntry("ca-rsarsa",
@@ -121,7 +120,7 @@ public class KeyStoreTest {
     }
 
     private void testCreateKeyStore(String type) throws Exception {
-        KeyStore keyStore = PKIXInsts.getKeyStore(type);
+        KeyStore keyStore = KeyStore.getInstance(type, "KonaPKIX");
         keyStore.load(null, null);
 
         keyStore.setKeyEntry(
@@ -222,7 +221,7 @@ public class KeyStoreTest {
 
     @Test
     public void testCreatePKCS12KeyStoreLoadEncryptedKey() throws Exception {
-        KeyStore keyStore = PKIXInsts.getKeyStore("PKCS12");
+        KeyStore keyStore = KeyStore.getInstance("PKCS12", "KonaPKIX");
         keyStore.load(null, null);
 
         keyStore.setKeyEntry(
@@ -267,7 +266,7 @@ public class KeyStoreTest {
     }
 
     private void testSaveAndLoadKeyStore(String type) throws Exception {
-        KeyStore keyStore = PKIXInsts.getKeyStore(type);
+        KeyStore keyStore = KeyStore.getInstance(type, "KonaPKIX");
         keyStore.load(null, null);
 
         keyStore.setCertificateEntry("ca-rsarsa",
@@ -309,7 +308,7 @@ public class KeyStoreTest {
             keyStore.store(out, PASSWD_CHARS);
         }
 
-        KeyStore loadedKeyStore = PKIXInsts.getKeyStore(type);
+        KeyStore loadedKeyStore = KeyStore.getInstance(type, "KonaPKIX");
         try (FileInputStream keyStoreIn
                 = new FileInputStream(tempKeyStoreFile.toFile())) {
             loadedKeyStore.load(keyStoreIn, PASSWD_CHARS);
@@ -341,7 +340,7 @@ public class KeyStoreTest {
             String loadProvider) throws Exception {
         KeyStore keyStore = null;
         if ("JDK".equals(genProvider)) {
-            keyStore = PKIXInsts.getKeyStore(type);
+            keyStore = KeyStore.getInstance(type, "KonaPKIX");
         } else {
             keyStore = KeyStore.getInstance(type, genProvider);
         }
@@ -367,7 +366,7 @@ public class KeyStoreTest {
 
         KeyStore loadedKeyStore = null;
         if ("JDK".equals(loadProvider)) {
-            loadedKeyStore = PKIXInsts.getKeyStore(type);
+            loadedKeyStore = KeyStore.getInstance(type, "KonaPKIX");
         } else {
             loadedKeyStore = KeyStore.getInstance(type, loadProvider);
         }

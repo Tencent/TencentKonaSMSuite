@@ -22,7 +22,6 @@ package com.tencent.kona.ssl;
 import com.tencent.kona.crypto.CryptoInsts;
 import com.tencent.kona.crypto.KonaCryptoProvider;
 import com.tencent.kona.pkix.KonaPKIXProvider;
-import com.tencent.kona.pkix.PKIXInsts;
 
 import javax.crypto.Cipher;
 import javax.crypto.EncryptedPrivateKeyInfo;
@@ -341,7 +340,7 @@ public class TestUtils {
     public static KeyStore trustStore(String[] aliases, String[] certStrs)
             throws KeyStoreException, CertificateException, IOException,
             NoSuchAlgorithmException, NoSuchProviderException {
-        KeyStore keyStore = PKIXInsts.getKeyStore("PKCS12");
+        KeyStore keyStore = KeyStore.getInstance("PKCS12", "KonaPKIX");
         keyStore.load(null, null);
 
         for (int i = 0; i < aliases.length; i++) {
@@ -353,7 +352,7 @@ public class TestUtils {
 
     public static KeyStore keyStore(String alias, String keyStr,
             char[] password, String[] certStrs) throws Exception {
-        KeyStore keyStore = PKIXInsts.getKeyStore("PKCS12");;
+        KeyStore keyStore = KeyStore.getInstance("PKCS12", "KonaPKIX");;
         keyStore.load(null, null);
 
         keyStore.setKeyEntry(

@@ -19,8 +19,6 @@
 
 package com.tencent.kona.pkix.demo;
 
-import com.tencent.kona.crypto.CryptoInsts;
-import com.tencent.kona.pkix.PKIXInsts;
 import com.tencent.kona.pkix.PKIXUtils;
 import com.tencent.kona.pkix.TestUtils;
 import org.junit.jupiter.api.Assertions;
@@ -109,13 +107,13 @@ public class SignatureDemo {
     @Test
     public void testSignature() throws Exception {
         PrivateKey privateKey = privateKey(KEY);
-        Signature signer = CryptoInsts.getSignature("SM3withSM2");
+        Signature signer = Signature.getInstance("SM3withSM2", "KonaCrypto");
         signer.initSign(privateKey);
         signer.update(DATA);
         byte[] sign = signer.sign();
 
         Certificate certificate = certificate(CERT);
-        Signature verifier = CryptoInsts.getSignature("SM3withSM2");
+        Signature verifier = Signature.getInstance("SM3withSM2", "KonaCrypto");
         verifier.initVerify(certificate);
         verifier.update(DATA);
         boolean verified = verifier.verify(sign);
@@ -127,8 +125,8 @@ public class SignatureDemo {
             InvalidKeySpecException, NoSuchProviderException {
         PKCS8EncodedKeySpec privateKeySpec = new PKCS8EncodedKeySpec(
                 Base64.getMimeDecoder().decode(removeBELines(pkcs8PEM)));
-        KeyFactory keyFactory = CryptoInsts.getKeyFactory(
-                "EC");
+        KeyFactory keyFactory = KeyFactory.getInstance(
+                "EC", "KonaCrypto");
         return keyFactory.generatePrivate(privateKeySpec);
     }
 
@@ -139,8 +137,8 @@ public class SignatureDemo {
 
     private static Certificate certificate(String certPEM)
             throws CertificateException, NoSuchProviderException {
-        CertificateFactory certFactory = PKIXInsts.getCertificateFactory(
-                "X.509");
+        CertificateFactory certFactory = CertificateFactory.getInstance(
+                "X.509", "KonaPKIX");
         return certFactory.generateCertificate(
                 new ByteArrayInputStream(certPEM.getBytes(StandardCharsets.UTF_8)));
     }
@@ -149,13 +147,13 @@ public class SignatureDemo {
     @Test
     public void testSignatureWithCustomAPI() throws Exception {
         PrivateKey privateKey = PKIXUtils.getPrivateKey("EC", KEY);
-        Signature signer = CryptoInsts.getSignature("SM3withSM2");
+        Signature signer = Signature.getInstance("SM3withSM2", "KonaCrypto");
         signer.initSign(privateKey);
         signer.update(DATA);
         byte[] sign = signer.sign();
 
         Certificate certificate = PKIXUtils.getCertificate(CERT);
-        Signature verifier = CryptoInsts.getSignature("SM3withSM2");
+        Signature verifier = Signature.getInstance("SM3withSM2", "KonaCrypto");
         verifier.initVerify(certificate);
         verifier.update(DATA);
         Assertions.assertTrue(verifier.verify(sign));
