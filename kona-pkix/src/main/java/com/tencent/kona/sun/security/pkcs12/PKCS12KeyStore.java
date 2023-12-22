@@ -27,6 +27,8 @@ package com.tencent.kona.sun.security.pkcs12;
 
 import java.io.*;
 //import java.security.AccessController;
+import java.lang.ref.Reference;
+import java.lang.ref.SoftReference;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.Key;
@@ -304,13 +306,23 @@ public final class PKCS12KeyStore extends KeyStoreSpi {
     private final Map<String, Entry> entries =
             Collections.synchronizedMap(new LinkedHashMap<>());
 
-    // The cache for entries
-    private final Map<String, KeyStore.Entry> entryCache =
-            Collections.synchronizedMap(new LinkedHashMap<>());
+    // The cache for store entries
+    private final Map<String, Reference<KeyStore.Entry>> storeEntryCache =
+            Collections.synchronizedMap(new SizedMap<>());
 
     private final ArrayList<KeyEntry> keyList = new ArrayList<>();
     private final List<X509Certificate> allCerts = new ArrayList<>();
     private final ArrayList<CertEntry> certEntries = new ArrayList<>();
+
+    private final static class SizedMap<K,V> extends LinkedHashMap<K,V> {
+
+        private static final long serialVersionUID = 5055533043076415797L;
+
+        @Override
+        protected boolean removeEldestEntry(Map.Entry<K,V> eldest) {
+            return size() > 20;
+        }
+    }
 
     /**
      * Returns the key associated with the given alias, using the given
@@ -1323,8 +1335,9 @@ public final class PKCS12KeyStore extends KeyStoreSpi {
         Entry entry = entries.get(alias.toLowerCase(Locale.ENGLISH));
         if (protParam == null) {
             if (engineIsCertificateEntry(alias)) {
-                if (entryCache.containsKey(alias)) {
-                    return entryCache.get(alias);
+                KeyStore.Entry storeEntry = getStoreEntry(alias);
+                if (storeEntry != null) {
+                    return storeEntry;
                 }
 
                 if (entry instanceof CertEntry &&
@@ -1335,8 +1348,11 @@ public final class PKCS12KeyStore extends KeyStoreSpi {
                                 "alias '" + alias + "'");
                     }
 
-                    return new KeyStore.TrustedCertificateEntry(
-                            ((CertEntry)entry).cert, entry.attributes);
+                    KeyStore.TrustedCertificateEntry trustedCertEntry
+                            = new KeyStore.TrustedCertificateEntry(
+                                    ((CertEntry)entry).cert, entry.attributes);
+                    putStoreEntry(alias, trustedCertEntry);
+                    return trustedCertEntry;
                 }
             } else {
                 throw new UnrecoverableKeyException
@@ -1349,8 +1365,9 @@ public final class PKCS12KeyStore extends KeyStoreSpi {
                 throw new UnsupportedOperationException
                         ("trusted certificate entries are not password-protected");
             } else if (engineIsKeyEntry(alias)) {
-                if (entryCache.containsKey(alias)) {
-                    return entryCache.get(alias);
+                KeyStore.Entry storeEntry = getStoreEntry(alias);
+                if (storeEntry != null) {
+                    return storeEntry;
                 }
 
                 KeyStore.PasswordProtection pp =
@@ -1364,13 +1381,13 @@ public final class PKCS12KeyStore extends KeyStoreSpi {
                     KeyStore.PrivateKeyEntry privateKeyEntry
                             = new KeyStore.PrivateKeyEntry(
                                     (PrivateKey)key, chain, entry.attributes);
-                    entryCache.put(alias, privateKeyEntry);
+                    putStoreEntry(alias, privateKeyEntry);
                     return privateKeyEntry;
                 } else if (key instanceof SecretKey) {
                     KeyStore.SecretKeyEntry secretKeyEntry
                             = new KeyStore.SecretKeyEntry(
                                     (SecretKey)key, entry.attributes);
-                    entryCache.put(alias, secretKeyEntry);
+                    putStoreEntry(alias, secretKeyEntry);
                     return secretKeyEntry;
                 }
             } else if (!engineIsKeyEntry(alias)) {
@@ -1381,6 +1398,17 @@ public final class PKCS12KeyStore extends KeyStoreSpi {
         }
 
         throw new UnsupportedOperationException();
+    }
+
+    private KeyStore.Entry getStoreEntry(String alias) {
+        Reference<KeyStore.Entry> ref = storeEntryCache.get(
+                alias.toLowerCase(Locale.ENGLISH));
+        return (ref != null) ? ref.get() : null;
+    }
+
+    private void putStoreEntry(String alias, KeyStore.Entry storeEntry) {
+        storeEntryCache.put(alias.toLowerCase(Locale.ENGLISH),
+                new SoftReference<>(storeEntry));
     }
 
     /**
