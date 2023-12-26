@@ -27,8 +27,6 @@ package com.tencent.kona.sun.security.pkcs12;
 
 import java.io.*;
 //import java.security.AccessController;
-import java.lang.ref.Reference;
-import java.lang.ref.SoftReference;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.Key;
@@ -75,6 +73,7 @@ import com.tencent.kona.sun.security.provider.KeyStoreDelegator;
 import com.tencent.kona.sun.security.provider.JavaKeyStore;
 import com.tencent.kona.sun.security.pkcs.ContentInfo;
 import com.tencent.kona.sun.security.pkcs.EncryptedPrivateKeyInfo;
+import com.tencent.kona.sun.security.util.Cache;
 import com.tencent.kona.sun.security.util.Debug;
 import com.tencent.kona.sun.security.util.DerInputStream;
 import com.tencent.kona.sun.security.util.DerOutputStream;
@@ -307,22 +306,12 @@ public final class PKCS12KeyStore extends KeyStoreSpi {
             Collections.synchronizedMap(new LinkedHashMap<>());
 
     // The cache for store entries
-    private final Map<String, Reference<KeyStore.Entry>> storeEntryCache =
-            Collections.synchronizedMap(new SizedMap<>());
+    private final Cache<String, KeyStore.Entry> storeEntryCache
+            = Cache.newSoftMemoryCache(20);
 
     private final ArrayList<KeyEntry> keyList = new ArrayList<>();
     private final List<X509Certificate> allCerts = new ArrayList<>();
     private final ArrayList<CertEntry> certEntries = new ArrayList<>();
-
-    private final static class SizedMap<K,V> extends LinkedHashMap<K,V> {
-
-        private static final long serialVersionUID = 5055533043076415797L;
-
-        @Override
-        protected boolean removeEldestEntry(Map.Entry<K,V> eldest) {
-            return size() > 20;
-        }
-    }
 
     /**
      * Returns the key associated with the given alias, using the given
@@ -1401,14 +1390,11 @@ public final class PKCS12KeyStore extends KeyStoreSpi {
     }
 
     private KeyStore.Entry getStoreEntry(String alias) {
-        Reference<KeyStore.Entry> ref = storeEntryCache.get(
-                alias.toLowerCase(Locale.ENGLISH));
-        return (ref != null) ? ref.get() : null;
+        return storeEntryCache.get(alias.toLowerCase(Locale.ENGLISH));
     }
 
     private void putStoreEntry(String alias, KeyStore.Entry storeEntry) {
-        storeEntryCache.put(alias.toLowerCase(Locale.ENGLISH),
-                new SoftReference<>(storeEntry));
+        storeEntryCache.put(alias.toLowerCase(Locale.ENGLISH), storeEntry);
     }
 
     /**
