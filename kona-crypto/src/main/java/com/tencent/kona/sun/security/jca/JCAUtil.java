@@ -26,7 +26,6 @@
 package com.tencent.kona.sun.security.jca;
 
 import java.security.SecureRandom;
-import sun.security.util.Debug;
 
 /**
  * Collection of static utility methods used by the security framework.
