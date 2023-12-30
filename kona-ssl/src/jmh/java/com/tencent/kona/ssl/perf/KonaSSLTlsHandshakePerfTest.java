@@ -29,6 +29,7 @@ import com.tencent.kona.ssl.interop.ContextProtocol;
 import com.tencent.kona.ssl.interop.FileCert;
 import com.tencent.kona.ssl.interop.HashAlgorithm;
 import com.tencent.kona.ssl.interop.KeyAlgorithm;
+import com.tencent.kona.ssl.interop.Protocol;
 import com.tencent.kona.ssl.interop.Provider;
 import com.tencent.kona.ssl.interop.SignatureAlgorithm;
 import com.tencent.kona.ssl.interop.Utilities;
@@ -97,7 +98,7 @@ public class KonaSSLTlsHandshakePerfTest {
     private ByteBuffer cTOs = ByteBuffer.allocateDirect(1 << 16);
     private ByteBuffer sTOc = ByteBuffer.allocateDirect(1 << 16);
 
-    @Param({"TLSv1.3"})
+    @Param({"TLSv1.3", "TLSv1.2"})
     String protocol;
 
     @Param({"false", "true"})
@@ -180,9 +181,16 @@ public class KonaSSLTlsHandshakePerfTest {
          */
         clientEngine = clientContext.createSSLEngine("client", 80);
         clientEngine.setUseClientMode(true);
+
         clientEngine.setEnabledProtocols(new String[] {protocol});
-        clientEngine.setEnabledCipherSuites(
-                new String[] {CipherSuite.TLS_SM4_GCM_SM3.name()});
+
+        String cipherSuite = null;
+        if (Protocol.TLSV1_3.name.equals(protocol)) {
+            cipherSuite = CipherSuite.TLS_SM4_GCM_SM3.name();
+        } else {
+            cipherSuite = CipherSuite.TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256.name();
+        }
+        clientEngine.setEnabledCipherSuites(new String[] {cipherSuite});
     }
 
     private HandshakeStatus checkResult(SSLEngine engine, SSLEngineResult result) {
