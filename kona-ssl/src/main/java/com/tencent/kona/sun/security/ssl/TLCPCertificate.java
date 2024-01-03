@@ -68,7 +68,7 @@ final class TLCPCertificate {
         // sign_cert | ca_list | enc_cert
         SIGN_CA_ENC("SIGN|CA|ENC");  // TASSL preference
 
-        String format;
+        private final String format;
 
         CertListFormat(String format) {
             this.format = format;
