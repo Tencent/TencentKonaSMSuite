@@ -25,7 +25,7 @@
 
 package com.tencent.kona.sun.security.provider;
 
-import com.tencent.kona.sun.security.internal.spec.TlcpSM2PremasterSecretParameterSpec;
+import com.tencent.kona.sun.security.internal.spec.TlsRsaPremasterSecretParameterSpec;
 
 import javax.crypto.KeyGeneratorSpi;
 import javax.crypto.SecretKey;
@@ -39,9 +39,9 @@ import java.util.Arrays;
 public final class TlcpSM2PremasterSecretGenerator extends KeyGeneratorSpi {
 
     private static final String MSG = "TlcpSM2PremasterSecretGenerator must be "
-        + "initialized using a TlcpSM2PremasterSecretParameterSpec";
+        + "initialized using a TlsRsaPremasterSecretParameterSpec";
 
-    private TlcpSM2PremasterSecretParameterSpec spec;
+    private TlsRsaPremasterSecretParameterSpec spec;
     private SecureRandom random;
 
     protected void engineInit(SecureRandom random) {
@@ -51,11 +51,11 @@ public final class TlcpSM2PremasterSecretGenerator extends KeyGeneratorSpi {
     @SuppressWarnings("deprecation")
     protected void engineInit(AlgorithmParameterSpec params,
             SecureRandom random) throws InvalidAlgorithmParameterException {
-        if (!(params instanceof TlcpSM2PremasterSecretParameterSpec)) {
+        if (!(params instanceof TlsRsaPremasterSecretParameterSpec)) {
             throw new InvalidAlgorithmParameterException(MSG);
         }
 
-        this.spec = (TlcpSM2PremasterSecretParameterSpec) params;
+        this.spec = (TlsRsaPremasterSecretParameterSpec) params;
         this.random = random;
     }
 

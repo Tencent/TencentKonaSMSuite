@@ -42,7 +42,7 @@ import java.security.spec.AlgorithmParameterSpec;
 
 import com.tencent.kona.crypto.CryptoInsts;
 import com.tencent.kona.ssl.SSLInsts;
-import com.tencent.kona.sun.security.internal.spec.TlcpSM2PremasterSecretParameterSpec;
+import com.tencent.kona.sun.security.internal.spec.TlsRsaPremasterSecretParameterSpec;
 import com.tencent.kona.sun.security.util.KeyUtil;
 
 /**
@@ -90,8 +90,8 @@ final class SM2KeyExchange {
                 ClientHandshakeContext chc) throws GeneralSecurityException {
             String algorithm = "TlcpSM2PremasterSecret";
             KeyGenerator kg = SSLInsts.getKeyGenerator(algorithm);
-            TlcpSM2PremasterSecretParameterSpec spec =
-                    new TlcpSM2PremasterSecretParameterSpec(
+            TlsRsaPremasterSecretParameterSpec spec =
+                    new TlsRsaPremasterSecretParameterSpec(
                             chc.clientHelloVersion,
                             chc.negotiatedProtocol.id);
             kg.init(spec, chc.sslContext.getSecureRandom());
@@ -110,7 +110,7 @@ final class SM2KeyExchange {
             try {
                 // Try UNWRAP_MODE mode firstly.
                 cipher.init(Cipher.UNWRAP_MODE, privateKey,
-                        new TlcpSM2PremasterSecretParameterSpec(
+                        new TlsRsaPremasterSecretParameterSpec(
                                 shc.clientHelloVersion,
                                 shc.negotiatedProtocol.id),
                                 shc.sslContext.getSecureRandom());
@@ -201,7 +201,7 @@ final class SM2KeyExchange {
                                 ? "SunTls12RsaPremasterSecret"
                                 : "SunTlsRsaPremasterSecret");
                 KeyGenerator kg = CryptoInsts.getKeyGenerator(s);
-                kg.init(new TlcpSM2PremasterSecretParameterSpec(
+                kg.init(new TlsRsaPremasterSecretParameterSpec(
                         clientVersion, serverVersion, encodedSecret),
                         generator);
                 return kg.generateKey();
