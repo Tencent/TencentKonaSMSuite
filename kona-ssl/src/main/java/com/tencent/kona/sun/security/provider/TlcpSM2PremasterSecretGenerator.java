@@ -41,7 +41,6 @@ public final class TlcpSM2PremasterSecretGenerator extends KeyGeneratorSpi {
     private static final String MSG = "TlcpSM2PremasterSecretGenerator must be "
         + "initialized using a TlcpSM2PremasterSecretParameterSpec";
 
-    @SuppressWarnings("deprecation")
     private TlcpSM2PremasterSecretParameterSpec spec;
     private SecureRandom random;
 
