@@ -41,7 +41,7 @@ import java.security.spec.AlgorithmParameterSpec;
 public final class TlcpMasterSecretGenerator extends KeyGeneratorSpi {
 
     private final static String MSG = "TlcpMasterSecretGenerator must be "
-            + "initialized using a TlcpMasterSecretParameterSpec";
+            + "initialized using a TlsMasterSecretParameterSpec";
 
     private TlsMasterSecretParameterSpec spec;
 
@@ -54,7 +54,7 @@ public final class TlcpMasterSecretGenerator extends KeyGeneratorSpi {
 
     @Override
     protected void engineInit(AlgorithmParameterSpec params,
-                              SecureRandom random) throws InvalidAlgorithmParameterException {
+            SecureRandom random) throws InvalidAlgorithmParameterException {
         if (!(params instanceof TlsMasterSecretParameterSpec)) {
             throw new InvalidAlgorithmParameterException(MSG);
         }
