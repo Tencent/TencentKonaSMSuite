@@ -32,6 +32,7 @@ import java.security.NoSuchAlgorithmException;
 
 import com.tencent.kona.sun.security.ssl.Authenticator.SSLAuthenticator;
 import com.tencent.kona.sun.security.ssl.Authenticator.MAC;
+import com.tencent.kona.sun.security.ssl.CipherSuite.MacAlg;
 
 final class TLCPAuthenticator {
 
@@ -76,14 +77,14 @@ final class TLCPAuthenticator {
         private final MacImpl macImpl;
 
         TLCP11Mac(ProtocolVersion protocolVersion,
-                  CipherSuite.MacAlg macAlg, SecretKey key) throws NoSuchAlgorithmException,
+                MacAlg macAlg, SecretKey key) throws NoSuchAlgorithmException,
                 InvalidKeyException {
             super(protocolVersion);
             this.macImpl = new MacImpl(protocolVersion, macAlg, key);
         }
 
         @Override
-        public CipherSuite.MacAlg macAlg() {
+        public MacAlg macAlg() {
             return macImpl.macAlg;
         }
 
@@ -92,20 +93,5 @@ final class TLCPAuthenticator {
                 byte[] sequence, boolean isSimulated) {
             return macImpl.compute(type, bb, sequence, isSimulated);
         }
-    }
-
-    static final long toLong(byte[] recordEnS) {
-        if (recordEnS != null && recordEnS.length == 8) {
-            return ((recordEnS[0] & 0xFFL) << 56) |
-                   ((recordEnS[1] & 0xFFL) << 48) |
-                   ((recordEnS[2] & 0xFFL) << 40) |
-                   ((recordEnS[3] & 0xFFL) << 32) |
-                   ((recordEnS[4] & 0xFFL) << 24) |
-                   ((recordEnS[5] & 0xFFL) << 16) |
-                   ((recordEnS[6] & 0xFFL) <<  8) |
-                    (recordEnS[7] & 0xFFL);
-        }
-
-        return -1L;
     }
 }

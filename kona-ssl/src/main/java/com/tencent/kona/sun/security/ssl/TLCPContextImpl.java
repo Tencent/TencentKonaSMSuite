@@ -53,7 +53,7 @@ public final class TLCPContextImpl {
             });
 
             serverDefaultCipherSuites = getApplicableEnabledCipherSuites(
-                    clientDefaultProtocols, true);
+                    serverDefaultProtocols, false);
             clientDefaultCipherSuites = getApplicableEnabledCipherSuites(
                     clientDefaultProtocols, true);
         }

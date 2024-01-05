@@ -179,7 +179,7 @@ public class SSLSocketOnTLS13Test {
      * Get the client side parameters of SSLContext.
      */
     protected ContextParameters getClientContextParameters() {
-        return new ContextParameters("TLS", "PKIX", "NewSunX509");
+        return new ContextParameters("TLS", "TencentPKIX", "PKIX");
     }
 
     /*
