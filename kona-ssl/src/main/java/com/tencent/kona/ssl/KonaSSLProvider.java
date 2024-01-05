@@ -54,12 +54,13 @@ public class KonaSSLProvider extends Provider {
                 "com.tencent.kona.sun.security.ssl.KeyManagerFactoryImpl$SunX509");
         provider.put("KeyManagerFactory.NewSunX509",
                 "com.tencent.kona.sun.security.ssl.KeyManagerFactoryImpl$X509");
+        provider.put("Alg.Alias.KeyManagerFactory.PKIX", "NewSunX509");
 
         provider.put("TrustManagerFactory.SunX509",
                 "com.tencent.kona.sun.security.ssl.TrustManagerFactoryImpl$SimpleFactory");
         provider.put("TrustManagerFactory.PKIX",
                 "com.tencent.kona.sun.security.ssl.TrustManagerFactoryImpl$PKIXFactory");
-        provider.put("Alg.Alias.TrustManagerFactory.SunPKIX", "PKIX");
+        provider.put("Alg.Alias.TrustManagerFactory.TencentPKIX", "PKIX");
         provider.put("Alg.Alias.TrustManagerFactory.X509", "PKIX");
         provider.put("Alg.Alias.TrustManagerFactory.X.509", "PKIX");
 

@@ -176,7 +176,7 @@ public class SSLSocketTest {
      * Get the client side parameters of SSLContext.
      */
     protected ContextParameters getClientContextParameters() {
-        return new ContextParameters("TLCP", "PKIX", "NewSunX509");
+        return new ContextParameters("TLCP", "TencentPKIX", "PKIX");
     }
 
     /*
