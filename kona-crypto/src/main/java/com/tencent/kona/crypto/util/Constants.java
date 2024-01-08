@@ -36,7 +36,7 @@ public final class Constants {
             "java.specification.vendor");
 
     // The length of uncompressed SM2 public key,
-    // exactly a EC point's coordinates (x, y).
+    // exactly an EC point's coordinates (x, y).
     // The hex format is 04||x||y
     public static final int SM2_PUBKEY_LEN = 65;
 

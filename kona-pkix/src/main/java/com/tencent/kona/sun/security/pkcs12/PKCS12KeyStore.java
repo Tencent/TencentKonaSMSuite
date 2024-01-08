@@ -989,7 +989,7 @@ public final class PKCS12KeyStore extends KeyStoreSpi {
      * for some other reason.
      */
     public synchronized void engineSetCertificateEntry(String alias,
-                                                       Certificate cert) throws KeyStoreException
+            Certificate cert) throws KeyStoreException
     {
         setCertEntry(alias, cert, null);
     }
@@ -998,7 +998,7 @@ public final class PKCS12KeyStore extends KeyStoreSpi {
      * Sets a trusted cert entry (with attributes, when present)
      */
     private void setCertEntry(String alias, Certificate cert,
-                              Set<KeyStore.Entry.Attribute> attributes) throws KeyStoreException {
+            Set<KeyStore.Entry.Attribute> attributes) throws KeyStoreException {
 
         // Check that the cert is an X.509 cert
         if (cert != null && (!(cert instanceof X509Certificate))) {
@@ -2007,6 +2007,7 @@ public final class PKCS12KeyStore extends KeyStoreSpi {
         }
 
         entries.clear();
+        storeEntryCache.clear();
 
         /*
          * Read the authSafe.
