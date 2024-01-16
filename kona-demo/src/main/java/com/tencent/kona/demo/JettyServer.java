@@ -97,6 +97,8 @@ public class JettyServer {
                 }
             };
 
+            contextFactory.setProvider(appConfig.getProvider());
+
             contextFactory.setTrustStoreProvider(appConfig.getTrustStoreProvider());
             contextFactory.setTrustStoreType(appConfig.getTrustStoreType());
             contextFactory.setTrustStorePath(getAbsolutePath(appConfig.getTrustStorePath()));
@@ -109,6 +111,7 @@ public class JettyServer {
             contextFactory.setKeyManagerPassword(appConfig.getKeyStorePassword());
 
             contextFactory.setProtocol(appConfig.getContextProtocol());
+            contextFactory.setNeedClientAuth(appConfig.isClientAuthEnabled());
 
             HttpConfiguration httpsConfig = new HttpConfiguration();
             httpsConfig.setSecureScheme("https");
