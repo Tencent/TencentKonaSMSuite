@@ -31,6 +31,9 @@ public class AppConfig {
     @Value("${server.ssl.enabled}")
     private boolean sslEnabled;
 
+    @Value("${server.ssl.provider}")
+    private String provider;
+
     @Value("${server.ssl.trust-store-provider}")
     private String trustStoreProvider;
 
@@ -58,6 +61,9 @@ public class AppConfig {
     @Value("${server.ssl.protocol}")
     private String contextProtocol;
 
+    @Value("${server.ssl.client-auth-enabled}")
+    private boolean clientAuthEnabled;
+
     @Value("${server.http2.enabled}")
     private boolean http2Enabled;
 
@@ -75,6 +81,14 @@ public class AppConfig {
 
     public void setSslEnabled(String sslEnabled) {
         this.sslEnabled = Boolean.parseBoolean(sslEnabled);
+    }
+
+    public String getProvider() {
+        return provider;
+    }
+
+    public void setProvider(String provider) {
+        this.provider = provider;
     }
 
     public String getTrustStoreProvider() {
@@ -147,6 +161,14 @@ public class AppConfig {
 
     public void setContextProtocol(String contextProtocol) {
         this.contextProtocol = contextProtocol;
+    }
+
+    public boolean isClientAuthEnabled() {
+        return clientAuthEnabled;
+    }
+
+    public void setClientAuthEnabled(boolean clientAuthEnabled) {
+        this.clientAuthEnabled = clientAuthEnabled;
     }
 
     public boolean isHttp2Enabled() {
