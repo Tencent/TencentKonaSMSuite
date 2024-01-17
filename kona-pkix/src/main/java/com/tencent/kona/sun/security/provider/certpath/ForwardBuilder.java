@@ -335,8 +335,11 @@ class ForwardBuilder extends Builder {
         }
     }
 
+    // Thread-local gate to prevent recursive provider lookups
+    private static ThreadLocal<Object> gate = new ThreadLocal<>();
+
     /**
-     * Download Certificates from the given AIA and add them to the
+     * Download certificates from the given AIA and add them to the
      * specified Collection.
      */
     // cs.getCertificates(caSelector) returns a collection of X509Certificate's
@@ -348,32 +351,47 @@ class ForwardBuilder extends Builder {
         if (!USE_AIA) {
             return false;
         }
+
         List<AccessDescription> adList = aiaExt.getAccessDescriptions();
         if (adList == null || adList.isEmpty()) {
             return false;
         }
 
-        boolean add = false;
-        for (AccessDescription ad : adList) {
-            CertStore cs = URICertStore.getInstance(ad);
-            if (cs != null) {
-                try {
-                    if (certs.addAll((Collection<X509Certificate>)
+        if (gate.get() != null) {
+            // Avoid recursive fetching of certificates
+            if (debug != null) {
+                debug.println("Recursive fetching of certs via the AIA " +
+                    "extension detected");
+            }
+            return false;
+        }
+
+        gate.set(gate);
+        try {
+            boolean add = false;
+            for (AccessDescription ad : adList) {
+                CertStore cs = URICertStore.getInstance(ad);
+                if (cs != null) {
+                    try {
+                        if (certs.addAll((Collection<X509Certificate>)
                             cs.getCertificates(caSelector))) {
-                        add = true;
-                        if (!searchAllCertStores) {
-                            return true;
+                            add = true;
+                            if (!searchAllCertStores) {
+                                return true;
+                            }
                         }
-                    }
-                } catch (CertStoreException cse) {
-                    if (debug != null) {
-                        debug.println("exception getting certs from CertStore:");
-                        cse.printStackTrace();
+                    } catch (CertStoreException cse) {
+                        if (debug != null) {
+                            debug.println("exception getting certs from CertStore:");
+                            cse.printStackTrace();
+                        }
                     }
                 }
             }
+            return add;
+        } finally {
+            gate.set(null);
         }
-        return add;
     }
 
     /**
