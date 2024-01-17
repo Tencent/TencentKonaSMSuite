@@ -170,6 +170,11 @@ final class PBEKey implements SecretKey {
                 }
             }
         }
+
+        // Use the cleaner to zero the key when no longer referenced
+        final byte[] k = this.key;
+        sweeper.register(this,
+                () -> Arrays.fill(k, (byte) 0x00));
     }
 
 
