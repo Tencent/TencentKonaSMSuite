@@ -25,7 +25,6 @@
 
 package com.tencent.kona.sun.security.ssl;
 
-import com.tencent.kona.crypto.spec.SM2SignatureParameterSpec;
 import com.tencent.kona.pkix.PKIXUtils;
 import com.tencent.kona.sun.security.util.HexDumpEncoder;
 
@@ -36,7 +35,6 @@ import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.Signature;
 import java.security.SignatureException;
-import java.security.interfaces.ECPublicKey;
 import java.text.MessageFormat;
 import java.util.Locale;
 
@@ -54,9 +52,6 @@ final class TLCPCertificateVerify {
     private static final class TLCPCertificateVerifyMessage
             extends HandshakeMessage {
 
-        // the signature algorithm
-        private final SignatureScheme signatureScheme;
-
         // signature bytes
         private final byte[] signature;
 
@@ -67,10 +62,6 @@ final class TLCPCertificateVerify {
 
             // This happens in client side only.
             ClientHandshakeContext chc = (ClientHandshakeContext) context;
-
-            signatureScheme = chc.negotiatedProtocol.isTLS12()
-                    ? SignatureScheme.SM2SIG_SM3
-                    : null;
 
             byte[] temporary;
             try {
@@ -101,30 +92,9 @@ final class TLCPCertificateVerify {
             //     opaque signature<0..2^16-1>;
             // } DigitallySigned;
 
-            int minLen = shc.negotiatedProtocol.isTLS12() ? 4 : 2;
-            if (m.remaining() < 4) {
+            if (m.remaining() < 2) {
                 throw shc.conContext.fatal(Alert.ILLEGAL_PARAMETER,
                         "Invalid CertificateVerify message: no sufficient data");
-            }
-
-            if (shc.negotiatedProtocol.isTLS12()) {
-                // SignatureAndHashAlgorithm algorithm
-                int ssid = Record.getInt16(m);
-                this.signatureScheme = SignatureScheme.valueOf(ssid);
-                if (signatureScheme == null) {
-                    throw shc.conContext.fatal(Alert.HANDSHAKE_FAILURE,
-                            "Invalid signature algorithm (" + ssid +
-                                    ") used in CertificateVerify handshake message");
-                }
-
-                if (!shc.localSupportedSignAlgs.contains(signatureScheme)) {
-                    throw shc.conContext.fatal(Alert.HANDSHAKE_FAILURE,
-                            "Unsupported signature algorithm (" +
-                                    signatureScheme.name +
-                                    ") used in CertificateVerify handshake message");
-                }
-            } else {
-                this.signatureScheme = null;
             }
 
             // read and verify the signature
@@ -162,9 +132,8 @@ final class TLCPCertificateVerify {
             } catch (NoSuchAlgorithmException |
                     InvalidAlgorithmParameterException nsae) {
                 throw shc.conContext.fatal(Alert.INTERNAL_ERROR,
-                        "Unsupported signature algorithm (" +
-                                signatureScheme.name +
-                                ") used in CertificateVerify handshake message", nsae);
+                        "Unsupported signature algorithm (sm2sig_sm3)" +
+                                "used in CertificateVerify handshake message", nsae);
             } catch (InvalidKeyException | SignatureException ikse) {
                 throw shc.conContext.fatal(Alert.HANDSHAKE_FAILURE,
                         "Cannot verify CertificateVerify signature", ikse);
@@ -178,19 +147,11 @@ final class TLCPCertificateVerify {
 
         @Override
         public int messageLength() {
-            if (signatureScheme != null) {
-                //  2: signature algorithm
-                // +2: length of signature
-                return 4 + signature.length;
-            }
             return 2 + signature.length;
         }
 
         @Override
         public void send(HandshakeOutStream hos) throws IOException {
-            if (signatureScheme != null) {
-                hos.putInt16(signatureScheme.id);
-            }
             hos.putBytes16(signature);
         }
 
@@ -207,7 +168,7 @@ final class TLCPCertificateVerify {
 
             HexDumpEncoder hexEncoder = new HexDumpEncoder();
             Object[] messageFields = {
-                    signatureScheme != null ? signatureScheme.name : "",
+                    "sm2sig_sm3",
                     Utilities.indent(
                             hexEncoder.encodeBuffer(signature), "    ")
             };
