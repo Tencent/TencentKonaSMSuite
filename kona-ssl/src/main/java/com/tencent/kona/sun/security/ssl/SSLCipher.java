@@ -62,22 +62,22 @@ enum SSLCipher {
     B_SM4(CIPHER_SM4, BLOCK_CIPHER, 16, 16, 16, 0, true, false,
         new Map.Entry[] {
             new SimpleImmutableEntry<ReadCipherGenerator, ProtocolVersion[]>(
-                new TLCPCipher.TLCPBlockReadCipherGenerator(),
+                new T11BlockReadCipherGenerator(),
                 ProtocolVersion.PROTOCOLS_OF_TLCP)},
         new Map.Entry[] {
             new SimpleImmutableEntry<WriteCipherGenerator, ProtocolVersion[]>(
-                new TLCPCipher.TLCPBlockWriteCipherGenerator(),
+                new T11BlockWriteCipherGenerator(),
                 ProtocolVersion.PROTOCOLS_OF_TLCP)}),
 
     @SuppressWarnings({"unchecked", "rawtypes"})
     B_SM4_GCM(CIPHER_SM4_GCM, AEAD_CIPHER, 16, 16, 12, 4, true, false,
         new Map.Entry[] {
             new SimpleImmutableEntry<ReadCipherGenerator, ProtocolVersion[]>(
-                new TLCPCipher.TLCPGcmReadCipherGenerator(),
+                new T12GcmReadCipherGenerator(),
                 ProtocolVersion.PROTOCOLS_OF_TLCP)},
         new Map.Entry[] {
             new SimpleImmutableEntry<WriteCipherGenerator, ProtocolVersion[]>(
-                new TLCPCipher.TLCPGcmWriteCipherGenerator(),
+                new T12GcmWriteCipherGenerator(),
                 ProtocolVersion.PROTOCOLS_OF_TLCP)}),
 
     @SuppressWarnings({"unchecked", "rawtypes"})

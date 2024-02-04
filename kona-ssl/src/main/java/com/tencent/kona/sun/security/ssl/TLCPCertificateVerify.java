@@ -159,16 +159,15 @@ final class TLCPCertificateVerify {
         public String toString() {
             MessageFormat messageFormat = new MessageFormat(
                     "\"CertificateVerify\": '{'\n" +
-                            "  \"signature algorithm\": {0}\n" +
+                            "  \"signature algorithm\": sm2sig_sm3\n" +
                             "  \"signature\": '{'\n" +
-                            "{1}\n" +
+                            "{0}\n" +
                             "  '}'\n" +
                             "'}'",
                     Locale.ENGLISH);
 
             HexDumpEncoder hexEncoder = new HexDumpEncoder();
             Object[] messageFields = {
-                    "sm2sig_sm3",
                     Utilities.indent(
                             hexEncoder.encodeBuffer(signature), "    ")
             };
