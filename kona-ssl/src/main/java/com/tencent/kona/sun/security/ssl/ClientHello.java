@@ -838,9 +838,7 @@ final class ClientHello {
                     d12HandshakeConsumer.consume(context, clientHello);
                 }
             } else {
-                if (negotiatedProtocol.isTLCP11()) {
-                    TLCPClientHello.tlcpHandshakeConsumer.consume(context, clientHello);
-                } else if (negotiatedProtocol.useTLS13PlusSpec()) {
+                if (negotiatedProtocol.useTLS13PlusSpec()) {
                     t13HandshakeConsumer.consume(context, clientHello);
                 } else {
                     t12HandshakeConsumer.consume(context, clientHello);
