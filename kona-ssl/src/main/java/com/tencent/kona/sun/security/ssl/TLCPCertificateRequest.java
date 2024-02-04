@@ -30,14 +30,12 @@ import java.nio.ByteBuffer;
 import java.security.cert.X509Certificate;
 import java.text.MessageFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import javax.security.auth.x500.X500Principal;
 import com.tencent.kona.sun.security.ssl.CertificateRequest.ClientCertificateType;
-import com.tencent.kona.sun.security.ssl.CipherSuite.KeyExchange;
 import com.tencent.kona.sun.security.ssl.SSLHandshake.HandshakeMessage;
 
 final class TLCPCertificateRequest {
@@ -51,32 +49,15 @@ final class TLCPCertificateRequest {
             extends HandshakeMessage {
 
         final byte[] types;                 // certificate types
-        final int[] algorithmIds;           // supported signature algorithms
         final List<byte[]> authorities;     // certificate authorities
 
         TLCPCertificateRequestMessage(HandshakeContext handshakeContext,
-                    X509Certificate[] trustedCerts, KeyExchange keyExchange,
-                    List<SignatureScheme> signatureSchemes) throws IOException {
+                X509Certificate[] trustedCerts) throws IOException {
             super(handshakeContext);
 
             this.types = new byte[] {
                     ClientCertificateType.ECDSA_SIGN.id,
                     ClientCertificateType.RSA_SIGN.id};
-
-            if (handshakeContext.negotiatedProtocol.isTLS12()) {
-                if (signatureSchemes == null || signatureSchemes.isEmpty()) {
-                    throw handshakeContext.conContext.fatal(Alert.ILLEGAL_PARAMETER,
-                            "No signature algorithms specified for " +
-                                    "CertificateRequest hanshake message");
-                }
-                this.algorithmIds = new int[signatureSchemes.size()];
-                int i = 0;
-                for (SignatureScheme scheme : signatureSchemes) {
-                    algorithmIds[i++] = scheme.id;
-                }
-            } else {
-                algorithmIds = new int[0];
-            }
 
             this.authorities = new ArrayList<>(trustedCerts.length);
             for (X509Certificate cert : trustedCerts) {
@@ -97,38 +78,12 @@ final class TLCPCertificateRequest {
             // } CertificateRequest;
 
             // certificate_authorities
-            int minLen = handshakeContext.negotiatedProtocol.isTLCP11() ? 4 : 8;
-            if (m.remaining() < minLen) {
+            if (m.remaining() < 4) {
                 throw handshakeContext.conContext.fatal(Alert.ILLEGAL_PARAMETER,
                         "Invalid CertificateRequest handshake message: " +
                         "no sufficient data");
             }
             this.types = Record.getBytes8(m);
-
-            if (handshakeContext.negotiatedProtocol.isTLS12()) {
-                // supported_signature_algorithms
-                if (m.remaining() < 6) {
-                    throw handshakeContext.conContext.fatal(Alert.ILLEGAL_PARAMETER,
-                            "Invalid CertificateRequest handshake message: " +
-                                    "no sufficient data");
-                }
-
-                byte[] algs = Record.getBytes16(m);
-                if (algs.length == 0 || (algs.length & 0x01) != 0) {
-                    throw handshakeContext.conContext.fatal(Alert.ILLEGAL_PARAMETER,
-                            "Invalid CertificateRequest handshake message: " +
-                                    "incomplete signature algorithms");
-                }
-
-                this.algorithmIds = new int[(algs.length >> 1)];
-                for (int i = 0, j = 0; i < algs.length; ) {
-                    byte hash = algs[i++];
-                    byte sign = algs[i++];
-                    algorithmIds[j++] = ((hash & 0xFF) << 8) | (sign & 0xFF);
-                }
-            } else {
-                this.algorithmIds = new int[0];
-            }
 
             // certificate_authorities
             if (m.remaining() < 2) {
@@ -181,9 +136,6 @@ final class TLCPCertificateRequest {
         @Override
         public int messageLength() {
             int len = 1 + types.length + 2;
-            if (algorithmIds.length > 0) {
-                 len += (algorithmIds.length << 1) + 2;
-            }
             for (byte[] encoded : authorities) {
                 len += encoded.length + 2;
             }
@@ -210,19 +162,14 @@ final class TLCPCertificateRequest {
             MessageFormat messageFormat = new MessageFormat(
                     "\"CertificateRequest\": '{'\n" +
                     "  \"certificate types\": {0}\n" +
-                    "  \"supported signature algorithms\": {1}\n" +
-                    "  \"certificate authorities\": {2}\n" +
+                    "  \"supported signature algorithms\": [sm2sig_sm3]\n" +
+                    "  \"certificate authorities\": {1}\n" +
                     "'}'",
                     Locale.ENGLISH);
 
             List<String> typeNames = new ArrayList<>(types.length);
             for (byte type : types) {
                 typeNames.add(ClientCertificateType.nameOf(type));
-            }
-
-            List<String> algorithmNames = new ArrayList<>(algorithmIds.length);
-            for (int algorithmId : algorithmIds) {
-                algorithmNames.add(SignatureScheme.nameOf(algorithmId));
             }
 
             List<String> authorityNames = new ArrayList<>(authorities.size());
@@ -236,7 +183,6 @@ final class TLCPCertificateRequest {
             }
             Object[] messageFields = {
                 typeNames,
-                algorithmNames,
                 authorityNames
             };
 
@@ -258,28 +204,10 @@ final class TLCPCertificateRequest {
             // The producing happens in server side only.
             ServerHandshakeContext shc = (ServerHandshakeContext)context;
 
-            List<SignatureScheme> localSupportedSignAlgs = null;
-            if (shc.negotiatedProtocol.isTLS12()) {
-                if (shc.localSupportedSignAlgs == null) {
-                    shc.localSupportedSignAlgs =
-                            SignatureScheme.getSupportedAlgorithms(
-                                    shc.sslConfig,
-                                    shc.algorithmConstraints, shc.activeProtocols);
-                }
-
-                if (shc.localSupportedSignAlgs.isEmpty()) {
-                    throw shc.conContext.fatal(Alert.HANDSHAKE_FAILURE,
-                            "No supported signature algorithm");
-                }
-
-                localSupportedSignAlgs = shc.localSupportedSignAlgs;
-            }
-
             X509Certificate[] caCerts =
                     shc.sslContext.getX509TrustManager().getAcceptedIssuers();
-            TLCPCertificateRequestMessage crm = new TLCPCertificateRequestMessage(
-                    shc, caCerts, shc.negotiatedCipherSuite.keyExchange,
-                    localSupportedSignAlgs);
+            TLCPCertificateRequestMessage crm
+                    = new TLCPCertificateRequestMessage(shc, caCerts);
             if (SSLLogger.isOn && SSLLogger.isOn("ssl,handshake")) {
                 SSLLogger.fine(
                     "Produced CertificateRequest handshake message", crm);
@@ -358,22 +286,6 @@ final class TLCPCertificateRequest {
             chc.handshakeProducers.put(SSLHandshake.CERTIFICATE.id,
                     SSLHandshake.CERTIFICATE);
 
-            if (chc.negotiatedProtocol.isTLS12()) {
-                List<SignatureScheme> sss =
-                        SignatureScheme.getSupportedAlgorithms(
-                                chc.sslConfig,
-                                chc.algorithmConstraints, chc.negotiatedProtocol,
-                                crm.algorithmIds);
-                if (sss.isEmpty()) {
-                    throw chc.conContext.fatal(Alert.HANDSHAKE_FAILURE,
-                            "No supported signature algorithm");
-                }
-
-                chc.peerRequestedSignatureSchemes = sss;
-                chc.peerRequestedCertSignSchemes = sss;     // use the same schemes
-                chc.handshakeSession.setPeerSupportedSignatureAlgorithms(sss);
-            }
-
             try {
                 chc.peerSupportedAuthorities = crm.getAuthorities();
             } catch (IllegalArgumentException iae) {
@@ -381,14 +293,9 @@ final class TLCPCertificateRequest {
                     + "distinguished names of the peer's certificate "
                     + "authorities could not be parsed", iae);
             }
-            // For TLS 1.2, we no longer use the certificate_types field
-            // from the CertificateRequest message to directly determine
-            // the SSLPossession.  Instead, the choosePossession method
-            // will use the accepted signature schemes in the message to
-            // determine the set of acceptable certificate types to select from.
-            SSLPossession pos = chc.negotiatedProtocol.isTLCP11()
-                    ? choosePossession4TLCP(chc)
-                    : choosePossession(chc, crm);
+
+            SSLPossession pos = TLCPAuthentication.createPossession(
+                    chc, new String[] {"EC"});
             if (pos == null) {
                 return;
             }
@@ -396,60 +303,6 @@ final class TLCPCertificateRequest {
             chc.handshakePossessions.add(pos);
             chc.handshakeProducers.put(SSLHandshake.CERTIFICATE_VERIFY.id,
                     SSLHandshake.CERTIFICATE_VERIFY);
-        }
-
-        private static SSLPossession choosePossession4TLCP(HandshakeContext hc) {
-            return TLCPAuthentication.createPossession(hc, new String[] {"EC"});
-        }
-
-        private static SSLPossession choosePossession(HandshakeContext hc,
-                TLCPCertificateRequestMessage crm) throws IOException {
-            if (hc.peerRequestedCertSignSchemes == null ||
-                    hc.peerRequestedCertSignSchemes.isEmpty()) {
-                if (SSLLogger.isOn && SSLLogger.isOn("ssl,handshake")) {
-                    SSLLogger.warning("No signature and hash algorithms " +
-                            "in CertificateRequest");
-                }
-                return null;
-            }
-
-            // Put the CR key type into a more friendly format for searching
-            List<String> crKeyTypes = new ArrayList<>(
-                    Arrays.asList(crm.getKeyTypes()));
-            // For TLS 1.2 only if RSA is a requested key type then we
-            // should also allow RSASSA-PSS.
-            if (crKeyTypes.contains("RSA")) {
-                crKeyTypes.add("RSASSA-PSS");
-            }
-
-            String[] supportedKeyTypes = hc.peerRequestedCertSignSchemes
-                    .stream()
-                    .map(ss -> ss.keyAlgorithm)
-                    .distinct()
-                    .filter(ka -> SignatureScheme.getPreferableAlgorithm(   // Don't select a signature scheme unless
-                            hc.algorithmConstraints,                        //  we will be able to produce
-                            hc.peerRequestedSignatureSchemes,               //  a CertificateVerify message later
-                            ka, hc.negotiatedProtocol) != null
-                            || SSLLogger.logWarning("ssl,handshake",
-                                    "Unable to produce CertificateVerify for key algorithm: " + ka))
-                    .filter(ka -> {
-                        X509Authentication xa = X509Authentication.valueOfKeyAlgorithm(ka);
-                        // Any auth object will have a set of allowed key types.
-                        // This set should share at least one common algorithm with
-                        // the CR's allowed key types.
-                        return xa != null && !Collections.disjoint(crKeyTypes, Arrays.asList(xa.keyTypes))
-                                || SSLLogger.logWarning("ssl,handshake", "Unsupported key algorithm: " + ka);
-                    })
-                    .toArray(String[]::new);
-
-            SSLPossession pos = X509Authentication
-                    .createPossession(hc, supportedKeyTypes);
-            if (pos == null) {
-                if (SSLLogger.isOn && SSLLogger.isOn("ssl,handshake")) {
-                    SSLLogger.warning("No available authentication scheme");
-                }
-            }
-            return pos;
         }
     }
 }
