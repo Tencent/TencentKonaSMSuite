@@ -31,11 +31,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-import com.tencent.kona.sun.security.ssl.CipherSuite.KeyExchange;
 import com.tencent.kona.sun.security.ssl.ClientHello.ClientHelloMessage;
 import com.tencent.kona.sun.security.ssl.ServerHello.ServerHelloMessage;
-import com.tencent.kona.sun.security.ssl.SSLCipher.SSLReadCipher;
-import com.tencent.kona.sun.security.ssl.SSLCipher.SSLWriteCipher;
 import com.tencent.kona.sun.security.ssl.SSLHandshake.HandshakeMessage;
 
 final class TLCPServerHello {
@@ -408,7 +405,7 @@ final class TLCPServerHello {
                 }
                 chc.conContext.consumers.putIfAbsent(
                         ContentType.CHANGE_CIPHER_SPEC.id,
-                        TLCPChangeCipherSpec.tlcpConsumer);
+                        ChangeCipherSpec.t10Consumer);
                 chc.handshakeConsumers.put(
                         SSLHandshake.FINISHED.id,
                         SSLHandshake.FINISHED);
