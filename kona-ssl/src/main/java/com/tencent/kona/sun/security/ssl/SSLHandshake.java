@@ -316,7 +316,7 @@ enum SSLHandshake implements SSLConsumer, HandshakeProducer {
     FINISHED                    ((byte)0x14, "finished",
             new Map.Entry[] {
                     new SimpleImmutableEntry<>(
-                            TLCPFinished.tlcpHandshakeConsumer,
+                            Finished.t12HandshakeConsumer,
                             ProtocolVersion.PROTOCOLS_OF_TLCP
                     ),
                     new SimpleImmutableEntry<>(
@@ -330,7 +330,7 @@ enum SSLHandshake implements SSLConsumer, HandshakeProducer {
             },
             new Map.Entry[] {
                     new SimpleImmutableEntry<>(
-                            TLCPFinished.tlcpHandshakeProducer,
+                            Finished.t12HandshakeProducer,
                             ProtocolVersion.PROTOCOLS_OF_TLCP
                     ),
                     new SimpleImmutableEntry<>(
