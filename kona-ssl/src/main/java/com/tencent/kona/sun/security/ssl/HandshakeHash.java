@@ -57,11 +57,10 @@ final class HandshakeHash {
         }
 
         CacheOnlyHash coh = (CacheOnlyHash)transcriptHash;
-        if (protocolVersion.isTLCP11()) {
-            transcriptHash = new TLCPHandshakeHash();
-        } else if (protocolVersion.useTLS13PlusSpec()) {
+        if (protocolVersion.useTLS13PlusSpec()) {
             transcriptHash = new T13HandshakeHash(cipherSuite);
-        } else if (protocolVersion.useTLS12PlusSpec()) {
+        } else if (protocolVersion.useTLS12PlusSpec()
+                || protocolVersion.isTLCP11()) {
             transcriptHash = new T12HandshakeHash(cipherSuite);
         } else if (protocolVersion.useTLS10PlusSpec()) {
             transcriptHash = new T10HandshakeHash(cipherSuite);
