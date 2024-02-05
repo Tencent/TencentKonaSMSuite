@@ -62,11 +62,9 @@ abstract class Authenticator {
                 return new DTLS10Authenticator(protocolVersion);
             }
         } else {
-            if (protocolVersion.isTLCP11()) {
-                return new TLCPAuthenticator.TLCP11Authenticator(protocolVersion);
-            } else if (protocolVersion.useTLS13PlusSpec()) {
+             if (protocolVersion.useTLS13PlusSpec()) {
                 return new TLS13Authenticator(protocolVersion);
-            } else if (protocolVersion.useTLS10PlusSpec()) {
+            } else if (protocolVersion.useTLS10PlusSpec() || protocolVersion.isTLCP11()) {
                 return new TLS10Authenticator(protocolVersion);
             } else {
                 return new SSL30Authenticator();
@@ -86,11 +84,9 @@ abstract class Authenticator {
                 return (T)(new DTLS10Mac(protocolVersion, macAlg, key));
             }
         } else {
-            if (protocolVersion.isTLCP11()) {
-                return (T)(new TLCPAuthenticator.TLCP11Mac(protocolVersion, macAlg, key));
-            } else if (protocolVersion.useTLS13PlusSpec()) {
+            if (protocolVersion.useTLS13PlusSpec()) {
                 throw new RuntimeException("No MacAlg used in TLS 1.3");
-            } else if (protocolVersion.useTLS10PlusSpec()) {
+            } else if (protocolVersion.useTLS10PlusSpec() || protocolVersion.isTLCP11()) {
                 return (T)(new TLS10Mac(protocolVersion, macAlg, key));
             } else {
                 return (T)(new SSL30Mac(protocolVersion, macAlg, key));
