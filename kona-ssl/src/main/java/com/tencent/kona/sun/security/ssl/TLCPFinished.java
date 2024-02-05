@@ -394,7 +394,7 @@ final class TLCPFinished {
             FinishedMessage fm = new FinishedMessage(chc);
 
             // Change write cipher and delivery ChangeCipherSpec message.
-            TLCPChangeCipherSpec.tlcpProducer.produce(chc, message);
+            ChangeCipherSpec.t10Producer.produce(chc, message);
 
             if (SSLLogger.isOn && SSLLogger.isOn("ssl,handshake")) {
                 SSLLogger.fine(
@@ -419,7 +419,7 @@ final class TLCPFinished {
             // update the consumers and producers
             if (!chc.isResumption) {
                 chc.conContext.consumers.put(ContentType.CHANGE_CIPHER_SPEC.id,
-                        TLCPChangeCipherSpec.tlcpConsumer);
+                        ChangeCipherSpec.t10Consumer);
                 chc.handshakeConsumers.put(
                         SSLHandshake.FINISHED.id, SSLHandshake.FINISHED);
                 chc.conContext.inputRecord.expectingFinishFlight();
@@ -457,7 +457,7 @@ final class TLCPFinished {
             FinishedMessage fm = new FinishedMessage(shc);
 
             // Change write cipher and delivery ChangeCipherSpec message.
-            TLCPChangeCipherSpec.tlcpProducer.produce(shc, message);
+            ChangeCipherSpec.t10Producer.produce(shc, message);
 
             if (SSLLogger.isOn && SSLLogger.isOn("ssl,handshake")) {
                 SSLLogger.fine(
@@ -478,7 +478,7 @@ final class TLCPFinished {
             // update the consumers and producers
             if (shc.isResumption) {
                 shc.conContext.consumers.put(ContentType.CHANGE_CIPHER_SPEC.id,
-                        TLCPChangeCipherSpec.tlcpConsumer);
+                        ChangeCipherSpec.t10Consumer);
                 shc.handshakeConsumers.put(
                         SSLHandshake.FINISHED.id, SSLHandshake.FINISHED);
                 shc.conContext.inputRecord.expectingFinishFlight();
