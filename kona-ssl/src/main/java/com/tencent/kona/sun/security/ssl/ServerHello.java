@@ -326,8 +326,10 @@ final class ServerHello {
                 }
 
                 if ((ke != null) &&
-                        (shc.sslConfig.clientAuthType !=
-                                ClientAuthType.CLIENT_AUTH_NONE) &&
+                        (shc.sslConfig.clientAuthType != ClientAuthType.CLIENT_AUTH_NONE
+                                // TLCP ECDHE cipher suites must require client's certificates
+                                || shc.negotiatedCipherSuite == CipherSuite.TLCP_ECDHE_SM4_GCM_SM3
+                                || shc.negotiatedCipherSuite == CipherSuite.TLCP_ECDHE_SM4_CBC_SM3) &&
                         !shc.negotiatedCipherSuite.isAnonymous()) {
                     for (SSLHandshake hs :
                             ke.getRelatedHandshakers(shc)) {
@@ -1004,11 +1006,7 @@ final class ServerHello {
                     d12HandshakeConsumer.consume(chc, serverHello);
                 }
             } else {
-                if (serverVersion.isTLCP11()) {
-                    chc.handshakePossessions.clear();
-
-                    TLCPServerHello.tlcpHandshakeConsumer.consume(chc, serverHello);
-                } else if (serverVersion.useTLS13PlusSpec()) {
+                if (serverVersion.useTLS13PlusSpec()) {
                     t13HandshakeConsumer.consume(chc, serverHello);
                 } else {
                     // TLS 1.3 key share extension may have produced client

@@ -72,12 +72,8 @@ enum SSLHandshake implements SSLConsumer, HandshakeProducer {
             },
             new Map.Entry[] {
                     new SimpleImmutableEntry<>(
-                            TLCPServerHello.tlcpHandshakeProducer,
-                            ProtocolVersion.PROTOCOLS_OF_TLCP
-                    ),
-                    new SimpleImmutableEntry<>(
                             ServerHello.t12HandshakeProducer,
-                            ProtocolVersion.PROTOCOLS_TO_12
+                            ProtocolVersion.addTLCP(ProtocolVersion.PROTOCOLS_TO_12)
                     ),
                     new SimpleImmutableEntry<>(
                             ServerHello.t13HandshakeProducer,
