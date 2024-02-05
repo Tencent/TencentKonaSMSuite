@@ -69,19 +69,19 @@ enum CipherSuite {
     TLCP_ECC_SM4_GCM_SM3(
             0xE053, true, "TLCP_ECC_SM4_GCM_SM3", "ECC_SM4_GCM_SM3",
             ProtocolVersion.PROTOCOLS_OF_TLCP,
-            K_SM2, SSLCipher.B_SM4_GCM, M_NULL, H_NONE),
+            K_SM2, SSLCipher.B_SM4_GCM, M_NULL, H_SM3),
     TLCP_ECC_SM4_CBC_SM3(
             0xE013, true, "TLCP_ECC_SM4_CBC_SM3", "ECC_SM4_CBC_SM3",
             ProtocolVersion.PROTOCOLS_OF_TLCP,
-            K_SM2, SSLCipher.B_SM4, M_SM3, H_NONE),
+            K_SM2, SSLCipher.B_SM4, M_SM3, H_SM3),
     TLCP_ECDHE_SM4_GCM_SM3(
             0xE051, true, "TLCP_ECDHE_SM4_GCM_SM3", "ECDHE_SM4_GCM_SM3",
             ProtocolVersion.PROTOCOLS_OF_TLCP,
-            K_SM2E, SSLCipher.B_SM4_GCM, M_NULL, H_NONE),
+            K_SM2E, SSLCipher.B_SM4_GCM, M_NULL, H_SM3),
     TLCP_ECDHE_SM4_CBC_SM3(
             0xE011, true, "TLCP_ECDHE_SM4_CBC_SM3", "ECDHE_SM4_CBC_SM3",
             ProtocolVersion.PROTOCOLS_OF_TLCP,
-            K_SM2E, SSLCipher.B_SM4, M_SM3, H_NONE),
+            K_SM2E, SSLCipher.B_SM4, M_SM3, H_SM3),
 
     // TLS 1.3 cipher suites.
     TLS_AES_256_GCM_SHA384(
