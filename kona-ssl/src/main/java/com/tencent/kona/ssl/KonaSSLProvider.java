@@ -99,11 +99,11 @@ public class KonaSSLProvider extends Provider {
 
         provider.put("KeyGenerator.TlcpKeyMaterial",
                 "com.tencent.kona.sun.security.provider.TlcpKeyMaterialGenerator");
-        provider.put("KeyGenerator.TlcpSM2PremasterSecret",
-                "com.tencent.kona.sun.security.provider.TlcpSM2PremasterSecretGenerator");
         provider.put("KeyGenerator.TlcpMasterSecret",
                 "com.tencent.kona.sun.security.provider.TlcpMasterSecretGenerator");
         provider.put("KeyGenerator.TlcpPrf",
                 "com.tencent.kona.sun.security.provider.TlcpPrfGenerator");
+        provider.put("KeyGenerator.TlsRsaPremasterSecret",
+                "com.tencent.kona.sun.security.provider.TlsRsaPremasterSecretGenerator");
     }
 }

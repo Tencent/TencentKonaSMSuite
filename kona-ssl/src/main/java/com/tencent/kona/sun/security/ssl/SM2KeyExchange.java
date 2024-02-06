@@ -88,7 +88,7 @@ final class SM2KeyExchange {
         @SuppressWarnings("deprecation")
         static SM2PremasterSecret createPremasterSecret(
                 ClientHandshakeContext chc) throws GeneralSecurityException {
-            String algorithm = "TlcpSM2PremasterSecret";
+            String algorithm = "TlsRsaPremasterSecret";
             KeyGenerator kg = SSLInsts.getKeyGenerator(algorithm);
             TlsRsaPremasterSecretParameterSpec spec =
                     new TlsRsaPremasterSecretParameterSpec(

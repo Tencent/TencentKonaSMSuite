@@ -267,7 +267,7 @@ enum SSLTrafficKeyDerivation implements SSLKeyDerivationGenerator {
             } else {
                 if (protocolVersion.isTLCP11()) {
                     keyMaterialAlg = "TlcpKeyMaterial";
-                    hashAlg = H_SM3;
+                    hashAlg = cipherSuite.hashAlg;
                 } else if (protocolVersion.id >= ProtocolVersion.TLS12.id) {
                     keyMaterialAlg = "SunTls12KeyMaterial";
                     hashAlg = cipherSuite.hashAlg;
