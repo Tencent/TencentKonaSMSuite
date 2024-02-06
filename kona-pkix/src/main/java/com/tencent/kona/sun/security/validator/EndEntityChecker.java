@@ -29,7 +29,6 @@ import java.util.*;
 
 import java.security.cert.*;
 
-import com.tencent.kona.pkix.PKIXUtils;
 import com.tencent.kona.sun.security.util.KnownOIDs;
 import com.tencent.kona.sun.security.x509.NetscapeCertTypeExtension;
 
@@ -238,14 +237,7 @@ class EndEntityChecker {
      */
     private void checkTLSClient(X509Certificate cert, Set<String> exts)
             throws CertificateException {
-        if (PKIXUtils.isSMCert(cert)) {
-            if (!checkKeyUsage(cert, KU_KEY_ENCIPHERMENT)
-                    && !checkKeyUsage(cert, KU_SIGNATURE)) {
-                throw new ValidatorException(
-                        "SM certificate must allow encipherment or digital signature",
-                        ValidatorException.T_EE_EXTENSIONS, cert);
-            }
-        } else if (!checkKeyUsage(cert, KU_SIGNATURE)) {
+        if (!checkKeyUsage(cert, KU_SIGNATURE)) {
             throw new ValidatorException
                     ("KeyUsage does not allow digital signatures",
                             ValidatorException.T_EE_EXTENSIONS, cert);
@@ -277,20 +269,18 @@ class EndEntityChecker {
      */
     private void checkTLSServer(X509Certificate cert, String parameter,
                                 Set<String> exts) throws CertificateException {
-        if (PKIXUtils.isSMCert(cert)) {
-            if (!checkKeyUsage(cert, KU_KEY_ENCIPHERMENT)
-                    && !checkKeyUsage(cert, KU_SIGNATURE)) {
-                throw new ValidatorException(
-                        "SM certificate must allow encipherment or digital signature",
-                        ValidatorException.T_EE_EXTENSIONS, cert);
-            }
-        } else if (KU_SERVER_ENCRYPTION.contains(parameter)) {
+        if (KU_SERVER_ENCRYPTION.contains(parameter)) {
             if (!checkKeyUsage(cert, KU_KEY_ENCIPHERMENT)) {
                 throw new ValidatorException
                         ("KeyUsage does not allow key encipherment",
                                 ValidatorException.T_EE_EXTENSIONS, cert);
             }
-        } else if (KU_SERVER_SIGNATURE.contains(parameter)) {
+        } else if (KU_SERVER_SIGNATURE.contains(parameter)
+                // SM2 and SM2E are used on TLCP 1.1 only,
+                // and the first certificate, namely sign certificate,
+                // always has digitalSignature key usage.
+                || "SM2".equalsIgnoreCase(parameter)
+                || "SM2E".equalsIgnoreCase(parameter)) {
             if (!checkKeyUsage(cert, KU_SIGNATURE)) {
                 throw new ValidatorException
                         ("KeyUsage does not allow digital signatures",
