@@ -29,10 +29,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
-import java.security.Key;
 import java.security.NoSuchAlgorithmException;
-import java.security.PrivateKey;
-import java.security.PublicKey;
 import java.security.Signature;
 import java.security.SignatureException;
 import java.security.interfaces.ECPublicKey;
@@ -40,7 +37,6 @@ import java.security.spec.ECParameterSpec;
 import java.security.spec.ECPoint;
 import java.text.MessageFormat;
 import java.util.Locale;
-import java.util.Map;
 
 import com.tencent.kona.crypto.CryptoInsts;
 import com.tencent.kona.crypto.provider.SM2PublicKey;
@@ -74,11 +70,6 @@ public class SM2EServerKeyExchange {
 
         // signature bytes, or null if anonymous
         private final byte[] paramsSignature;
-
-        private final boolean useExplicitSigAlgorithm;
-
-        // the signature algorithm used by this ServerKeyExchange message
-        private final SignatureScheme signatureScheme;
 
         // the parsed credential object
         private SSLCredentials sslCredentials;
@@ -132,46 +123,20 @@ public class SM2EServerKeyExchange {
 
             publicPoint = CryptoUtils.pubKey(sm2ePossession.ephemeralPublicKey.getW());
 
-            useExplicitSigAlgorithm =
-                    shc.negotiatedProtocol.useTLS12PlusSpec();
             Signature signer;
-            if (useExplicitSigAlgorithm) {
-                Map.Entry<SignatureScheme, Signature> schemeAndSigner =
-                        SignatureScheme.getSignerOfPreferableAlgorithm(
-                            shc.sslConfig,
-                            shc.algorithmConstraints,
-                            shc.peerRequestedSignatureSchemes,
-                            sm2ePossession.popEncPrivateKey,
-                            tlcpPossession.popSignPublicKey,
-                            sm2ePossession.popEncPublicKey.getParams(),
-                            shc.negotiatedProtocol);
-                if (schemeAndSigner == null) {
-                    // Unlikely, the credentials generator should have
-                    // selected the preferable signature algorithm properly.
-                    throw shc.conContext.fatal(Alert.INTERNAL_ERROR,
-                            "No supported signature algorithm for " +
-                            sm2ePossession.popEncPrivateKey.getAlgorithm() +
-                            "  key");
-                } else {
-                    signatureScheme = schemeAndSigner.getKey();
-                    signer = schemeAndSigner.getValue();
-                }
-            } else {
-                signatureScheme = null;
-                try {
-                    signer = CryptoInsts.getSignature(
-                            SignatureScheme.SM2SIG_SM3.algorithm);
+            try {
+                signer = CryptoInsts.getSignature(
+                        SignatureScheme.SM2SIG_SM3.algorithm);
 
-                    signer.setParameter(new SM2SignatureParameterSpec(
-                            (ECPublicKey) tlcpPossession.popSignPublicKey));
+                signer.setParameter(new SM2SignatureParameterSpec(
+                        (ECPublicKey) tlcpPossession.popSignPublicKey));
 
-                    signer.initSign(tlcpPossession.popSignPrivateKey);
-                } catch (NoSuchAlgorithmException | InvalidKeyException |
-                        InvalidAlgorithmParameterException e) {
-                    throw shc.conContext.fatal(Alert.INTERNAL_ERROR,
-                        "Unsupported signature algorithm: " +
-                        sm2ePossession.popEncPrivateKey.getAlgorithm(), e);
-                }
+                signer.initSign(tlcpPossession.popSignPrivateKey);
+            } catch (NoSuchAlgorithmException | InvalidKeyException |
+                    InvalidAlgorithmParameterException e) {
+                throw shc.conContext.fatal(Alert.INTERNAL_ERROR,
+                    "Unsupported signature algorithm: " +
+                    sm2ePossession.popEncPrivateKey.getAlgorithm(), e);
             }
 
             byte[] signature;
@@ -240,62 +205,27 @@ public class SM2EServerKeyExchange {
                     throw chc.conContext.fatal(Alert.HANDSHAKE_FAILURE,
                         "Invalid DH ServerKeyExchange: unknown extra data");
                 }
-                this.signatureScheme = null;
                 this.paramsSignature = null;
-                this.useExplicitSigAlgorithm = false;
 
                 return;
-            }
-
-            this.useExplicitSigAlgorithm =
-                    chc.negotiatedProtocol.useTLS12PlusSpec();
-            if (useExplicitSigAlgorithm) {
-                int ssid = Record.getInt16(m);
-                signatureScheme = SignatureScheme.valueOf(ssid);
-                if (signatureScheme == null) {
-                    throw chc.conContext.fatal(Alert.HANDSHAKE_FAILURE,
-                        "Invalid signature algorithm (" + ssid +
-                        ") used in SM2 ServerKeyExchange handshake message");
-                }
-
-                if (!chc.localSupportedSignAlgs.contains(signatureScheme)) {
-                    throw chc.conContext.fatal(Alert.HANDSHAKE_FAILURE,
-                        "Unsupported signature algorithm (" +
-                        signatureScheme.name +
-                        ") used in SM2 ServerKeyExchange handshake message");
-                }
-            } else {
-                signatureScheme = null;
             }
 
             // read and verify the signature
             paramsSignature = Record.getBytes16(m);
             Signature signer;
-            if (useExplicitSigAlgorithm) {
-                try {
-                    signer = signatureScheme.getVerifier(
-                            tlcpCredentials.popSignPublicKey);
-                } catch (NoSuchAlgorithmException | InvalidKeyException |
-                        InvalidAlgorithmParameterException nsae) {
-                    throw chc.conContext.fatal(Alert.INTERNAL_ERROR,
-                        "Unsupported signature algorithm: " +
-                        signatureScheme.name, nsae);
-                }
-            } else {
-                try {
-                    signer = CryptoInsts.getSignature(
-                            SignatureScheme.SM2SIG_SM3.algorithm);
+            try {
+                signer = CryptoInsts.getSignature(
+                        SignatureScheme.SM2SIG_SM3.algorithm);
 
-                    signer.setParameter(new SM2SignatureParameterSpec(
-                            (ECPublicKey) tlcpCredentials.popSignPublicKey));
+                signer.setParameter(new SM2SignatureParameterSpec(
+                        (ECPublicKey) tlcpCredentials.popSignPublicKey));
 
-                    signer.initVerify(tlcpCredentials.popSignPublicKey);
-                } catch (NoSuchAlgorithmException | InvalidKeyException
-                        | InvalidAlgorithmParameterException e) {
-                    throw chc.conContext.fatal(Alert.INTERNAL_ERROR,
-                        "Unsupported signature algorithm: " +
-                        tlcpCredentials.popSignPublicKey.getAlgorithm(), e);
-                }
+                signer.initVerify(tlcpCredentials.popSignPublicKey);
+            } catch (NoSuchAlgorithmException | InvalidKeyException
+                    | InvalidAlgorithmParameterException e) {
+                throw chc.conContext.fatal(Alert.INTERNAL_ERROR,
+                    "Unsupported signature algorithm: " +
+                    tlcpCredentials.popSignPublicKey.getAlgorithm(), e);
             }
 
             try {
@@ -325,9 +255,6 @@ public class SM2EServerKeyExchange {
             int sigLen = 0;
             if (paramsSignature != null) {
                 sigLen = 2 + paramsSignature.length;
-                if (useExplicitSigAlgorithm) {
-                    sigLen += SignatureScheme.sizeInRecord();
-                }
             }
 
             return 4 + publicPoint.length + sigLen;
@@ -339,45 +266,13 @@ public class SM2EServerKeyExchange {
             hos.putInt16(namedGroup.id);
             hos.putBytes8(publicPoint);
             if (paramsSignature != null) {
-                if (useExplicitSigAlgorithm) {
-                    hos.putInt16(signatureScheme.id);
-                }
-
                 hos.putBytes16(paramsSignature);
             }
         }
 
         @Override
         public String toString() {
-            if (useExplicitSigAlgorithm) {
-                MessageFormat messageFormat = new MessageFormat(
-                    "\"SM2 ServerKeyExchange\": '{'\n" +
-                    "  \"parameters\": '{'\n" +
-                    "    \"named group\": \"{0}\"\n" +
-                    "    \"ecdh public\": '{'\n" +
-                    "{1}\n" +
-                    "    '}',\n" +
-                    "  '}',\n" +
-                    "  \"digital signature\":  '{'\n" +
-                    "    \"signature algorithm\": \"{2}\"\n" +
-                    "    \"signature\": '{'\n" +
-                    "{3}\n" +
-                    "    '}',\n" +
-                    "  '}'\n" +
-                    "'}'",
-                    Locale.ENGLISH);
-
-                HexDumpEncoder hexEncoder = new HexDumpEncoder();
-                Object[] messageFields = {
-                    namedGroup.name,
-                    Utilities.indent(
-                            hexEncoder.encodeBuffer(publicPoint), "      "),
-                    signatureScheme.name,
-                    Utilities.indent(
-                            hexEncoder.encodeBuffer(paramsSignature), "      ")
-                };
-                return messageFormat.format(messageFields);
-            } else if (paramsSignature != null) {
+            if (paramsSignature != null) {
                 MessageFormat messageFormat = new MessageFormat(
                     "\"SM2 ServerKeyExchange\": '{'\n" +
                     "  \"parameters\":  '{'\n" +
@@ -423,35 +318,6 @@ public class SM2EServerKeyExchange {
 
                 return messageFormat.format(messageFields);
             }
-        }
-
-        private static Signature getSignature(String keyAlgorithm,
-                Key key) throws NoSuchAlgorithmException, InvalidKeyException {
-            Signature signer;
-            switch (keyAlgorithm) {
-                case "EC":
-                    signer = CryptoInsts.getSignature(JsseJce.SIGNATURE_ECDSA);
-                    break;
-                case "EdDSA":
-                    signer = CryptoInsts.getSignature(JsseJce.SIGNATURE_EDDSA);
-                    break;
-                case "RSA":
-                    signer = RSASignature.getInstance();
-                    break;
-                default:
-                    throw new NoSuchAlgorithmException(
-                        "neither an RSA or a EC key : " + keyAlgorithm);
-            }
-
-            if (signer != null) {
-                if (key instanceof PublicKey) {
-                    signer.initVerify((PublicKey)(key));
-                } else {
-                    signer.initSign((PrivateKey)key);
-                }
-            }
-
-            return signer;
         }
 
         private static void updateSignature(Signature sig,
