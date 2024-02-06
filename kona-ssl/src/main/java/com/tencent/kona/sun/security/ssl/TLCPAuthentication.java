@@ -52,14 +52,6 @@ final class TLCPAuthentication implements SSLAuthentication {
         this.keyTypes = keyTypes;
     }
 
-    static TLCPAuthentication valueOf(SignatureScheme signatureScheme) {
-        if (signatureScheme == SignatureScheme.SM2SIG_SM3) {
-            return SM2;
-        }
-
-        return null;
-    }
-
     @Override
     public SSLPossession createPossession(HandshakeContext handshakeContext) {
         return createPossession(handshakeContext, keyTypes);
