@@ -68,8 +68,6 @@ public class TlcpPrfGenerator extends KeyGeneratorSpi {
     private static final byte[] HMAC_opad64  = genPad((byte)0x5c, 64);
     private static final byte[] HMAC_opad128 = genPad((byte)0x5c, 128);
 
-    static final byte[][] SSL3_CONST = genConst();
-
     static byte[] genPad(byte b, int count) {
         byte[] padding = new byte[count];
         Arrays.fill(padding, b);
@@ -85,20 +83,10 @@ public class TlcpPrfGenerator extends KeyGeneratorSpi {
         return b;
     }
 
-    private static byte[][] genConst() {
-        int n = 10;
-        byte[][] arr = new byte[n][];
-        for (int i = 0; i < n; i++) {
-            byte[] b = new byte[i + 1];
-            Arrays.fill(b, (byte)('A' + i));
-            arr[i] = b;
-        }
-        return arr;
-    }
-
     private final static String MSG = "TlcpPrfGenerator must be "
             + "initialized using a TlsPrfParameterSpec";
 
+    @SuppressWarnings("deprecation")
     private TlsPrfParameterSpec spec;
 
     @Override
@@ -148,8 +136,8 @@ public class TlcpPrfGenerator extends KeyGeneratorSpi {
     }
 
     static byte[] doTLCPPRF(byte[] secret, byte[] labelBytes,
-                            byte[] seed, int outputLength,
-                            String prfHash, int prfHashLength, int prfBlockSize)
+                byte[] seed, int outputLength,
+                String prfHash, int prfHashLength, int prfBlockSize)
             throws NoSuchAlgorithmException, DigestException {
         if (prfHash == null) {
             throw new NoSuchAlgorithmException("Unspecified PRF algorithm");
@@ -160,8 +148,8 @@ public class TlcpPrfGenerator extends KeyGeneratorSpi {
     }
 
     static byte[] doTLCPPRF(byte[] secret, byte[] labelBytes,
-                            byte[] seed, int outputLength,
-                            MessageDigest mdPRF, int mdPRFLen, int mdPRFBlockSize)
+            byte[] seed, int outputLength,
+            MessageDigest mdPRF, int mdPRFLen, int mdPRFBlockSize)
             throws DigestException {
 
         if (secret == null) {

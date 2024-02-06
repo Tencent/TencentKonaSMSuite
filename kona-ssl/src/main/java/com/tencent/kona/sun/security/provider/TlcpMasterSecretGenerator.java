@@ -65,9 +65,9 @@ public final class TlcpMasterSecretGenerator extends KeyGeneratorSpi {
         }
         protocolVersion = (spec.getMajorVersion() << 8)
                 | spec.getMinorVersion();
-        if (protocolVersion != 0x0101 && protocolVersion != 0x0303) {
+        if (protocolVersion != 0x0101) {
             throw new InvalidAlgorithmParameterException(
-                "Only TLCP and TLS 1.2 supported");
+                "Only TLCP 1.1 supported");
         }
     }
 

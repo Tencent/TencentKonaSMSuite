@@ -66,9 +66,9 @@ public final class TlcpKeyMaterialGenerator extends KeyGeneratorSpi {
         }
         protocolVersion = (spec.getMajorVersion() << 8)
                 | spec.getMinorVersion();
-        if (protocolVersion != 0x0101 && protocolVersion != 0x0303) {
+        if (protocolVersion != 0x0101) {
             throw new InvalidAlgorithmParameterException(
-                    "Only TLCP and TLS 1.2 supported");
+                    "Only TLCP 1.1 supported");
         }
     }
 
@@ -81,7 +81,7 @@ public final class TlcpKeyMaterialGenerator extends KeyGeneratorSpi {
     protected SecretKey engineGenerateKey() {
         if (spec == null) {
             throw new IllegalStateException(
-                    "TlsKeyMaterialGenerator must be initialized");
+                    "TlcpKeyMaterialGenerator must be initialized");
         }
         try {
             return engineGenerateKey0();
