@@ -27,8 +27,11 @@ package com.tencent.kona.sun.security.ssl;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.security.CryptoPrimitive;
+import java.security.GeneralSecurityException;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
+import java.security.KeyFactory;
 import java.security.NoSuchAlgorithmException;
 import java.security.Signature;
 import java.security.SignatureException;
@@ -36,10 +39,11 @@ import java.security.interfaces.ECPublicKey;
 import java.security.spec.ECParameterSpec;
 import java.security.spec.ECPoint;
 import java.text.MessageFormat;
+import java.util.EnumSet;
 import java.util.Locale;
 
 import com.tencent.kona.crypto.CryptoInsts;
-import com.tencent.kona.crypto.provider.SM2PublicKey;
+import com.tencent.kona.crypto.spec.SM2PublicKeySpec;
 import com.tencent.kona.crypto.spec.SM2SignatureParameterSpec;
 import com.tencent.kona.crypto.CryptoUtils;
 import com.tencent.kona.sun.security.ssl.TLCPAuthentication.TLCPCredentials;
@@ -188,6 +192,30 @@ public class SM2EServerKeyExchange {
                     "Insufficient Point data: " + namedGroup);
             }
 
+            try {
+                KeyFactory keyFactory = KeyFactory.getInstance("SM2");
+                ECPublicKey ecPublicKey = (ECPublicKey) keyFactory.generatePublic(
+                        new SM2PublicKeySpec(publicPoint));
+                sslCredentials = new SM2EKeyExchange.SM2ECredentials(
+                        ecPublicKey, namedGroup);
+                if (handshakeContext.algorithmConstraints != null &&
+                        sslCredentials instanceof NamedGroupCredentials) {
+                    NamedGroupCredentials namedGroupCredentials
+                            = (NamedGroupCredentials) sslCredentials;
+                    if (!handshakeContext.algorithmConstraints.permits(
+                            EnumSet.of(CryptoPrimitive.KEY_AGREEMENT),
+                            namedGroupCredentials.getPublicKey())) {
+                        chc.conContext.fatal(Alert.INSUFFICIENT_SECURITY,
+                            "ServerKeyExchange for " + namedGroup +
+                            " does not comply with algorithm constraints");
+                    }
+                }
+            } catch (GeneralSecurityException ex) {
+                throw chc.conContext.fatal(Alert.UNEXPECTED_MESSAGE,
+                        "Cannot decode named group: " +
+                        NamedGroup.nameOf(namedGroupId));
+            }
+
             TLCPCredentials tlcpCredentials = null;
             for (SSLCredentials cd : chc.handshakeCredentials) {
                 if (cd instanceof TLCPCredentials) {
@@ -195,9 +223,6 @@ public class SM2EServerKeyExchange {
                     break;
                 }
             }
-
-            sslCredentials = new SM2EKeyExchange.SM2ECredentials(
-                    new SM2PublicKey(publicPoint), namedGroup);
 
             if (tlcpCredentials == null) {
                 // anonymous, no authentication, no signature

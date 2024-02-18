@@ -25,8 +25,8 @@
 
 package com.tencent.kona.sun.security.ssl;
 
-import com.tencent.kona.crypto.provider.SM2PublicKey;
 import com.tencent.kona.crypto.spec.SM2KeyAgreementParamSpec;
+import com.tencent.kona.crypto.spec.SM2PublicKeySpec;
 import com.tencent.kona.sun.security.ssl.SM2EKeyExchange.SM2ECredentials;
 import com.tencent.kona.sun.security.ssl.SM2EKeyExchange.SM2EPossession;
 import com.tencent.kona.sun.security.ssl.SSLHandshake.HandshakeMessage;
@@ -37,9 +37,13 @@ import com.tencent.kona.sun.security.util.HexDumpEncoder;
 import javax.crypto.SecretKey;
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.security.CryptoPrimitive;
+import java.security.GeneralSecurityException;
+import java.security.KeyFactory;
 import java.security.interfaces.ECPrivateKey;
 import java.security.interfaces.ECPublicKey;
 import java.text.MessageFormat;
+import java.util.EnumSet;
 import java.util.Locale;
 
 /**
@@ -283,8 +287,30 @@ public class SM2EClientKeyExchange {
             }
 
             // create the credentials
-            shc.handshakeCredentials.add(new SM2ECredentials(
-                    new SM2PublicKey(cke.encodedPoint), namedGroup));
+            try {
+                KeyFactory keyFactory = KeyFactory.getInstance("SM2");
+                ECPublicKey ecPublicKey = (ECPublicKey) keyFactory.generatePublic(
+                        new SM2PublicKeySpec(cke.encodedPoint));
+                SSLCredentials sslCredentials = new SM2EKeyExchange.SM2ECredentials(
+                        ecPublicKey, namedGroup);
+                if (shc.algorithmConstraints != null &&
+                        sslCredentials instanceof NamedGroupCredentials) {
+                    NamedGroupCredentials namedGroupCredentials
+                            = (NamedGroupCredentials) sslCredentials;
+                    if (!shc.algorithmConstraints.permits(
+                            EnumSet.of(CryptoPrimitive.KEY_AGREEMENT),
+                            namedGroupCredentials.getPublicKey())) {
+                        shc.conContext.fatal(Alert.INSUFFICIENT_SECURITY,
+                            "ClientKeyExchange for " + namedGroup +
+                            " does not comply with algorithm constraints");
+                    }
+                }
+
+                shc.handshakeCredentials.add(sslCredentials);
+            } catch (GeneralSecurityException e) {
+                throw shc.conContext.fatal(Alert.UNEXPECTED_MESSAGE,
+                        "Cannot decode ECDH PublicKey: " + namedGroup);
+            }
 
             TLCPCredentials tlcpCredentials = null;
             for (SSLCredentials sslCredentials : shc.handshakeCredentials) {
