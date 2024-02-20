@@ -100,6 +100,10 @@ public final class DerOutputStream
         return this;
     }
 
+    public void writeBytes(byte b[]) {
+        write(b, 0, b.length);
+    }
+
     /**
      * Writes implicitly tagged data using buffer-to-buffer copy.  As above,
      * this writes a standard DER record.  This is often used when
