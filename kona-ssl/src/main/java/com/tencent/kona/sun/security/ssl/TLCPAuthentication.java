@@ -449,11 +449,7 @@ final class TLCPAuthentication implements SSLAuthentication {
         ECParameterSpec params =
                 ((ECPublicKey) publicKey).getParams();
         NamedGroup namedGroup = NamedGroup.valueOf(params);
-        if (namedGroup != NamedGroup.CURVESM2  // Only accept curveSM2
-                || (!NamedGroup.isEnabled(hc.sslConfig, namedGroup))
-                || ((hc.clientRequestedNamedGroups != null)
-                        && !hc.clientRequestedNamedGroups.contains(namedGroup))) {
-
+        if (namedGroup != NamedGroup.CURVESM2) { // Only accept curveSM2
             if (SSLLogger.isOn && SSLLogger.isOn("ssl")) {
                 SSLLogger.warning(
                         "Unsupported named group (" + namedGroup +
