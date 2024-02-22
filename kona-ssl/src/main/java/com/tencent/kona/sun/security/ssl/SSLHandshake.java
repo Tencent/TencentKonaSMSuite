@@ -52,13 +52,13 @@ enum SSLHandshake implements SSLConsumer, HandshakeProducer {
             new Map.Entry[] {
                     new SimpleImmutableEntry<>(
                             ClientHello.handshakeConsumer,
-                            ProtocolVersion.addTLCP(ProtocolVersion.PROTOCOLS_TO_13)
+                            ProtocolVersion.PROTOCOLS_TO_13_TLCP11
                     )
             },
             new Map.Entry[] {
                     new SimpleImmutableEntry<>(
                             ClientHello.handshakeProducer,
-                            ProtocolVersion.addTLCP(ProtocolVersion.PROTOCOLS_TO_13)
+                            ProtocolVersion.PROTOCOLS_TO_13_TLCP11
                     )
             }),
 
@@ -67,13 +67,13 @@ enum SSLHandshake implements SSLConsumer, HandshakeProducer {
             new Map.Entry[] {
                     new SimpleImmutableEntry<>(
                             ServerHello.handshakeConsumer,
-                            ProtocolVersion.addTLCP(ProtocolVersion.PROTOCOLS_TO_13)
+                            ProtocolVersion.PROTOCOLS_TO_13_TLCP11
                     )
             },
             new Map.Entry[] {
                     new SimpleImmutableEntry<>(
                             ServerHello.t12HandshakeProducer,
-                            ProtocolVersion.addTLCP(ProtocolVersion.PROTOCOLS_TO_12)
+                            ProtocolVersion.PROTOCOLS_TO_12_TLCP11
                     ),
                     new SimpleImmutableEntry<>(
                             ServerHello.t13HandshakeProducer,
@@ -116,7 +116,7 @@ enum SSLHandshake implements SSLConsumer, HandshakeProducer {
             new Map.Entry[] {
                     new SimpleImmutableEntry<>(
                             NewSessionTicket.handshake12Consumer,
-                            ProtocolVersion.addTLCP(ProtocolVersion.PROTOCOLS_TO_12)
+                            ProtocolVersion.PROTOCOLS_TO_12_TLCP11
                     ),
                     new SimpleImmutableEntry<>(
                             NewSessionTicket.handshakeConsumer,
@@ -126,7 +126,7 @@ enum SSLHandshake implements SSLConsumer, HandshakeProducer {
             new Map.Entry[] {
                     new SimpleImmutableEntry<>(
                             NewSessionTicket.handshake12Producer,
-                            ProtocolVersion.addTLCP(ProtocolVersion.PROTOCOLS_TO_12)
+                            ProtocolVersion.PROTOCOLS_TO_12_TLCP11
                     )
             }),
     END_OF_EARLY_DATA           ((byte)0x05, "end_of_early_data"),
@@ -182,13 +182,13 @@ enum SSLHandshake implements SSLConsumer, HandshakeProducer {
             new Map.Entry[] {
                     new SimpleImmutableEntry<>(
                             ServerKeyExchange.handshakeConsumer,
-                            ProtocolVersion.addTLCP(ProtocolVersion.PROTOCOLS_TO_12)
+                            ProtocolVersion.PROTOCOLS_TO_12_TLCP11
                     )
             },
             new Map.Entry[] {
                     new SimpleImmutableEntry<>(
                             ServerKeyExchange.handshakeProducer,
-                            ProtocolVersion.addTLCP(ProtocolVersion.PROTOCOLS_TO_12)
+                            ProtocolVersion.PROTOCOLS_TO_12_TLCP11
                     )
             }),
 
@@ -236,13 +236,13 @@ enum SSLHandshake implements SSLConsumer, HandshakeProducer {
             new Map.Entry[] {
                     new SimpleImmutableEntry<>(
                             ServerHelloDone.handshakeConsumer,
-                            ProtocolVersion.addTLCP(ProtocolVersion.PROTOCOLS_TO_12)
+                            ProtocolVersion.PROTOCOLS_TO_12_TLCP11
                     )
             },
             new Map.Entry[] {
                     new SimpleImmutableEntry<>(
                             ServerHelloDone.handshakeProducer,
-                            ProtocolVersion.addTLCP(ProtocolVersion.PROTOCOLS_TO_12)
+                            ProtocolVersion.PROTOCOLS_TO_12_TLCP11
                     )
             }),
 
@@ -298,13 +298,13 @@ enum SSLHandshake implements SSLConsumer, HandshakeProducer {
             new Map.Entry[] {
                     new SimpleImmutableEntry<>(
                             ClientKeyExchange.handshakeConsumer,
-                            ProtocolVersion.addTLCP(ProtocolVersion.PROTOCOLS_TO_12)
+                            ProtocolVersion.PROTOCOLS_TO_12_TLCP11
                     )
             },
             new Map.Entry[] {
                     new SimpleImmutableEntry<>(
                             ClientKeyExchange.handshakeProducer,
-                            ProtocolVersion.addTLCP(ProtocolVersion.PROTOCOLS_TO_12)
+                            ProtocolVersion.PROTOCOLS_TO_12_TLCP11
                     )
             }),
 
