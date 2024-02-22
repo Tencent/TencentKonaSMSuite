@@ -91,9 +91,19 @@ enum ProtocolVersion {
             TLS12, TLS11, TLS10, SSL30, DTLS12, DTLS10
     };
 
+    // (D)TLS ProtocolVersion array for (D)TLS 1.2 and previous versions, including TLCP 1.1
+    static final ProtocolVersion[] PROTOCOLS_TO_12_TLCP11 = new ProtocolVersion[] {
+            TLS12, TLS11, TLCP11, TLS10, SSL30, DTLS12, DTLS10
+    };
+
     // (D)TLS ProtocolVersion array for (D)TLS 1.3 and previous versions.
     static final ProtocolVersion[] PROTOCOLS_TO_13 = new ProtocolVersion[] {
             TLS13, TLS12, TLS11, TLS10, SSL30, DTLS12, DTLS10
+        };
+
+    // (D)TLS ProtocolVersion array for (D)TLS 1.3 and previous versions, including TLCP 1.1
+    static final ProtocolVersion[] PROTOCOLS_TO_13_TLCP11 = new ProtocolVersion[] {
+            TLS13, TLS12, TLCP11, TLS11, TLS10, SSL30, DTLS12, DTLS10
         };
 
     // No protocol version specified.
@@ -141,6 +151,11 @@ enum ProtocolVersion {
             TLS12, TLS11, TLS10, DTLS12, DTLS10
         };
 
+    // (D)TLS ProtocolVersion array for TSL 1.0/1.1/1.2, DTLS 1.0/1.2 and TLCP 1.1
+    static final ProtocolVersion[] PROTOCOLS_10_12_TLCP11 = new ProtocolVersion[] {
+            TLS12, TLS11, TLCP11, TLS10, DTLS12, DTLS10
+        };
+
     // TLS ProtocolVersion array for TLS 1.2 and previous versions.
     static final ProtocolVersion[] PROTOCOLS_TO_TLS12 = new ProtocolVersion[] {
             TLS12, TLS11, TLS10, SSL30
@@ -169,14 +184,6 @@ enum ProtocolVersion {
         this.isAvailable = SSLAlgorithmConstraints.DEFAULT_SSL_ONLY.permits(
                 EnumSet.of(CryptoPrimitive.KEY_AGREEMENT),
                 name, null);
-    }
-
-    // Add TLCP and put it to the first position.
-    static ProtocolVersion[] addTLCP(ProtocolVersion[] origProtocols) {
-        ProtocolVersion[] protocols = new ProtocolVersion[origProtocols.length + 1];
-        protocols[0] = ProtocolVersion.TLCP11;
-        System.arraycopy(origProtocols, 0, protocols, 1, origProtocols.length);
-        return protocols;
     }
 
     /**
