@@ -169,9 +169,11 @@ public class JdkServerBabaSSLClientTest {
     private void testALPN(CipherSuite clientCipherSuite, ClientAuth clientAuth)
             throws Exception {
         SmCertTuple serverCertTuple = new SmCertTuple(
-                TlcpUtils.INTCA_CERT, TlcpUtils.SERVER_SIGN_CERT, TlcpUtils.SERVER_ENC_CERT);
+                TlcpUtils.INTCA_CERT,
+                TlcpUtils.SERVER_SIGN_CERT, TlcpUtils.SERVER_ENC_CERT);
         SmCertTuple clientCertTuple = new SmCertTuple(
-                TlcpUtils.INTCA_CERT, TlcpUtils.CLIENT_SIGN_CERT, TlcpUtils.CLIENT_ENC_CERT);
+                TlcpUtils.INTCA_CERT,
+                TlcpUtils.CLIENT_SIGN_CERT, TlcpUtils.CLIENT_ENC_CERT);
 
         ExecutorService executor = Executors.newFixedThreadPool(1);
 
@@ -208,9 +210,11 @@ public class JdkServerBabaSSLClientTest {
     private void testSNI(CipherSuite clientCipherSuite, ClientAuth clientAuth)
             throws Exception {
         SmCertTuple serverCertTuple = new SmCertTuple(
-                TlcpUtils.INTCA_CERT, TlcpUtils.SERVER_SIGN_CERT, TlcpUtils.SERVER_ENC_CERT);
+                TlcpUtils.INTCA_CERT,
+                TlcpUtils.SERVER_SIGN_CERT, TlcpUtils.SERVER_ENC_CERT);
         SmCertTuple clientCertTuple = new SmCertTuple(
-                TlcpUtils.INTCA_CERT, TlcpUtils.CLIENT_SIGN_CERT, TlcpUtils.CLIENT_ENC_CERT);
+                TlcpUtils.INTCA_CERT,
+                TlcpUtils.CLIENT_SIGN_CERT, TlcpUtils.CLIENT_ENC_CERT);
 
         ExecutorService executor = Executors.newFixedThreadPool(1);
 
