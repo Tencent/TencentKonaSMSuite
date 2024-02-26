@@ -209,9 +209,13 @@ public class JdkServerJdkClientTest {
     private void testALPN(CipherSuite clientCipherSuite, ClientAuth clientAuth)
             throws Exception {
         SmCertTuple serverCertTuple = new SmCertTuple(
-                TlcpUtils.INTCA_CERT, TlcpUtils.SERVER_SIGN_CERT, TlcpUtils.SERVER_ENC_CERT, TlcpUtils.INTCA_CERT);
+                TlcpUtils.CA_CERT,
+                TlcpUtils.SERVER_SIGN_CERT, TlcpUtils.SERVER_ENC_CERT,
+                TlcpUtils.INTCA_CERT);
         SmCertTuple clientCertTuple = new SmCertTuple(
-                TlcpUtils.INTCA_CERT, TlcpUtils.CLIENT_SIGN_CERT, TlcpUtils.CLIENT_ENC_CERT, TlcpUtils.INTCA_CERT);
+                TlcpUtils.CA_CERT,
+                TlcpUtils.CLIENT_SIGN_CERT, TlcpUtils.CLIENT_ENC_CERT,
+                TlcpUtils.INTCA_CERT);
 
         ExecutorService executor = Executors.newFixedThreadPool(1);
 
@@ -249,9 +253,13 @@ public class JdkServerJdkClientTest {
     private void testSNI(CipherSuite clientCipherSuite, ClientAuth clientAuth)
             throws Exception {
         SmCertTuple serverCertTuple = new SmCertTuple(
-                TlcpUtils.INTCA_CERT, TlcpUtils.SERVER_SIGN_CERT, TlcpUtils.SERVER_ENC_CERT, TlcpUtils.INTCA_CERT);
+                TlcpUtils.CA_CERT,
+                TlcpUtils.SERVER_SIGN_CERT, TlcpUtils.SERVER_ENC_CERT,
+                TlcpUtils.INTCA_CERT);
         SmCertTuple clientCertTuple = new SmCertTuple(
-                TlcpUtils.INTCA_CERT, TlcpUtils.SERVER_SIGN_CERT, TlcpUtils.SERVER_ENC_CERT, TlcpUtils.INTCA_CERT);
+                TlcpUtils.CA_CERT,
+                TlcpUtils.SERVER_SIGN_CERT, TlcpUtils.SERVER_ENC_CERT,
+                TlcpUtils.INTCA_CERT);
 
         ExecutorService executor = Executors.newFixedThreadPool(1);
 
@@ -285,14 +293,14 @@ public class JdkServerJdkClientTest {
 
     private void testResumption(ClientAuth clientAuth) throws Exception {
         resumeSession(
-                TlcpUtils.INTCA_CERT,
+                TlcpUtils.CA_CERT,
                 TlcpUtils.SERVER_SIGN_CERT, TlcpUtils.SERVER_ENC_CERT,
                 TlcpUtils.CLIENT_SIGN_CERT, TlcpUtils.CLIENT_ENC_CERT,
                 TlcpUtils.INTCA_CERT,
                 CipherSuite.TLCP_ECC_SM4_CBC_SM3,
                 clientAuth);
         resumeSession(
-                TlcpUtils.INTCA_CERT,
+                TlcpUtils.CA_CERT,
                 TlcpUtils.SERVER_SIGN_CERT, TlcpUtils.SERVER_ENC_CERT,
                 TlcpUtils.CLIENT_SIGN_CERT, TlcpUtils.CLIENT_ENC_CERT,
                 TlcpUtils.INTCA_CERT,
