@@ -39,6 +39,7 @@ import org.junit.jupiter.api.Test;
 
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLException;
+import javax.net.ssl.SSLHandshakeException;
 import java.io.IOException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -206,8 +207,21 @@ public class JdkServerJdkClientTest {
         testALPN(CipherSuite.TLCP_ECC_SM4_GCM_SM3, ClientAuth.REQUIRED);
     }
 
+    @Test
+    public void testALPNFail() throws Exception {
+        Assertions.assertThrows(
+                SSLHandshakeException.class,
+                () -> testALPN(CipherSuite.TLCP_ECC_SM4_CBC_SM3,
+                        ClientAuth.REQUIRED, true));
+    }
+
     private void testALPN(CipherSuite clientCipherSuite, ClientAuth clientAuth)
             throws Exception {
+        testALPN(clientCipherSuite, clientAuth, false);
+    }
+
+    private void testALPN(CipherSuite clientCipherSuite, ClientAuth clientAuth,
+            boolean expectedFail) throws Exception {
         SmCertTuple serverCertTuple = new SmCertTuple(
                 TlcpUtils.CA_CERT,
                 TlcpUtils.SERVER_SIGN_CERT, TlcpUtils.SERVER_ENC_CERT,
@@ -222,7 +236,11 @@ public class JdkServerJdkClientTest {
         JdkProcServer.Builder serverBuilder = new JdkProcServer.Builder();
         serverBuilder.setContextProtocol(ContextProtocol.TLCP11);
         serverBuilder.setCertTuple(serverCertTuple);
-        serverBuilder.setAppProtocols("HTTP/1.1", "h2");
+        if (!expectedFail) {
+            serverBuilder.setAppProtocols("HTTP/1.1", "h2");
+        } else {
+            serverBuilder.setAppProtocols("HTTP/1.1");
+        }
         serverBuilder.setClientAuth(clientAuth);
         serverBuilder.setMessage("Server");
 
@@ -250,8 +268,21 @@ public class JdkServerJdkClientTest {
         testSNI(CipherSuite.TLCP_ECC_SM4_GCM_SM3, ClientAuth.REQUIRED);
     }
 
+    @Test
+    public void testSNIFailed() throws Exception {
+        Assertions.assertThrows(
+                SSLHandshakeException.class,
+                () -> testSNI(CipherSuite.TLCP_ECC_SM4_CBC_SM3,
+                        ClientAuth.REQUIRED, true));
+    }
+
     private void testSNI(CipherSuite clientCipherSuite, ClientAuth clientAuth)
             throws Exception {
+        testSNI(clientCipherSuite, clientAuth, false);
+    }
+
+    private void testSNI(CipherSuite clientCipherSuite, ClientAuth clientAuth,
+            boolean expectedFail) throws Exception {
         SmCertTuple serverCertTuple = new SmCertTuple(
                 TlcpUtils.CA_CERT,
                 TlcpUtils.SERVER_SIGN_CERT, TlcpUtils.SERVER_ENC_CERT,
@@ -266,7 +297,11 @@ public class JdkServerJdkClientTest {
         JdkProcServer.Builder serverBuilder = new JdkProcServer.Builder();
         serverBuilder.setContextProtocol(ContextProtocol.TLCP11);
         serverBuilder.setCertTuple(serverCertTuple);
-        serverBuilder.setServerNames("www.example.com");
+        if (!expectedFail) {
+            serverBuilder.setServerNames("www.example.com");
+        } else {
+            serverBuilder.setServerNames("www.example1.com");
+        }
         serverBuilder.setClientAuth(clientAuth);
         serverBuilder.setMessage("Server");
 
