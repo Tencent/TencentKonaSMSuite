@@ -103,15 +103,15 @@ public final class TlcpMasterSecretGenerator extends KeyGeneratorSpi {
             byte[] extendedMasterSecretSessionHash =
                     spec.getExtendedMasterSecretSessionHash();
             if (extendedMasterSecretSessionHash.length != 0) {
-                label = TlcpPrfGenerator.LABEL_EXTENDED_MASTER_SECRET;
+                label = TlsPrfGenerator.LABEL_EXTENDED_MASTER_SECRET;
                 seed = extendedMasterSecretSessionHash;
             } else {
                 byte[] clientRandom = spec.getClientRandom();
                 byte[] serverRandom = spec.getServerRandom();
-                label = TlcpPrfGenerator.LABEL_MASTER_SECRET;
-                seed = TlcpPrfGenerator.concat(clientRandom, serverRandom);
+                label = TlsPrfGenerator.LABEL_MASTER_SECRET;
+                seed = TlsPrfGenerator.concat(clientRandom, serverRandom);
             }
-            master = TlcpPrfGenerator.doTLCPPRF(
+            master = TlsPrfGenerator.doTLS12PRF(
                     premaster, label, seed, 48,
                     spec.getPRFHashAlg(), spec.getPRFHashLength(),
                     spec.getPRFBlockSize());

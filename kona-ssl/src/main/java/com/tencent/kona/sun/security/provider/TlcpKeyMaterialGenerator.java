@@ -113,9 +113,9 @@ public final class TlcpKeyMaterialGenerator extends KeyGeneratorSpi {
                 + (isExportable ? 0 : ivLength);
         keyBlockLen <<= 1;
 
-        byte[] seed = TlcpPrfGenerator.concat(serverRandom, clientRandom);
-        byte[] keyBlock = TlcpPrfGenerator.doTLCPPRF(
-                masterSecret, TlcpPrfGenerator.LABEL_KEY_EXPANSION, seed,
+        byte[] seed = TlsPrfGenerator.concat(serverRandom, clientRandom);
+        byte[] keyBlock = TlsPrfGenerator.doTLS12PRF(
+                masterSecret, TlsPrfGenerator.LABEL_KEY_EXPANSION, seed,
                 keyBlockLen, spec.getPRFHashAlg(),
                 spec.getPRFHashLength(), spec.getPRFBlockSize());
 
