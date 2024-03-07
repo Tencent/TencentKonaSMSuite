@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023, THL A29 Limited, a Tencent company. All rights reserved.
+ * Copyright (C) 2023, 2024, THL A29 Limited, a Tencent company. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -97,14 +97,20 @@ public class JettyServer {
                 }
             };
 
-            contextFactory.setProvider(appConfig.getProvider());
+            if (!isEmpty(appConfig.getProvider())) {
+                contextFactory.setProvider(appConfig.getProvider());
+            }
 
-            contextFactory.setTrustStoreProvider(appConfig.getTrustStoreProvider());
+            if (!isEmpty(appConfig.getTrustStoreProvider())) {
+                contextFactory.setTrustStoreProvider(appConfig.getTrustStoreProvider());
+            }
             contextFactory.setTrustStoreType(appConfig.getTrustStoreType());
             contextFactory.setTrustStorePath(getAbsolutePath(appConfig.getTrustStorePath()));
             contextFactory.setTrustStorePassword(appConfig.getTrustStorePassword());
 
-            contextFactory.setKeyStoreProvider(appConfig.getKeyStoreProvider());
+            if (!isEmpty(appConfig.getKeyStoreProvider())) {
+                contextFactory.setKeyStoreProvider(appConfig.getKeyStoreProvider());
+            }
             contextFactory.setKeyStoreType(appConfig.getKeyStoreType());
             contextFactory.setKeyStorePath(getAbsolutePath(appConfig.getKeyStorePath()));
             contextFactory.setKeyStorePassword(appConfig.getKeyStorePassword());
@@ -143,6 +149,10 @@ public class JettyServer {
 
             server.setConnectors(new Connector[] { httpsConnector });
             server.setStopAtShutdown(true);
+        }
+
+        private static boolean isEmpty(String str) {
+            return str == null || str.isEmpty();
         }
 
         private static String getAbsolutePath(String resourcePath) {

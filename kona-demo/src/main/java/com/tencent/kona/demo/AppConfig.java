@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023, THL A29 Limited, a Tencent company. All rights reserved.
+ * Copyright (C) 2023, 2024, THL A29 Limited, a Tencent company. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -31,10 +31,10 @@ public class AppConfig {
     @Value("${server.ssl.enabled}")
     private boolean sslEnabled;
 
-    @Value("${server.ssl.provider}")
+    @Value("${server.ssl.provider:#{null}}")
     private String provider;
 
-    @Value("${server.ssl.trust-store-provider}")
+    @Value("${server.ssl.trust-store-provider:#{null}}")
     private String trustStoreProvider;
 
     @Value("${server.ssl.trust-store-type}")
@@ -46,7 +46,7 @@ public class AppConfig {
     @Value("${server.ssl.trust-store-password}")
     private String trustStorePassword;
 
-    @Value("${server.ssl.key-store-provider}")
+    @Value("${server.ssl.key-store-provider:#{null}}")
     private String keyStoreProvider;
 
     @Value("${server.ssl.key-store-type}")
