@@ -129,7 +129,7 @@ public final class TlsKeyMaterialGenerator extends KeyGeneratorSpi {
         MessageDigest sha = null;
 
         // generate key block
-        if (protocolVersion >= 0x0303) {
+        if (protocolVersion >= 0x0303 || protocolVersion == 0x0101) {
             // TLS 1.2
             byte[] seed = TlsPrfGenerator.concat(serverRandom, clientRandom);
             keyBlock = doTLS12PRF(masterSecret, TlsPrfGenerator.LABEL_KEY_EXPANSION, seed,
