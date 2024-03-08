@@ -106,7 +106,7 @@ public final class TlsMasterSecretGenerator extends KeyGeneratorSpi {
 
         try {
             byte[] master;
-            if (protocolVersion >= 0x0301) {
+            if (protocolVersion >= 0x0301 || protocolVersion == 0x0101) {
                 byte[] label;
                 byte[] seed;
                 byte[] extendedMasterSecretSessionHash =
@@ -120,7 +120,7 @@ public final class TlsMasterSecretGenerator extends KeyGeneratorSpi {
                     label = TlsPrfGenerator.LABEL_MASTER_SECRET;
                     seed = TlsPrfGenerator.concat(clientRandom, serverRandom);
                 }
-                master = ((protocolVersion >= 0x0303) ?
+                master = ((protocolVersion >= 0x0303 || protocolVersion == 0x0101) ?
                         TlsPrfGenerator.doTLS12PRF(premaster, label, seed, 48,
                                 spec.getPRFHashAlg(), spec.getPRFHashLength(),
                                 spec.getPRFBlockSize()) :

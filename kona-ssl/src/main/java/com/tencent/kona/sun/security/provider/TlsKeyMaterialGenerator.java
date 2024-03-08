@@ -75,7 +75,7 @@ public final class TlsKeyMaterialGenerator extends KeyGeneratorSpi {
         protocolVersion = (spec.getMajorVersion() << 8)
             | spec.getMinorVersion();
         if (protocolVersion != 0x0101
-                && (protocolVersion < 0x0300) || (protocolVersion > 0x0303)) {
+                && ((protocolVersion < 0x0300) || (protocolVersion > 0x0303))) {
             throw new InvalidAlgorithmParameterException(
                 "Only TLCP, SSL 3.0, TLS 1.0/1.1/1.2 supported");
         }

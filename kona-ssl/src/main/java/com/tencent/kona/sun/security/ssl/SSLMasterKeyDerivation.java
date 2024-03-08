@@ -116,10 +116,8 @@ enum SSLMasterKeyDerivation implements SSLKeyDerivationGenerator {
                     hashAlg = cipherSuite.hashAlg;
                 }
             } else {
-                if (protocolVersion.isTLCP11()) {
-                    masterAlg = "TlcpMasterSecret";
-                    hashAlg = cipherSuite.hashAlg;
-                } else if (protocolVersion.id >= ProtocolVersion.TLS12.id) {
+                if (protocolVersion.id >= ProtocolVersion.TLS12.id
+                        || protocolVersion.isTLCP11()) {
                     masterAlg = "SunTls12MasterSecret";
                     hashAlg = cipherSuite.hashAlg;
                 } else {
