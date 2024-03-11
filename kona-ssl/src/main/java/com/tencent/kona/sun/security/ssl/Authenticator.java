@@ -484,7 +484,7 @@ abstract class Authenticator {
                     algorithm = "HmacSHA384";    // TLS 1.2+
                     break;
                 case M_SM3:
-                    algorithm = "SM3HMac";       // TLS 1.2
+                    algorithm = "SM3HMac";       // TLS 1.2+
                     break;
                 default:
                     throw new RuntimeException("Unknown MacAlg " + macAlg);
