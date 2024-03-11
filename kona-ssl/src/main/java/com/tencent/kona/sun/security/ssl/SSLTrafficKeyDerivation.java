@@ -42,10 +42,8 @@ import com.tencent.kona.sun.security.internal.spec.TlsKeyMaterialSpec;
 import com.tencent.kona.sun.security.ssl.CipherSuite.HashAlg;
 
 import static com.tencent.kona.sun.security.ssl.CipherSuite.HashAlg.H_NONE;
-import static com.tencent.kona.sun.security.ssl.CipherSuite.HashAlg.H_SM3;
 
 enum SSLTrafficKeyDerivation implements SSLKeyDerivationGenerator {
-    TLCP11      ("kdf_tlcp11", new TLCP11TrafficKeyDerivationGenerator()),
     SSL30       ("kdf_ssl30",  new S30TrafficKeyDerivationGenerator()),
     TLS10       ("kdf_tls10",  new T10TrafficKeyDerivationGenerator()),
     TLS12       ("kdf_tls12",  new T12TrafficKeyDerivationGenerator()),
@@ -62,14 +60,13 @@ enum SSLTrafficKeyDerivation implements SSLKeyDerivationGenerator {
 
     static SSLTrafficKeyDerivation valueOf(ProtocolVersion protocolVersion) {
         switch (protocolVersion) {
-            case TLCP11:
-                return SSLTrafficKeyDerivation.TLCP11;
             case SSL30:
                 return SSLTrafficKeyDerivation.SSL30;
             case TLS10:
             case TLS11:
             case DTLS10:
                 return SSLTrafficKeyDerivation.TLS10;
+            case TLCP11:
             case TLS12:
             case DTLS12:
                 return SSLTrafficKeyDerivation.TLS12;
@@ -84,19 +81,6 @@ enum SSLTrafficKeyDerivation implements SSLKeyDerivationGenerator {
     public SSLKeyDerivation createKeyDerivation(HandshakeContext context,
             SecretKey secretKey) throws IOException {
         return keyDerivationGenerator.createKeyDerivation(context, secretKey);
-    }
-
-    private static final class TLCP11TrafficKeyDerivationGenerator
-            implements SSLKeyDerivationGenerator {
-        private TLCP11TrafficKeyDerivationGenerator() {
-            // blank
-        }
-
-        @Override
-        public SSLKeyDerivation createKeyDerivation(
-                HandshakeContext context, SecretKey secretKey) throws IOException {
-            return new LegacyTrafficKeyDerivation(context, secretKey);
-        }
     }
 
     private static final class S30TrafficKeyDerivationGenerator
