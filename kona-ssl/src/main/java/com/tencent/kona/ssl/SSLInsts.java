@@ -96,8 +96,7 @@ public class SSLInsts {
             = new HashSet<>(Arrays.asList(
                     "SunTlsPrf", "SunTls12Prf",
                     "SunTlsMasterSecret", "SunTlsKeyMaterial",
-                    "TlcpKeyMaterial", "TlcpSM2PremasterSecret",
-                    "TlcpMasterSecret", "TlcpPrf"));
+                    "TlcpSM2PremasterSecret"));
 
     public static KeyGenerator getKeyGenerator(String protocol)
             throws NoSuchAlgorithmException {

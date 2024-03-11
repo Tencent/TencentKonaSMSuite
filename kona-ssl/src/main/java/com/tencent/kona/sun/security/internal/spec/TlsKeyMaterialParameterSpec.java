@@ -94,9 +94,8 @@ public class TlsKeyMaterialParameterSpec implements AlgorithmParameterSpec {
             byte[] serverRandom, String cipherAlgorithm, int cipherKeyLength,
             int expandedCipherKeyLength, int ivLength, int macKeyLength,
             String prfHashAlg, int prfHashLength, int prfBlockSize) {
-        if (!masterSecret.getAlgorithm().equals("TlcpMasterSecret")
-                && !masterSecret.getAlgorithm().equals("TlsMasterSecret")) {
-            throw new IllegalArgumentException("Not a TLCP/TLS master secret");
+        if (!masterSecret.getAlgorithm().equals("TlsMasterSecret")) {
+            throw new IllegalArgumentException("Not a TLS master secret");
         }
         if (cipherAlgorithm == null) {
             throw new NullPointerException();
