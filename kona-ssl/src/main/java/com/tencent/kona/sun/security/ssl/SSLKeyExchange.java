@@ -280,7 +280,7 @@ final class SSLKeyExchange implements SSLKeyAgreementGenerator,
 
     private static class TLCPKeyExSM2E {
         private static final SSLKeyExchange KE = new SSLKeyExchange(
-                Arrays.asList(TLCPAuthentication.SM2E), TLCPKeyAgreement.SM2E);
+                Arrays.asList(TLCPAuthentication.SM2), TLCPKeyAgreement.SM2E);
     }
 
     private static class SSLKeyExRSA {

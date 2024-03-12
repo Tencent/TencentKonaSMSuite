@@ -38,10 +38,9 @@ import java.util.AbstractMap;
 import java.util.Arrays;
 import java.util.Map;
 
-final class TLCPAuthentication implements SSLAuthentication {
+enum TLCPAuthentication implements SSLAuthentication {
 
-    static final TLCPAuthentication SM2 = new TLCPAuthentication("EC", "EC");
-    static final TLCPAuthentication SM2E = new TLCPAuthentication("EC", "EC");
+    SM2("EC", "EC");
 
     final String keyAlgorithm;
     final String[] keyTypes;
