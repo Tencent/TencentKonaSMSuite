@@ -217,6 +217,10 @@ enum TLCPAuthentication implements SSLAuthentication {
     private static SSLPossession createClientPossession(
             ClientHandshakeContext chc, String[] keyTypes) {
         X509ExtendedKeyManager km = chc.sslContext.getX509KeyManager();
+        if (SSLLogger.isOn && SSLLogger.isOn("ssl")) {
+            SSLLogger.finest("X509KeyManager class: " +
+                    km.getClass().getName());
+        }
         for (String keyType : keyTypes) {
             String[] clientAliases = km.getClientAliases(
                         keyType,
@@ -315,6 +319,10 @@ enum TLCPAuthentication implements SSLAuthentication {
     private static SSLPossession createServerPossession(
             ServerHandshakeContext shc, String[] keyTypes) {
         X509ExtendedKeyManager km = shc.sslContext.getX509KeyManager();
+        if (SSLLogger.isOn && SSLLogger.isOn("ssl")) {
+            SSLLogger.finest("X509KeyManager class: " +
+                    km.getClass().getName());
+        }
         for (String keyType : keyTypes) {
             String[] serverAliases = km.getServerAliases(keyType,
                         shc.peerSupportedAuthorities == null ? null :
