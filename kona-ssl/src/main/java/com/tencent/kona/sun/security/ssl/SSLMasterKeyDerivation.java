@@ -38,7 +38,6 @@ import com.tencent.kona.sun.security.internal.spec.TlsMasterSecretParameterSpec;
 import com.tencent.kona.sun.security.ssl.CipherSuite.HashAlg;
 
 enum SSLMasterKeyDerivation implements SSLKeyDerivationGenerator {
-    TLCP11      ("kdf_tlcp11"),
     SSL30       ("kdf_ssl30"),
     TLS10       ("kdf_tls10"),
     TLS12       ("kdf_tls12");
@@ -51,14 +50,13 @@ enum SSLMasterKeyDerivation implements SSLKeyDerivationGenerator {
 
     static SSLMasterKeyDerivation valueOf(ProtocolVersion protocolVersion) {
         switch (protocolVersion) {
-            case TLCP11:
-                return SSLMasterKeyDerivation.TLCP11;
             case SSL30:
                 return SSLMasterKeyDerivation.SSL30;
             case TLS10:
             case TLS11:
             case DTLS10:
                 return SSLMasterKeyDerivation.TLS10;
+            case TLCP11:
             case TLS12:
             case DTLS12:
                 return SSLMasterKeyDerivation.TLS12;
