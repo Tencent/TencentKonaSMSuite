@@ -165,7 +165,6 @@ final class Finished {
         SSL30       ("kdf_ssl30", new S30VerifyDataGenerator()),
         TLS10       ("kdf_tls10", new T10VerifyDataGenerator()),
         TLS12       ("kdf_tls12", new T12VerifyDataGenerator()),
-        TLCP11      ("kdf_tlcp11",new T12VerifyDataGenerator()),
         TLS13       ("kdf_tls13", new T13VerifyDataGenerator());
 
         final String name;
