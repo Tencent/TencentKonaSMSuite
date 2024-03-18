@@ -63,6 +63,10 @@ public final class CryptoUtils {
         return Constants.JDK_VERSION.equals("17");
     }
 
+    public static boolean isJdk21() {
+        return Constants.JDK_VERSION.equals("21");
+    }
+
     public static boolean isAndroid() {
         return Constants.JDK_VENDOR.contains("Android");
     }
