@@ -142,21 +142,16 @@ public final class ECUtil {
         return (ECPrivateKey)keyFactory.generatePrivate(keySpec);
     }
 
-    public static AlgorithmParameters getECParameters(Provider p) {
+    public static AlgorithmParameters getECParameters() {
         try {
-            if (p != null) {
-                return AlgorithmParameters.getInstance("EC", p);
-            }
-
             return CryptoInsts.getAlgorithmParameters("EC");
         } catch (NoSuchAlgorithmException nsae) {
             throw new RuntimeException(nsae);
         }
     }
 
-    public static byte[] encodeECParameterSpec(
-            Provider p, ECParameterSpec spec) {
-        AlgorithmParameters parameters = getECParameters(p);
+    public static byte[] encodeECParameterSpec(ECParameterSpec spec) {
+        AlgorithmParameters parameters = getECParameters();
 
         try {
             parameters.init(spec);
@@ -172,9 +167,8 @@ public final class ECUtil {
         }
     }
 
-    public static ECParameterSpec getECParameterSpec(
-            Provider p, ECParameterSpec spec) {
-        AlgorithmParameters parameters = getECParameters(p);
+    public static ECParameterSpec getECParameterSpec(ECParameterSpec spec) {
+        AlgorithmParameters parameters = getECParameters();
 
         try {
             parameters.init(spec);
@@ -184,9 +178,9 @@ public final class ECUtil {
         }
     }
 
-    public static ECParameterSpec getECParameterSpec(
-            Provider p, byte[] params) throws IOException {
-        AlgorithmParameters parameters = getECParameters(p);
+    public static ECParameterSpec getECParameterSpec(byte[] params)
+            throws IOException {
+        AlgorithmParameters parameters = getECParameters();
 
         parameters.init(params);
 
@@ -197,8 +191,8 @@ public final class ECUtil {
         }
     }
 
-    public static ECParameterSpec getECParameterSpec(Provider p, String name) {
-        AlgorithmParameters parameters = getECParameters(p);
+    public static ECParameterSpec getECParameterSpec(String name) {
+        AlgorithmParameters parameters = getECParameters();
 
         try {
             parameters.init(new ECGenParameterSpec(name));
@@ -208,8 +202,8 @@ public final class ECUtil {
         }
     }
 
-    public static ECParameterSpec getECParameterSpec(Provider p, int keySize) {
-        AlgorithmParameters parameters = getECParameters(p);
+    public static ECParameterSpec getECParameterSpec(int keySize) {
+        AlgorithmParameters parameters = getECParameters();
 
         try {
             parameters.init(new ECKeySizeParameterSpec(keySize));
@@ -219,9 +213,9 @@ public final class ECUtil {
         }
     }
 
-    public static String getCurveName(Provider p, ECParameterSpec spec) {
+    public static String getCurveName(ECParameterSpec spec) {
         ECGenParameterSpec nameSpec;
-        AlgorithmParameters parameters = getECParameters(p);
+        AlgorithmParameters parameters = getECParameters();
 
         try {
             parameters.init(spec);

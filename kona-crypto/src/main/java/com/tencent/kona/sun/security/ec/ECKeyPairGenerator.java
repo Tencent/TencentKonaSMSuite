@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009, 2021, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2024, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -79,7 +79,7 @@ public final class ECKeyPairGenerator extends KeyPairGeneratorSpi {
     public void initialize(int keySize, SecureRandom random) {
 
         checkKeySize(keySize);
-        this.params = ECUtil.getECParameterSpec(null, keySize);
+        this.params = ECUtil.getECParameterSpec(keySize);
         if (params == null) {
             throw new InvalidParameterException(
                 "No EC parameters available for key size " + keySize + " bits");
@@ -96,14 +96,14 @@ public final class ECKeyPairGenerator extends KeyPairGeneratorSpi {
 
         if (params instanceof ECParameterSpec) {
             ECParameterSpec ecParams = (ECParameterSpec) params;
-            ecSpec = ECUtil.getECParameterSpec(null, ecParams);
+            ecSpec = ECUtil.getECParameterSpec(ecParams);
             if (ecSpec == null) {
                 throw new InvalidAlgorithmParameterException(
                     "Curve not supported: " + params);
             }
         } else if (params instanceof ECGenParameterSpec) {
             String name = ((ECGenParameterSpec) params).getName();
-            ecSpec = ECUtil.getECParameterSpec(null, name);
+            ecSpec = ECUtil.getECParameterSpec(name);
             if (ecSpec == null) {
                 throw new InvalidAlgorithmParameterException(
                     "Unknown curve name: " + name);
@@ -125,7 +125,7 @@ public final class ECKeyPairGenerator extends KeyPairGeneratorSpi {
         throws InvalidAlgorithmParameterException {
 
         // Check if ecSpec is a valid curve
-        AlgorithmParameters ecParams = ECUtil.getECParameters(null);
+        AlgorithmParameters ecParams = ECUtil.getECParameters();
         try {
             ecParams.init(ecSpec);
         } catch (InvalidParameterSpecException ex) {
