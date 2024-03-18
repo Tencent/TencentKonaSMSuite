@@ -104,7 +104,7 @@ public class SharedSecretsUtil {
                     javaIOAccessClass = Class.forName("jdk.internal.misc.JavaIOAccess");
                     inetAddressAccessClass = Class.forName("jdk.internal.misc.JavaNetInetAddressAccess");
                     secSignatureAccessClass = Class.forName("jdk.internal.misc.JavaSecuritySignatureAccess");
-                } else if (isJdk17()) {
+                } else if (isJdk17() || isJdk21()) {
                     sharedSecretsClass = Class.forName("jdk.internal.access.SharedSecrets");
 
                     javaLangAccessClass = Class.forName("jdk.internal.access.JavaLangAccess");
@@ -124,11 +124,11 @@ public class SharedSecretsUtil {
                 langNewStringNoRepl = isJdk8()
                         ? null : javaLangAccessClass.getMethod(
                                 "newStringNoRepl", byte[].class, Charset.class);
-                initialSystemIn = isJdk8()
+                initialSystemIn = isJdk8() || isJdk11() || isJdk17()
                         ? null : javaLangAccessClass.getMethod("initialSystemIn");
 
                 console = javaIOAccessClass.getMethod("console");
-                charset = javaIOAccessClass.getMethod("charset");
+                charset = isJdk21() ? null : javaIOAccessClass.getMethod("charset");
 
                 cryptoSpecClearSecretKeySpec = javaxCryptoSpecAccessClass != null
                         ? javaxCryptoSpecAccessClass.getMethod(

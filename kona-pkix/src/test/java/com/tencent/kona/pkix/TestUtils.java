@@ -400,7 +400,7 @@ public class TestUtils {
 
         if (CryptoUtils.isJdk11()) {
             allJVMOptions.addAll(JDK11_OPTIONS);
-        } else if (CryptoUtils.isJdk17()) {
+        } else if (CryptoUtils.isJdk17() || CryptoUtils.isJdk21()) {
             allJVMOptions.addAll(JDK17_OPTIONS);
         }
 
