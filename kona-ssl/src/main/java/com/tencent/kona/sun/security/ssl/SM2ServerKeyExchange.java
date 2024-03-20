@@ -214,7 +214,7 @@ final class SM2ServerKeyExchange {
 
         @Override
         public int messageLength() {
-            int sigLen = 2 + paramsSignature.length;;
+            int sigLen = 2 + paramsSignature.length;
             if (useExplicitSigAlgorithm) {
                 sigLen += SignatureScheme.sizeInRecord();
             }
