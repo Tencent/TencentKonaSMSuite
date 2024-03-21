@@ -20,20 +20,12 @@
 
 package com.tencent.kona.crypto.util;
 
-import com.tencent.kona.crypto.CryptoUtils;
-
 import java.math.BigInteger;
 
 public final class Constants {
 
     public static final BigInteger TWO = BigInteger.valueOf(2);
     public static final BigInteger THREE = BigInteger.valueOf(3);
-
-    public static final String JDK_VERSION = CryptoUtils.privilegedGetProperty(
-            "java.specification.version");
-
-    public static final String JDK_VENDOR = CryptoUtils.privilegedGetProperty(
-            "java.specification.vendor");
 
     // The length of uncompressed SM2 public key,
     // exactly an EC point's coordinates (x, y).

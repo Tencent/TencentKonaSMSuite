@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022, 2023, THL A29 Limited, a Tencent company. All rights reserved.
+ * Copyright (C) 2022, 2024, THL A29 Limited, a Tencent company. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify
@@ -32,6 +32,12 @@ import com.tencent.kona.sun.security.util.ArrayUtil;
 
 public final class CryptoUtils {
 
+    private static final String JDK_VERSION = privilegedGetProperty(
+            "java.specification.version");
+
+    private static final String JDK_VENDOR = privilegedGetProperty(
+            "java.specification.vendor");
+
     public static String privilegedGetProperty(String key, String def) {
         return AccessController.doPrivileged(
                 (PrivilegedAction<String>) () -> System.getProperty(key, def));
@@ -52,23 +58,23 @@ public final class CryptoUtils {
     }
 
     public static boolean isJdk8() {
-        return Constants.JDK_VERSION.equals("1.8");
+        return JDK_VERSION.equals("1.8");
     }
 
     public static boolean isJdk11() {
-        return Constants.JDK_VERSION.equals("11");
+        return JDK_VERSION.equals("11");
     }
 
     public static boolean isJdk17() {
-        return Constants.JDK_VERSION.equals("17");
+        return JDK_VERSION.equals("17");
     }
 
     public static boolean isJdk21() {
-        return Constants.JDK_VERSION.equals("21");
+        return JDK_VERSION.equals("21");
     }
 
     public static boolean isAndroid() {
-        return Constants.JDK_VENDOR.contains("Android");
+        return JDK_VENDOR.contains("Android");
     }
 
     private static final HexFormat HEX = HexFormat.of();
