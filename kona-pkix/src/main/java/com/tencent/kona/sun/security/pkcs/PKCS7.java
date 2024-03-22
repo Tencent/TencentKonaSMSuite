@@ -243,7 +243,7 @@ public class PKCS7 {
 
         CertificateFactory certfac = null;
         try {
-            certfac = PKIXInsts.getCertificateFactory("X.509");;
+            certfac = PKIXInsts.getCertificateFactory("X.509");
         } catch (CertificateException ce) {
             // do nothing
         }
