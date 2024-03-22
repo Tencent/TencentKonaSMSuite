@@ -290,7 +290,7 @@ public class DerValue {
                 break;
             default:
                 throw new IllegalArgumentException("Unsupported DER string type");
-        };
+        }
         return value.getBytes(charset);
     }
 
