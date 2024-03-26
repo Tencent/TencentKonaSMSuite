@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022, 2023, THL A29 Limited, a Tencent company. All rights reserved.
+ * Copyright (C) 2022, 2024, THL A29 Limited, a Tencent company. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify
@@ -41,13 +41,13 @@ import java.security.spec.AlgorithmParameterSpec;
 import java.security.spec.EncodedKeySpec;
 
 /**
- * The utilities for operating SharedSecrets cross JDK 8, 11 and 17.
+ * The utilities for operating SharedSecrets cross JDK 8, 11, 17 and 21.
  */
 public class SharedSecretsUtil {
 
     // Use SharedSecrets by default on JDK 8
     private static final boolean USE_SHARED_SECRETS
-            = privilegedGetBoolProperty("com.tencent.misc.useSharedSecrets",
+            = privilegedGetBoolProperty("com.tencent.kona.misc.useSharedSecrets",
                     isJdk8() ? "true" : "false");
 
     /* JavaLangAccess */
@@ -79,94 +79,69 @@ public class SharedSecretsUtil {
     private static final Object secSpecAccess;
 
     static {
-        Class<?> sharedSecretsClass = null;
-
-        Class<?> javaLangAccessClass = null;
-        Class<?> javaIOAccessClass = null;
-        Class<?> javaxCryptoSpecAccessClass = null;
-        Class<?> inetAddressAccessClass = null;
-        Class<?> secSignatureAccessClass = null;
-        Class<?> secSpecAccessClass = null;
-
         if (useSharedSecrets()) {
-            try {
-                if (isJdk8()) {
-                    sharedSecretsClass = Class.forName("sun.misc.SharedSecrets");
+            Class<?> sharedSecretsClass = getSharedSecretsClass();
 
-                    javaLangAccessClass = Class.forName("sun.misc.JavaLangAccess");
-                    javaIOAccessClass = Class.forName("sun.misc.JavaIOAccess");
-                    inetAddressAccessClass = Class.forName("sun.misc.JavaNetAccess");
-                    secSignatureAccessClass = Class.forName("sun.misc.JavaSecuritySignatureAccess");
-                } else if (isJdk11()) {
-                    sharedSecretsClass = Class.forName("jdk.internal.misc.SharedSecrets");
+            Class<?> javaLangAccessClass = null;
+            Class<?> javaIOAccessClass = null;
+            Class<?> javaxCryptoSpecAccessClass = null;
+            Class<?> inetAddressAccessClass = null;
+            Class<?> secSignatureAccessClass = null;
+            Class<?> secSpecAccessClass = null;
 
-                    javaLangAccessClass = Class.forName("jdk.internal.misc.JavaLangAccess");
-                    javaIOAccessClass = Class.forName("jdk.internal.misc.JavaIOAccess");
-                    inetAddressAccessClass = Class.forName("jdk.internal.misc.JavaNetInetAddressAccess");
-                    secSignatureAccessClass = Class.forName("jdk.internal.misc.JavaSecuritySignatureAccess");
-                } else if (isJdk17() || isJdk21()) {
-                    sharedSecretsClass = Class.forName("jdk.internal.access.SharedSecrets");
-
-                    javaLangAccessClass = Class.forName("jdk.internal.access.JavaLangAccess");
-                    javaIOAccessClass = Class.forName("jdk.internal.access.JavaIOAccess");
-                    javaxCryptoSpecAccessClass = Class.forName("jdk.internal.access.JavaxCryptoSpecAccess");
-                    inetAddressAccessClass = Class.forName("jdk.internal.access.JavaNetInetAddressAccess");
-                    secSignatureAccessClass = Class.forName("jdk.internal.access.JavaSecuritySignatureAccess");
-                    secSpecAccessClass = Class.forName("jdk.internal.access.JavaSecuritySpecAccess");
-                }
-            } catch (ClassNotFoundException e) {
-                throw new InternalError("Cannot get SharedSecrets class", e);
+            if (isJdk8()) {
+                javaLangAccessClass = getClass("sun.misc.JavaLangAccess");
+                javaIOAccessClass = getClass("sun.misc.JavaIOAccess");
+                inetAddressAccessClass = getClass("sun.misc.JavaNetAccess");
+                secSignatureAccessClass = getClass("sun.misc.JavaSecuritySignatureAccess");
+            } else if (isJdk11()) {
+                javaLangAccessClass = getClass("jdk.internal.misc.JavaLangAccess");
+                javaIOAccessClass = getClass("jdk.internal.misc.JavaIOAccess");
+                inetAddressAccessClass = getClass("jdk.internal.misc.JavaNetInetAddressAccess");
+                secSignatureAccessClass = getClass("jdk.internal.misc.JavaSecuritySignatureAccess");
+            } else if (isJdk17() || isJdk21()) {
+                javaLangAccessClass = getClass("jdk.internal.access.JavaLangAccess");
+                javaIOAccessClass = getClass("jdk.internal.access.JavaIOAccess");
+                javaxCryptoSpecAccessClass = getClass("jdk.internal.access.JavaxCryptoSpecAccess");
+                inetAddressAccessClass = getClass("jdk.internal.access.JavaNetInetAddressAccess");
+                secSignatureAccessClass = getClass("jdk.internal.access.JavaSecuritySignatureAccess");
+                secSpecAccessClass = getClass("jdk.internal.access.JavaSecuritySpecAccess");
             }
-        }
 
-        if (sharedSecretsClass != null) {
-            try {
-                langNewStringNoRepl = isJdk8()
-                        ? null : javaLangAccessClass.getMethod(
-                                "newStringNoRepl", byte[].class, Charset.class);
-                initialSystemIn = isJdk8() || isJdk11() || isJdk17()
-                        ? null : javaLangAccessClass.getMethod("initialSystemIn");
+            langNewStringNoRepl = getMethod(javaLangAccessClass,
+                            "newStringNoRepl", byte[].class, Charset.class);
+            initialSystemIn = getMethod(javaLangAccessClass, "initialSystemIn");
 
-                console = javaIOAccessClass.getMethod("console");
-                charset = isJdk21() ? null : javaIOAccessClass.getMethod("charset");
+            console = getMethod(javaIOAccessClass, "console");
+            charset = getMethod(javaIOAccessClass, "charset");
 
-                cryptoSpecClearSecretKeySpec = javaxCryptoSpecAccessClass != null
-                        ? javaxCryptoSpecAccessClass.getMethod(
-                                "clearSecretKeySpec", SecretKeySpec.class)
-                        : null;
+            cryptoSpecClearSecretKeySpec = getMethod(javaxCryptoSpecAccessClass,
+                            "clearSecretKeySpec", SecretKeySpec.class);
 
-                netInetAddressGetOriginalHostName = inetAddressAccessClass.getMethod(
-                        "getOriginalHostName", InetAddress.class);
+            netInetAddressGetOriginalHostName = getMethod(inetAddressAccessClass,
+                    "getOriginalHostName", InetAddress.class);
 
-                secSignatureInitVerifyWithPubKey = secSignatureAccessClass.getMethod(
-                        "initVerify", Signature.class, PublicKey.class,
-                        AlgorithmParameterSpec.class);
-                secSignatureInitVerifyWithCert = secSignatureAccessClass.getMethod(
-                        "initVerify", Signature.class, Certificate.class,
-                        AlgorithmParameterSpec.class);
-                secSignatureInitSign = secSignatureAccessClass.getMethod(
-                        "initSign", Signature.class, PrivateKey.class,
-                        AlgorithmParameterSpec.class, SecureRandom.class);
+            secSignatureInitVerifyWithPubKey = getMethod(secSignatureAccessClass,
+                    "initVerify", Signature.class, PublicKey.class,
+                    AlgorithmParameterSpec.class);
+            secSignatureInitVerifyWithCert = getMethod(secSignatureAccessClass,
+                    "initVerify", Signature.class, Certificate.class,
+                    AlgorithmParameterSpec.class);
+            secSignatureInitSign = getMethod(secSignatureAccessClass,
+                    "initSign", Signature.class, PrivateKey.class,
+                    AlgorithmParameterSpec.class, SecureRandom.class);
 
-                secSpecClearEncodedKeySpec = secSpecAccessClass == null
-                        ? null : secSpecAccessClass.getMethod(
-                                "clearEncodedKeySpec", EncodedKeySpec.class);
-            } catch (NoSuchMethodException e) {
-                throw new InternalError("Cannot get method", e);
-            }
+            secSpecClearEncodedKeySpec = getMethod(secSpecAccessClass,
+                            "clearEncodedKeySpec", EncodedKeySpec.class);
 
             langAccess = getAccessObject(sharedSecretsClass, "getJavaLangAccess");
             ioAccess = getAccessObject(sharedSecretsClass, "getJavaIOAccess");
-            cryptoSpecAccess = isJdk17()
-                    ? getAccessObject(sharedSecretsClass, "getJavaxCryptoSpecAccess")
-                    : null;
+            cryptoSpecAccess = getAccessObject(sharedSecretsClass, "getJavaxCryptoSpecAccess");
             netInetAddressAccess = isJdk8()
                     ? getAccessObject(sharedSecretsClass, "getJavaNetAccess")
                     : getAccessObject(sharedSecretsClass, "getJavaNetInetAddressAccess");
             secSignatureAccess = getAccessObject(sharedSecretsClass, "getJavaSecuritySignatureAccess");
-            secSpecAccess = isJdk17()
-                    ? getAccessObject(sharedSecretsClass, "getJavaSecuritySpecAccess")
-                    : null;
+            secSpecAccess = getAccessObject(sharedSecretsClass, "getJavaSecuritySpecAccess");
         } else {
             langNewStringNoRepl = null;
             initialSystemIn = null;
@@ -194,6 +169,42 @@ public class SharedSecretsUtil {
 
     private static boolean useSharedSecrets() {
         return USE_SHARED_SECRETS && !isAndroid();
+    }
+
+    private static Class<?> getSharedSecretsClass() {
+        if (isJdk8()) {
+            return getClass("sun.misc.SharedSecrets");
+        } else if (isJdk11()) {
+            return getClass("jdk.internal.misc.SharedSecrets");
+        } else if (isJdk17() || isJdk21()) {
+            return getClass("jdk.internal.access.SharedSecrets");
+        } else {
+            return null;
+        }
+    }
+
+    private static Class<?> getClass(String className) {
+        Class<?> clazz = null;
+        try {
+            clazz = Class.forName(className);
+        } catch (ClassNotFoundException e) {
+            // Do nothing
+        }
+        return clazz;
+    }
+
+    private static Method getMethod(Class<?> clazz,
+            String name, Class<?>... parameterTypes) {
+        Method method = null;
+        if (clazz != null) {
+            try {
+                method = clazz.getMethod(name, parameterTypes);
+            } catch (NoSuchMethodException e) {
+                // Do nothing
+            }
+        }
+
+        return method;
     }
 
     /* JavaLangAccess Start */
@@ -352,14 +363,20 @@ public class SharedSecretsUtil {
 
     private static Object getAccessObject(Class<?> sharedSecretsClass,
             String sharedSecretedMethodName) {
-        try {
-            Method sharedSecretedMethod = sharedSecretsClass.getDeclaredMethod(
-                    sharedSecretedMethodName);
-            sharedSecretedMethod.setAccessible(true);
-            return sharedSecretedMethod.invoke(null);
-        } catch (IllegalAccessException | InvocationTargetException
-                | NoSuchMethodException e) {
-            throw new InternalError("Cannot get access object", e);
+        Object accessObject = null;
+
+        if (sharedSecretsClass != null) {
+            try {
+                Method sharedSecretedMethod = sharedSecretsClass.getDeclaredMethod(
+                        sharedSecretedMethodName);
+                sharedSecretedMethod.setAccessible(true);
+                accessObject = sharedSecretedMethod.invoke(null);
+            } catch (IllegalAccessException | InvocationTargetException
+                    | NoSuchMethodException e) {
+                // Do nothing
+            }
         }
+
+        return accessObject;
     }
 }

@@ -140,7 +140,7 @@ public class JdkProcUtils {
 
         if (CryptoUtils.isJdk11()) {
             allOptions.addAll(Utilities.JDK11_OPTIONS);
-        } else if (CryptoUtils.isJdk17()) {
+        } else if (CryptoUtils.isJdk17() || CryptoUtils.isJdk21()) {
             allOptions.addAll(Utilities.JDK17_OPTIONS);
         }
 
