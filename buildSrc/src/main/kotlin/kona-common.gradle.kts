@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022, 2023, THL A29 Limited, a Tencent company. All rights reserved.
+ * Copyright (C) 2022, 2024, THL A29 Limited, a Tencent company. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -82,6 +82,8 @@ tasks {
     }
 
     register("testOnAdop11", CommonTest::class) {
+        jvmArgs("--add-exports", "java.base/jdk.internal.misc=ALL-UNNAMED")
+
         systemProperty("test.classpath", classpath.joinToString(separator = ":"))
 
         javaLauncher.set(javaToolchains.launcherFor {
@@ -95,6 +97,8 @@ tasks {
     }
 
     register("testOnAdop17", CommonTest::class) {
+        jvmArgs("--add-exports", "java.base/jdk.internal.access=ALL-UNNAMED")
+
         systemProperty("test.classpath", classpath.joinToString(separator = ":"))
 
         javaLauncher.set(javaToolchains.launcherFor {
@@ -108,6 +112,8 @@ tasks {
     }
 
     register("testOnAdop21", CommonTest::class) {
+        jvmArgs("--add-exports", "java.base/jdk.internal.access=ALL-UNNAMED")
+
         systemProperty("test.classpath", classpath.joinToString(separator = ":"))
 
         javaLauncher.set(javaToolchains.launcherFor {
