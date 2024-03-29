@@ -22,6 +22,7 @@ package com.tencent.kona.ssl.demo;
 import com.tencent.kona.ssl.TestUtils;
 import com.tencent.kona.sun.security.x509.SMCertificate;
 import io.netty.bootstrap.Bootstrap;
+import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
@@ -32,6 +33,7 @@ import io.netty.channel.ChannelPipeline;
 import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
+import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.codec.LineBasedFrameDecoder;
 import io.netty.handler.codec.string.StringDecoder;
@@ -41,23 +43,13 @@ import io.netty.handler.ssl.CipherSuiteFilter;
 import io.netty.handler.ssl.ClientAuth;
 import io.netty.handler.ssl.JdkSslContext;
 import io.netty.handler.ssl.SslContext;
-import org.eclipse.jetty.http.HttpVersion;
-import org.eclipse.jetty.server.HttpConfiguration;
-import org.eclipse.jetty.server.HttpConnectionFactory;
-import org.eclipse.jetty.server.SecureRequestCustomizer;
-import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.server.ServerConnector;
-import org.eclipse.jetty.server.SslConnectionFactory;
-import org.eclipse.jetty.server.handler.DefaultHandler;
-import org.eclipse.jetty.server.handler.HandlerList;
-import org.eclipse.jetty.servlet.ServletContextHandler;
-import org.eclipse.jetty.util.ssl.SslContextFactory;
 import org.junit.jupiter.api.Test;
 
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManagerFactory;
 import java.io.ByteArrayInputStream;
+import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
 import java.security.KeyFactory;
 import java.security.KeyStore;
@@ -269,47 +261,25 @@ public class TLCPWithNettyDemo {
         // Add providers.
         TestUtils.addProviders();
 
-        Server server = createServer();
-        server.start();
-        int port = server.getURI().getPort();
+        // Run Netty server, which supports TLCP connection.
+        EventLoopGroup bossGroup = new NioEventLoopGroup();
+        EventLoopGroup workerGroup = new NioEventLoopGroup();
+        try {
+            ServerBootstrap bootstrap = new ServerBootstrap();
+            bootstrap.group(bossGroup, workerGroup)
+                .channel(NioServerSocketChannel.class)
+                .option(ChannelOption.SO_BACKLOG, 128)
+                .childOption(ChannelOption.SO_KEEPALIVE, true)
+                .childHandler(new ServerChannelInitializer(
+                        createJdkContext(false)));
+            ChannelFuture channelFuture = bootstrap.bind(0).sync();
 
-        runClient(port);
-
-        server.stop();
-    }
-
-    // Create Jetty server, which can publish service over TLCP.
-    private static Server createServer() throws Exception {
-        SslContextFactory.Server sslContextFactory = new SslContextFactory.Server();
-        sslContextFactory.setSslContext(createContext());
-
-        HttpConfiguration config = new HttpConfiguration();
-        config.setSecureScheme("https");
-        config.addCustomizer(new SecureRequestCustomizer());
-
-        Server server = new Server();
-        ServerConnector httpsConnector = new ServerConnector(server,
-                new SslConnectionFactory(sslContextFactory,
-                        HttpVersion.HTTP_1_1.asString()),
-                new HttpConnectionFactory(config));
-        httpsConnector.setPort(0);
-        server.addConnector(httpsConnector);
-
-        ServletContextHandler context = new ServletContextHandler();
-        context.setContextPath("/");
-        context.addServlet(TLCPWithJettyDemo.HelloServlet.class, "/hello");
-        server.setHandler(new HandlerList(context, new DefaultHandler()));
-
-        return server;
-    }
-
-    private static class AllAllowedCipherSuiteFilter implements CipherSuiteFilter {
-
-        @Override
-        public String[] filterCipherSuites(Iterable<String> ciphers,
-                List<String> defaultCiphers, Set<String> supportedCiphers) {
-            return StreamSupport.stream(ciphers.spliterator(), false)
-                    .toArray(String[]::new);
+            int port = ((InetSocketAddress) channelFuture.channel()
+                    .localAddress()).getPort();
+            runClient(port);
+        } finally {
+            bossGroup.shutdownGracefully();
+            workerGroup.shutdownGracefully();
         }
     }
 
@@ -333,7 +303,7 @@ public class TLCPWithNettyDemo {
     }
 
     // Run Netty client, which supports TLCP connection.
-    private static void runClient(int port) throws Exception {
+    private void runClient(int port) throws Exception {
         EventLoopGroup workerGroup = new NioEventLoopGroup();
         try {
             Bootstrap bootstrap = new Bootstrap();
@@ -353,7 +323,7 @@ public class TLCPWithNettyDemo {
     private static class ClientChannelInitializer
             extends ChannelInitializer<SocketChannel> {
 
-        private SslContext sslContext;
+        private final SslContext sslContext;
 
         public ClientChannelInitializer(SslContext sslContext) {
             this.sslContext = sslContext;
@@ -465,5 +435,15 @@ public class TLCPWithNettyDemo {
                 Base64.getMimeDecoder().decode(keyPEM));
         KeyFactory keyFactory = KeyFactory.getInstance("EC", "KonaCrypto");
         return keyFactory.generatePrivate(privateKeySpec);
+    }
+
+    private static class AllAllowedCipherSuiteFilter implements CipherSuiteFilter {
+
+        @Override
+        public String[] filterCipherSuites(Iterable<String> ciphers,
+                List<String> defaultCiphers, Set<String> supportedCiphers) {
+            return StreamSupport.stream(ciphers.spliterator(), false)
+                    .toArray(String[]::new);
+        }
     }
 }
