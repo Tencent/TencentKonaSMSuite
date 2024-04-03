@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006, 2023, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2006, 2024, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -32,6 +32,7 @@ import java.security.*;
 import java.security.interfaces.*;
 import java.security.spec.*;
 
+import com.tencent.kona.sun.security.util.BitArray;
 import com.tencent.kona.sun.security.util.ECParameters;
 import com.tencent.kona.sun.security.util.ECUtil;
 import com.tencent.kona.sun.security.x509.AlgorithmId;
@@ -57,7 +58,6 @@ public final class ECPublicKeyImpl extends X509Key implements ECPublicKey {
      * Construct a key from its components. Used by the
      * ECKeyFactory.
      */
-    @SuppressWarnings("deprecation")
     ECPublicKeyImpl(ECPoint w, ECParameterSpec params)
             throws InvalidKeyException {
         this.w = w;
@@ -65,7 +65,8 @@ public final class ECPublicKeyImpl extends X509Key implements ECPublicKey {
         // generate the encoding
         algid = new AlgorithmId
             (AlgorithmId.EC_oid, ECParameters.getAlgorithmParameters(params));
-        key = ECUtil.encodePoint(w, params.getCurve());
+        byte[] key = ECUtil.encodePoint(w, params.getCurve());
+        setKey(new BitArray(key.length * 8, key));
     }
 
     /**
@@ -90,17 +91,9 @@ public final class ECPublicKeyImpl extends X509Key implements ECPublicKey {
         return params;
     }
 
-    // Internal API to get the encoded point. Currently used by SunPKCS11.
-    // This may change/go away depending on what we do with the public API.
-    @SuppressWarnings("deprecation")
-    public byte[] getEncodedPublicValue() {
-        return key.clone();
-    }
-
     /**
      * Parse the key. Called by X509Key.
      */
-    @SuppressWarnings("deprecation")
     protected void parseKeyBits() throws InvalidKeyException {
         AlgorithmParameters algParams = this.algid.getParameters();
         if (algParams == null) {
@@ -110,10 +103,8 @@ public final class ECPublicKeyImpl extends X509Key implements ECPublicKey {
 
         try {
             params = algParams.getParameterSpec(ECParameterSpec.class);
-            w = ECUtil.decodePoint(key, params.getCurve());
-        } catch (IOException e) {
-            throw new InvalidKeyException("Invalid EC key", e);
-        } catch (InvalidParameterSpecException e) {
+            w = ECUtil.decodePoint(getKey().toByteArray(), params.getCurve());
+        } catch (IOException | InvalidParameterSpecException e) {
             throw new InvalidKeyException("Invalid EC key", e);
         }
     }
