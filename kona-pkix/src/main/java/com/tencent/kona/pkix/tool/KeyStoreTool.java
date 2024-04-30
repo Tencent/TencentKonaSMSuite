@@ -90,13 +90,15 @@ public class KeyStoreTool {
                 "For creating new keys and certificates, please use KeyTool.\n\n" +
                 "Usages:\n" +
                 "  -type        Store type, PKCS12 or JKS. PKCS12 is the default.\n" +
-                "  -alias       One or multiple aliases, separated by comma, like alias1,alias2,alieas3\n" +
-                "  -keyAlgo     Private key algorithm, like EC or RS\n" +
-                "  -key         A PEM file containing a PKCS#8 private key\n" +
-                "  -keyPasswd   Private key password\n" +
-                "  -certs       A PEM file containing trust certificates or certificate chain\n" +
-                "  -store       Store file path\n" +
-                "  -storePasswd Store file password";
+                "  -alias       One or multiple aliases, separated by comma, like alias1,alias2,alieas3.\n" +
+                "  -keyAlgo     Private key algorithm, like EC or RSA.\n" +
+                "  -key         A PEM file containing a PKCS#8 private key.\n" +
+                "  -keyPasswd   Private key password.\n" +
+                "               This password is used to encrypt the private key when put it into the keystore.\n" +
+                "               If the passed private key is encrypted, this password is also used to decrypt it.\n" +
+                "  -certs       A PEM file containing trust certificates or certificate chain.\n" +
+                "  -store       Store file path.\n" +
+                "  -storePasswd Keystore file password.";
 
         String type = "PKCS12";
         String[] alias;
