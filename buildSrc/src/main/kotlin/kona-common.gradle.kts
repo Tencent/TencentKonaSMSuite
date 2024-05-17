@@ -51,7 +51,6 @@ tasks {
         if (!passedTasks.contains("test") && !passedTasks.contains("testOnCurrent")) {
             javaCompiler = javaToolchains.compilerFor {
                 languageVersion = JavaLanguageVersion.of(8)
-                vendor = JvmVendorSpec.ADOPTIUM
             }
         }
 
