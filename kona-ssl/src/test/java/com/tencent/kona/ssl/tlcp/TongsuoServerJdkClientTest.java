@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022, 2023, THL A29 Limited, a Tencent company. All rights reserved.
+ * Copyright (C) 2022, 2024, THL A29 Limited, a Tencent company. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -19,7 +19,7 @@
 
 package com.tencent.kona.ssl.tlcp;
 
-import com.tencent.kona.ssl.interop.BabaSSLServer;
+import com.tencent.kona.ssl.interop.TongsuoServer;
 import com.tencent.kona.ssl.interop.CertTuple;
 import com.tencent.kona.ssl.interop.CipherSuite;
 import com.tencent.kona.ssl.interop.Client;
@@ -56,9 +56,9 @@ import static com.tencent.kona.ssl.tlcp.TlcpUtils.SERVER_ENC_CERT;
 import static com.tencent.kona.ssl.tlcp.TlcpUtils.SERVER_SIGN_CERT;
 
 /**
- * The interop test between BabaSSL(OpenSSL) server and JDK client.
+ * The interop test between Tongsuo(OpenSSL) server and JDK client.
  */
-public class BabaSSLServerJdkClientTest {
+public class TongsuoServerJdkClientTest {
 
     private static final Path PAGE_FILE = Paths.get("build", "tlcp-page");
 
@@ -71,7 +71,7 @@ public class BabaSSLServerJdkClientTest {
 
     private static void createWebPage() throws IOException {
         Files.write(PAGE_FILE,
-                "BabaSSL server".getBytes(Utilities.CHARSET),
+                "Tongsuo server".getBytes(Utilities.CHARSET),
                 StandardOpenOption.CREATE);
     }
 
@@ -151,7 +151,7 @@ public class BabaSSLServerJdkClientTest {
 
         ExecutorService executor = Executors.newFixedThreadPool(1);
 
-        BabaSSLServer.Builder serverBuilder = new BabaSSLServer.Builder();
+        TongsuoServer.Builder serverBuilder = new TongsuoServer.Builder();
         serverBuilder.setCertTuple(serverCertTuple);
         serverBuilder.setCipherSuites(
                 CipherSuite.TLCP_ECC_SM4_CBC_SM3,
@@ -188,7 +188,7 @@ public class BabaSSLServerJdkClientTest {
 
         ExecutorService executor = Executors.newFixedThreadPool(1);
 
-        BabaSSLServer.Builder serverBuilder = new BabaSSLServer.Builder();
+        TongsuoServer.Builder serverBuilder = new TongsuoServer.Builder();
         serverBuilder.setContextProtocol(ContextProtocol.TLCP11);
         serverBuilder.setCertTuple(certTuple);
         serverBuilder.setAppProtocols("HTTP/1.1", "h2");
@@ -211,7 +211,7 @@ public class BabaSSLServerJdkClientTest {
     }
 
 //    @Test
-    // TODO BabaSSL s_server doesn't support the testing for SNI on TLCP yet.
+    // TODO Tongsuo s_server doesn't support the testing for SNI on TLCP yet.
     public void testSNI() throws Exception {
         testSNI(CipherSuite.TLCP_ECC_SM4_CBC_SM3, ClientAuth.NONE);
         testSNI(CipherSuite.TLCP_ECC_SM4_CBC_SM3, ClientAuth.REQUIRED);
@@ -226,7 +226,7 @@ public class BabaSSLServerJdkClientTest {
 
         ExecutorService executor = Executors.newFixedThreadPool(1);
 
-        BabaSSLServer.Builder serverBuilder = new BabaSSLServer.Builder();
+        TongsuoServer.Builder serverBuilder = new TongsuoServer.Builder();
         serverBuilder.setContextProtocol(ContextProtocol.TLCP11);
         serverBuilder.setCertTuple(certTuple);
         serverBuilder.setServerNames("www.example.com");
@@ -288,7 +288,7 @@ public class BabaSSLServerJdkClientTest {
 
         ExecutorService executor = Executors.newFixedThreadPool(1);
 
-        BabaSSLServer.Builder serverBuilder = new BabaSSLServer.Builder();
+        TongsuoServer.Builder serverBuilder = new TongsuoServer.Builder();
         serverBuilder.setCertTuple(certTuple);
         serverBuilder.setCipherSuites(
                 CipherSuite.TLCP_ECC_SM4_CBC_SM3,

@@ -63,7 +63,7 @@ final class TLCPCertificate {
     enum CertListFormat {
 
         // sign_cert | enc_cert | ca_list
-        SIGN_ENC_CA("SIGN|ENC|CA"),  // BabaSSL preference, default
+        SIGN_ENC_CA("SIGN|ENC|CA"),  // Tongsuo preference, default
 
         // sign_cert | ca_list | enc_cert
         SIGN_CA_ENC("SIGN|CA|ENC");  // TASSL preference
@@ -508,7 +508,7 @@ final class TLCPCertificate {
 
         // Assume the cert list contains at least one certificate,
         // and the structure is either of:
-        // 1. sign_cert | enc_cert | sign_cert_CA_list (BabaSSL's preference)
+        // 1. sign_cert | enc_cert | sign_cert_CA_list (Tongsuo's preference)
         // 2. sign_cert | sign_cert_CA_list | enc_cert (TASSL's preference)
         //
         // sign_cert and enc_cert are issued by the same CA.

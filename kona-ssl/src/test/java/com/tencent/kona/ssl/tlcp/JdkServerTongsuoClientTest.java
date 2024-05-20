@@ -15,11 +15,12 @@
  * You should have received a copy of the GNU General Public License version
  * 2 along with this work; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
+ * Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
 package com.tencent.kona.ssl.tlcp;
 
-import com.tencent.kona.ssl.interop.BabaSSLClient;
+import com.tencent.kona.ssl.interop.TongsuoClient;
 import com.tencent.kona.ssl.interop.CertTuple;
 import com.tencent.kona.ssl.interop.CipherSuite;
 import com.tencent.kona.ssl.interop.Client;
@@ -46,9 +47,9 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 /**
- * The interop test between JDK server and BabaSSL(OpenSSL) client.
+ * The interop test between JDK server and Tongsuo(OpenSSL) client.
  */
-public class JdkServerBabaSSLClientTest {
+public class JdkServerTongsuoClientTest {
 
     private static final Path SESS_FILE = Paths.get("build", "openssl.sess");
 
@@ -143,7 +144,7 @@ public class JdkServerBabaSSLClientTest {
             executor.submit(new ServerCaller(server));
             Utilities.waitFor(Server::isAlive, server);
 
-            BabaSSLClient.Builder clientBuilder = new BabaSSLClient.Builder();
+            TongsuoClient.Builder clientBuilder = new TongsuoClient.Builder();
             clientBuilder.setCertTuple(clientCertTuple);
             clientBuilder.setProtocols(Protocol.TLCPV1_1);
             clientBuilder.setCipherSuites(clientCipherSuite);
@@ -187,10 +188,10 @@ public class JdkServerBabaSSLClientTest {
             executor.submit(new ServerCaller(server));
             Utilities.waitFor(Server::isAlive, server);
 
-            BabaSSLClient.Builder clientBuilder = createClientBuilder(
+            TongsuoClient.Builder clientBuilder = createClientBuilder(
                     clientCertTuple, clientCipherSuite);
             clientBuilder.setAppProtocols("h2");
-            try (BabaSSLClient client = clientBuilder.build()) {
+            try (TongsuoClient client = clientBuilder.build()) {
                 client.connect("127.0.0.1", server.getPort());
                 Assertions.assertEquals("h2", server.getNegoAppProtocol());
             }
@@ -229,10 +230,10 @@ public class JdkServerBabaSSLClientTest {
             executor.submit(new ServerCaller(server));
             Utilities.waitFor(Server::isAlive, server);
 
-            BabaSSLClient.Builder clientBuilder = createClientBuilder(
+            TongsuoClient.Builder clientBuilder = createClientBuilder(
                     clientCertTuple, clientCipherSuite);
             clientBuilder.setServerNames("www.example.com");
-            try (BabaSSLClient client = clientBuilder.build()) {
+            try (TongsuoClient client = clientBuilder.build()) {
                 client.connect("127.0.0.1", server.getPort());
             }
         } finally {
@@ -292,7 +293,7 @@ public class JdkServerBabaSSLClientTest {
             Utilities.waitFor(Server::isAlive, server);
 
             long firstCreationTime = 0;
-            try (BabaSSLClient client = createClientBuilder(
+            try (TongsuoClient client = createClientBuilder(
                     clientCertTuple, clientCipherSuite,
                     useSessionTicket,
                     SESS_FILE, true).build()) {
@@ -300,7 +301,7 @@ public class JdkServerBabaSSLClientTest {
                 firstCreationTime = server.getSession().getCreationTime();
             }
 
-            try (BabaSSLClient client = createClientBuilder(
+            try (TongsuoClient client = createClientBuilder(
                     clientCertTuple, clientCipherSuite,
                     useSessionTicket,
                     SESS_FILE, false).build()) {
@@ -314,10 +315,10 @@ public class JdkServerBabaSSLClientTest {
         }
     }
 
-    private BabaSSLClient.Builder createClientBuilder(CertTuple certTuple,
-            CipherSuite cipherSuite, boolean useSessionTicket,
-            Path sessFile, boolean saveSess) {
-        BabaSSLClient.Builder builder = new BabaSSLClient.Builder();
+    private TongsuoClient.Builder createClientBuilder(CertTuple certTuple,
+                                                      CipherSuite cipherSuite, boolean useSessionTicket,
+                                                      Path sessFile, boolean saveSess) {
+        TongsuoClient.Builder builder = new TongsuoClient.Builder();
         builder.setCertTuple(certTuple);
         builder.setProtocols(Protocol.TLCPV1_1);
         builder.setCipherSuites(cipherSuite);
@@ -337,8 +338,8 @@ public class JdkServerBabaSSLClientTest {
         return builder;
     }
 
-    private BabaSSLClient.Builder createClientBuilder(CertTuple certTuple,
-            CipherSuite cipherSuite) {
+    private TongsuoClient.Builder createClientBuilder(CertTuple certTuple,
+                                                      CipherSuite cipherSuite) {
         return createClientBuilder(certTuple, cipherSuite, false, null, false);
     }
 }
