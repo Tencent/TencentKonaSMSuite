@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022, 2023, THL A29 Limited, a Tencent company. All rights reserved.
+ * Copyright (C) 2022, 2024, THL A29 Limited, a Tencent company. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -19,38 +19,27 @@
 
 package com.tencent.kona.ssl.interop;
 
-import java.nio.file.Path;
-import java.nio.file.Paths;
-
 /*
- * OpenSSL/BabaSSL product.
- * This product is used for testing TLCP/NTLS/GMTLS.
+ * Utilities for OpenSSL/Tongsuo peers.
  */
-public class BabaSSL extends AbstractProduct {
+public class TongsuoUtils {
 
-    public static final BabaSSL DEFAULT = new BabaSSL(
-            "BabaSSL",
-            System.getProperty("test.babassl.path", "babassl"));
+    public static String cipherSuite(CipherSuite cipherSuite) {
+        switch (cipherSuite) {
+            case TLCP_ECC_SM4_CBC_SM3:
+                return "ECC-SM2-SM4-CBC-SM3";
 
-    private final String name;
-    private final Path path;
+            case TLCP_ECDHE_SM4_CBC_SM3:
+                return "ECDHE-SM2-SM4-CBC-SM3";
 
-    public BabaSSL(String name, Path path) {
-        this.name = name;
-        this.path = path;
-    }
+            case TLCP_ECC_SM4_GCM_SM3:
+                return "ECC-SM2-SM4-GCM-SM3";
 
-    public BabaSSL(String name, String path) {
-        this(name, Paths.get(path));
-    }
+            case TLCP_ECDHE_SM4_GCM_SM3:
+                return "ECDHE-SM2-SM4-GCM-SM3";
 
-    @Override
-    public String getName() {
-        return name;
-    }
-
-    @Override
-    public Path getPath() {
-        return path;
+            default:
+                return null;
+        }
     }
 }

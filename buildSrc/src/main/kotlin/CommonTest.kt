@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023, THL A29 Limited, a Tencent company. All rights reserved.
+ * Copyright (C) 2023, 2024, THL A29 Limited, a Tencent company. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -43,14 +43,14 @@ abstract class CommonTest : Test() {
                 excludeTestsMatching("com.tencent.kona.ssl.misc.*")
             }
 
-            val babasslPathProp = "test.babassl.path"
-            val babasslPath = System.getProperty(babasslPathProp, "babassl")
+            val tongsuoPathProp = "test.tongsuo.path"
+            val tongsuoPath = System.getProperty(tongsuoPathProp, "tongsuo")
 
-            if (!isBabaSSLAvailable(babasslPath)) {
-                // Ignore BabaSSL-related tests if no BabaSSL is available
-                excludeTestsMatching("*BabaSSL*Test")
+            if (!isTongsuoAvailable(tongsuoPath)) {
+                // Ignore Tongsuo-related tests if no Tongsuo is available
+                excludeTestsMatching("*Tongsuo*Test")
             } else {
-                systemProperty(babasslPathProp, babasslPath)
+                systemProperty(tongsuoPathProp, tongsuoPath)
             }
         }
 
@@ -88,12 +88,12 @@ abstract class CommonTest : Test() {
     }
 }
 
-// Determine if BabaSSL is available
-fun isBabaSSLAvailable(babasslPath : String): Boolean {
+// Determine if Tongsuo is available
+fun isTongsuoAvailable(tongsuoPath : String): Boolean {
     var exitCode : Int = -1
     try {
         val process = ProcessBuilder()
-            .command(babasslPath, "version")
+            .command(tongsuoPath, "version")
             .start()
         process.waitFor(3, TimeUnit.SECONDS)
         exitCode = process.exitValue()
@@ -103,7 +103,7 @@ fun isBabaSSLAvailable(babasslPath : String): Boolean {
         }
         System.out.print(versionInfo)
     } catch (e: Exception) {
-        println("BabaSSL is unavailable: " + e.cause)
+        println("Tongsuo is unavailable: " + e.cause)
     }
 
     return exitCode == 0

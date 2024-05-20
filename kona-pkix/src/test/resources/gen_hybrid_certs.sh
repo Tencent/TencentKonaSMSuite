@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# Copyright (C) 2022, 2023, THL A29 Limited, a Tencent company. All rights reserved.
+# Copyright (C) 2022, 2024, THL A29 Limited, a Tencent company. All rights reserved.
 # DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
 #
 # This code is free software; you can redistribute it and/or modify it
@@ -57,7 +57,7 @@ basicConstraints=critical,CA:FALSE
 keyUsage=critical,keyEncipherment,dataEncipherment,keyAgreement
 EOF
 
-OPENSSL=babassl
+OPENSSL=tongsuo
 
 ########## RSA START ##########
 

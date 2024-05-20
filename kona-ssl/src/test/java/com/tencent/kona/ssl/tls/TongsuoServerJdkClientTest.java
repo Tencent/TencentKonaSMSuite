@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022, 2023, THL A29 Limited, a Tencent company. All rights reserved.
+ * Copyright (C) 2022, 2024, THL A29 Limited, a Tencent company. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -25,10 +25,11 @@ import com.tencent.kona.ssl.interop.Client;
 import com.tencent.kona.ssl.interop.ClientAuth;
 import com.tencent.kona.ssl.interop.FileCert;
 import com.tencent.kona.ssl.interop.HashAlgorithm;
-import com.tencent.kona.ssl.interop.JdkServer;
+import com.tencent.kona.ssl.interop.JdkClient;
+import com.tencent.kona.ssl.interop.JdkProcClient;
 import com.tencent.kona.ssl.interop.KeyAlgorithm;
 import com.tencent.kona.ssl.interop.NamedGroup;
-import com.tencent.kona.ssl.interop.OpenSSLClient;
+import com.tencent.kona.ssl.interop.OpenSSLServer;
 import com.tencent.kona.ssl.interop.Protocol;
 import com.tencent.kona.ssl.interop.Server;
 import com.tencent.kona.ssl.interop.ServerCaller;
@@ -41,17 +42,19 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
+import javax.net.ssl.SSLContext;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 /**
- * The interop testing between JDK server and OpenSSL client.
+ * The interop testing between Tongsuo(OpenSSL) server and JDK client.
  */
-public class JdkServerBabaSSLClientTest {
+public class TongsuoServerJdkClientTest {
 
     private static final FileCert ECDSA_INTCA_CERT = new FileCert(
             KeyAlgorithm.EC, SignatureAlgorithm.ECDSA, HashAlgorithm.SHA256,
@@ -71,21 +74,28 @@ public class JdkServerBabaSSLClientTest {
             "ee-sm2sm2-sm2sm2-sm2sm2.crt",
             "ee-sm2sm2-sm2sm2-sm2sm2.key");
 
-    private static final Path SESS_FILE = Paths.get("build", "openssl.sess");
+    private static final Path PAGE_FILE = Paths.get("build", "page");
 
     @BeforeAll
     public static void setup() throws IOException {
-        deleteSessFile();
         TestUtils.addProviders();
+        deleteWebPage();
+        createWebPage();
+    }
+
+    private static void createWebPage() throws IOException {
+        Files.write(PAGE_FILE,
+                "OpenSSL server".getBytes(Utilities.CHARSET),
+                StandardOpenOption.CREATE);
     }
 
     @AfterAll
     public static void clean() throws IOException {
-        deleteSessFile();
+        deleteWebPage();
     }
 
-    private static void deleteSessFile() throws IOException {
-        Files.deleteIfExists(SESS_FILE);
+    private static void deleteWebPage() throws IOException {
+        Files.deleteIfExists(PAGE_FILE);
     }
 
     @Test
@@ -223,45 +233,19 @@ public class JdkServerBabaSSLClientTest {
                 clientAuth);
     }
 
-    @Test
-    public void testCertSelectionWithSignatureSchemeOnTLS13()
-            throws Exception {
-        // The JDK server selects ECDSA_EE_CERT due to
-        // the OpenSSL client prefers to ECDSA_SECP256R1_SHA256.
-        connect(
-                new FileCert[] { ECDSA_INTCA_CERT },
-                new FileCert[] { SM_EE_CERT, ECDSA_EE_CERT },
-                Protocol.TLSV1_3,
-                CipherSuite.TLS_AES_128_GCM_SHA256,
-                NamedGroup.SECP256R1,
-                SignatureScheme.ECDSA_SECP256R1_SHA256,
-                ClientAuth.NONE);
-
-        // The JDK server selects SM_EE_CERT due to
-        // the OpenSSL client prefers to SM2SIG_SM3.
-        connect(
-                new FileCert[] { SM_INTCA_CERT },
-                new FileCert[] { ECDSA_EE_CERT, SM_EE_CERT },
-                Protocol.TLSV1_3,
-                CipherSuite.TLS_AES_128_GCM_SHA256,
-                NamedGroup.SECP256R1,
-                SignatureScheme.SM2SIG_SM3,
-                ClientAuth.NONE);
-    }
-
     private void connect(
             FileCert[] trustedCerts,
             FileCert[] eeCerts,
             Protocol clientProtocol,
             CipherSuite clientCipherSuite,
             NamedGroup clientNamedGroup,
-            SignatureScheme clientSignatureScheme,
+            SignatureScheme signatureScheme,
             ClientAuth clientAuth) throws Exception {
         CertTuple certTuple = new CertTuple(trustedCerts, eeCerts);
 
         ExecutorService executor = Executors.newFixedThreadPool(1);
 
-        JdkServer.Builder serverBuilder = new JdkServer.Builder();
+        OpenSSLServer.Builder serverBuilder = new OpenSSLServer.Builder();
         serverBuilder.setCertTuple(certTuple);
         serverBuilder.setProtocols(Protocol.TLSV1_3, Protocol.TLSV1_2);
         serverBuilder.setCipherSuites(
@@ -275,15 +259,32 @@ public class JdkServerBabaSSLClientTest {
             executor.submit(new ServerCaller(server));
             Utilities.waitFor(Server::isAlive, server);
 
-            try (Client client = createClient(
+            try (Client client = createProcClient(
                     certTuple, clientProtocol,
                     clientCipherSuite, clientNamedGroup,
-                    clientSignatureScheme)) {
+                    signatureScheme)) {
                 client.connect("127.0.0.1", server.getPort());
             }
         } finally {
             executor.shutdown();
         }
+    }
+
+    private JdkProcClient createProcClient(
+            CertTuple certTuple, Protocol protocol,
+            CipherSuite cipherSuite, NamedGroup namedGroup,
+            SignatureScheme signatureScheme) throws Exception {
+        JdkProcClient.Builder builder = new JdkProcClient.Builder();
+        builder.setCertTuple(certTuple);
+        builder.setProtocols(protocol);
+        builder.setCipherSuites(cipherSuite);
+        builder.setNamedGroups(namedGroup);
+        builder.setSignatureSchemes(signatureScheme);
+        builder.setMessage(
+                // An HTTP request asks to access the page.
+                String.format("GET /%s HTTP/1.1\r\n", PAGE_FILE));
+        builder.setReadResponse(true);
+        return builder.build();
     }
 
     @Test
@@ -388,7 +389,7 @@ public class JdkServerBabaSSLClientTest {
 
         ExecutorService executor = Executors.newFixedThreadPool(1);
 
-        JdkServer.Builder serverBuilder = new JdkServer.Builder();
+        OpenSSLServer.Builder serverBuilder = new OpenSSLServer.Builder();
         serverBuilder.setCertTuple(certTuple);
         serverBuilder.setProtocols(Protocol.TLSV1_3, Protocol.TLSV1_2);
         serverBuilder.setCipherSuites(
@@ -396,30 +397,33 @@ public class JdkServerBabaSSLClientTest {
                 CipherSuite.TLS_SM4_GCM_SM3,
                 CipherSuite.TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256,
                 CipherSuite.TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256);
+        serverBuilder.setUseSessTicket(isUseSessTicket);
         serverBuilder.setClientAuth(clientAuth);
 
-        try (JdkServer server = serverBuilder.build()) {
+        try (Server server = serverBuilder.build()) {
             executor.submit(new ServerCaller(server));
             Utilities.waitFor(Server::isAlive, server);
 
+            SSLContext context = null;
             long firstCreationTime = 0;
-            try (OpenSSLClient client = createClient(
-                    certTuple, clientProtocol, clientCipherSuite,
-                    clientNamedGroup, clientSignatureScheme,
-                    isUseSessTicket,
-                    SESS_FILE, true)) {
+            try (JdkClient client = createClient(
+                    certTuple, clientProtocol,
+                    clientCipherSuite, clientNamedGroup,
+                    clientSignatureScheme,
+                    null)) {
                 client.connect("127.0.0.1", server.getPort());
-                firstCreationTime = server.getSession().getCreationTime();
+                context = client.context;
+                firstCreationTime = client.getSession().getCreationTime();
             }
 
-            try (OpenSSLClient client = createClient(
-                    certTuple, clientProtocol, clientCipherSuite,
-                    clientNamedGroup, clientSignatureScheme,
-                    isUseSessTicket,
-                    SESS_FILE, false)) {
+            try (JdkClient client = createClient(
+                    certTuple, clientProtocol,
+                    clientCipherSuite, clientNamedGroup,
+                    clientSignatureScheme,
+                    context)) {
                 client.connect("127.0.0.1", server.getPort());
 
-                long secondCreationTime = server.getSession().getCreationTime();
+                long secondCreationTime = client.getSession().getCreationTime();
                 Assertions.assertEquals(firstCreationTime, secondCreationTime);
             }
         } finally {
@@ -427,37 +431,22 @@ public class JdkServerBabaSSLClientTest {
         }
     }
 
-    private OpenSSLClient createClient(CertTuple certTuple, Protocol protocol,
+    private JdkClient createClient(
+            CertTuple certTuple, Protocol protocol,
             CipherSuite cipherSuite, NamedGroup namedGroup,
             SignatureScheme signatureScheme,
-            boolean isUseSessTicket,
-            Path sessFile, boolean saveSess) {
-        OpenSSLClient.Builder builder = new OpenSSLClient.Builder();
+            SSLContext context) throws Exception {
+        JdkClient.Builder builder = new JdkClient.Builder();
         builder.setCertTuple(certTuple);
         builder.setProtocols(protocol);
         builder.setCipherSuites(cipherSuite);
-        builder.setNamedGroups(namedGroup);
-        builder.setSignatureSchemes(signatureScheme);
-        builder.setMessage("Q");  // quit s_client
-        builder.setReadResponse(false);
-        builder.setUseSessTicket(isUseSessTicket);
-
-        if (sessFile != null) {
-            String sessFilePath = sessFile.toAbsolutePath().toString();
-            if (saveSess) {
-                builder.sessOut(sessFilePath);
-            } else {
-                builder.sessIn(sessFilePath);
-            }
-        }
-
+//        builder.setNamedGroups(namedGroup);
+//        builder.setSignatureSchemes(signatureScheme);
+        builder.setMessage(
+                // An HTTP request asks to access the page.
+                String.format("GET /%s HTTP/1.1\r\n", PAGE_FILE));
+        builder.setReadResponse(true);
+        builder.setContext(context);
         return builder.build();
-    }
-
-    private OpenSSLClient createClient(CertTuple certTuple, Protocol protocol,
-            CipherSuite cipherSuite, NamedGroup namedGroup,
-            SignatureScheme signatureScheme) {
-        return createClient(certTuple, protocol, cipherSuite, namedGroup,
-                signatureScheme, true, null, false);
     }
 }
