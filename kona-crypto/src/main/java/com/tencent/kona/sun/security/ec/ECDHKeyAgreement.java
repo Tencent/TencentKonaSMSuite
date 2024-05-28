@@ -31,6 +31,7 @@ import com.tencent.kona.sun.security.util.CurveDB;
 import com.tencent.kona.sun.security.util.ECUtil;
 import com.tencent.kona.sun.security.util.NamedCurve;
 import com.tencent.kona.sun.security.util.math.IntegerFieldModuloP;
+import com.tencent.kona.sun.security.util.math.IntegerMontgomeryFieldModuloP;
 import com.tencent.kona.sun.security.util.math.MutableIntegerModuloP;
 import com.tencent.kona.sun.security.util.math.SmallValue;
 
@@ -265,6 +266,11 @@ public final class ECDHKeyAgreement extends KeyAgreementSpi {
         ECPublicKey pubKey) throws InvalidKeyException {
 
         IntegerFieldModuloP field = ops.getField();
+        if (field instanceof IntegerMontgomeryFieldModuloP) {
+            // No point of doing a single SmallValue operation in Montgomery domain
+            field = ((IntegerMontgomeryFieldModuloP)field).residueField();
+        }
+
         // convert s array into field element and multiply by the cofactor
         MutableIntegerModuloP scalar = field.getElement(priv.getS()).mutable();
         SmallValue cofactor =

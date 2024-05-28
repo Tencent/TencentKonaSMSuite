@@ -293,7 +293,7 @@ public final class SM2Signature extends SignatureSpi {
         // B6: p = S'G + tPA
         MutablePoint p = SM2OPS.multiply(GENERATOR, toByteArrayLE(s));
         MutablePoint p2 = SM2OPS.multiply(publicPoint, toByteArrayLE(t));
-        SM2OPS.setSum(p, p2.asAffine());
+        SM2OPS.setSum(p, p2);
         if (isInfinitePoint(p)) {
             return false;
         }
