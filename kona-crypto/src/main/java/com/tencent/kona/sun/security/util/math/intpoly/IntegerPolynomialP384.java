@@ -375,7 +375,7 @@ public final class IntegerPolynomialP384 extends IntegerPolynomial {
         r[13] = c13;
     }
     @Override
-    protected void mult(long[] a, long[] b, long[] r) {
+    protected int mult(long[] a, long[] b, long[] r) {
         long c0 = (a[0] * b[0]);
         long c1 = (a[0] * b[1]) + (a[1] * b[0]);
         long c2 = (a[0] * b[2]) + (a[1] * b[1]) + (a[2] * b[0]);
@@ -405,13 +405,14 @@ public final class IntegerPolynomialP384 extends IntegerPolynomial {
         long c26 = (a[13] * b[13]);
 
         carryReduce(r, c0, c1, c2, c3, c4, c5, c6, c7, c8, c9, c10, c11, c12, c13, c14, c15, c16, c17, c18, c19, c20, c21, c22, c23, c24, c25, c26);
+        return 0;
     }
     @Override
     protected void reduce(long[] a) {
         carryReduce(a, a[0], a[1], a[2], a[3], a[4], a[5], a[6], a[7], a[8], a[9], a[10], a[11], a[12], a[13]);
     }
     @Override
-    protected void square(long[] a, long[] r) {
+    protected int square(long[] a, long[] r) {
         long c0 = (a[0] * a[0]);
         long c1 = 2 * ((a[0] * a[1]));
         long c2 = 2 * ((a[0] * a[2])) + (a[1] * a[1]);
@@ -441,5 +442,6 @@ public final class IntegerPolynomialP384 extends IntegerPolynomial {
         long c26 = (a[13] * a[13]);
 
         carryReduce(r, c0, c1, c2, c3, c4, c5, c6, c7, c8, c9, c10, c11, c12, c13, c14, c15, c16, c17, c18, c19, c20, c21, c22, c23, c24, c25, c26);
+        return 0;
     }
 }
