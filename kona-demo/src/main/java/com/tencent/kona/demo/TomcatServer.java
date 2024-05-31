@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023, THL A29 Limited, a Tencent company. All rights reserved.
+ * Copyright (C) 2023, 2024, THL A29 Limited, a Tencent company. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -72,7 +72,7 @@ import java.util.Set;
 public class TomcatServer {
 
     static {
-        Security.addProvider(new KonaProvider());
+        Security.insertProviderAt(new KonaProvider(), 1);
     }
 
     public static void main(String[] args) {
