@@ -49,7 +49,7 @@ import java.security.Security;
 public class JettyServer {
 
     static {
-        Security.addProvider(new KonaProvider());
+        Security.insertProviderAt(new KonaProvider(), 1);
     }
 
     public static void main(String[] args) {

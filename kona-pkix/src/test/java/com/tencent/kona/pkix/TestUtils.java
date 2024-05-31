@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022, 2023, THL A29 Limited, a Tencent company. All rights reserved.
+ * Copyright (C) 2022, 2024, THL A29 Limited, a Tencent company. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -91,8 +91,8 @@ public class TestUtils {
             "--add-exports", "java.base/jdk.internal.access=ALL-UNNAMED");
 
     public static void addProviders() {
-        Security.addProvider(new KonaCryptoProvider());
-        Security.addProvider(new KonaPKIXProvider());
+        Security.insertProviderAt(new KonaCryptoProvider(), 1);
+        Security.insertProviderAt(new KonaPKIXProvider(), 2);
     }
 
     public static Path resFilePath(String resource) {
