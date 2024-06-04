@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022, 2023, THL A29 Limited, a Tencent company. All rights reserved.
+ * Copyright (C) 2022, 2024, THL A29 Limited, a Tencent company. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -22,7 +22,6 @@ package com.tencent.kona.ssl.peers;
 import com.tencent.kona.ssl.interop.Cert;
 import com.tencent.kona.ssl.interop.CertTuple;
 import com.tencent.kona.ssl.interop.CipherSuite;
-import com.tencent.kona.ssl.interop.Client;
 import com.tencent.kona.ssl.interop.HashAlgorithm;
 import com.tencent.kona.ssl.interop.JdkClient;
 import com.tencent.kona.ssl.interop.KeyAlgorithm;
@@ -31,6 +30,8 @@ import com.tencent.kona.ssl.interop.Protocol;
 import com.tencent.kona.ssl.interop.SignatureAlgorithm;
 import com.tencent.kona.ssl.interop.SignatureScheme;
 import com.tencent.kona.ssl.TestUtils;
+
+import javax.net.ssl.SSLContext;
 
 /**
  * A simple client supporting TLS.
@@ -71,6 +72,9 @@ public class TLSClient {
         System.setProperty("com.tencent.misc.useSharedSecrets", "false");
         System.setProperty("com.tencent.kona.ssl.debug", "all");
 
+        String host = "localhost";
+        int port = 8443;
+
         TestUtils.addProviders();
 
         Cert ca = new Cert(
@@ -81,16 +85,39 @@ public class TLSClient {
                 EE, EE_KEY);
         CertTuple certTuple = new CertTuple(ca, ee);
 
+        SSLContext context = null;
+
+        try (JdkClient client = createClient(
+                certTuple, Protocol.TLSV1_3, CipherSuite.TLS_SM4_GCM_SM3,
+                new NamedGroup[]{NamedGroup.CURVESM2},
+                new SignatureScheme[] {SignatureScheme.SM2SIG_SM3},
+                context)) {
+            client.connect(host, port);
+            context = client.context;
+        }
+
+        try (JdkClient client = createClient(
+                certTuple, Protocol.TLSV1_3, CipherSuite.TLS_SM4_GCM_SM3,
+                new NamedGroup[]{NamedGroup.CURVESM2},
+                new SignatureScheme[] {SignatureScheme.SM2SIG_SM3},
+                context)) {
+            client.connect(host, port);
+        }
+    }
+
+    private static JdkClient createClient(
+            CertTuple certTuple, Protocol protocol, CipherSuite cipherSuite,
+            NamedGroup[] namedGroups, SignatureScheme[] signatureSchemes,
+            SSLContext context) throws Exception {
         JdkClient.Builder builder = new JdkClient.Builder();
         builder.setCertTuple(certTuple);
-        builder.setProtocols(Protocol.TLSV1_3);
-        builder.setCipherSuites(CipherSuite.TLS_SM4_GCM_SM3);
-        builder.setNamedGroups(NamedGroup.CURVESM2);
-        builder.setSignatureSchemes(SignatureScheme.SM2SIG_SM3);
-        builder.setMessage("TLS Client");
+        builder.setProtocols(protocol);
+        builder.setCipherSuites(cipherSuite);
+        builder.setNamedGroups(namedGroups);
+        builder.setSignatureSchemes(signatureSchemes);
+        builder.setMessage("Client");
         builder.setReadResponse(true);
-        try (Client client = builder.build()) {
-            client.connect("127.0.0.1", 8443);
-        }
+        builder.setContext(context);
+        return builder.build();
     }
 }

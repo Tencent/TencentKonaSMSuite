@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022, 2023, THL A29 Limited, a Tencent company. All rights reserved.
+ * Copyright (C) 2022, 2024, THL A29 Limited, a Tencent company. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -19,16 +19,9 @@
 
 package com.tencent.kona.ssl.peers;
 
-import com.tencent.kona.ssl.interop.Cert;
-import com.tencent.kona.ssl.interop.CertTuple;
-import com.tencent.kona.ssl.interop.CipherSuite;
-import com.tencent.kona.ssl.interop.Client;
-import com.tencent.kona.ssl.interop.HashAlgorithm;
-import com.tencent.kona.ssl.interop.JdkClient;
-import com.tencent.kona.ssl.interop.KeyAlgorithm;
-import com.tencent.kona.ssl.interop.Protocol;
-import com.tencent.kona.ssl.interop.Provider;
-import com.tencent.kona.ssl.interop.SignatureAlgorithm;
+import com.tencent.kona.ssl.interop.*;
+
+import javax.net.ssl.SSLContext;
 
 /**
  * A simple client supporting TLS with JSSE provider.
@@ -69,6 +62,9 @@ public class SunJSSEClient {
     public static void main(String[] args) throws Exception {
         System.setProperty("javax.net.debug", "all");
 
+        String host = "localhost";
+        int port = 8445;
+
         Cert ca = new Cert(
                 KeyAlgorithm.EC, SignatureAlgorithm.ECDSA, HashAlgorithm.SHA256,
                 CA);
@@ -77,18 +73,43 @@ public class SunJSSEClient {
                 EE, EE_KEY);
         CertTuple certTuple = new CertTuple(ca, ee);
 
+        SSLContext context = null;
+
+        try (JdkClient client = createClient(
+                certTuple,
+                new Protocol[]{Protocol.TLSV1_3, Protocol.TLSV1_2},
+                new CipherSuite[]{
+                        CipherSuite.TLS_AES_128_GCM_SHA256,
+                        CipherSuite.TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256,
+                        CipherSuite.TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256},
+                context)) {
+            client.connect(host, port);
+            context = client.context;
+        }
+
+        try (JdkClient client = createClient(
+                certTuple,
+                new Protocol[]{Protocol.TLSV1_3, Protocol.TLSV1_2},
+                new CipherSuite[]{
+                        CipherSuite.TLS_AES_128_GCM_SHA256,
+                        CipherSuite.TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256,
+                        CipherSuite.TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256},
+                context)) {
+            client.connect(host, port);
+        }
+    }
+
+    private static JdkClient createClient(
+            CertTuple certTuple, Protocol[] protocols, CipherSuite[] cipherSuites,
+            SSLContext context) throws Exception {
         JdkClient.Builder builder = new JdkClient.Builder();
         builder.setProvider(Provider.JDK);
         builder.setCertTuple(certTuple);
-        builder.setProtocols(Protocol.TLSV1_3, Protocol.TLSV1_2);
-        builder.setCipherSuites(
-                CipherSuite.TLS_AES_128_GCM_SHA256,
-                CipherSuite.TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256,
-                CipherSuite.TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256);
-        builder.setMessage("TLS Client");
+        builder.setProtocols(protocols);
+        builder.setCipherSuites(cipherSuites);
+        builder.setMessage("Client");
         builder.setReadResponse(true);
-        try (Client client = builder.build()) {
-            client.connect("127.0.0.1", 8443);
-        }
+        builder.setContext(context);
+        return builder.build();
     }
 }

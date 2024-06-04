@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022, 2023, THL A29 Limited, a Tencent company. All rights reserved.
+ * Copyright (C) 2022, 2024, THL A29 Limited, a Tencent company. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -19,15 +19,10 @@
 
 package com.tencent.kona.ssl.peers;
 
-import com.tencent.kona.ssl.interop.Cert;
-import com.tencent.kona.ssl.interop.CipherSuite;
-import com.tencent.kona.ssl.interop.ContextProtocol;
-import com.tencent.kona.ssl.interop.HashAlgorithm;
-import com.tencent.kona.ssl.interop.JdkClient;
-import com.tencent.kona.ssl.interop.KeyAlgorithm;
-import com.tencent.kona.ssl.interop.SignatureAlgorithm;
-import com.tencent.kona.ssl.interop.SmCertTuple;
+import com.tencent.kona.ssl.interop.*;
 import com.tencent.kona.ssl.TestUtils;
+
+import javax.net.ssl.SSLContext;
 
 /**
  * A simple server supporting TLCP.
@@ -85,6 +80,9 @@ public class TLCPClient {
         System.setProperty("com.tencent.misc.useSharedSecrets", "false");
         System.setProperty("com.tencent.kona.ssl.debug", "all");
 
+        String host = "localhost";
+        int port = 8444;
+
         TestUtils.addProviders();
 
         Cert ca = new Cert(
@@ -98,15 +96,33 @@ public class TLCPClient {
                 ENC_EE, ENC_EE_KEY);
         SmCertTuple certTuple = new SmCertTuple(ca, signEE, encEE);
 
+        SSLContext context = null;
+
+        try (JdkClient client = createClient(
+                certTuple, Protocol.TLCPV1_1, CipherSuite.TLCP_ECC_SM4_GCM_SM3,
+                context)) {
+            client.connect(host, port);
+            context = client.context;
+        }
+
+        try (JdkClient client = createClient(
+                certTuple, Protocol.TLCPV1_1, CipherSuite.TLCP_ECC_SM4_GCM_SM3,
+                context)) {
+            client.connect(host, port);
+        }
+    }
+
+    private static JdkClient createClient(
+            CertTuple certTuple, Protocol protocol, CipherSuite cipherSuite,
+            SSLContext context) throws Exception {
         JdkClient.Builder builder = new JdkClient.Builder();
         builder.setContextProtocol(ContextProtocol.TLCP);
         builder.setCertTuple(certTuple);
-        builder.setCipherSuites(CipherSuite.TLCP_ECC_SM4_GCM_SM3);
+        builder.setProtocols(protocol);
+        builder.setCipherSuites(cipherSuite);
+        builder.setMessage("Client");
         builder.setReadResponse(true);
-        builder.setMessage("TLCP Client");
-
-        try (JdkClient client = builder.build()) {
-            client.connect("127.0.0.1", 8444);
-        }
+        builder.setContext(context);
+        return builder.build();
     }
 }
