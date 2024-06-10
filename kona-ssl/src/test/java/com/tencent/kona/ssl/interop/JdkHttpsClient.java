@@ -25,9 +25,12 @@ package com.tencent.kona.ssl.interop;
 
 import java.io.IOException;
 import java.net.URL;
+import java.security.KeyStore;
 
 import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManagerFactory;
 
 /*
  * A JDK client based on HttpsURLConnection.
@@ -49,6 +52,7 @@ public class JdkHttpsClient extends AbstractClient {
     protected SSLContext getContext(Builder builder) throws Exception {
         return builder.getContext() == null
                 ? Utilities.createSSLContext(builder.getProvider(),
+                        builder.getTrustManagerAlgo(), builder.getKeyManagerAlgo(),
                         builder.getContextProtocol(), builder.getCertTuple())
                 : builder.getContext();
     }
@@ -58,6 +62,10 @@ public class JdkHttpsClient extends AbstractClient {
         private String path = "";
 
         private Provider provider = Provider.KONA;
+
+        private String keystoreType = KeyStore.getDefaultType();
+        private String trustManagerAlgo = TrustManagerFactory.getDefaultAlgorithm();
+        private String keyManagerAlgo = KeyManagerFactory.getDefaultAlgorithm();
 
         private SSLContext context;
 
@@ -74,8 +82,35 @@ public class JdkHttpsClient extends AbstractClient {
             return provider;
         }
 
-        public AbstractPeer.Builder setProvider(Provider provider) {
+        public Builder setProvider(Provider provider) {
             this.provider = provider;
+            return this;
+        }
+
+        public String getKeystoreType() {
+            return keystoreType;
+        }
+
+        public Builder setKeystoreType(String keystoreType) {
+            this.keystoreType = keystoreType;
+            return this;
+        }
+
+        public String getTrustManagerAlgo() {
+            return trustManagerAlgo;
+        }
+
+        public Builder setTrustManagerAlgo(String trustManagerAlgo) {
+            this.trustManagerAlgo = trustManagerAlgo;
+            return this;
+        }
+
+        public String getKeyManagerAlgo() {
+            return keyManagerAlgo;
+        }
+
+        public Builder setKeyManagerAlgo(String keyManagerAlgo) {
+            this.keyManagerAlgo = keyManagerAlgo;
             return this;
         }
 

@@ -112,6 +112,7 @@ public class Utilities {
     }
 
     public static SSLContext createSSLContext(Provider provider,
+            String trustManagerAlgorithm, String keyManagerAlgorithm,
             ContextProtocol contextProtocol, CertTuple certTuple) throws Exception {
         String sslProvider = provider == Provider.JDK ? "SunJSSE" : "KonaSSL";
         String keystoreProvider = provider == Provider.JDK ? "SunJSSE" : "KonaPKIX";
@@ -119,17 +120,26 @@ public class Utilities {
 
         KeyStore trustStore = createTrustStore(
                 keystoreProvider, pkixProvider, certTuple.trustedCerts);
-        TrustManagerFactory tmf = TrustManagerFactory.getInstance("PKIX", sslProvider);
+        TrustManagerFactory tmf = TrustManagerFactory.getInstance(
+                trustManagerAlgorithm, sslProvider);
         tmf.init(trustStore);
 
         KeyStore keyStore = createKeyStore(
                 keystoreProvider, pkixProvider, certTuple.endEntityCerts);
-        KeyManagerFactory kmf = KeyManagerFactory.getInstance("NewSunX509", sslProvider);
+        KeyManagerFactory kmf = KeyManagerFactory.getInstance(
+                keyManagerAlgorithm, sslProvider);
         kmf.init(keyStore, null);
 
         SSLContext context = SSLContext.getInstance(contextProtocol.name, sslProvider);
         context.init(kmf.getKeyManagers(), tmf.getTrustManagers(), null);
         return context;
+    }
+
+    public static SSLContext createSSLContext(Provider provider,
+            ContextProtocol contextProtocol, CertTuple certTuple) throws Exception {
+        return createSSLContext(provider,
+                TrustManagerFactory.getDefaultAlgorithm(), KeyManagerFactory.getDefaultAlgorithm(),
+                contextProtocol, certTuple);
     }
 
     /*
@@ -139,7 +149,7 @@ public class Utilities {
             String keystoreProvider, String pkixProvider, Cert... certs)
             throws KeyStoreException, IOException, NoSuchAlgorithmException,
             CertificateException, NoSuchProviderException {
-        KeyStore trustStore = KeyStore.getInstance("PKCS12", keystoreProvider);
+        KeyStore trustStore = KeyStore.getInstance(KeyStore.getDefaultType(), keystoreProvider);
         trustStore.load(null, null);
 
         if (certs != null && certs.length > 0) {
@@ -162,7 +172,7 @@ public class Utilities {
             throws KeyStoreException, IOException, NoSuchAlgorithmException,
             CertificateException, InvalidKeySpecException,
             NoSuchProviderException {
-        KeyStore keyStore = KeyStore.getInstance("PKCS12", keystoreProvider);
+        KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType(), keystoreProvider);
         keyStore.load(null, null);
 
         if (certs != null && certs.length > 0) {

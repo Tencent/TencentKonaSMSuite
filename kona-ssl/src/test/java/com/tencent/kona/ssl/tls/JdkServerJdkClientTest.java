@@ -263,6 +263,7 @@ public class JdkServerJdkClientTest {
         ExecutorService executor = Executors.newFixedThreadPool(1);
 
         JdkServer.Builder serverBuilder = new JdkServer.Builder();
+        serverBuilder.setKeyManagerAlgo("NewSunX509");
         serverBuilder.setCertTuple(serverCertTuple);
         serverBuilder.setProtocols(Protocol.TLSV1_3, Protocol.TLSV1_2);
         serverBuilder.setCipherSuites(
