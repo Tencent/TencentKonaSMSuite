@@ -26,15 +26,11 @@ package com.tencent.kona.ssl.interop;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.SocketException;
+import java.security.KeyStore;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.net.ssl.SNIHostName;
-import javax.net.ssl.SNIServerName;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLParameters;
-import javax.net.ssl.SSLSession;
-import javax.net.ssl.SSLSocket;
+import javax.net.ssl.*;
 
 /*
  * A JDK client based on SSLSocket.
@@ -80,6 +76,7 @@ public class JdkClient extends AbstractClient {
     protected SSLContext getContext(Builder builder) throws Exception {
         return builder.getContext() == null
                 ? Utilities.createSSLContext(builder.getProvider(),
+                        builder.getTrustManagerAlgo(), builder.getKeyManagerAlgo(),
                         builder.getContextProtocol(), builder.getCertTuple())
                 : builder.getContext();
     }
@@ -113,6 +110,10 @@ public class JdkClient extends AbstractClient {
 
         private Provider provider = Provider.KONA;
 
+        private String keystoreType = KeyStore.getDefaultType();
+        private String trustManagerAlgo = TrustManagerFactory.getDefaultAlgorithm();
+        private String keyManagerAlgo = KeyManagerFactory.getDefaultAlgorithm();
+
         private ConnectionInterceptor interceptor;
         private SSLContext context;
 
@@ -120,8 +121,35 @@ public class JdkClient extends AbstractClient {
             return provider;
         }
 
-        public AbstractPeer.Builder setProvider(Provider provider) {
+        public Builder setProvider(Provider provider) {
             this.provider = provider;
+            return this;
+        }
+
+        public String getKeystoreType() {
+            return keystoreType;
+        }
+
+        public Builder setKeystoreType(String keystoreType) {
+            this.keystoreType = keystoreType;
+            return this;
+        }
+
+        public String getTrustManagerAlgo() {
+            return trustManagerAlgo;
+        }
+
+        public Builder setTrustManagerAlgo(String trustManagerAlgo) {
+            this.trustManagerAlgo = trustManagerAlgo;
+            return this;
+        }
+
+        public String getKeyManagerAlgo() {
+            return keyManagerAlgo;
+        }
+
+        public Builder setKeyManagerAlgo(String keyManagerAlgo) {
+            this.keyManagerAlgo = keyManagerAlgo;
             return this;
         }
 

@@ -25,8 +25,11 @@ package com.tencent.kona.ssl.interop;
 
 import com.tencent.kona.ssl.TestUtils;
 
+import javax.net.ssl.KeyManagerFactory;
+import javax.net.ssl.TrustManagerFactory;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.security.KeyStore;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -50,6 +53,10 @@ public class JdkProcClient extends AbstractClient {
         }
 
         props.put(JdkProcUtils.PROP_PROVIDER, builder.getProvider().name);
+
+        props.put(JdkProcUtils.PROP_KEYSTORE_TYPE, builder.getKeystoreType());
+        props.put(JdkProcUtils.PROP_TRUST_MANAGER_ALGO, builder.getTrustManagerAlgo());
+        props.put(JdkProcUtils.PROP_KEY_MANAGER_ALGO, builder.getKeyManagerAlgo());
 
         if (builder.getCertTuple() != null) {
             props.put(JdkProcUtils.PROP_TRUSTED_CERTS,
@@ -116,6 +123,10 @@ public class JdkProcClient extends AbstractClient {
 
         private Provider provider = Provider.KONA;
 
+        private String keystoreType = KeyStore.getDefaultType();
+        private String trustManagerAlgo = TrustManagerFactory.getDefaultAlgorithm();
+        private String keyManagerAlgo = KeyManagerFactory.getDefaultAlgorithm();
+
         private Path secPropsFile;
 
         public Jdk getJdk() {
@@ -140,11 +151,37 @@ public class JdkProcClient extends AbstractClient {
             return provider;
         }
 
-        public AbstractPeer.Builder setProvider(Provider provider) {
+        public Builder setProvider(Provider provider) {
             this.provider = provider;
             return this;
         }
 
+        public String getKeystoreType() {
+            return keystoreType;
+        }
+
+        public Builder setKeystoreType(String keystoreType) {
+            this.keystoreType = keystoreType;
+            return this;
+        }
+
+        public String getTrustManagerAlgo() {
+            return trustManagerAlgo;
+        }
+
+        public Builder setTrustManagerAlgo(String trustManagerAlgo) {
+            this.trustManagerAlgo = trustManagerAlgo;
+            return this;
+        }
+
+        public String getKeyManagerAlgo() {
+            return keyManagerAlgo;
+        }
+
+        public Builder setKeyManagerAlgo(String keyManagerAlgo) {
+            this.keyManagerAlgo = keyManagerAlgo;
+            return this;
+        }
 
         @Override
         public JdkProcClient build() {
@@ -188,6 +225,10 @@ public class JdkProcClient extends AbstractClient {
             TestUtils.addProviders();
         }
 
+        String keystoreStr = System.getProperty(JdkProcUtils.PROP_KEYSTORE_TYPE);
+        String trustManagerAlgoStr = System.getProperty(JdkProcUtils.PROP_TRUST_MANAGER_ALGO);
+        String keyManagerAlgoStr = System.getProperty(JdkProcUtils.PROP_KEY_MANAGER_ALGO);
+
         String trustedCertsStr = System.getProperty(JdkProcUtils.PROP_TRUSTED_CERTS);
         String eeCertsStr = System.getProperty(JdkProcUtils.PROP_EE_CERTS);
 
@@ -206,6 +247,11 @@ public class JdkProcClient extends AbstractClient {
 
         JdkClient.Builder builder = new JdkClient.Builder();
         builder.setProvider(Provider.provider(providerStr));
+
+        builder.setKeystoreType(keystoreStr);
+        builder.setTrustManagerAlgo(trustManagerAlgoStr);
+        builder.setKeyManagerAlgo(keyManagerAlgoStr);
+
         builder.setCertTuple(JdkProcUtils.createCertTuple(
                 trustedCertsStr, eeCertsStr));
         builder.setContextProtocol(
