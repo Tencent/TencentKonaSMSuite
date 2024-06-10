@@ -76,6 +76,7 @@ public class JdkClient extends AbstractClient {
     protected SSLContext getContext(Builder builder) throws Exception {
         return builder.getContext() == null
                 ? Utilities.createSSLContext(builder.getProvider(),
+                        builder.getKeystoreType(),
                         builder.getTrustManagerAlgo(), builder.getKeyManagerAlgo(),
                         builder.getContextProtocol(), builder.getCertTuple())
                 : builder.getContext();

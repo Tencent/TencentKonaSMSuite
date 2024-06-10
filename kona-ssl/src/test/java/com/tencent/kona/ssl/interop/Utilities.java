@@ -89,6 +89,8 @@ public class Utilities {
     public static final String PARAM_DELIMITER = ";";
     public static final String VALUE_DELIMITER = ",";
 
+    public static final char[] PASSWORD = "testpassword".toCharArray();
+
     /*
      * Gets all supported cipher suites.
      */
@@ -112,14 +114,18 @@ public class Utilities {
     }
 
     public static SSLContext createSSLContext(Provider provider,
-            String trustManagerAlgorithm, String keyManagerAlgorithm,
+            String kestoreType, String trustManagerAlgorithm, String keyManagerAlgorithm,
             ContextProtocol contextProtocol, CertTuple certTuple) throws Exception {
         String sslProvider = provider == Provider.JDK ? "SunJSSE" : "KonaSSL";
-        String keystoreProvider = provider == Provider.JDK ? "SunJSSE" : "KonaPKIX";
+        String keystoreProvider = "KonaPKIX";
+        if (provider == Provider.JDK) {
+            keystoreProvider = kestoreType.equalsIgnoreCase("JKS")
+                    ? "SUN" : "SunJSSE";
+        }
         String pkixProvider = provider == Provider.JDK ? "SUN" : "KonaPKIX";
 
         KeyStore trustStore = createTrustStore(
-                keystoreProvider, pkixProvider, certTuple.trustedCerts);
+                kestoreType, keystoreProvider, pkixProvider, certTuple.trustedCerts);
         TrustManagerFactory tmf = TrustManagerFactory.getInstance(
                 trustManagerAlgorithm, sslProvider);
         tmf.init(trustStore);
@@ -128,7 +134,7 @@ public class Utilities {
                 keystoreProvider, pkixProvider, certTuple.endEntityCerts);
         KeyManagerFactory kmf = KeyManagerFactory.getInstance(
                 keyManagerAlgorithm, sslProvider);
-        kmf.init(keyStore, null);
+        kmf.init(keyStore, PASSWORD);
 
         SSLContext context = SSLContext.getInstance(contextProtocol.name, sslProvider);
         context.init(kmf.getKeyManagers(), tmf.getTrustManagers(), null);
@@ -138,7 +144,9 @@ public class Utilities {
     public static SSLContext createSSLContext(Provider provider,
             ContextProtocol contextProtocol, CertTuple certTuple) throws Exception {
         return createSSLContext(provider,
-                TrustManagerFactory.getDefaultAlgorithm(), KeyManagerFactory.getDefaultAlgorithm(),
+                KeyStore.getDefaultType(),
+                TrustManagerFactory.getDefaultAlgorithm(),
+                KeyManagerFactory.getDefaultAlgorithm(),
                 contextProtocol, certTuple);
     }
 
@@ -146,10 +154,11 @@ public class Utilities {
      * Creates trust store with the specified certificates.
      */
     public static KeyStore createTrustStore(
-            String keystoreProvider, String pkixProvider, Cert... certs)
+            String keystoreType, String keystoreProvider, String pkixProvider,
+            Cert... certs)
             throws KeyStoreException, IOException, NoSuchAlgorithmException,
             CertificateException, NoSuchProviderException {
-        KeyStore trustStore = KeyStore.getInstance(KeyStore.getDefaultType(), keystoreProvider);
+        KeyStore trustStore = KeyStore.getInstance(keystoreType, keystoreProvider);
         trustStore.load(null, null);
 
         if (certs != null && certs.length > 0) {
@@ -181,7 +190,7 @@ public class Utilities {
                 for (int i = 0; i < certs.length - 1; i++) {
                     String cryptoProvider = cryptoProvider(pkixProvider, certs[i]);
                     if (certs[i] != null) {
-                        keyStore.setKeyEntry("cert-" + i, createKey(cryptoProvider, certs[i]), null,
+                        keyStore.setKeyEntry("cert-" + i, createKey(cryptoProvider, certs[i]), PASSWORD,
                                 new Certificate[]{ createCert(pkixProvider, certs[i]), lastCert });
                     }
                 }
@@ -189,7 +198,7 @@ public class Utilities {
                 for (int i = 0; i < certs.length; i++) {
                     if (certs[i] != null) {
                         String cryptoProvider = cryptoProvider(pkixProvider, certs[i]);
-                        keyStore.setKeyEntry("cert-" + i, createKey(cryptoProvider, certs[i]), null,
+                        keyStore.setKeyEntry("cert-" + i, createKey(cryptoProvider, certs[i]), PASSWORD,
                                 new Certificate[]{ createCert(pkixProvider, certs[i]) });
                     }
                 }

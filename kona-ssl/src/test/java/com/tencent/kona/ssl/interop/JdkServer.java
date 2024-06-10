@@ -63,6 +63,7 @@ public class JdkServer extends AbstractServer {
         response = builder.getMessage();
 
         context = Utilities.createSSLContext(builder.getProvider(),
+                builder.getKeystoreType(),
                 builder.getTrustManagerAlgo(), builder.getKeyManagerAlgo(),
                 builder.getContextProtocol(), builder.getCertTuple());
         SSLServerSocketFactory serverFactory = context.getServerSocketFactory();
