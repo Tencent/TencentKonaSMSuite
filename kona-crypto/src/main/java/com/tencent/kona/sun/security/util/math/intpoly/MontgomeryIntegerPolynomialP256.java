@@ -30,7 +30,6 @@ import com.tencent.kona.sun.security.util.math.ImmutableIntegerModuloP;
 import com.tencent.kona.sun.security.util.math.IntegerMontgomeryFieldModuloP;
 import com.tencent.kona.sun.security.util.math.SmallValue;
 import com.tencent.kona.sun.security.util.math.IntegerFieldModuloP;
-import java.lang.Math;
 import java.math.BigInteger;
 
 // Reference:
@@ -110,7 +109,7 @@ public final class MontgomeryIntegerPolynomialP256 extends IntegerPolynomial
 
     @Override
     public SmallValue getSmallValue(int value) {
-        // Explicitely here as reminder that SmallValue stays in residue domain
+        // Explicitly here as reminder that SmallValue stays in residue domain
         // See multByInt below for how this is used
         return super.getSmallValue(value);
     }
