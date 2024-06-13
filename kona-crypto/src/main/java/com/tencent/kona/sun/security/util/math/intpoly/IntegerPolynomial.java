@@ -818,7 +818,7 @@ public abstract class IntegerPolynomial implements IntegerFieldModuloP {
                 numAdds = 0;
             }
 
-            numAdds = IntegerPolynomial.this.square(limbs, limbs);;
+            numAdds = IntegerPolynomial.this.square(limbs, limbs);
             return this;
         }
 
