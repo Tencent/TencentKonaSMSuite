@@ -13,7 +13,7 @@ Tencent Kona SM Suite is a set of Java security providers, which service the Sha
 - [KonaPKIX]，which supports ShangMi algorithms on loading certificate and certificate chain verification. It also can load and write keystores containing ShangMi certificates. Additionally, this component provides two utility classes:
   - KeyTool, which is the same as `keytool` in JDK, can generate private keys, and create certificates and keystores. It can use `PBEWithHmacSM3AndSM4` to encrypt private keys and keystores, and use `HmacPBESM3` to validate the integrity of keystores.
   - KeyStoreTool, which can import the existing [PEM]-encoded private keys and certificates to keystores.
-- [KonaSSL] implements China's Transport Layer Cryptographic Protocol, and also applies ShangMi algorithms to TLS 1.3 based on RFC 8998.
+- [KonaSSL] implements China's Transport Layer Cryptographic Protocol (TLCP), and also applies ShangMi algorithms to TLS 1.3 based on RFC 8998.
 - [Kona], which wraps all the features in `KonaCrypto`，`KonaPKIX` and `KonaSSL`, so it has to depend on one or more of them. Generally, **this provider is recommended**.
 
 This project provides a Spring Boot module, exactly [kona-demo], as a server-side demo. This module demonstrates the approach on integrating Tencent Kona SM Suite to the 3rd-party web servers, including `Jetty` and `Tomcat`. But this module is not one of the artifacts of this project. In addition, [the test set] in `kona-ssl` module provides the demon on integrating with `Netty`, `gRPC`, `Apache HttpClient` and `OkHttp`.
@@ -28,7 +28,7 @@ Tencent Kona SM Suite supports all the JDK long-term supported (LTS) releases, n
 
 Please note Tencent Kona SM Suite is already signed by Oracle-issued JCE code signing [certificate], so it also can run on Oracle JDK.
 
-We are pleased to recommend Tencent's OpenJDK distributions, namely Tencent Kona JDKs, which provide versions [8], [11] and [17]. They support Linux, macOS and Windows operating systems, and x86_64 and aarch64 CPUs.
+We are pleased to recommend Tencent's OpenJDK distributions, namely Tencent Kona JDKs, which provide versions [8], [11] and [17]. They support Linux, macOS and Windows operating systems, and x86_64 and aarch64 CPUs. **The latest Tencent Kona JDK 8 already supports ShangMi algorithms, TLCP and RFC 8998 specification natively.**
 
 ### Android
 By default, Tencent Kona SM Suite does not depend on any JDK internal API implementations, so it also can run on Android platform.
