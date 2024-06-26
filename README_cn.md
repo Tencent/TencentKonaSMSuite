@@ -9,7 +9,7 @@
 
 腾讯Kona国密套件是一组Java安全特性的Provider实现，主要服务于Java生态中的国密应用场景。具体地，该套件包含有四个Provider：
 
-- [KonaCrypto]，它遵循标准的[JCA]框架实现了国密基础算法SM2，SM3和SM4。
+- [KonaCrypto]，它遵循标准的[JCA]框架实现了国密密码学算法SM2，SM3和SM4。
 - [KonaPKIX]，它实现了国密证书的解析与验证，并可加载和创建包含国密证书的密钥库。它需要依赖`KonaCrypto`。另外，该组件还提供了两个工具类：
   - KeyTool，它的功能与JDK中的`keytool`相同，可以生成密钥对，创建证书以及密钥库。它支持使用`PBEWithHmacSM3AndSM4`算法对私钥和密钥库进行加密，也可使用`HmacPBESM3`算法验证密钥库的完整性。
   - KeyStoreTool，它可以将已有的[PEM]格式的私钥和证书导入密钥库。
@@ -28,7 +28,7 @@
 
 注意：已经使用Oracle颁发的JCE代码签名[证书]对本套组件的jar文件签名，所以它们也可以运行在Oracle JDK上。
 
-欢迎使用腾讯的OpenJDK发行版，即Tencent Kona JDK，提供[8]，[11]和[17]三大版本，支持Linux，macOS和Windows等主流操作系统以及x86_64和aarch64等主流CPU架构。
+欢迎使用腾讯的OpenJDK发行版，即Tencent Kona JDK，提供[8]，[11]和[17]三大版本，支持Linux，macOS和Windows等主流操作系统以及x86_64和aarch64等主流CPU架构。**最新的Tencent Kona JDK 8已经原生地支持了国密密码学算法，国密SSL/TLCP协议和RFC 8998规范。**
 
 ### Android
 默认情况下，腾讯Kona国密套件并不需要依赖JDK的任何内部API实现，所以它也可以运行Android平台上。
@@ -49,7 +49,7 @@ dependencies {
 }
 ```
 
-注意，并不一定要将所有的Provider都加到类路径中，请根据实际需求去声明依赖。例如，只需要使用国密的基础算法，且想使用Provider名称`Kona`时，那么依赖声明可能就像下面这样，
+注意，并不一定要将所有的Provider都加到类路径中，请根据实际需求去声明依赖。例如，只需要使用国密的密码学算法，且想使用Provider名称`Kona`时，那么依赖声明可能就像下面这样，
 
 ```
 dependencies {
@@ -93,11 +93,11 @@ dependencies {
 **答**：Oracle JDK会验证JCE实现（此处为`KonaCrypto`）是否被签名，并且其关联的证书要由JCE Code Signing CA颁发。而在执行本项目中的测试用例时，其使用的`KonaCrypto` Provider还没有签名，所以不能在Oracle JDK中执行它们。但发布到Maven中央仓库中的jar文件都被签名了，所以它们都可以在Oracle JDK中运行。
 
 **问**：本项目与BoucyCastle中的国密实现有何关系？<br>
-**答**：本项目的早期版本会依赖BouncyCastle中的国密基础算法，但从`1.0.5`版开始，已经不再对BouncyCastle有任何的依赖。由于都是遵循中国相关标准来实现的国密基础算法，所以这两个组件之间可以正常交互。另外，需要了解的是，BouncyCastle并不支持国密安全通信协议，包括TLCP和TLS 1.3/RFC 8998。
+**答**：本项目的早期版本会依赖BouncyCastle中的国密密码学算法，但从`1.0.5`版开始，已经不再对BouncyCastle有任何的依赖。由于都是遵循中国相关标准来实现的国密密码学算法，所以这两个组件之间可以正常交互。另外，需要了解的是，BouncyCastle并不支持国密安全通信协议，包括TLCP和TLS 1.3/RFC 8998。
 
 **问**：可以支持的JDK 8最低版本是多少？<br>
 **答**：根据不同的应用场景，对JDK 8的版本的要求也不尽相同。
-- 仅使用国密基础算法和/或TLCP协议，最多需要`8u141`（甚至更老的版本)。
+- 仅使用国密密码学算法和/或TLCP协议，最多需要`8u141`（甚至更老的版本)。
   - 要在TLCP协议中使用ALPN扩展，要求的最低版本则为`8u251`。
 - 为了使用TLS 1.3/RFC 8998协议，要求的最低版本为`8u261`。
 
