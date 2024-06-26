@@ -85,12 +85,11 @@ public abstract class IntegerPolynomial implements IntegerFieldModuloP {
      * store the result in an IntegerPolynomial representation in a. Requires
      * that a.length == numLimbs.
      */
-    protected int multByInt(long[] a, long b) {
+    protected void multByInt(long[] a, long b) {
         for (int i = 0; i < a.length; i++) {
             a[i] *= b;
         }
         reduce(a);
-        return 0;
     }
 
     /**
@@ -99,7 +98,7 @@ public abstract class IntegerPolynomial implements IntegerFieldModuloP {
      * a.length == b.length == r.length == numLimbs. It is allowed for a and r
      * to be the same array.
      */
-    protected abstract int mult(long[] a, long[] b, long[] r);
+    protected abstract void mult(long[] a, long[] b, long[] r);
 
     /**
      * Multiply an IntegerPolynomial representation (a) with itself and store
@@ -107,7 +106,7 @@ public abstract class IntegerPolynomial implements IntegerFieldModuloP {
      * a.length == r.length == numLimbs. It is allowed for a and r
      * to be the same array.
      */
-    protected abstract int square(long[] a, long[] r);
+    protected abstract void square(long[] a, long[] r);
 
     IntegerPolynomial(int bitsPerLimb,
                       int numLimbs,
@@ -617,8 +616,8 @@ public abstract class IntegerPolynomial implements IntegerFieldModuloP {
             }
 
             long[] newLimbs = new long[limbs.length];
-            int numAdds = mult(limbs, b.limbs, newLimbs);
-            return new ImmutableElement(newLimbs, numAdds);
+            mult(limbs, b.limbs, newLimbs);
+            return new ImmutableElement(newLimbs, 0);
         }
 
         @Override
@@ -630,8 +629,8 @@ public abstract class IntegerPolynomial implements IntegerFieldModuloP {
             }
 
             long[] newLimbs = new long[limbs.length];
-            int numAdds = IntegerPolynomial.this.square(limbs, newLimbs);
-            return new ImmutableElement(newLimbs, numAdds);
+            IntegerPolynomial.this.square(limbs, newLimbs);
+            return new ImmutableElement(newLimbs, 0);
         }
 
         public void addModPowerTwo(IntegerModuloP arg, byte[] result) {
@@ -745,7 +744,8 @@ public abstract class IntegerPolynomial implements IntegerFieldModuloP {
                 b.numAdds = 0;
             }
 
-            numAdds = mult(limbs, b.limbs, limbs);
+            mult(limbs, b.limbs, limbs);
+            numAdds = 0;
             return this;
         }
 
@@ -758,7 +758,8 @@ public abstract class IntegerPolynomial implements IntegerFieldModuloP {
             }
 
             int value = ((Limb)v).value;
-            numAdds += multByInt(limbs, value);
+            multByInt(limbs, value);
+            numAdds = 0;
             return this;
         }
 
@@ -818,7 +819,8 @@ public abstract class IntegerPolynomial implements IntegerFieldModuloP {
                 numAdds = 0;
             }
 
-            numAdds = IntegerPolynomial.this.square(limbs, limbs);
+            IntegerPolynomial.this.square(limbs, limbs);
+            numAdds = 0;
             return this;
         }
 

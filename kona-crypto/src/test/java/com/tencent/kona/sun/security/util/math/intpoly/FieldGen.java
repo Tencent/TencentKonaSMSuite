@@ -797,7 +797,7 @@ public class FieldGen {
         result.appendLine("}");
 
         result.appendLine("@Override");
-        result.appendLine("protected int mult(long[] a, long[] b, long[] r) {");
+        result.appendLine("protected void mult(long[] a, long[] b, long[] r) {");
         result.incrIndent();
         for (int i = 0; i < 2 * params.getNumLimbs() - 1; i++) {
             result.appendIndent();
@@ -823,9 +823,6 @@ public class FieldGen {
             }
         }
         result.append(");\n");
-        result.appendIndent();
-        result.append("return 0;");
-        result.appendLine();
         result.decrIndent();
         result.appendLine("}");
 
@@ -855,7 +852,7 @@ public class FieldGen {
         //      }
         //  }
         result.appendLine("@Override");
-        result.appendLine("protected int square(long[] a, long[] r) {");
+        result.appendLine("protected void square(long[] a, long[] r) {");
         result.incrIndent();
         for (int i = 0; i < 2 * params.getNumLimbs() - 1; i++) {
             result.appendIndent();
@@ -896,9 +893,6 @@ public class FieldGen {
             }
         }
         result.append(");\n");
-        result.appendIndent();
-        result.append("return 0;");
-        result.appendLine();
         result.decrIndent();
         result.appendLine("}");
 
