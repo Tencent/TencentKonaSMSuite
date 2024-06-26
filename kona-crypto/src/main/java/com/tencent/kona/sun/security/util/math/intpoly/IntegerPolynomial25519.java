@@ -221,7 +221,7 @@ public final class IntegerPolynomial25519 extends IntegerPolynomial {
         r[9] = c9;
     }
     @Override
-    protected int mult(long[] a, long[] b, long[] r) {
+    protected void mult(long[] a, long[] b, long[] r) {
         long c0 = (a[0] * b[0]);
         long c1 = (a[0] * b[1]) + (a[1] * b[0]);
         long c2 = (a[0] * b[2]) + (a[1] * b[1]) + (a[2] * b[0]);
@@ -243,14 +243,13 @@ public final class IntegerPolynomial25519 extends IntegerPolynomial {
         long c18 = (a[9] * b[9]);
 
         carryReduce(r, c0, c1, c2, c3, c4, c5, c6, c7, c8, c9, c10, c11, c12, c13, c14, c15, c16, c17, c18);
-        return 0;
     }
     @Override
     protected void reduce(long[] a) {
         carryReduce(a, a[0], a[1], a[2], a[3], a[4], a[5], a[6], a[7], a[8], a[9]);
     }
     @Override
-    protected int square(long[] a, long[] r) {
+    protected void square(long[] a, long[] r) {
         long c0 = (a[0] * a[0]);
         long c1 = 2 * ((a[0] * a[1]));
         long c2 = 2 * ((a[0] * a[2])) + (a[1] * a[1]);
@@ -272,6 +271,5 @@ public final class IntegerPolynomial25519 extends IntegerPolynomial {
         long c18 = (a[9] * a[9]);
 
         carryReduce(r, c0, c1, c2, c3, c4, c5, c6, c7, c8, c9, c10, c11, c12, c13, c14, c15, c16, c17, c18);
-        return 0;
     }
 }
