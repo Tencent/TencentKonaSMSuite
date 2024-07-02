@@ -118,7 +118,7 @@ public class SM2EKeyExchange {
             try {
                 KeyPairGenerator kpg
                         = SSLUtils.getECKeyPairGenerator(namedGroup.name);
-                kpg.initialize(namedGroup.keAlgParamSpec, null);
+                kpg.initialize(namedGroup.keAlgParamSpec, random);
                 KeyPair kp = kpg.generateKeyPair();
                 ephemeralPrivateKey = (ECPrivateKey) kp.getPrivate();
                 ephemeralPublicKey = (ECPublicKey)kp.getPublic();
