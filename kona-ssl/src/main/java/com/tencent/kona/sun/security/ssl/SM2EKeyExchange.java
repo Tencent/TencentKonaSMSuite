@@ -27,7 +27,6 @@ package com.tencent.kona.sun.security.ssl;
 
 import com.tencent.kona.crypto.CryptoInsts;
 import com.tencent.kona.crypto.spec.SM2KeyAgreementParamSpec;
-import com.tencent.kona.ssl.SSLUtils;
 import com.tencent.kona.sun.security.ssl.TLCPAuthentication.TLCPPossession;
 import com.tencent.kona.sun.security.util.ECUtil;
 
@@ -116,8 +115,7 @@ public class SM2EKeyExchange {
         SM2EPossession(TLCPPossession tlcpPossession,
                        NamedGroup namedGroup, SecureRandom random) {
             try {
-                KeyPairGenerator kpg
-                        = SSLUtils.getECKeyPairGenerator(namedGroup.name);
+                KeyPairGenerator kpg = KeyPairGenerator.getInstance("EC");
                 kpg.initialize(namedGroup.keAlgParamSpec, random);
                 KeyPair kp = kpg.generateKeyPair();
                 ephemeralPrivateKey = (ECPrivateKey) kp.getPrivate();
@@ -133,10 +131,9 @@ public class SM2EKeyExchange {
 
         @Override
         public byte[] encode() {
-            byte[] encodedPoint = ECUtil.encodePoint(
+            return ECUtil.encodePoint(
                     ephemeralPublicKey.getW(),
                     ephemeralPublicKey.getParams().getCurve());
-            return encodedPoint;
         }
 
         // called by ClientHandshaker with either the server's static or

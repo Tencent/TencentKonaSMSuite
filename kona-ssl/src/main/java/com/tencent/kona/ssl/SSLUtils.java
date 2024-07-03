@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022, 2023, THL A29 Limited, a Tencent company. All rights reserved.
+ * Copyright (C) 2022, 2024, THL A29 Limited, a Tencent company. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify
@@ -20,10 +20,6 @@
 
 package com.tencent.kona.ssl;
 
-import com.tencent.kona.crypto.CryptoInsts;
-
-import java.security.KeyPairGenerator;
-import java.security.NoSuchAlgorithmException;
 import java.util.Locale;
 
 /**
@@ -45,11 +41,4 @@ public class SSLUtils {
     }
 
     /* ***** System properties end ***** */
-
-    public static KeyPairGenerator getECKeyPairGenerator(String namedGroup)
-            throws NoSuchAlgorithmException {
-        String algorithm = "curvesm2".equalsIgnoreCase(namedGroup)
-                ? "SM2" : "EC";
-        return CryptoInsts.getKeyPairGenerator(algorithm);
-    }
 }

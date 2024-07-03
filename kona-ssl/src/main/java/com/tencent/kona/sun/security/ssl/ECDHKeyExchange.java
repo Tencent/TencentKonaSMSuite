@@ -45,7 +45,6 @@ import javax.crypto.SecretKey;
 import javax.net.ssl.SSLHandshakeException;
 
 import com.tencent.kona.crypto.CryptoInsts;
-import com.tencent.kona.ssl.SSLUtils;
 import com.tencent.kona.sun.security.util.ECUtil;
 import com.tencent.kona.sun.security.ssl.NamedGroup.NamedGroupSpec;
 import com.tencent.kona.sun.security.ssl.X509Authentication.X509Credentials;
@@ -114,8 +113,7 @@ final class ECDHKeyExchange {
 
         ECDHEPossession(NamedGroup namedGroup, SecureRandom random) {
             try {
-                KeyPairGenerator kpg = SSLUtils.getECKeyPairGenerator(
-                        namedGroup.name);
+                KeyPairGenerator kpg = KeyPairGenerator.getInstance("EC");
                 kpg.initialize(namedGroup.keAlgParamSpec, random);
                 KeyPair kp = kpg.generateKeyPair();
                 privateKey = kp.getPrivate();
@@ -131,8 +129,7 @@ final class ECDHKeyExchange {
         ECDHEPossession(ECDHECredentials credentials, SecureRandom random) {
             ECParameterSpec params = credentials.popPublicKey.getParams();
             try {
-                KeyPairGenerator kpg = SSLUtils.getECKeyPairGenerator(
-                        credentials.namedGroup.name);
+                KeyPairGenerator kpg = KeyPairGenerator.getInstance("EC");
                 kpg.initialize(params, random);
                 KeyPair kp = kpg.generateKeyPair();
                 privateKey = kp.getPrivate();
