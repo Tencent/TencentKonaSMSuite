@@ -37,6 +37,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.security.PublicKey;
 import java.security.cert.CertPathValidatorException;
+import java.security.cert.CertPathValidatorException.BasicReason;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
@@ -823,16 +824,16 @@ final class TLCPCertificate {
                             Alert.BAD_CERT_STATUS_RESPONSE :
                             Alert.CERTIFICATE_REVOKED;
                 } else if (
-                        reason == CertPathValidatorException.BasicReason.UNDETERMINED_REVOCATION_STATUS) {
+                        reason == BasicReason.UNDETERMINED_REVOCATION_STATUS) {
                     alert = chc.staplingActive ?
                             Alert.BAD_CERT_STATUS_RESPONSE :
                             Alert.CERTIFICATE_UNKNOWN;
-                } else if (reason == CertPathValidatorException.BasicReason.ALGORITHM_CONSTRAINED) {
+                } else if (reason == BasicReason.ALGORITHM_CONSTRAINED) {
                     alert = Alert.UNSUPPORTED_CERTIFICATE;
-                } else if (reason == CertPathValidatorException.BasicReason.EXPIRED) {
+                } else if (reason == BasicReason.EXPIRED) {
                     alert = Alert.CERTIFICATE_EXPIRED;
-                } else if (reason == CertPathValidatorException.BasicReason.INVALID_SIGNATURE ||
-                        reason == CertPathValidatorException.BasicReason.NOT_YET_VALID) {
+                } else if (reason == BasicReason.INVALID_SIGNATURE ||
+                        reason == BasicReason.NOT_YET_VALID) {
                     alert = Alert.BAD_CERTIFICATE;
                 }
             }
