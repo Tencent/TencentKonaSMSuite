@@ -83,32 +83,36 @@ enum TLCPKeyAgreement implements SSLKeyAgreement {
         if (handshakeContext.sslConfig.isClientMode) {
             switch (this) {
                 case SM2:
-                    return new Map.Entry[] {
-                        new SimpleImmutableEntry<>(
-                            SSLHandshake.CLIENT_KEY_EXCHANGE.id,
-                            SM2ClientKeyExchange.sm2HandshakeProducer)};
+                    return (Map.Entry<Byte,
+                            HandshakeProducer>[]) new Map.Entry[] {
+                            new SimpleImmutableEntry<>(
+                                    SSLHandshake.CLIENT_KEY_EXCHANGE.id,
+                                    SM2ClientKeyExchange.sm2HandshakeProducer)};
                 case SM2E:
-                    return new Map.Entry[] {
-                        new SimpleImmutableEntry<>(
-                            SSLHandshake.CLIENT_KEY_EXCHANGE.id,
-                            SM2EClientKeyExchange.sm2eHandshakeProducer)};
+                    return (Map.Entry<Byte,
+                            HandshakeProducer>[]) new Map.Entry[] {
+                            new SimpleImmutableEntry<>(
+                                    SSLHandshake.CLIENT_KEY_EXCHANGE.id,
+                                    SM2EClientKeyExchange.sm2eHandshakeProducer)};
             }
         } else {
             switch (this) {
                 case SM2:
-                    return new Map.Entry[] {
-                        new SimpleImmutableEntry<>(
-                            SSLHandshake.SERVER_KEY_EXCHANGE.id,
-                            SM2ServerKeyExchange.sm2HandshakeProducer)};
+                    return (Map.Entry<Byte,
+                            HandshakeProducer>[]) new Map.Entry[] {
+                            new SimpleImmutableEntry<>(
+                                    SSLHandshake.SERVER_KEY_EXCHANGE.id,
+                                    SM2ServerKeyExchange.sm2HandshakeProducer)};
                 case SM2E:
-                    return new Map.Entry[] {
-                        new SimpleImmutableEntry<>(
-                            SSLHandshake.SERVER_KEY_EXCHANGE.id,
-                            SM2EServerKeyExchange.sm2eHandshakeProducer)};
+                    return (Map.Entry<Byte,
+                            HandshakeProducer>[]) new Map.Entry[] {
+                            new SimpleImmutableEntry<>(
+                                    SSLHandshake.SERVER_KEY_EXCHANGE.id,
+                                    SM2EServerKeyExchange.sm2eHandshakeProducer)};
             }
         }
 
-        return new Map.Entry[0];
+        return (Map.Entry<Byte, HandshakeProducer>[]) (new Map.Entry[0]);
     }
 
     @Override
@@ -122,31 +126,35 @@ enum TLCPKeyAgreement implements SSLKeyAgreement {
         if (handshakeContext.sslConfig.isClientMode) {
             switch (this) {
                 case SM2:
-                    return new Map.Entry[] {
-                        new SimpleImmutableEntry<>(
-                            SSLHandshake.SERVER_KEY_EXCHANGE.id,
-                            SM2ServerKeyExchange.sm2HandshakeConsumer)};
+                    return (Map.Entry<Byte,
+                            SSLConsumer>[]) new Map.Entry[] {
+                            new SimpleImmutableEntry<>(
+                                    SSLHandshake.SERVER_KEY_EXCHANGE.id,
+                                    SM2ServerKeyExchange.sm2HandshakeConsumer)};
                 case SM2E:
-                    return new Map.Entry[] {
-                        new SimpleImmutableEntry<>(
-                            SSLHandshake.SERVER_KEY_EXCHANGE.id,
-                            SM2EServerKeyExchange.sm2eHandshakeConsumer)};
+                    return (Map.Entry<Byte,
+                            SSLConsumer>[]) new Map.Entry[] {
+                            new SimpleImmutableEntry<>(
+                                    SSLHandshake.SERVER_KEY_EXCHANGE.id,
+                                    SM2EServerKeyExchange.sm2eHandshakeConsumer)};
             }
         } else {
             switch (this) {
                 case SM2:
-                    return new Map.Entry[] {
-                        new SimpleImmutableEntry<>(
-                            SSLHandshake.CLIENT_KEY_EXCHANGE.id,
-                            SM2ClientKeyExchange.sm2HandshakeConsumer)};
+                    return (Map.Entry<Byte,
+                            SSLConsumer>[]) new Map.Entry[] {
+                            new SimpleImmutableEntry<>(
+                                    SSLHandshake.CLIENT_KEY_EXCHANGE.id,
+                                    SM2ClientKeyExchange.sm2HandshakeConsumer)};
                 case SM2E:
-                    return new Map.Entry[] {
-                        new SimpleImmutableEntry<>(
-                            SSLHandshake.CLIENT_KEY_EXCHANGE.id,
-                            SM2EClientKeyExchange.sm2eHandshakeConsumer)};
+                    return (Map.Entry<Byte,
+                            SSLConsumer>[]) new Map.Entry[] {
+                            new SimpleImmutableEntry<>(
+                                    SSLHandshake.CLIENT_KEY_EXCHANGE.id,
+                                    SM2EClientKeyExchange.sm2eHandshakeConsumer)};
             }
         }
 
-        return new Map.Entry[0];
+        return (Map.Entry<Byte, SSLConsumer>[])(new Map.Entry[0]);
     }
 }

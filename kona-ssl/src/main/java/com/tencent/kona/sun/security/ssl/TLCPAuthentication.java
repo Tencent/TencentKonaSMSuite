@@ -82,7 +82,7 @@ enum TLCPAuthentication implements SSLAuthentication {
             });
         }   // Otherwise, SSL/TLS does not use this method.
 
-        return new Map.Entry[0];
+        return (Map.Entry<Byte, HandshakeProducer>[])(new Map.Entry[0]);
     }
 
     static final class TLCPPossession implements SSLPossession {
