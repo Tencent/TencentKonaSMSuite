@@ -97,7 +97,8 @@ public class KonaSSLProvider extends Provider {
         provider.put("Alg.Alias.KeyGenerator.SunTls12KeyMaterial",
                 "SunTlsKeyMaterial");
 
-        provider.put("KeyGenerator.TlsRsaPremasterSecret",
+        provider.put("KeyGenerator.SunTlsRsaPremasterSecret",
                 "com.tencent.kona.sun.security.provider.TlsRsaPremasterSecretGenerator");
+        provider.put("Alg.Alias.KeyGenerator.SunTls12RsaPremasterSecret", "SunTlsRsaPremasterSecret");
     }
 }
