@@ -104,6 +104,7 @@ public class SSLEngineTest {
 
     @BeforeAll
     public static void setup() {
+//        System.setProperty("com.tencent.kona.ssl.debug", "all");
         TestUtils.addProviders();
     }
 
