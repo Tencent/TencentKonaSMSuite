@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2002, 2023, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2002, 2024, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -69,7 +69,7 @@ final class CipherCore {
     /*
      * unit size (number of input bytes that can be processed at a time)
      */
-    private int unitBytes = 0;
+    private int unitBytes;
 
     /*
      * index of the content size left in the buffer
@@ -93,17 +93,17 @@ final class CipherCore {
      * input bytes that are processed at a time is different from the block
      * size)
      */
-    private int diffBlocksize = 0;
+    private int diffBlocksize;
 
     /*
      * padding class
      */
-    private Padding padding = null;
+    private Padding padding;
 
     /*
      * internal cipher engine
      */
-    private FeedbackCipher cipher = null;
+    private FeedbackCipher cipher;
 
     /*
      * the cipher mode
@@ -138,7 +138,7 @@ final class CipherCore {
         /*
          * The buffer should be usable for all cipher mode and padding
          * schemes. Thus, it has to be at least (blockSize+1) for CTS.
-         * In decryption mode, it also hold the possible padding block.
+         * In decryption mode, it also holds the possible padding block.
          */
         buffer = new byte[blockSize*2];
 
@@ -318,7 +318,7 @@ final class CipherCore {
         if (cipherMode == ECB_MODE) {
             return null;
         }
-        AlgorithmParameters params = null;
+        AlgorithmParameters params;
         AlgorithmParameterSpec spec;
         byte[] iv = getIV();
         if (iv == null) {
@@ -522,7 +522,7 @@ final class CipherCore {
      */
     byte[] update(byte[] input, int inputOffset, int inputLen) {
 
-        byte[] output = null;
+        byte[] output;
         try {
             output = new byte[getOutputSizeByOperation(inputLen, false)];
             int len = update(input, inputOffset, inputLen, output, 0);
@@ -906,8 +906,7 @@ final class CipherCore {
 
     private int fillOutputBuffer(byte[] finalBuf, int finalOffset,
         byte[] output, int outOfs, int finalBufLen, byte[] input)
-        throws ShortBufferException, BadPaddingException,
-        IllegalBlockSizeException {
+        throws BadPaddingException, IllegalBlockSizeException {
 
         int len;
         try {
@@ -943,7 +942,7 @@ final class CipherCore {
 
     private int finalNoPadding(byte[] in, int inOfs, byte[] out, int outOfs,
                                int len)
-        throws IllegalBlockSizeException, ShortBufferException {
+        throws IllegalBlockSizeException {
 
         if (in == null || len == 0) {
             return 0;

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013, 2023, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2013, 2024, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -32,23 +32,10 @@ import com.tencent.kona.jdk.internal.misc.UnsafeUtil;
 import com.tencent.kona.sun.security.jca.JCAUtil;
 import com.tencent.kona.sun.security.util.ArrayUtil;
 
-import javax.crypto.AEADBadTagException;
-import javax.crypto.BadPaddingException;
-import javax.crypto.Cipher;
-import javax.crypto.CipherSpi;
-import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.NoSuchPaddingException;
-import javax.crypto.ShortBufferException;
+import javax.crypto.*;
 import javax.crypto.spec.GCMParameterSpec;
 import java.nio.ByteBuffer;
-import java.security.AlgorithmParameters;
-import java.security.InvalidAlgorithmParameterException;
-import java.security.InvalidKeyException;
-import java.security.Key;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.security.ProviderException;
-import java.security.SecureRandom;
+import java.security.*;
 import java.security.spec.AlgorithmParameterSpec;
 import java.security.spec.InvalidParameterSpecException;
 import java.util.Arrays;
