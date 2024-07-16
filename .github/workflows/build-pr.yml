@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2023, THL A29 Limited, a Tencent company. All rights reserved.
+# Copyright (C) 2023, 2024, THL A29 Limited, a Tencent company. All rights reserved.
 # DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
 #
 # This code is free software; you can redistribute it and/or modify it
@@ -54,7 +54,7 @@ jobs:
           distribution: 'temurin'
 
       - name: Setup Gradle
-        uses: gradle/gradle-build-action@v2.8.0
+        uses: gradle/actions/setup-gradle@v3
 
       - name: Execute Gradle build
         run: ./gradlew clean build
