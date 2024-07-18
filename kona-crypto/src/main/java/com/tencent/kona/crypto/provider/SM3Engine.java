@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022, 2023, THL A29 Limited, a Tencent company. All rights reserved.
+ * Copyright (C) 2022, 2024, THL A29 Limited, a Tencent company. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify
@@ -104,7 +104,7 @@ public final class SM3Engine implements Cloneable {
         word[wordOffset++] = message;
 
         if (wordOffset >= word.length) {
-            processWord(this.word,0);
+            processWord(word, 0);
             this.wordOffset = 0;
         }
 
@@ -123,7 +123,7 @@ public final class SM3Engine implements Cloneable {
             while (consumed < length) {
                 word[wordOffset++] = message[offset + consumed++];
                 if (wordOffset >= word.length) {
-                    processWord(this.word,0);
+                    processWord(word, 0);
                     wordOffset = 0;
                     break;
                 }
@@ -169,9 +169,9 @@ public final class SM3Engine implements Cloneable {
     private void processWord(byte[] word, int offset) {
         block[blockOffset]
                 = ((word[offset] & 0xFF) << 24)
-                | ((word[offset+1] & 0xFF) << 16)
-                | ((word[offset+2] & 0xFF) << 8)
-                | ((word[offset+3] & 0xFF));
+                | ((word[offset + 1] & 0xFF) << 16)
+                | ((word[offset + 2] & 0xFF) << 8)
+                | ((word[offset + 3] & 0xFF));
         blockOffset++;
 
         if (blockOffset >= SM3_BLOCK_INT_SIZE) {
