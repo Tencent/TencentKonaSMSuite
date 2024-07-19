@@ -105,7 +105,7 @@ public final class SM3Engine implements Cloneable {
 
         if (wordOffset >= word.length) {
             processWord(word, 0);
-            this.wordOffset = 0;
+            wordOffset = 0;
         }
 
         countOfBytes++;
