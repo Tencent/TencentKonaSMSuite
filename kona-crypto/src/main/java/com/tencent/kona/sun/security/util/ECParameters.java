@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006, 2022, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2006, 2024, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -26,6 +26,7 @@
 package com.tencent.kona.sun.security.util;
 
 import com.tencent.kona.crypto.CryptoInsts;
+import com.tencent.kona.crypto.CryptoUtils;
 
 import java.io.IOException;
 
@@ -205,8 +206,9 @@ public final class ECParameters extends AlgorithmParametersSpi {
         }
 
         if (spec.isAssignableFrom(ECGenParameterSpec.class)) {
-            // Ensure the name is the Object ID
-            String name = namedCurve.getObjectId();
+            String name = CryptoUtils.isJdk8()
+                    ? namedCurve.getObjectId()
+                    : namedCurve.getNameAndAliases()[0];
             return spec.cast(new ECGenParameterSpec(name));
         }
 
