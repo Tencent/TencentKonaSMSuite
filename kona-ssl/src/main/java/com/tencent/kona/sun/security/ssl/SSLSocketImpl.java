@@ -1321,7 +1321,6 @@ public final class SSLSocketImpl
             }
             // Check if NewSessionTicket PostHandshake message needs to be sent
             if (conContext.conSession.updateNST) {
-                conContext.conSession.updateNST = false;
                 tryNewSessionTicket();
             }
         }
@@ -1557,7 +1556,8 @@ public final class SSLSocketImpl
     private void tryNewSessionTicket() throws IOException {
         // Don't bother to kickstart if handshaking is in progress, or if the
         // connection is not duplex-open.
-        if (!conContext.sslConfig.isClientMode &&
+        if (SSLConfiguration.serverNewSessionTicketCount > 0 &&
+                !conContext.sslConfig.isClientMode &&
                 conContext.protocolVersion.useTLS13PlusSpec() &&
                 conContext.handshakeContext == null &&
                 !conContext.isOutboundClosed() &&
@@ -1566,6 +1566,7 @@ public final class SSLSocketImpl
             if (SSLLogger.isOn && SSLLogger.isOn("ssl")) {
                 SSLLogger.finest("trigger new session ticket");
             }
+            conContext.conSession.updateNST = false;
             NewSessionTicket.t13PosthandshakeProducer.produce(
                     new PostHandshakeContext(conContext));
         }

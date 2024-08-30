@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, 2020, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2015, 2024, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -28,10 +28,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.security.*;
 import java.text.MessageFormat;
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Locale;
-import java.util.Collection;
+import java.util.*;
 import javax.crypto.Mac;
 import javax.crypto.SecretKey;
 import javax.net.ssl.SSLPeerUnverifiedException;
@@ -700,11 +697,13 @@ final class PreSharedKeyExtension {
             //The session cannot be used again. Remove it from the cache.
             SSLSessionContextImpl sessionCache = (SSLSessionContextImpl)
                 chc.sslContext.engineGetClientSessionContext();
-            sessionCache.remove(chc.resumingSession.getSessionId());
+            sessionCache.remove(chc.resumingSession.getSessionId(), true);
 
             if (SSLLogger.isOn && SSLLogger.isOn("ssl,handshake")) {
                 SSLLogger.fine(
                     "Found resumable session. Preparing PSK message.");
+                SSLLogger.fine(
+                        "MultiNST PSK (Client): " + Utilities.toHexString(Arrays.copyOf(chc.pskIdentity, 16)));
             }
 
             List<PskIdentity> identities = new ArrayList<>();
