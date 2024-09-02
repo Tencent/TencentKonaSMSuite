@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022, 2023, THL A29 Limited, a Tencent company. All rights reserved.
+ * Copyright (C) 2022, 2024, THL A29 Limited, a Tencent company. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -198,6 +198,35 @@ public class SM3HMacTest {
         byte[] macBuffer = hmacSM3Buffer.doFinal();
 
         Assertions.assertArrayEquals(mac, macBuffer);
+    }
+
+    @Test
+    public void testReuse() throws Exception {
+        Mac hmacSM3 = Mac.getInstance("HmacSM3", PROVIDER);
+        SecretKeySpec keySpec = new SecretKeySpec(KEY, "HmacSM3");
+        hmacSM3.init(keySpec);
+
+        byte[] mac1 = hmacSM3.doFinal(MESSAGE);
+        Assertions.assertArrayEquals(MAC, mac1);
+
+        byte[] mac2 = hmacSM3.doFinal(MESSAGE);
+        Assertions.assertArrayEquals(MAC, mac2);
+    }
+
+    @Test
+    public void testReset() throws Exception {
+        Mac hmacSM3 = Mac.getInstance("HmacSM3", PROVIDER);
+        SecretKeySpec keySpec = new SecretKeySpec(KEY, "HmacSM3");
+        hmacSM3.init(keySpec);
+
+        hmacSM3.update(MESSAGE, 0, MESSAGE.length / 2);
+        hmacSM3.reset();
+        hmacSM3.update(MESSAGE, 0, MESSAGE.length / 2);
+        hmacSM3.update(MESSAGE, MESSAGE.length / 2,
+                MESSAGE.length - MESSAGE.length / 2);
+        byte[] mac = hmacSM3.doFinal();
+
+        Assertions.assertArrayEquals(MAC, mac);
     }
 
     @Test
