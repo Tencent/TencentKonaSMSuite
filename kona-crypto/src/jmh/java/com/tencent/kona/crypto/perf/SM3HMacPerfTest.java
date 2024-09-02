@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022, 2023, THL A29 Limited, a Tencent company. All rights reserved.
+ * Copyright (C) 2022, 2024, THL A29 Limited, a Tencent company. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -83,7 +83,7 @@ public class SM3HMacPerfTest {
 
         @Setup(Level.Trial)
         public void setup() throws Exception {
-            mac = Mac.getInstance("HMACSM3", PROVIDER);
+            mac = Mac.getInstance("HMACSM3", "BC");
             mac.init(SECRET_KEY);
         }
     }
