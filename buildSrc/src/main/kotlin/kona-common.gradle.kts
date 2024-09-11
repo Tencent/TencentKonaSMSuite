@@ -125,6 +125,58 @@ tasks {
         }
     }
 
+    register("testOnKona8", CommonTest::class) {
+        systemProperty("test.classpath", classpath.joinToString(separator = ":"))
+
+        javaLauncher.set(javaToolchains.launcherFor {
+            languageVersion.set(JavaLanguageVersion.of(8))
+            vendor.set(JvmVendorSpec.TENCENT)
+        })
+
+        doFirst {
+            println("Testing JDK: " + javaLauncher.get().metadata.installationPath)
+        }
+    }
+
+    register("testOnKona11", CommonTest::class) {
+        systemProperty("test.classpath", classpath.joinToString(separator = ":"))
+
+        javaLauncher.set(javaToolchains.launcherFor {
+            languageVersion.set(JavaLanguageVersion.of(11))
+            vendor.set(JvmVendorSpec.TENCENT)
+        })
+
+        doFirst {
+            println("Testing JDK: " + javaLauncher.get().metadata.installationPath)
+        }
+    }
+
+    register("testOnKona17", CommonTest::class) {
+        systemProperty("test.classpath", classpath.joinToString(separator = ":"))
+
+        javaLauncher.set(javaToolchains.launcherFor {
+            languageVersion.set(JavaLanguageVersion.of(17))
+            vendor.set(JvmVendorSpec.TENCENT)
+        })
+
+        doFirst {
+            println("Testing JDK: " + javaLauncher.get().metadata.installationPath)
+        }
+    }
+
+    register("testOnKona21", CommonTest::class) {
+        systemProperty("test.classpath", classpath.joinToString(separator = ":"))
+
+        javaLauncher.set(javaToolchains.launcherFor {
+            languageVersion.set(JavaLanguageVersion.of(21))
+            vendor.set(JvmVendorSpec.TENCENT)
+        })
+
+        doFirst {
+            println("Testing JDK: " + javaLauncher.get().metadata.installationPath)
+        }
+    }
+
     test {
         dependsOn(testOnCurrent)
     }
