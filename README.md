@@ -28,7 +28,7 @@ Tencent Kona SM Suite supports all the JDK long-term supported (LTS) releases, n
 
 Please note Tencent Kona SM Suite is already signed by Oracle-issued JCE code signing [certificate], so it also can run on Oracle JDK.
 
-We are pleased to recommend Tencent's OpenJDK distributions, namely Tencent Kona JDKs, which provide versions [8], [11] and [17]. They support Linux, macOS and Windows operating systems, and x86_64 and aarch64 CPUs. **The latest Tencent Kona JDK 8 already supports ShangMi algorithms, TLCP and RFC 8998 specification natively.**
+We are pleased to recommend Tencent's OpenJDK distributions, namely Tencent Kona JDKs, which provide 4 long term supported (LTS) versions [8], [11], [17] and [21]. They support Linux, macOS and Windows operating systems, and x86_64 and aarch64 CPUs. **The latest Tencent Kona JDK 8 and 17 already supports ShangMi algorithms, TLCP and RFC 8998 specification natively.**
 
 ### Android
 By default, Tencent Kona SM Suite does not depend on any JDK internal API implementations, so it also can run on Android platform.
@@ -141,6 +141,9 @@ In addition, your problems may be already raised by others. Before open a new is
 
 [17]:
 <https://github.com/Tencent/TencentKona-17>
+
+[21]:
+<https://github.com/Tencent/TencentKona-21>
 
 [Maven Central]:
 <https://repo1.maven.org/maven2/com/tencent/kona/>
