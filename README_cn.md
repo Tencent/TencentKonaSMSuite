@@ -28,7 +28,7 @@
 
 注意：已经使用Oracle颁发的JCE代码签名[证书]对本套组件的jar文件签名，所以它们也可以运行在Oracle JDK上。
 
-欢迎使用腾讯的OpenJDK发行版，即Tencent Kona JDK，提供[8]，[11]和[17]三大版本，支持Linux，macOS和Windows等主流操作系统以及x86_64和aarch64等主流CPU架构。**最新的Tencent Kona JDK 8已经原生地支持了国密密码学算法，国密SSL/TLCP协议和RFC 8998规范。**
+欢迎使用腾讯的OpenJDK发行版，即Tencent Kona JDK，它提供四个长期支持（LTS）版本[8]，[11]，[17]和[21]，支持Linux，macOS和Windows等主流操作系统以及x86_64和aarch64等主流CPU架构。**最新的Tencent Kona JDK 8和17已经原生地支持了国密密码学算法，国密SSL/TLCP协议和RFC 8998规范。**
 
 ### Android
 默认情况下，腾讯Kona国密套件并不需要依赖JDK的任何内部API实现，所以它也可以运行Android平台上。
@@ -141,6 +141,9 @@ dependencies {
 
 [17]:
 <https://github.com/Tencent/TencentKona-17>
+
+[21]:
+<https://github.com/Tencent/TencentKona-21>
 
 [Maven中央仓库]:
 <https://repo1.maven.org/maven2/com/tencent/kona/>
