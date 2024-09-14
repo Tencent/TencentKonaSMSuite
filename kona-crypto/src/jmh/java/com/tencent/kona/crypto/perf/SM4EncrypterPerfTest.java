@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022, 2023, THL A29 Limited, a Tencent company. All rights reserved.
+ * Copyright (C) 2022, 2024, THL A29 Limited, a Tencent company. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -78,6 +78,7 @@ public class SM4EncrypterPerfTest {
     public static class EncrypterHolder {
         Cipher encrypterCBCPadding;
         Cipher encrypterCBCNoPadding;
+        Cipher encrypterECBNoPadding;
         Cipher encrypterCTRNoPadding;
         Cipher encrypterGCMNoPadding;
 
@@ -92,6 +93,11 @@ public class SM4EncrypterPerfTest {
                     "SM4/CBC/NoPadding", PROVIDER);
             encrypterCBCNoPadding.init(
                     Cipher.ENCRYPT_MODE, SECRET_KEY, IV_PARAM_SPEC);
+
+            encrypterECBNoPadding = Cipher.getInstance(
+                    "SM4/ECB/NoPadding", PROVIDER);
+            encrypterECBNoPadding.init(
+                    Cipher.ENCRYPT_MODE, SECRET_KEY);
 
             encrypterCTRNoPadding = Cipher.getInstance(
                     "SM4/CTR/NoPadding", PROVIDER);
@@ -109,6 +115,7 @@ public class SM4EncrypterPerfTest {
     public static class EncrypterHolderBC {
         Cipher encrypterCBCPadding;
         Cipher encrypterCBCNoPadding;
+        Cipher encrypterECBNoPadding;
         Cipher encrypterCTRNoPadding;
         Cipher encrypterGCMNoPadding;
 
@@ -123,6 +130,11 @@ public class SM4EncrypterPerfTest {
                     "SM4/CBC/NoPadding", "BC");
             encrypterCBCNoPadding.init(
                     Cipher.ENCRYPT_MODE, SECRET_KEY, IV_PARAM_SPEC);
+
+            encrypterECBNoPadding = Cipher.getInstance(
+                    "SM4/ECB/NoPadding", "BC");
+            encrypterECBNoPadding.init(
+                    Cipher.ENCRYPT_MODE, SECRET_KEY);
 
             encrypterCTRNoPadding = Cipher.getInstance(
                     "SM4/CTR/NoPadding", "BC");
@@ -164,6 +176,16 @@ public class SM4EncrypterPerfTest {
     @Benchmark
     public byte[] ctrBC(EncrypterHolderBC holder) throws Exception {
         return holder.encrypterCTRNoPadding.doFinal(DATA);
+    }
+
+    @Benchmark
+    public byte[] ecb(EncrypterHolder holder) throws Exception {
+        return holder.encrypterECBNoPadding.doFinal(DATA);
+    }
+
+    @Benchmark
+    public byte[] ecbBC(EncrypterHolderBC holder) throws Exception {
+        return holder.encrypterECBNoPadding.doFinal(DATA);
     }
 
     @Benchmark
