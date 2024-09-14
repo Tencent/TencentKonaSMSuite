@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022, 2023, THL A29 Limited, a Tencent company. All rights reserved.
+ * Copyright (C) 2022, 2024, THL A29 Limited, a Tencent company. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -80,10 +80,12 @@ public class SM4DecrypterPerfTest {
         byte[] ciphertextCBCPadding;
         byte[] ciphertextCBCNoPadding;
         byte[] ciphertextCTRNoPadding;
+        byte[] ciphertextECBNoPadding;
         byte[] ciphertextGCMNoPadding;
 
         Cipher decrypterCBCPadding;
         Cipher decrypterCBCNoPadding;
+        Cipher decrypterECBNoPadding;
         Cipher decrypterCTRNoPadding;
         Cipher decrypterGCMNoPadding;
 
@@ -101,6 +103,10 @@ public class SM4DecrypterPerfTest {
             cipher = Cipher.getInstance("SM4/CBC/NoPadding", PROVIDER);
             cipher.init(Cipher.ENCRYPT_MODE, SECRET_KEY, IV_PARAM_SPEC);
             ciphertextCBCNoPadding = cipher.doFinal(MESSAGE);
+
+            cipher = Cipher.getInstance("SM4/ECB/NoPadding", PROVIDER);
+            cipher.init(Cipher.ENCRYPT_MODE, SECRET_KEY);
+            ciphertextECBNoPadding = cipher.doFinal(MESSAGE);
 
             cipher = Cipher.getInstance("SM4/CTR/NoPadding", PROVIDER);
             cipher.init(Cipher.ENCRYPT_MODE, SECRET_KEY, IV_PARAM_SPEC);
@@ -122,6 +128,11 @@ public class SM4DecrypterPerfTest {
             decrypterCBCNoPadding.init(
                     Cipher.DECRYPT_MODE, SECRET_KEY, IV_PARAM_SPEC);
 
+            decrypterECBNoPadding = Cipher.getInstance(
+                    "SM4/ECB/NoPadding", PROVIDER);
+            decrypterECBNoPadding.init(
+                    Cipher.DECRYPT_MODE, SECRET_KEY);
+
             decrypterCTRNoPadding = Cipher.getInstance(
                     "SM4/CTR/NoPadding", PROVIDER);
             decrypterCTRNoPadding.init(
@@ -139,11 +150,13 @@ public class SM4DecrypterPerfTest {
 
         byte[] ciphertextCBCPadding;
         byte[] ciphertextCBCNoPadding;
+        byte[] ciphertextECBNoPadding;
         byte[] ciphertextCTRNoPadding;
         byte[] ciphertextGCMNoPadding;
 
         Cipher decrypterCBCPadding;
         Cipher decrypterCBCNoPadding;
+        Cipher decrypterECBNoPadding;
         Cipher decrypterCTRNoPadding;
         Cipher decrypterGCMNoPadding;
 
@@ -161,6 +174,10 @@ public class SM4DecrypterPerfTest {
             cipher = Cipher.getInstance("SM4/CBC/NoPadding", "BC");
             cipher.init(Cipher.ENCRYPT_MODE, SECRET_KEY, IV_PARAM_SPEC);
             ciphertextCBCNoPadding = cipher.doFinal(MESSAGE);
+
+            cipher = Cipher.getInstance("SM4/ECB/NoPadding", "BC");
+            cipher.init(Cipher.ENCRYPT_MODE, SECRET_KEY);
+            ciphertextECBNoPadding = cipher.doFinal(MESSAGE);
 
             cipher = Cipher.getInstance("SM4/CTR/NoPadding", "BC");
             cipher.init(Cipher.ENCRYPT_MODE, SECRET_KEY, IV_PARAM_SPEC);
@@ -181,6 +198,11 @@ public class SM4DecrypterPerfTest {
                     "SM4/CBC/NoPadding", "BC");
             decrypterCBCNoPadding.init(
                     Cipher.DECRYPT_MODE, SECRET_KEY, IV_PARAM_SPEC);
+
+            decrypterECBNoPadding = Cipher.getInstance(
+                    "SM4/ECB/NoPadding", "BC");
+            decrypterECBNoPadding.init(
+                    Cipher.DECRYPT_MODE, SECRET_KEY);
 
             decrypterCTRNoPadding = Cipher.getInstance(
                     "SM4/CTR/NoPadding", "BC");
@@ -212,6 +234,16 @@ public class SM4DecrypterPerfTest {
     @Benchmark
     public byte[] cbcNoPaddingBC(DecrypterHolderBC holder) throws Exception {
         return holder.decrypterCBCNoPadding.doFinal(holder.ciphertextCBCNoPadding);
+    }
+
+    @Benchmark
+    public byte[] ecb(DecrypterHolder holder) throws Exception {
+        return holder.decrypterECBNoPadding.doFinal(holder.ciphertextECBNoPadding);
+    }
+
+    @Benchmark
+    public byte[] ecbBC(DecrypterHolderBC holder) throws Exception {
+        return holder.decrypterECBNoPadding.doFinal(holder.ciphertextECBNoPadding);
     }
 
     @Benchmark
