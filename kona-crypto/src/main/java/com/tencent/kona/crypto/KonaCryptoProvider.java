@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022, 2023, THL A29 Limited, a Tencent company. All rights reserved.
+ * Copyright (C) 2022, 2024, THL A29 Limited, a Tencent company. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify
@@ -56,10 +56,10 @@ public class KonaCryptoProvider extends Provider {
     private static void putEntries(Provider provider) {
         SunRsaSignEntries.putEntries(provider);
 
+        provider.put("Cipher.SM4 SupportedPaddings", "NOPADDING|PKCS7PADDING");
+        provider.put("Cipher.SM4 SupportedModes", "CBC|CTR|ECB|GCM");
         provider.put("Cipher.SM4",
                 "com.tencent.kona.crypto.provider.SM4Cipher$General");
-        provider.put("Cipher.SM4 SupportedModes", "CBC|CTR|ECB");
-        provider.put("Cipher.SM4 SupportedPaddings", "NOPADDING|PKCS7PADDING");
         provider.put("Cipher.SM4/GCM/NoPadding",
                 "com.tencent.kona.crypto.provider.GaloisCounterMode$SM4");
         provider.put("AlgorithmParameters.SM4",
@@ -70,10 +70,18 @@ public class KonaCryptoProvider extends Provider {
                 "com.tencent.kona.crypto.provider.SM4KeyGenerator");
 
         provider.put("Alg.Alias.MessageDigest.OID.1.2.156.10197.1.401", "SM3");
-        provider.put("MessageDigest.SM3",
-                "com.tencent.kona.crypto.provider.SM3MessageDigest");
-        provider.put("Mac.HmacSM3",
-                "com.tencent.kona.crypto.provider.SM3HMac");
+
+        if (CryptoUtils.useNativeCrypto()) {
+            provider.put("MessageDigest.SM3",
+                    "com.tencent.kona.crypto.provider.nativeImpl.SM3MessageDigest");
+            provider.put("Mac.HmacSM3",
+                    "com.tencent.kona.crypto.provider.nativeImpl.SM3HMac");
+        } else {
+            provider.put("MessageDigest.SM3",
+                    "com.tencent.kona.crypto.provider.SM3MessageDigest");
+            provider.put("Mac.HmacSM3",
+                    "com.tencent.kona.crypto.provider.SM3HMac");
+        }
         provider.put("Alg.Alias.Mac.SM3HMac", "HmacSM3");
         provider.put("KeyGenerator.HmacSM3",
                 "com.tencent.kona.crypto.provider.SM3HMacKeyGenerator");

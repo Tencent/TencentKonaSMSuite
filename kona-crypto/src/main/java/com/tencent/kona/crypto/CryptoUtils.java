@@ -24,6 +24,8 @@ import java.math.BigInteger;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.security.spec.ECPoint;
+import java.util.Locale;
+import java.util.regex.Pattern;
 
 import com.tencent.kona.crypto.util.RangeUtil;
 import com.tencent.kona.java.util.HexFormat;
@@ -32,11 +34,17 @@ import com.tencent.kona.sun.security.util.ArrayUtil;
 
 public final class CryptoUtils {
 
+    private static final String OS = privilegedGetProperty("os.name");
+    private static final String ARCH = privilegedGetProperty("os.arch");
+
     private static final String JDK_VERSION = privilegedGetProperty(
             "java.specification.version");
 
     private static final String JDK_VENDOR = privilegedGetProperty(
             "java.specification.vendor");
+
+    private static final boolean USE_NATIVE_CRYPTO = privilegedGetBoolProperty(
+            "com.tencent.kona.useNativeCrypto", "false");
 
     public static String privilegedGetProperty(String key, String def) {
         return AccessController.doPrivileged(
@@ -75,6 +83,37 @@ public final class CryptoUtils {
 
     public static boolean isAndroid() {
         return JDK_VENDOR.contains("Android");
+    }
+
+    public static boolean useNativeCrypto() {
+        return USE_NATIVE_CRYPTO && isLinux() && !isAndroid();
+    }
+
+    public static boolean isLinux() {
+        return isOs("linux");
+    }
+
+    public static boolean isMac() {
+        return isOs("mac");
+    }
+
+    private static boolean isOs(String osname) {
+        return OS.toLowerCase(Locale.ENGLISH).startsWith(
+                osname.toLowerCase(Locale.ENGLISH));
+    }
+
+    public static boolean isX64() {
+        return isArch("(amd64)|(x86_64)");
+    }
+
+    public static boolean isArm64() {
+        return isArch("aarch64");
+    }
+
+    private static boolean isArch(String arch) {
+        return Pattern.compile(arch, Pattern.CASE_INSENSITIVE)
+                .matcher(ARCH)
+                .matches();
     }
 
     private static final HexFormat HEX = HexFormat.of();

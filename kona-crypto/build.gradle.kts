@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022, 2023, THL A29 Limited, a Tencent company. All rights reserved.
+ * Copyright (C) 2022, 2024, THL A29 Limited, a Tencent company. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -31,4 +31,24 @@ dependencies {
     jmhImplementation(libs.jmh.core)
     jmhAnnotationProcessor(libs.jmh.generator.annprocess)
     jmhImplementation(sourceSets["test"].runtimeClasspath)
+}
+
+tasks.register<Exec>("genJNIHeaders") {
+    dependsOn("compileJava")
+
+    if (JavaVersion.current() == JavaVersion.VERSION_1_8) {
+        commandLine = listOf(
+            "javah",
+            "-classpath", sourceSets["main"].runtimeClasspath.asPath,
+            "-d", file("src/main/jni").absolutePath,
+            "com.tencent.kona.crypto.provider.nativeImpl.NativeCrypto"
+        )
+    } else {
+        commandLine = listOf(
+            "javac",
+            "-classpath", sourceSets["main"].runtimeClasspath.asPath,
+            "-h", file("src/main/jni").absolutePath,
+            file("src/main/java/com/tencent/kona/crypto/provider/nativeImpl/NativeCrypto.java").absolutePath
+        )
+    }
 }

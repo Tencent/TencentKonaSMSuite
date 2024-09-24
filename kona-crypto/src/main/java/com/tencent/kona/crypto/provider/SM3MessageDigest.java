@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022, 2023, THL A29 Limited, a Tencent company. All rights reserved.
+ * Copyright (C) 2022, 2024, THL A29 Limited, a Tencent company. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify
@@ -69,6 +69,9 @@ public final class SM3MessageDigest extends MessageDigest implements Cloneable {
         if (length != SM3_DIGEST_LEN) {
             throw new DigestException("The length must be 32-bytes");
         }
+
+        Preconditions.checkFromIndexSize(
+                offset, length, buf.length, Preconditions.AIOOBE_FORMATTER);
 
         engine.doFinal(buf, offset);
         return SM3_DIGEST_LEN;
