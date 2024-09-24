@@ -183,4 +183,12 @@ final class NativeCrypto {
     native byte[] sm3hmacFinal(long pointer);
     native int    sm3hmacReset(long pointer);
     native long   sm3hmacClone(long pointer);
+
+    /* ***** SM4 ***** */
+    native long   sm4CreateCtx(boolean encrypt, String mode, boolean padding, byte[] key, byte[] iv);
+    native void   sm4FreeCtx(long pointer);
+    native byte[] sm4Update(long pointer, byte[] in);
+    native byte[] sm4Final(long pointer);
+    native int    sm4GCMUpdateAAD(long pointer, byte[] aad);
+    native int    sm4GCMProcTag(long pointer, byte[] tag);
 }

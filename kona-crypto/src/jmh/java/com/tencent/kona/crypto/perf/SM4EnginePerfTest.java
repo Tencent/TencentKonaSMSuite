@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022, 2023, THL A29 Limited, a Tencent company. All rights reserved.
+ * Copyright (C) 2022, 2024, THL A29 Limited, a Tencent company. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -20,6 +20,7 @@
 package com.tencent.kona.crypto.perf;
 
 import com.tencent.kona.crypto.provider.SM4Engine;
+import com.tencent.kona.crypto.provider.nativeImpl.NativeSM4Engine;
 import org.bouncycastle.crypto.params.KeyParameter;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.BenchmarkMode;
@@ -73,6 +74,17 @@ public class SM4EnginePerfTest {
     }
 
     @State(Scope.Benchmark)
+    public static class EngineHolderNative {
+
+        NativeSM4Engine engine;
+
+        @Setup(Level.Invocation)
+        public void setup() {
+            engine = new NativeSM4Engine(KEY, true);
+        }
+    }
+
+    @State(Scope.Benchmark)
     public static class EngineHolderBC {
 
         org.bouncycastle.crypto.engines.SM4Engine engine;
@@ -86,6 +98,16 @@ public class SM4EnginePerfTest {
 
     @Benchmark
     public byte[] processBlock(EngineHolder holder) {
+        byte[] ciphertext = new byte[16];
+        holder.engine.processBlock(DATA, 0, ciphertext, 0);
+        for (int i = 1; i < 10000; i++) {
+            holder.engine.processBlock(ciphertext, 0, ciphertext, 0);
+        }
+        return ciphertext;
+    }
+
+    @Benchmark
+    public byte[] processBlockNative(EngineHolderNative holder) {
         byte[] ciphertext = new byte[16];
         holder.engine.processBlock(DATA, 0, ciphertext, 0);
         for (int i = 1; i < 10000; i++) {
