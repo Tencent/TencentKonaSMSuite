@@ -58,10 +58,15 @@ public class KonaCryptoProvider extends Provider {
 
         provider.put("Cipher.SM4 SupportedPaddings", "NOPADDING|PKCS7PADDING");
         provider.put("Cipher.SM4 SupportedModes", "CBC|CTR|ECB|GCM");
-        provider.put("Cipher.SM4",
-                "com.tencent.kona.crypto.provider.SM4Cipher$General");
-        provider.put("Cipher.SM4/GCM/NoPadding",
-                "com.tencent.kona.crypto.provider.GaloisCounterMode$SM4");
+        if (CryptoUtils.useNativeCrypto()) {
+            provider.put("Cipher.SM4",
+                    "com.tencent.kona.crypto.provider.nativeImpl.SM4Cipher");;
+        } else {
+            provider.put("Cipher.SM4",
+                    "com.tencent.kona.crypto.provider.SM4Cipher$General");
+            provider.put("Cipher.SM4/GCM/NoPadding",
+                    "com.tencent.kona.crypto.provider.GaloisCounterMode$SM4");
+        }
         provider.put("AlgorithmParameters.SM4",
                 "com.tencent.kona.crypto.provider.SM4Parameters");
         provider.put("AlgorithmParameterGenerator.SM4",
