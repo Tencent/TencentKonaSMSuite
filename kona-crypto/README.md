@@ -18,6 +18,12 @@ Tencent Kona Crypto is a Java security provider, which is named `KonaCrypto`. Pe
 
 For providing the above features, `KonaCrypto` implements the JDK-specified Service Provider Interfaces (SPIs), such as KeyPairGeneratorSpi，SignatureSpi，CipherSpi，MessageDigestSpi，MacSpi and KeyAgreementSpi.
 
+## Implementations
+
+Tencent Kona Crypto provides pure Java-based SM2, SM3 and SM4, and also JNI and OpenSSL-based SM3 and SM4 (SM2 implementation is on the way). The latter supports Linux x86_64/aarch64 platforms. OpenSSL version 3.3.1 is used by default, but versions 3.0 and later can be supported.
+
+The pure Java-based implementations is enabled. The java system property `com.tencent.kona.useNativeCrypto` can be used to enable the OpenSSL-based implementation. The additional system property `com.tencent.kona.openssl.crypto.lib.path` is used to specify an alternative local OpenSSL crypto lib file (`libcrypto.so`). The value of this property is a local absolute path.
+
 ## Usages
 Now that `KonaCrypto` is based on JCA framework, then the usages are the same as other JCA implementations, such as [SunJCE] and [SunEC]. Understanding the design and coding style on JCA really helps for applying `KonaCrypto`, please read the official [JCA reference].
 
