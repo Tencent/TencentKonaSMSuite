@@ -18,6 +18,12 @@
 
 为了提供上述特性，`KonaCrypto`基于JDK标准的[Java Cryptography Architecture (JCA)]框架，实现了JDK定义的KeyPairGeneratorSpi，SignatureSpi，CipherSpi，MessageDigestSpi，MacSpi和KeyAgreementSpi等Service Provider Interface (SPI)。
 
+## 实现方式
+
+目前既提供了纯Java语言实现的SM2，SM3和SM4算法，也提供了基于JNI与OpenSSL实现的SM3和SM4算法（未来也将实现SM2）。后者仅支持Linux x86_64/aarch64平台。本项目默认使用的OpenSSL版本为3.3.1，但可以支持3.0及之后的版本。
+
+默认地，启用纯Java的实现。若要启用基于OpenSSL的实现，需要设置系统属性`com.tencent.kona.useNativeCrypto`的值为`true`。另外，还提供了系统属性`com.tencent.kona.openssl.crypto.lib.path`以指定使用本地的其他OpenSSL crypto库文件（`libcrypto.so`），该系统属性的值是一个本地绝对路径。
+
 ## 使用
 由于`KonaCrypto`是基于JCA框架的，所以在使用风格上，与其它的JCA实现（如JDK自带的[SunJCE]和[SunEC]）是一样的。正常地，应用程序并不需要直接访问`KonaCrypto`中的算法实现类，而是通过相关的JDK API去调用指定算法的实现。了解JCA的设计原理与代码风格，对于应用`KonaCrypto`是非常有帮助的，请阅读官方的[参考指南]。
 

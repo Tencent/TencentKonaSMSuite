@@ -39,9 +39,9 @@ import static com.tencent.kona.crypto.CryptoUtils.*;
 final class NativeCrypto {
 
     private static final String OPENSSL_CRYPTO_LIB = privilegedGetProperty(
-            "com.tencent.kona.openssl.crypto.lib");
+            "com.tencent.kona.openssl.crypto.lib.path");
     private static final String KONA_CRYPTO_LIB = privilegedGetProperty(
-            "com.tencent.kona.crypto.lib");
+            "com.tencent.kona.crypto.lib.path");
 
     private NativeCrypto() {}
 
