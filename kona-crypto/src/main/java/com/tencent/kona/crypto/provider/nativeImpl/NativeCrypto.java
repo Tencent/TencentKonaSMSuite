@@ -48,9 +48,7 @@ final class NativeCrypto {
     private static class InstanceHolder {
 
         static {
-            if (CryptoUtils.useNativeCrypto()) {
-                loadLibs();
-            }
+            loadLibs();
         }
 
         private static final NativeCrypto INSTANCE = new NativeCrypto();
@@ -60,7 +58,7 @@ final class NativeCrypto {
         return InstanceHolder.INSTANCE;
     }
 
-    static void loadLibs() {
+    private static void loadLibs() {
         loadLib("OpenSSLCrypto", OPENSSL_CRYPTO_LIB);
         loadLib("KonaCrypto", KONA_CRYPTO_LIB);
     }

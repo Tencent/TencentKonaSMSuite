@@ -39,10 +39,6 @@ public class NativeSM3HMacTest {
     private static final byte[] MESSAGE = toBytes("616263");
     private static final byte[] MAC = toBytes("4d2e8eefcfaa97b2bea04cda000823a4f2e6e264cf7a819d67117ad12cc9a8af");
 
-    static {
-        NativeCrypto.loadLibs();
-    }
-
     @Test
     public void testMac() {
         try(NativeSM3HMac sm3hmac = new NativeSM3HMac(KEY)) {

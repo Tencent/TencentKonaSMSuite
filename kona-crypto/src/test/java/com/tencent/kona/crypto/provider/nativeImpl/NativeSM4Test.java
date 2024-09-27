@@ -53,10 +53,6 @@ public class NativeSM4Test {
     private static final byte[] MESSAGE_32 = toBytes(
             "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef");
 
-    static {
-        NativeCrypto.loadLibs();
-    }
-
     @Test
     public void testCBCNoPadding() {
         try(SM4CBC encrypter = new SM4CBC(true, false, KEY, IV)) {

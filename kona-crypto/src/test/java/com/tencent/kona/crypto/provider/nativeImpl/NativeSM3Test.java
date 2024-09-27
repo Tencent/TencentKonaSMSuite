@@ -44,10 +44,6 @@ public class NativeSM3Test {
     private static final byte[] DIGEST_LONG = toBytes(
             "debe9ff92275b8a138604889c18e5a4d6fdb70e5387e5765293dcba39c0c5732");
 
-    static {
-        NativeCrypto.loadLibs();
-    }
-
     @Test
     public void testKAT() {
         checkDigest(MESSAGE_SHORT, DIGEST_SHORT);
