@@ -58,10 +58,6 @@ public class NativeSM4EngineTest {
             (byte)0xc3, (byte)0x3d, (byte)0x3f, (byte)0x66
     };
 
-    static {
-        NativeCrypto.loadLibs();
-    }
-
     @Test
     public void testEncryption() {
         NativeSM4Engine engine = new NativeSM4Engine(KEY, true);
