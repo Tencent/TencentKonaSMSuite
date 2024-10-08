@@ -20,8 +20,6 @@
 
 package com.tencent.kona.crypto.provider.nativeImpl;
 
-import com.tencent.kona.crypto.CryptoUtils;
-
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -189,4 +187,9 @@ final class NativeCrypto {
     native byte[] sm4Final(long pointer);
     native int    sm4GCMUpdateAAD(long pointer, byte[] aad);
     native int    sm4GCMProcTag(long pointer, byte[] tag);
+
+    /* ***** SM2 ***** */
+    native long   sm2CreateCtx();
+    native void   sm2FreeCtx(long pointer);
+    native byte[] sm2GenKeyPair(long pointer);
 }

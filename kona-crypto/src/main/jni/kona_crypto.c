@@ -17,13 +17,15 @@
  * Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include <stdlib.h>
-#include <string.h>
-#include <openssl/err.h>
-#include <openssl/evp.h>
 #include <jni.h>
+#include <openssl/evp.h>
+#include <openssl/err.h>
+#include <string.h>
+#include <stdlib.h>
 #include "kona_crypto.h"
 
+#define SM2_PRI_KEY_LEN      32
+#define SM2_PUB_KEY_LEN      65
 #define SM3_DIGEST_LEN       32
 #define SM3_MAC_LEN          32
 #define SM4_KEY_LEN          16
@@ -557,6 +559,127 @@ JNIEXPORT jint JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeCr
             (*env)->ReleaseByteArrayElements(env, tag, tag_bytes, JNI_ABORT);
         }
     }
+
+    return result;
+}
+/* ***** SM4 end ***** */
+
+/* ***** SM2 start ***** */
+jbyteArray bignum_to_fixed_jbyteArray(JNIEnv *env, const BIGNUM *bn, int fixed_len) {
+    unsigned char *buf = (unsigned char *)malloc(fixed_len);
+    if (!buf) {
+        return NULL;
+    }
+    memset(buf, 0, fixed_len); // Zero out the buffer
+    int bn_len = BN_num_bytes(bn);
+    BN_bn2bin(bn, buf + (fixed_len - bn_len)); // Right-align the BIGNUM in the buffer
+
+    jbyteArray array = (*env)->NewByteArray(env, fixed_len);
+    if (array) {
+        (*env)->SetByteArrayRegion(env, array, 0, fixed_len, (jbyte *)buf);
+    }
+    free(buf);
+    return array;
+}
+
+
+JNIEXPORT jlong JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeCrypto_sm2CreateCtx
+  (JNIEnv *env, jobject thisObj) {
+    EVP_PKEY_CTX *ctx = EVP_PKEY_CTX_new_id(EVP_PKEY_SM2, NULL);
+    if (ctx == NULL) {
+        return KONA_BAD;
+    }
+
+    if(!EVP_PKEY_keygen_init(ctx)) {
+        return KONA_BAD;
+    }
+
+    return (jlong)ctx;
+}
+
+JNIEXPORT void JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeCrypto_sm2FreeCtx
+  (JNIEnv *env, jobject thisObj, jlong pointer) {
+    if (pointer <= 0) {
+        return;
+    }
+
+    EVP_PKEY_CTX *ctx = (EVP_PKEY_CTX *)pointer;
+    if (ctx != NULL) {
+        EVP_PKEY_CTX_free(ctx);
+    }
+}
+
+JNIEXPORT jbyteArray JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeCrypto_sm2GenKeyPair
+  (JNIEnv *env, jobject thisObj, jlong pointer) {
+    EVP_PKEY_CTX *ctx = (EVP_PKEY_CTX *)pointer;
+    if (ctx == NULL) {
+        return NULL;
+    }
+
+    if (EVP_PKEY_keygen_init(ctx) <= 0) {
+        return NULL;
+    }
+
+    EVP_PKEY *pkey = NULL;
+    if (EVP_PKEY_keygen(ctx, &pkey) <= 0) {
+        return NULL;
+    }
+
+    BIGNUM *priv_key_bn = NULL;
+    if (!EVP_PKEY_get_bn_param(pkey, "priv", &priv_key_bn)) {
+        EVP_PKEY_free(pkey);
+        return NULL;
+    }
+
+    jbyteArray priv_key_array = bignum_to_fixed_jbyteArray(env, priv_key_bn, SM2_PRI_KEY_LEN);
+    BN_free(priv_key_bn);
+    if (!priv_key_array) {
+        EVP_PKEY_free(pkey);
+        return NULL;
+    }
+
+    size_t pub_key_len = 0;
+    if (!EVP_PKEY_get_octet_string_param(pkey, "pub", NULL, 0, &pub_key_len)) {
+        EVP_PKEY_free(pkey);
+        return NULL;
+    }
+
+    unsigned char *pub_key_buf = (unsigned char *)malloc(pub_key_len);
+    if (!pub_key_buf) {
+        EVP_PKEY_free(pkey);
+        return NULL;
+    }
+
+    if (!EVP_PKEY_get_octet_string_param(pkey, "pub", pub_key_buf, pub_key_len, &pub_key_len)) {
+        free(pub_key_buf);
+        EVP_PKEY_free(pkey);
+        return NULL;
+    }
+
+    jbyteArray pub_key_array = (*env)->NewByteArray(env, pub_key_len);
+    if (!pub_key_array) {
+        free(pub_key_buf);
+        EVP_PKEY_free(pkey);
+        return NULL;
+    }
+    (*env)->SetByteArrayRegion(env, pub_key_array, 0, pub_key_len, (jbyte *)pub_key_buf);
+    free(pub_key_buf);
+    if (!pub_key_array) {
+        EVP_PKEY_free(pkey);
+        return NULL;
+    }
+
+    int priv_key_len = (*env)->GetArrayLength(env, priv_key_array);
+    int total_len = priv_key_len + pub_key_len;
+    jbyteArray result = (*env)->NewByteArray(env, total_len);
+    if (result) {
+        (*env)->SetByteArrayRegion(env, result, 0, priv_key_len, (*env)->GetByteArrayElements(env, priv_key_array, NULL));
+        (*env)->SetByteArrayRegion(env, result, priv_key_len, pub_key_len, (*env)->GetByteArrayElements(env, pub_key_array, NULL));
+    }
+
+    EVP_PKEY_free(pkey);
+    (*env)->DeleteLocalRef(env, priv_key_array);
+    (*env)->DeleteLocalRef(env, pub_key_array);
 
     return result;
 }
