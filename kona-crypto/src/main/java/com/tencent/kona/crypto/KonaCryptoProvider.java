@@ -94,8 +94,13 @@ public class KonaCryptoProvider extends Provider {
 
         provider.put("Alg.Alias.Cipher.OID.1.2.156.10197.1.301", "SM2");
         provider.put("Alg.Alias.Signature.OID.1.2.156.10197.1.501", "SM2");
-        provider.put("KeyPairGenerator.SM2",
-                "com.tencent.kona.crypto.provider.SM2KeyPairGenerator");
+        if (CryptoUtils.useNativeCrypto()) {
+            provider.put("KeyPairGenerator.SM2",
+                    "com.tencent.kona.crypto.provider.nativeImpl.SM2KeyPairGenerator");
+        } else {
+            provider.put("KeyPairGenerator.SM2",
+                    "com.tencent.kona.crypto.provider.SM2KeyPairGenerator");
+        }
         provider.put("KeyFactory.SM2", "com.tencent.kona.crypto.provider.SM2KeyFactory");
         provider.put("Cipher.SM2", "com.tencent.kona.crypto.provider.SM2Cipher");
         provider.put("Signature.SM2", "com.tencent.kona.crypto.provider.SM2Signature");
