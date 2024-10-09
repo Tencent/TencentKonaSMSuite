@@ -18,6 +18,7 @@
  */
 
 #include <jni.h>
+#include <openssl/core_names.h>
 #include <openssl/evp.h>
 #include <openssl/err.h>
 #include <string.h>
@@ -565,24 +566,6 @@ JNIEXPORT jint JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeCr
 /* ***** SM4 end ***** */
 
 /* ***** SM2 start ***** */
-jbyteArray bignum_to_fixed_jbyteArray(JNIEnv *env, const BIGNUM *bn, int fixed_len) {
-    unsigned char *buf = (unsigned char *)malloc(fixed_len);
-    if (!buf) {
-        return NULL;
-    }
-    memset(buf, 0, fixed_len); // Zero out the buffer
-    int bn_len = BN_num_bytes(bn);
-    BN_bn2bin(bn, buf + (fixed_len - bn_len)); // Right-align the BIGNUM in the buffer
-
-    jbyteArray array = (*env)->NewByteArray(env, fixed_len);
-    if (array) {
-        (*env)->SetByteArrayRegion(env, array, 0, fixed_len, (jbyte *)buf);
-    }
-    free(buf);
-    return array;
-}
-
-
 JNIEXPORT jlong JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeCrypto_sm2CreateCtx
   (JNIEnv *env, jobject thisObj) {
     EVP_PKEY_CTX *ctx = EVP_PKEY_CTX_new_id(EVP_PKEY_SM2, NULL);
@@ -616,70 +599,64 @@ JNIEXPORT jbyteArray JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_Na
         return NULL;
     }
 
-    if (EVP_PKEY_keygen_init(ctx) <= 0) {
+    if (!EVP_PKEY_keygen_init(ctx)) {
         return NULL;
     }
 
     EVP_PKEY *pkey = NULL;
-    if (EVP_PKEY_keygen(ctx, &pkey) <= 0) {
+    if (!EVP_PKEY_keygen(ctx, &pkey)) {
         return NULL;
     }
 
     BIGNUM *priv_key_bn = NULL;
-    if (!EVP_PKEY_get_bn_param(pkey, "priv", &priv_key_bn)) {
+    if (!EVP_PKEY_get_bn_param(pkey, OSSL_PKEY_PARAM_PRIV_KEY, &priv_key_bn)) {
         EVP_PKEY_free(pkey);
         return NULL;
     }
-
-    jbyteArray priv_key_array = bignum_to_fixed_jbyteArray(env, priv_key_bn, SM2_PRI_KEY_LEN);
+    if (BN_num_bytes(priv_key_bn) > SM2_PRI_KEY_LEN) {
+        EVP_PKEY_free(pkey);
+        BN_free(priv_key_bn);
+        return NULL;
+    }
+    unsigned char priv_key_buf[SM2_PRI_KEY_LEN] = {0};
+    BN_bn2binpad(priv_key_bn, priv_key_buf, SM2_PRI_KEY_LEN);
     BN_free(priv_key_bn);
-    if (!priv_key_array) {
-        EVP_PKEY_free(pkey);
-        return NULL;
-    }
 
     size_t pub_key_len = 0;
-    if (!EVP_PKEY_get_octet_string_param(pkey, "pub", NULL, 0, &pub_key_len)) {
+    if (!EVP_PKEY_get_octet_string_param(pkey, OSSL_PKEY_PARAM_PUB_KEY, NULL, 0, &pub_key_len)) {
         EVP_PKEY_free(pkey);
+        OPENSSL_cleanse(priv_key_buf, sizeof(priv_key_buf));
         return NULL;
     }
-
-    unsigned char *pub_key_buf = (unsigned char *)malloc(pub_key_len);
+    unsigned char *pub_key_buf = OPENSSL_malloc(pub_key_len);
     if (!pub_key_buf) {
         EVP_PKEY_free(pkey);
+        OPENSSL_cleanse(priv_key_buf, sizeof(priv_key_buf));
+        return NULL;
+    }
+    if (!EVP_PKEY_get_octet_string_param(pkey, OSSL_PKEY_PARAM_PUB_KEY, pub_key_buf, pub_key_len, &pub_key_len)) {
+        EVP_PKEY_free(pkey);
+        OPENSSL_cleanse(priv_key_buf, sizeof(priv_key_buf));
+        OPENSSL_free(pub_key_buf);
         return NULL;
     }
 
-    if (!EVP_PKEY_get_octet_string_param(pkey, "pub", pub_key_buf, pub_key_len, &pub_key_len)) {
-        free(pub_key_buf);
-        EVP_PKEY_free(pkey);
-        return NULL;
-    }
-
-    jbyteArray pub_key_array = (*env)->NewByteArray(env, pub_key_len);
-    if (!pub_key_array) {
-        free(pub_key_buf);
-        EVP_PKEY_free(pkey);
-        return NULL;
-    }
-    (*env)->SetByteArrayRegion(env, pub_key_array, 0, pub_key_len, (jbyte *)pub_key_buf);
-    free(pub_key_buf);
-    if (!pub_key_array) {
-        EVP_PKEY_free(pkey);
-        return NULL;
-    }
-
-    int priv_key_len = (*env)->GetArrayLength(env, priv_key_array);
-    int total_len = priv_key_len + pub_key_len;
+    size_t total_len = SM2_PRI_KEY_LEN + pub_key_len;
     jbyteArray result = (*env)->NewByteArray(env, total_len);
     if (result) {
-        (*env)->SetByteArrayRegion(env, result, 0, priv_key_len, (*env)->GetByteArrayElements(env, priv_key_array, NULL));
-        (*env)->SetByteArrayRegion(env, result, priv_key_len, pub_key_len, (*env)->GetByteArrayElements(env, pub_key_array, NULL));
+        jbyte *result_bytes = (*env)->GetByteArrayElements(env, result, NULL);
+
+        if (result_bytes) {
+            memcpy(result_bytes, priv_key_buf, SM2_PRI_KEY_LEN);
+            memcpy(result_bytes + SM2_PRI_KEY_LEN, pub_key_buf, pub_key_len);
+
+            (*env)->ReleaseByteArrayElements(env, result, result_bytes, 0);
+        }
     }
 
     EVP_PKEY_free(pkey);
-    (*env)->DeleteLocalRef(env, priv_key_array);
-    (*env)->DeleteLocalRef(env, pub_key_array);
+    OPENSSL_cleanse(priv_key_buf, sizeof(priv_key_buf));
+    OPENSSL_free(pub_key_buf);
 
     return result;
 }
