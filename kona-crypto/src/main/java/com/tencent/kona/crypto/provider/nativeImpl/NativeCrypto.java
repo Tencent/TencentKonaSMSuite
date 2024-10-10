@@ -32,7 +32,7 @@ import java.security.PrivilegedExceptionAction;
 import static com.tencent.kona.crypto.CryptoUtils.*;
 
 /**
- * The internal APIs for underlying native crypto library from OpenSSL 3.3.1.
+ * The internal APIs for underlying native crypto library from OpenSSL 3.3.2.
  */
 final class NativeCrypto {
 
