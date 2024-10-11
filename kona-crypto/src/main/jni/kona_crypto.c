@@ -35,6 +35,8 @@
 #define KONA_GOOD             0
 #define KONA_BAD             -1
 
+#define OSSL_print_err() ERR_print_errors_fp(stderr)
+
 void print_hex(unsigned char *data, size_t len) {
     for (size_t i = 0; i < len; i++) {
         printf("%02x", data[i]);
@@ -45,11 +47,13 @@ void print_hex(unsigned char *data, size_t len) {
 /* ***** SM3 start ***** */
 int sm3_reset(EVP_MD_CTX *ctx) {
     if(!EVP_MD_CTX_reset(ctx)) {
+        OSSL_print_err();
         return KONA_BAD;
     }
 
     const EVP_MD *md = EVP_sm3();
     if (!EVP_DigestInit_ex(ctx, md, NULL)) {
+        OSSL_print_err();
         return KONA_BAD;
     }
 
@@ -60,6 +64,7 @@ JNIEXPORT jlong JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeC
   (JNIEnv *env, jobject thisObj) {
     EVP_MD_CTX *ctx = EVP_MD_CTX_new();
     if (ctx == NULL) {
+        OSSL_print_err();
         return KONA_BAD;
     }
 
@@ -104,6 +109,7 @@ JNIEXPORT jint JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeCr
     if (EVP_DigestUpdate(ctx, data_bytes, data_len)) {
         result = KONA_GOOD;
     } else {
+        OSSL_print_err();
         result = KONA_BAD;
     }
 
@@ -128,6 +134,7 @@ JNIEXPORT jbyteArray JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_Na
     unsigned int digest_len = 0;
 
     if (!EVP_DigestFinal_ex(ctx, digest, &digest_len)) {
+        OSSL_print_err();
         return NULL;
     }
 
@@ -174,10 +181,12 @@ JNIEXPORT jlong JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeC
 
     EVP_MD_CTX *new_ctx = EVP_MD_CTX_new();
     if (new_ctx == NULL) {
+        OSSL_print_err();
         return KONA_BAD;
     }
 
     if (!EVP_MD_CTX_copy_ex(new_ctx, orig_ctx)) {
+        OSSL_print_err();
         return KONA_BAD;
     }
 
@@ -202,11 +211,13 @@ JNIEXPORT jlong JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeC
 
     EVP_MAC *mac = EVP_MAC_fetch(NULL, "HMAC", NULL);
     if (mac == NULL) {
+        OSSL_print_err();
         return KONA_BAD;
     }
 
     EVP_MAC_CTX *ctx = EVP_MAC_CTX_new(mac);
     if (ctx == NULL) {
+        OSSL_print_err();
         return KONA_BAD;
     }
 
@@ -222,6 +233,7 @@ JNIEXPORT jlong JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeC
     if (EVP_MAC_init(ctx, (unsigned char *)key_bytes, key_len, params)) {
         result = (long)ctx;
     } else {
+        OSSL_print_err();
         result = KONA_BAD;
     }
 
@@ -270,6 +282,7 @@ JNIEXPORT jint JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeCr
     if (EVP_MAC_update(ctx, (unsigned char *)data_bytes, data_len)) {
         result = KONA_GOOD;
     } else {
+        OSSL_print_err();
         result = KONA_BAD;
     }
 
@@ -294,6 +307,7 @@ JNIEXPORT jbyteArray JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_Na
     size_t mac_len = 0;
 
     if (!EVP_MAC_final(ctx, mac, &mac_len, sizeof(mac))) {
+        OSSL_print_err();
         return NULL;
     }
 
@@ -340,6 +354,7 @@ JNIEXPORT jlong JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeC
 
     EVP_MAC_CTX *new_ctx = EVP_MAC_CTX_dup(orig_ctx);
     if (new_ctx == NULL) {
+        OSSL_print_err();
         return KONA_BAD;
     }
 
@@ -376,6 +391,7 @@ JNIEXPORT jlong JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeC
 
     EVP_CIPHER_CTX *ctx = EVP_CIPHER_CTX_new();
     if (ctx == NULL) {
+        OSSL_print_err();
         return KONA_BAD;
     }
 
@@ -386,10 +402,12 @@ JNIEXPORT jlong JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeC
     if (EVP_CipherInit_ex(ctx, cipher, NULL, (unsigned char *)key_bytes, (unsigned char *)iv_bytes, encrypt)) {
         result = (long)ctx;
     } else {
+        OSSL_print_err();
         result = KONA_BAD;
     }
 
     if (!padding && !EVP_CIPHER_CTX_set_padding(ctx, 0)) {
+        OSSL_print_err();
         result = KONA_BAD;
     }
 
@@ -445,6 +463,7 @@ JNIEXPORT jbyteArray JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_Na
             (*env)->SetByteArrayRegion(env, out_bytes, 0, len, (jbyte *)out_buf);
         }
     } else {
+        OSSL_print_err();
         out_bytes = NULL;
     }
 
@@ -479,6 +498,7 @@ JNIEXPORT jbyteArray JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_Na
             (*env)->SetByteArrayRegion(env, out_bytes, 0, len, (jbyte *)out_buf);
         }
     } else {
+        OSSL_print_err();
         out_bytes = NULL;
     }
 
@@ -509,6 +529,7 @@ JNIEXPORT jint JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeCr
     if (EVP_CipherUpdate(ctx, NULL, &out_len, (unsigned char *)aad_bytes, aad_len)) {
         result = KONA_GOOD;
     } else {
+        OSSL_print_err();
         result = KONA_BAD;
     }
 
@@ -544,6 +565,7 @@ JNIEXPORT jint JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeCr
             (*env)->SetByteArrayRegion(env, tag, 0, SM4_GCM_TAG_LEN, (jbyte *)tag_buf);
             result = KONA_GOOD;
         } else {
+            OSSL_print_err();
             result = KONA_BAD;
         }
     } else {
@@ -554,6 +576,7 @@ JNIEXPORT jint JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeCr
             if (EVP_CIPHER_CTX_ctrl(ctx, EVP_CTRL_GCM_SET_TAG, SM4_GCM_TAG_LEN, tag_bytes)) {
                 result = KONA_GOOD;
             } else {
+                OSSL_print_err();
                 result = KONA_BAD;
             }
 
@@ -570,10 +593,12 @@ JNIEXPORT jlong JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeC
   (JNIEnv *env, jobject thisObj) {
     EVP_PKEY_CTX *ctx = EVP_PKEY_CTX_new_id(EVP_PKEY_SM2, NULL);
     if (ctx == NULL) {
+        OSSL_print_err();
         return KONA_BAD;
     }
 
     if(!EVP_PKEY_keygen_init(ctx)) {
+        OSSL_print_err();
         return KONA_BAD;
     }
 
@@ -596,20 +621,24 @@ JNIEXPORT jbyteArray JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_Na
   (JNIEnv *env, jobject thisObj, jlong pointer) {
     EVP_PKEY_CTX *ctx = (EVP_PKEY_CTX *)pointer;
     if (ctx == NULL) {
+        OSSL_print_err();
         return NULL;
     }
 
     if (!EVP_PKEY_keygen_init(ctx)) {
+        OSSL_print_err();
         return NULL;
     }
 
     EVP_PKEY *pkey = NULL;
     if (!EVP_PKEY_keygen(ctx, &pkey)) {
+        OSSL_print_err();
         return NULL;
     }
 
     BIGNUM *priv_key_bn = NULL;
     if (!EVP_PKEY_get_bn_param(pkey, OSSL_PKEY_PARAM_PRIV_KEY, &priv_key_bn)) {
+        OSSL_print_err();
         EVP_PKEY_free(pkey);
         return NULL;
     }
@@ -624,6 +653,7 @@ JNIEXPORT jbyteArray JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_Na
 
     size_t pub_key_len = 0;
     if (!EVP_PKEY_get_octet_string_param(pkey, OSSL_PKEY_PARAM_PUB_KEY, NULL, 0, &pub_key_len)) {
+        OSSL_print_err();
         EVP_PKEY_free(pkey);
         OPENSSL_cleanse(priv_key_buf, sizeof(priv_key_buf));
         return NULL;
@@ -635,6 +665,7 @@ JNIEXPORT jbyteArray JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_Na
         return NULL;
     }
     if (!EVP_PKEY_get_octet_string_param(pkey, OSSL_PKEY_PARAM_PUB_KEY, pub_key_buf, pub_key_len, &pub_key_len)) {
+        OSSL_print_err();
         EVP_PKEY_free(pkey);
         OPENSSL_cleanse(priv_key_buf, sizeof(priv_key_buf));
         OPENSSL_free(pub_key_buf);
