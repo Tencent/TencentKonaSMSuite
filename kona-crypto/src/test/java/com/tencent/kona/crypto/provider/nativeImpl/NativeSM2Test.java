@@ -19,10 +19,14 @@
 
 package com.tencent.kona.crypto.provider.nativeImpl;
 
+import com.tencent.kona.crypto.TestUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.junit.jupiter.api.condition.OS;
+
+import static com.tencent.kona.crypto.CryptoUtils.*;
+import static com.tencent.kona.crypto.util.Constants.*;
 
 /**
  * The test for native SM2 implementation.
@@ -30,11 +34,64 @@ import org.junit.jupiter.api.condition.OS;
 @EnabledOnOs(OS.LINUX)
 public class NativeSM2Test {
 
+    private final static String PUB_KEY_ODD
+            = "0475C05A9371F2CED4573FB2CFD10A36C00294F34582BCBA257817B973902A81C5F7C4AD1A3DDDD5C57FE16B15F841CA075FC05D19872D1BC0CCD5E69690F76955";
+    private static final String COMP_PUB_KEY_ODD = "0375C05A9371F2CED4573FB2CFD10A36C00294F34582BCBA257817B973902A81C5";
+
+    private final static String PUB_KEY_EVEN
+            = "04C1BE22935ED71A406E2B1B3E5F163582E016FC58E7E676B0FDADD215457EAD67C03BFFC35CA94FCF6011E27B46A7A12C6530C56D454D073E6903AAEE1DEF567C";
+    private static final String COMP_PUB_KEY_EVEN = "02C1BE22935ED71A406E2B1B3E5F163582E016FC58E7E676B0FDADD215457EAD67";
+
     @Test
     public void testGenKeyPair() {
         try (NativeSM2 sm2 = new NativeSM2()) {
             byte[] keyPair = sm2.genKeyPair();
-            Assertions.assertEquals(97, keyPair.length);
+            Assertions.assertEquals(SM2_PRIKEY_LEN + SM2_PUBKEY_LEN, keyPair.length);
         }
+    }
+
+    @Test
+    public void testGenKeyPairParallelly() throws Exception {
+        TestUtils.repeatTaskParallelly(() -> {
+            testGenKeyPair();
+            return null;
+        });
+    }
+
+    @Test
+    public void testGenKeyPairSerially() throws Exception {
+        TestUtils.repeatTaskSerially(() -> {
+            testGenKeyPair();
+            return null;
+        });
+    }
+
+    @Test
+    public void testToUncompPubKey() {
+        testToUncompPubKey(toBytes(PUB_KEY_ODD), toBytes(COMP_PUB_KEY_ODD));
+        testToUncompPubKey(toBytes(PUB_KEY_EVEN), toBytes(COMP_PUB_KEY_EVEN));
+    }
+
+    private void testToUncompPubKey(byte[] expectedPubKey, byte[] compPubKey) {
+        try (NativeSM2 sm2 = new NativeSM2()) {
+            byte[] uncompPubKey = sm2.toUncompPubKey(compPubKey);
+            Assertions.assertArrayEquals(expectedPubKey, uncompPubKey);
+        }
+    }
+
+    @Test
+    public void testToUncompPubKeyParallelly() throws Exception {
+        TestUtils.repeatTaskParallelly(() -> {
+            testToUncompPubKey();
+            return null;
+        });
+    }
+
+    @Test
+    public void testToUncompPubKeySerially() throws Exception {
+        TestUtils.repeatTaskSerially(() -> {
+            testToUncompPubKey();
+            return null;
+        });
     }
 }

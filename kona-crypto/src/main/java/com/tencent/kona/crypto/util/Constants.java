@@ -32,6 +32,11 @@ public final class Constants {
     // The hex format is 04||x||y
     public static final int SM2_PUBKEY_LEN = 65;
 
+    // The length of compressed SM2 public key,
+    // exactly an EC point's coordinates (x, y).
+    // The hex format is 02||x when y is even, or 0x3||x when y is odd.
+    public static final int SM2_COMP_PUBKEY_LEN = 33;
+
     // The length of the affine coordinate.
     public static final int SM2_PUBKEY_AFFINE_LEN = 32;
 
