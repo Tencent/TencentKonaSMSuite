@@ -29,8 +29,9 @@ import java.util.regex.Pattern;
 
 import com.tencent.kona.crypto.util.RangeUtil;
 import com.tencent.kona.java.util.HexFormat;
-import com.tencent.kona.crypto.util.Constants;
 import com.tencent.kona.sun.security.util.ArrayUtil;
+
+import static com.tencent.kona.crypto.util.Constants.*;
 
 public final class CryptoUtils {
 
@@ -274,7 +275,7 @@ public final class CryptoUtils {
 
     // Format: 0x04<x-coordinate><y-coordinate>
     public static ECPoint pubKeyPoint(byte[] encodedPubKey) {
-        if (encodedPubKey.length != Constants.SM2_PUBKEY_LEN) {
+        if (encodedPubKey.length != SM2_PUBKEY_LEN) {
             throw new IllegalArgumentException(
                     "The encoded public key must be 65-bytes: "
                             + encodedPubKey.length);
@@ -310,6 +311,20 @@ public final class CryptoUtils {
             throw new IllegalArgumentException(
                     "The length of ID must be less than 8192-bytes");
         }
+    }
+
+    public static byte[] toCompPubKey(byte[] uncompPubKey) {
+        if (uncompPubKey == null || uncompPubKey.length != SM2_PUBKEY_LEN
+                || uncompPubKey[0] != 0x04) {
+            throw new IllegalArgumentException("Invalid uncompressed SM2 public key");
+        }
+
+        byte[] compPubKey = new byte[SM2_PUBKEY_AFFINE_LEN + 1];
+        compPubKey[0] = (uncompPubKey[uncompPubKey.length - 1] & 1) == 0
+                ? (byte) 0x02 : (byte) 0x03;
+        System.arraycopy(uncompPubKey, 1, compPubKey, 1, SM2_PUBKEY_AFFINE_LEN);
+
+        return compPubKey;
     }
 
     private CryptoUtils() { }

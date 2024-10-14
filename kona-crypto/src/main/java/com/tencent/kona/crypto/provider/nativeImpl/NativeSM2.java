@@ -20,7 +20,11 @@
 
 package com.tencent.kona.crypto.provider.nativeImpl;
 
+import com.tencent.kona.crypto.CryptoUtils;
+
 import static com.tencent.kona.crypto.provider.nativeImpl.NativeCrypto.nativeCrypto;
+
+import static com.tencent.kona.crypto.util.Constants.*;
 
 /**
  * The SM2 native implementation.
@@ -39,7 +43,25 @@ final class NativeSM2 extends NativeRef {
     // K is the private key, 32-bytes
     // X and Y are the coordinates of the public key, 32-bytes
     public byte[] genKeyPair() {
-        return nativeCrypto().sm2GenKeyPair(pointer);
+        byte[] keyPair = nativeCrypto().sm2GenKeyPair(pointer);
+
+        if (keyPair.length == SM2_PRIKEY_LEN + SM2_PUBKEY_LEN) {
+            return keyPair;
+        } else if (keyPair.length == SM2_PRIKEY_LEN + SM2_COMP_PUBKEY_LEN) {
+            // Convert the compressed public key to the uncompressed
+            byte[] uncompPubKey = nativeCrypto().toUncompPubKey(pointer,
+                    CryptoUtils.copy(keyPair, SM2_PRIKEY_LEN, SM2_COMP_PUBKEY_LEN));
+            byte[] uncompKeyPair = new byte[SM2_PRIKEY_LEN + SM2_PUBKEY_LEN];
+            System.arraycopy(keyPair, 0, uncompKeyPair, 0, SM2_PRIKEY_LEN);
+            System.arraycopy(uncompPubKey, 0, uncompKeyPair, SM2_PRIKEY_LEN, SM2_PUBKEY_LEN);
+            return uncompKeyPair;
+        }
+
+        throw new IllegalStateException("Illegal key pair");
+    }
+
+    byte[] toUncompPubKey(byte[] compPubKey) {
+        return nativeCrypto().toUncompPubKey(pointer, compPubKey);
     }
 
     @Override
