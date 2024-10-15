@@ -189,8 +189,9 @@ final class NativeCrypto {
     native int    sm4GCMProcTag(long pointer, byte[] tag);
 
     /* ***** SM2 ***** */
+    native byte[] toUncompPubKey(byte[] compPubKey);
+
     native long   sm2CreateCtx();
     native void   sm2FreeCtx(long pointer);
     native byte[] sm2GenKeyPair(long pointer);
-    native byte[] toUncompPubKey(long pointer, byte[] compPubKey);
 }
