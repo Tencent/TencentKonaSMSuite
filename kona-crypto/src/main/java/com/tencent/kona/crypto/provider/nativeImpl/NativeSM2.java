@@ -49,7 +49,7 @@ final class NativeSM2 extends NativeRef {
             return keyPair;
         } else if (keyPair.length == SM2_PRIKEY_LEN + SM2_COMP_PUBKEY_LEN) {
             // Convert the compressed public key to the uncompressed
-            byte[] uncompPubKey = nativeCrypto().toUncompPubKey(pointer,
+            byte[] uncompPubKey = nativeCrypto().toUncompPubKey(
                     CryptoUtils.copy(keyPair, SM2_PRIKEY_LEN, SM2_COMP_PUBKEY_LEN));
             byte[] uncompKeyPair = new byte[SM2_PRIKEY_LEN + SM2_PUBKEY_LEN];
             System.arraycopy(keyPair, 0, uncompKeyPair, 0, SM2_PRIKEY_LEN);
@@ -58,10 +58,6 @@ final class NativeSM2 extends NativeRef {
         }
 
         throw new IllegalStateException("Illegal key pair");
-    }
-
-    byte[] toUncompPubKey(byte[] compPubKey) {
-        return nativeCrypto().toUncompPubKey(pointer, compPubKey);
     }
 
     @Override

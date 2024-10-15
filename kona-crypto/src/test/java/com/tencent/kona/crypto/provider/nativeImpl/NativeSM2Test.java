@@ -43,6 +43,33 @@ public class NativeSM2Test {
     private static final String COMP_PUB_KEY_EVEN = "02C1BE22935ED71A406E2B1B3E5F163582E016FC58E7E676B0FDADD215457EAD67";
 
     @Test
+    public void testToUncompPubKey() {
+        testToUncompPubKey(toBytes(PUB_KEY_ODD), toBytes(COMP_PUB_KEY_ODD));
+        testToUncompPubKey(toBytes(PUB_KEY_EVEN), toBytes(COMP_PUB_KEY_EVEN));
+    }
+
+    private void testToUncompPubKey(byte[] expectedPubKey, byte[] compPubKey) {
+        byte[] uncompPubKey = NativeCrypto.nativeCrypto().toUncompPubKey(compPubKey);
+        Assertions.assertArrayEquals(expectedPubKey, uncompPubKey);
+    }
+
+    @Test
+    public void testToUncompPubKeyParallelly() throws Exception {
+        TestUtils.repeatTaskParallelly(() -> {
+            testToUncompPubKey();
+            return null;
+        });
+    }
+
+    @Test
+    public void testToUncompPubKeySerially() throws Exception {
+        TestUtils.repeatTaskSerially(() -> {
+            testToUncompPubKey();
+            return null;
+        });
+    }
+
+    @Test
     public void testGenKeyPair() {
         try (NativeSM2 sm2 = new NativeSM2()) {
             byte[] keyPair = sm2.genKeyPair();
@@ -62,35 +89,6 @@ public class NativeSM2Test {
     public void testGenKeyPairSerially() throws Exception {
         TestUtils.repeatTaskSerially(() -> {
             testGenKeyPair();
-            return null;
-        });
-    }
-
-    @Test
-    public void testToUncompPubKey() {
-        testToUncompPubKey(toBytes(PUB_KEY_ODD), toBytes(COMP_PUB_KEY_ODD));
-        testToUncompPubKey(toBytes(PUB_KEY_EVEN), toBytes(COMP_PUB_KEY_EVEN));
-    }
-
-    private void testToUncompPubKey(byte[] expectedPubKey, byte[] compPubKey) {
-        try (NativeSM2 sm2 = new NativeSM2()) {
-            byte[] uncompPubKey = sm2.toUncompPubKey(compPubKey);
-            Assertions.assertArrayEquals(expectedPubKey, uncompPubKey);
-        }
-    }
-
-    @Test
-    public void testToUncompPubKeyParallelly() throws Exception {
-        TestUtils.repeatTaskParallelly(() -> {
-            testToUncompPubKey();
-            return null;
-        });
-    }
-
-    @Test
-    public void testToUncompPubKeySerially() throws Exception {
-        TestUtils.repeatTaskSerially(() -> {
-            testToUncompPubKey();
             return null;
         });
     }

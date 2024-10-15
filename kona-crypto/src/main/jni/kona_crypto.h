@@ -157,6 +157,14 @@ JNIEXPORT jint JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeCr
 
 /*
  * Class:     com_tencent_kona_crypto_provider_nativeImpl_NativeCrypto
+ * Method:    toUncompPubKey
+ * Signature: ([B)[B
+ */
+JNIEXPORT jbyteArray JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeCrypto_toUncompPubKey
+  (JNIEnv *, jclass, jbyteArray);
+
+/*
+ * Class:     com_tencent_kona_crypto_provider_nativeImpl_NativeCrypto
  * Method:    sm2CreateCtx
  * Signature: ()J
  */
@@ -178,14 +186,6 @@ JNIEXPORT void JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeCr
  */
 JNIEXPORT jbyteArray JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeCrypto_sm2GenKeyPair
   (JNIEnv *, jobject, jlong);
-
-/*
- * Class:     com_tencent_kona_crypto_provider_nativeImpl_NativeCrypto
- * Method:    toUncompPubKey
- * Signature: (J[B)[B
- */
-JNIEXPORT jbyteArray JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeCrypto_toUncompPubKey
-  (JNIEnv *, jobject, jlong, jbyteArray);
 
 #ifdef __cplusplus
 }

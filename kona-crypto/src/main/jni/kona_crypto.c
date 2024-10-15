@@ -17,13 +17,16 @@
  * Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+#include <stdlib.h>
+#include <string.h>
+
 #include <jni.h>
+
 #include <openssl/core_names.h>
 #include <openssl/ec.h>
 #include <openssl/evp.h>
 #include <openssl/err.h>
-#include <string.h>
-#include <stdlib.h>
+
 #include "kona_crypto.h"
 
 #define SM2_PRI_KEY_LEN      32
@@ -596,6 +599,66 @@ JNIEXPORT jint JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeCr
 /* ***** SM4 end ***** */
 
 /* ***** SM2 start ***** */
+JNIEXPORT jbyteArray JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeCrypto_toUncompPubKey
+  (JNIEnv *env, jclass thisObj, jbyteArray compPubKey) {
+    jbyte *comp_pub_key_bytes = (*env)->GetByteArrayElements(env, compPubKey, NULL);
+    if (comp_pub_key_bytes == NULL) {
+        return NULL;
+    }
+    jsize comp_pub_key_len = (*env)->GetArrayLength(env, compPubKey);
+    if (comp_pub_key_len != SM2_COMP_PUB_KEY_LEN) {
+        (*env)->ReleaseByteArrayElements(env, compPubKey, comp_pub_key_bytes, JNI_ABORT);
+        return NULL;
+    }
+
+    EC_GROUP *group = EC_GROUP_new_by_curve_name(NID_sm2);
+    if (group == NULL) {
+        OSSL_print_err();
+        (*env)->ReleaseByteArrayElements(env, compPubKey, comp_pub_key_bytes, JNI_ABORT);
+        return NULL;
+    }
+
+    EC_POINT *point = EC_POINT_new(group);
+    if (point == NULL) {
+        OSSL_print_err();
+        (*env)->ReleaseByteArrayElements(env, compPubKey, comp_pub_key_bytes, JNI_ABORT);
+        EC_GROUP_free(group);
+        return NULL;
+    }
+
+    // Convert the compressed public key to an EC_POINT
+    if (!EC_POINT_oct2point(group, point, (unsigned char *)comp_pub_key_bytes, comp_pub_key_len, NULL)) {
+        OSSL_print_err();
+        (*env)->ReleaseByteArrayElements(env, compPubKey, comp_pub_key_bytes, JNI_ABORT);
+        EC_GROUP_free(group);
+        EC_POINT_free(point);
+        return NULL;
+    }
+
+    // Convert the EC_POINT to an uncompressed public key
+    unsigned char uncomp_pub_key[SM2_PUB_KEY_LEN];
+    size_t uncomp_pub_key_len = EC_POINT_point2oct(group, point, POINT_CONVERSION_UNCOMPRESSED, uncomp_pub_key, SM2_PUB_KEY_LEN, NULL);
+    if (uncomp_pub_key_len <= 0) {
+        OSSL_print_err();
+        (*env)->ReleaseByteArrayElements(env, compPubKey, comp_pub_key_bytes, JNI_ABORT);
+        EC_GROUP_free(group);
+        EC_POINT_free(point);
+        return NULL;
+    }
+
+    (*env)->ReleaseByteArrayElements(env, compPubKey, comp_pub_key_bytes, JNI_ABORT);
+    EC_GROUP_free(group);
+    EC_POINT_free(point);
+
+    jbyteArray uncompPubKey = (*env)->NewByteArray(env, uncomp_pub_key_len);
+    if (uncompPubKey == NULL) {
+        return NULL;
+    }
+    (*env)->SetByteArrayRegion(env, uncompPubKey, 0, uncomp_pub_key_len, (jbyte *)uncomp_pub_key);
+
+    return uncompPubKey;
+}
+
 JNIEXPORT jlong JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeCrypto_sm2CreateCtx
   (JNIEnv *env, jobject thisObj) {
     EVP_PKEY_CTX *ctx = EVP_PKEY_CTX_new_id(EVP_PKEY_SM2, NULL);
@@ -698,70 +761,4 @@ JNIEXPORT jbyteArray JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_Na
 
     return result;
 }
-
-JNIEXPORT jbyteArray JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeCrypto_toUncompPubKey
-  (JNIEnv *env, jobject thisObj, jlong pointer, jbyteArray compPubKey) {
-    EVP_PKEY_CTX *ctx = (EVP_PKEY_CTX *)pointer;
-    if (ctx == NULL) {
-        OSSL_print_err();
-        return NULL;
-    }
-
-    // Get the compressed public key from the jbyteArray
-    jbyte *comp_pub_key_bytes = (*env)->GetByteArrayElements(env, compPubKey, NULL);
-    if (comp_pub_key_bytes == NULL) {
-        return NULL;
-    }
-    jsize comp_pub_key_len = (*env)->GetArrayLength(env, compPubKey);
-
-    // Create a new EC_KEY object for the SM2 curve
-    EC_KEY *ec_key = EC_KEY_new_by_curve_name(NID_sm2);
-    if (ec_key == NULL) {
-        OSSL_print_err();
-        (*env)->ReleaseByteArrayElements(env, compPubKey, comp_pub_key_bytes, JNI_ABORT);
-        return NULL;
-    }
-
-    // Create a new EC_POINT
-    const EC_GROUP *group = EC_KEY_get0_group(ec_key);
-    EC_POINT *point = EC_POINT_new(group);
-    if (point == NULL) {
-        OSSL_print_err();
-        (*env)->ReleaseByteArrayElements(env, compPubKey, comp_pub_key_bytes, JNI_ABORT);
-        EC_KEY_free(ec_key);
-        return NULL;
-    }
-
-    // Convert the compressed public key to an EC_POINT
-    if (EC_POINT_oct2point(group, point, (unsigned char *)comp_pub_key_bytes, comp_pub_key_len, NULL) != 1) {
-        OSSL_print_err();
-        (*env)->ReleaseByteArrayElements(env, compPubKey, comp_pub_key_bytes, JNI_ABORT);
-        EC_POINT_free(point);
-        EC_KEY_free(ec_key);
-        return NULL;
-    }
-
-    // Convert the EC_POINT to an uncompressed public key
-    unsigned char uncomp_pub_key[65];
-    size_t uncomp_pub_key_len = EC_POINT_point2oct(group, point, POINT_CONVERSION_UNCOMPRESSED, uncomp_pub_key, sizeof(uncomp_pub_key), NULL);
-    if (uncomp_pub_key_len == 0) {
-        OSSL_print_err();
-        (*env)->ReleaseByteArrayElements(env, compPubKey, comp_pub_key_bytes, JNI_ABORT);
-        EC_POINT_free(point);
-        EC_KEY_free(ec_key);
-        return NULL;
-    }
-
-    (*env)->ReleaseByteArrayElements(env, compPubKey, comp_pub_key_bytes, JNI_ABORT);
-    EC_POINT_free(point);
-    EC_KEY_free(ec_key);
-
-    jbyteArray uncompPubKey = (*env)->NewByteArray(env, uncomp_pub_key_len);
-    if (uncompPubKey == NULL) {
-        return NULL;
-    }
-    (*env)->SetByteArrayRegion(env, uncompPubKey, 0, uncomp_pub_key_len, (jbyte *)uncomp_pub_key);
-
-    return uncompPubKey;
-}
-/* ***** SM4 end ***** */
+/* ***** SM2 end ***** */
