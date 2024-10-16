@@ -749,7 +749,7 @@ JNIEXPORT jbyteArray JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_Na
 
         if (result_bytes) {
             memcpy(result_bytes, priv_key_buf, SM2_PRI_KEY_LEN);
-            memcpy(result_bytes + SM2_PRI_KEY_LEN, pub_key_buf, SM2_PUB_KEY_LEN);
+            memcpy(result_bytes + SM2_PRI_KEY_LEN, pub_key_buf, pub_key_len);
 
             (*env)->ReleaseByteArrayElements(env, result, result_bytes, 0);
         }
