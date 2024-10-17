@@ -42,14 +42,25 @@
 #define KONA_GOOD             0
 #define KONA_BAD             -1
 
-#define KONA_print_err(...) fprintf(stderr, __VA_ARGS__)
+#define KONA_print(...) fprintf(stdout, __VA_ARGS__), fprintf(stdout, "\n")
+#define KONA_print_err(...) fprintf(stderr, __VA_ARGS__), fprintf(stderr, "\n")
 #define OSSL_print_err() ERR_print_errors_fp(stderr)
 
-void print_hex(unsigned char *data, size_t len) {
+const char *hex_digits = "0123456789abcdef";
+void bytes_to_hex(const unsigned char *bytes, size_t offset, size_t len, unsigned char *hex) {
     for (size_t i = 0; i < len; i++) {
-        printf("%02x", data[i]);
+        hex[i * 2] = hex_digits[bytes[i + offset] / 16];
+        hex[i * 2 + 1] = hex_digits[bytes[i + offset] % 16];
     }
-    printf("\n");
+
+    hex[len * 2] = '\0';
+}
+
+void print_hex(const unsigned char *byte_array, size_t offset, size_t len) {
+    unsigned char *hex = malloc(len * 2 + 1);
+    bytes_to_hex(byte_array, offset, len, hex);
+    KONA_print("%s", hex);
+    free(hex);
 }
 
 /* ***** SM3 start ***** */
