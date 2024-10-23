@@ -177,6 +177,32 @@ tasks {
         }
     }
 
+    register("testOnGraal17", CommonTest::class) {
+        systemProperty("test.classpath", classpath.joinToString(separator = ":"))
+
+        javaLauncher.set(javaToolchains.launcherFor {
+            languageVersion.set(JavaLanguageVersion.of(17))
+            vendor.set(JvmVendorSpec.GRAAL_VM)
+        })
+
+        doFirst {
+            println("Testing JDK: " + javaLauncher.get().metadata.installationPath)
+        }
+    }
+
+    register("testOnGraal21", CommonTest::class) {
+        systemProperty("test.classpath", classpath.joinToString(separator = ":"))
+
+        javaLauncher.set(javaToolchains.launcherFor {
+            languageVersion.set(JavaLanguageVersion.of(21))
+            vendor.set(JvmVendorSpec.GRAAL_VM)
+        })
+
+        doFirst {
+            println("Testing JDK: " + javaLauncher.get().metadata.installationPath)
+        }
+    }
+
     test {
         dependsOn(testOnCurrent)
     }
