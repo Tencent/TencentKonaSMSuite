@@ -22,6 +22,7 @@
  * or visit www.oracle.com if you need additional information or have any
  * questions.
  */
+
 package com.tencent.kona.sun.security.util;
 
 import java.io.*;
@@ -47,26 +48,26 @@ public final class UntrustedCertificates {
     private static final String ALGORITHM_KEY = "Algorithm";
 
     private static final Properties props = new Properties();
-    private static final String algorithm;
+//    private static final String algorithm;
 
     static {
-        @SuppressWarnings("removal")
-        Void dummy = AccessController.doPrivileged(new PrivilegedAction<Void>() {
-            @Override
-            public Void run() {
-                File f = new File(StaticProperty.javaHome(),
-                        "lib/security/blocked.certs");
-                try (FileInputStream fin = new FileInputStream(f)) {
-                    props.load(fin);
-                } catch (IOException fnfe) {
-                    if (debug != null) {
-                        debug.println("Error parsing blocked.certs");
-                    }
-                }
-                return null;
-            }
-        });
-        algorithm = props.getProperty(ALGORITHM_KEY);
+//        @SuppressWarnings("removal")
+//        Void dummy = AccessController.doPrivileged(new PrivilegedAction<Void>() {
+//            @Override
+//            public Void run() {
+//                File f = new File(StaticProperty.javaHome(),
+//                        "lib/security/blocked.certs");
+//                try (FileInputStream fin = new FileInputStream(f)) {
+//                    props.load(fin);
+//                } catch (IOException fnfe) {
+//                    if (debug != null) {
+//                        debug.println("Error parsing blocked.certs");
+//                    }
+//                }
+//                return null;
+//            }
+//        });
+//        algorithm = props.getProperty(ALGORITHM_KEY);
     }
 
     /**
@@ -76,12 +77,15 @@ public final class UntrustedCertificates {
      * @return true if the certificate is untrusted.
      */
     public static boolean isUntrusted(X509Certificate cert) {
-        if (algorithm == null) {
-            return false;
-        }
-        // if fingerprint cannot be calculated, also treat it as untrusted
-        String key = X509CertImpl.getFingerprint(algorithm, cert, debug);
-        return (key == null || props.containsKey(key));
+//        if (algorithm == null) {
+//            return false;
+//        }
+//        // if fingerprint cannot be calculated, also treat it as untrusted
+//        String key = X509CertImpl.getFingerprint(algorithm, cert, debug);
+//        return (key == null || props.containsKey(key));
+
+        // Unnecessary to check the blocked certs on Tencent Kona SM Suite
+        return false;
     }
 
     private UntrustedCertificates() {}
