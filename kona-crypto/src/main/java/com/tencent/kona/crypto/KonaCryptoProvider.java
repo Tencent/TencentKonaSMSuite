@@ -21,14 +21,10 @@
 package com.tencent.kona.crypto;
 
 import com.tencent.kona.sun.security.rsa.SunRsaSignEntries;
-import com.tencent.kona.sun.security.util.CurveDB;
-import com.tencent.kona.sun.security.util.NamedCurve;
 
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.security.Provider;
-import java.util.Collection;
-import java.util.regex.Pattern;
 
 /**
  * The Kona Crypto Provider.
@@ -132,34 +128,6 @@ public class KonaCryptoProvider extends Provider {
         provider.put("AlgorithmParameters.EC",
                 "com.tencent.kona.sun.security.util.ECParameters");
         provider.put("Alg.Alias.AlgorithmParameters.EllipticCurve", "EC");
-
-        // "AlgorithmParameters.EC SupportedCurves" prop used by unit test
-        boolean firstCurve = true;
-        StringBuilder names = new StringBuilder();
-        Pattern nameSplitPattern = Pattern.compile(CurveDB.SPLIT_PATTERN);
-
-        Collection<? extends NamedCurve> supportedCurves =
-                CurveDB.getSupportedCurves();
-        for (NamedCurve namedCurve : supportedCurves) {
-            if (!firstCurve) {
-                names.append("|");
-            } else {
-                firstCurve = false;
-            }
-
-            names.append("[");
-
-            String[] commonNames = nameSplitPattern.split(namedCurve.getName());
-            for (String commonName : commonNames) {
-                names.append(commonName.trim());
-                names.append(",");
-            }
-
-            names.append(namedCurve.getObjectId());
-            names.append("]");
-        }
-
-        provider.put("AlgorithmParameters.EC SupportedCurves", names.toString());
 
         provider.put("KeyFactory.EC",
                 "com.tencent.kona.sun.security.ec.ECKeyFactory");
