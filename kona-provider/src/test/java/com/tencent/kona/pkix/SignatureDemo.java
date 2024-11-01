@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022, 2023, THL A29 Limited, a Tencent company. All rights reserved.
+ * Copyright (C) 2022, 2024, THL A29 Limited, a Tencent company. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -106,13 +106,13 @@ public class SignatureDemo {
     @Test
     public void testSignature() throws Exception {
         PrivateKey privateKey = privateKey(KEY);
-        Signature signer = Signature.getInstance("SM3withSM2");
+        Signature signer = Signature.getInstance("SM3withSM2", "Kona");
         signer.initSign(privateKey);
         signer.update(DATA);
         byte[] sign = signer.sign();
 
         Certificate certificate = certificate(CERT);
-        Signature verifier = Signature.getInstance("SM3withSM2");
+        Signature verifier = Signature.getInstance("SM3withSM2", "Kona");
         verifier.initVerify(certificate);
         verifier.update(DATA);
         boolean verified = verifier.verify(sign);
@@ -125,7 +125,7 @@ public class SignatureDemo {
         PKCS8EncodedKeySpec privateKeySpec = new PKCS8EncodedKeySpec(
                 Base64.getMimeDecoder().decode(removeBELines(pkcs8PEM)));
         KeyFactory keyFactory = KeyFactory.getInstance(
-                "EC");
+                "EC", "Kona");
         return keyFactory.generatePrivate(privateKeySpec);
     }
 
@@ -137,7 +137,7 @@ public class SignatureDemo {
     private static Certificate certificate(String certPEM)
             throws CertificateException, NoSuchProviderException {
         CertificateFactory certFactory = CertificateFactory.getInstance(
-                "X.509");
+                "X.509", "Kona");
         return certFactory.generateCertificate(
                 new ByteArrayInputStream(certPEM.getBytes(StandardCharsets.UTF_8)));
     }
@@ -146,13 +146,13 @@ public class SignatureDemo {
     @Test
     public void testSignatureWithCustomAPI() throws Exception {
         PrivateKey privateKey = PKIXUtils.getPrivateKey("EC", KEY);
-        Signature signer = Signature.getInstance("SM3withSM2");
+        Signature signer = Signature.getInstance("SM3withSM2", "Kona");
         signer.initSign(privateKey);
         signer.update(DATA);
         byte[] sign = signer.sign();
 
         Certificate certificate = PKIXUtils.getCertificate(CERT);
-        Signature verifier = Signature.getInstance("SM3withSM2");
+        Signature verifier = Signature.getInstance("SM3withSM2", "Kona");
         verifier.initVerify(certificate);
         verifier.update(DATA);
         Assertions.assertTrue(verifier.verify(sign));

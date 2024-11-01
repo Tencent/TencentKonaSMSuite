@@ -72,7 +72,7 @@ import java.util.Set;
 public class TomcatServer {
 
     static {
-        Security.insertProviderAt(new KonaProvider(), 1);
+        Security.addProvider(new KonaProvider());
     }
 
     public static void main(String[] args) {

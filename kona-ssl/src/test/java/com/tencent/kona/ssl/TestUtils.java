@@ -94,9 +94,9 @@ public class TestUtils {
     }
 
     public static void addProviders() {
-        Security.insertProviderAt(new KonaCryptoProvider(), 1);
-        Security.insertProviderAt(new KonaPKIXProvider(), 2);
-        Security.insertProviderAt(new KonaSSLProvider(), 3);
+        Security.addProvider(new KonaCryptoProvider());
+        Security.addProvider(new KonaPKIXProvider());
+        Security.addProvider(new KonaSSLProvider());
     }
 
     public static Path resFilePath(String resource) {
