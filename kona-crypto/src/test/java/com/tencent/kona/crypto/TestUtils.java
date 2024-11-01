@@ -49,7 +49,7 @@ public class TestUtils {
     public static final byte[] EMPTY = new byte[0];
 
     public static void addProviders() {
-        Security.insertProviderAt(new KonaCryptoProvider(), 1);
+        Security.addProvider(new KonaCryptoProvider());
     }
 
     public static void repeatTaskParallelly(Callable<Void> task, int count)

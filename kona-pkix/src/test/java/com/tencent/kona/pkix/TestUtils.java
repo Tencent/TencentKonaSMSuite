@@ -91,8 +91,8 @@ public class TestUtils {
             "--add-exports", "java.base/jdk.internal.access=ALL-UNNAMED");
 
     public static void addProviders() {
-        Security.insertProviderAt(new KonaCryptoProvider(), 1);
-        Security.insertProviderAt(new KonaPKIXProvider(), 2);
+        Security.addProvider(new KonaCryptoProvider());
+        Security.addProvider(new KonaPKIXProvider());
     }
 
     public static Path resFilePath(String resource) {

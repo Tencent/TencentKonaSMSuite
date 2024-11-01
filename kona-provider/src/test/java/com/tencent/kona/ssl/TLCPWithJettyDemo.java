@@ -248,7 +248,7 @@ public class TLCPWithJettyDemo {
     @Test
     public void tlcpDemo() throws Exception {
         // Output debug info.
-//        System.setProperty("com.tencent.ssl.debug", "all");
+//        System.setProperty("com.tencent.kona.ssl.debug", "all");
 
         // Add providers.
         TestUtils.addProviders();
@@ -305,23 +305,23 @@ public class TLCPWithJettyDemo {
 
     private static SSLContext createContext() throws Exception {
         KeyStore trustStore = createTrustStore(CA, null);
-        TrustManagerFactory tmf = TrustManagerFactory.getInstance("PKIX");
+        TrustManagerFactory tmf = TrustManagerFactory.getInstance("PKIX", "Kona");
         tmf.init(trustStore);
 
         KeyStore keyStore = createKeyStore(
                 SIGN_EE, SIGN_EE_ID, SIGN_EE_KEY,
                 ENC_EE, ENC_EE_ID, ENC_EE_KEY);
-        KeyManagerFactory kmf = KeyManagerFactory.getInstance("NewSunX509");
+        KeyManagerFactory kmf = KeyManagerFactory.getInstance("NewSunX509", "Kona");
         kmf.init(keyStore, PASSWORD.toCharArray());
 
-        SSLContext context = SSLContext.getInstance("TLCP");
+        SSLContext context = SSLContext.getInstance("TLCPv1.1", "Kona");
         context.init(kmf.getKeyManagers(), tmf.getTrustManagers(), new SecureRandom());
         return context;
     }
 
     private static KeyStore createTrustStore(String caStr, String caId)
             throws Exception {
-        KeyStore trustStore = KeyStore.getInstance("PKCS12");
+        KeyStore trustStore = KeyStore.getInstance("PKCS12", "Kona");
         trustStore.load(null, null);
         trustStore.setCertificateEntry("tlcp-trust-demo", loadCert(caStr, caId));
         return trustStore;
@@ -331,7 +331,7 @@ public class TLCPWithJettyDemo {
             String signEeStr, String signEeId, String signEeKeyStr,
             String encEeStr, String encEeId, String encEeKeyStr)
             throws Exception {
-        KeyStore keyStore = KeyStore.getInstance("PKCS12");
+        KeyStore keyStore = KeyStore.getInstance("PKCS12", "Kona");
         keyStore.load(null, null);
 
         keyStore.setKeyEntry("tlcp-sign-ee-demo",
@@ -349,7 +349,7 @@ public class TLCPWithJettyDemo {
     private static X509Certificate loadCert(String certPEM, String id)
             throws Exception {
         CertificateFactory certFactory = CertificateFactory.getInstance(
-                "X.509");
+                "X.509", "Kona");
         X509Certificate x509Cert = (X509Certificate) certFactory.generateCertificate(
                 new ByteArrayInputStream(certPEM.getBytes()));
 
@@ -364,7 +364,7 @@ public class TLCPWithJettyDemo {
     private static PrivateKey loadPrivateKey(String keyPEM) throws Exception {
         PKCS8EncodedKeySpec privateKeySpec = new PKCS8EncodedKeySpec(
                 Base64.getMimeDecoder().decode(keyPEM));
-        KeyFactory keyFactory = KeyFactory.getInstance("EC");
+        KeyFactory keyFactory = KeyFactory.getInstance("EC", "Kona");
         return keyFactory.generatePrivate(privateKeySpec);
     }
 
