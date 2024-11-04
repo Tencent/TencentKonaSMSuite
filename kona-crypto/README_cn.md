@@ -40,7 +40,7 @@ Security.addProvider(new KonaCryptoProvider());
 Security.insertProviderAt(new KonaCryptoProvider(), position);
 ```
 
-position的值越小，代表的优先级越高，最小可为1。
+position的值越小，代表的优先级越高，最小可为1。然而，并不推荐提升该Provider的优先级，故推荐使用`Security.addProvider`。
 
 ### SM2
 

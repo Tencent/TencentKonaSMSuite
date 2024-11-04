@@ -27,7 +27,7 @@ Security.insertProviderAt(new KonaPKIXProvider(), position2);
 Security.insertProviderAt(new KonaSSLProvider(), position3);
 ```
 
-position的值越小，代表的优先级越高，最小可为1。
+position的值越小，代表的优先级越高，最小可为1。然而，并不推荐提升该Provider的优先级，故推荐使用`Security.addProvider`。
 
 ### 创建SSLContext
 为了能利用上`KonaSSL`实现的国标TLCP协议和RFC 8998规范等特性，其关键就是让JDK的SSLSocket或SSLEngine能利用上`KonaSSL`实现的SSLContext实例。

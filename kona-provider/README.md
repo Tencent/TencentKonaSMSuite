@@ -21,7 +21,7 @@ The above line adds the provider to the last position of the provider list. If n
 Security.insertProviderAt(new KonaProvider(), position);
 ```
 
-the less the position value is, the higher the privilege is. The minimum value is 1.
+the less the position value is, the higher the privilege is. The minimum value is 1. However, it's not recommended to prioritize this provider. So, `Security.addProvider` is recommended.
 
 Please note that is no need to load `KonaCryptoProvider`，`KonaPKIXProvider` or `KonaSSLProvider`. Instead, it just needs to put their jars into the classpath. `Kona` can load all the features in these three providers via reflection.
 
