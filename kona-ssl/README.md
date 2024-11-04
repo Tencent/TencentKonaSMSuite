@@ -27,7 +27,7 @@ Security.insertProviderAt(new KonaPKIXProvider(), position2);
 Security.insertProviderAt(new KonaSSLProvider(), position3);
 ```
 
-the less the position values are, the higher the priorities are. The minimum value is 1.
+the less the position values are, the higher the priorities are. The minimum value is 1. However, it's not recommended to prioritize this provider. So, `Security.addProvider` is recommended.
 
 ### Create SSLContext
 In order to take advantage of the implementations on TLCP and RFC 8998 in `KonaSSL`, the most important point is taking SSLSocket or SSLEngine to apply the SSLContext implementation from `KonaSSL`.

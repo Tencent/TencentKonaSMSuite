@@ -25,7 +25,7 @@ Security.insertProviderAt(new KonaCryptoProvider(), position1);
 Security.insertProviderAt(new KonaPKIXProvider(), position2);
 ```
 
-position的值越小，代表的优先级越高，最小可为1。
+position的值越小，代表的优先级越高，最小可为1。然而，并不推荐提升该Provider的优先级，故推荐使用`Security.addProvider`。
 
 ### 证书
 `KonaPKIX`能够解析标准的X.509证书，支持RSA与EC证书，特别是支持了包含国密算法（SM2曲线和SM3withSM2签名算法）的EC证书。

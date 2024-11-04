@@ -40,7 +40,7 @@ The above line adds this provider at the bottom of the provider list. That means
 Security.insertProviderAt(new KonaCryptoProvider(), position);
 ```
 
-the less the position is, the higher the priority is. The minimum value is 1.
+the less the position is, the higher the priority is. The minimum value is 1. However, it's not recommended to prioritize this provider. So, `Security.addProvider` is recommended.
 
 ### SM2
 

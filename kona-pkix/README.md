@@ -25,7 +25,7 @@ Security.insertProviderAt(new KonaCryptoProvider(), position1);
 Security.insertProviderAt(new KonaPKIXProvider(), position2);
 ```
 
-the less the positions are, the higher the priorities are. The minimum value is 1.
+the less the positions are, the higher the priorities are. The minimum value is 1. However, it's not recommended to prioritize this provider. So, `Security.addProvider` is recommended.
 
 ### Certificate
 `KonaPKIX` can parse X.509 certificates, including RSA and EC certificates. Especially, it supports the EC certificates using ShangMi algorithms, like SM2 curve and SM3withSM2 signature.

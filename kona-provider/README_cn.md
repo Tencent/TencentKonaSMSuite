@@ -21,7 +21,7 @@ Security.addProvider(new KonaProvider());
 Security.insertProviderAt(new KonaProvider(), position);
 ```
 
-position的值越小，代表的优先级越高，最小可为1。
+position的值越小，代表的优先级越高，最小可为1。然而，并不推荐提升该Provider的优先级，故推荐使用`Security.addProvider`。
 
 注意：在使用`Kona`时，并不需要加载`KonaCryptoProvider`，`KonaPKIXProvider`或`KonaSSLProvider`，而只需要将它们的jar文件放入类路径中。`Kona`会通过反射自动地加载这三个Provider的特性。
 
