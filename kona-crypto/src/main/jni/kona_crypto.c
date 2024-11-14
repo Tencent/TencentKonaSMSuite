@@ -610,15 +610,14 @@ JNIEXPORT jint JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeCr
 /* ***** SM4 end ***** */
 
 /* ***** SM2 start ***** */
-JNIEXPORT jbyteArray JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeCrypto_toUncompPubKey
-  (JNIEnv *env, jclass thisObj, jbyteArray compPubKey) {
-    jbyte *comp_pub_key_bytes = (*env)->GetByteArrayElements(env, compPubKey, NULL);
-    if (comp_pub_key_bytes == NULL) {
-        return NULL;
-    }
+JNIEXPORT jbyteArray JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeCrypto_sm2ToUncompPubKey
+  (JNIEnv *env, jobject thisObj, jbyteArray compPubKey) {
     jsize comp_pub_key_len = (*env)->GetArrayLength(env, compPubKey);
     if (comp_pub_key_len != SM2_COMP_PUB_KEY_LEN) {
-        (*env)->ReleaseByteArrayElements(env, compPubKey, comp_pub_key_bytes, JNI_ABORT);
+        return NULL;
+    }
+    jbyte *comp_pub_key_bytes = (*env)->GetByteArrayElements(env, compPubKey, NULL);
+    if (comp_pub_key_bytes == NULL) {
         return NULL;
     }
 
@@ -670,20 +669,297 @@ JNIEXPORT jbyteArray JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_Na
     return uncompPubKey;
 }
 
-JNIEXPORT jlong JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeCrypto_sm2CreateCtx
-  (JNIEnv *env, jobject thisObj) {
-    EVP_PKEY_CTX *ctx = EVP_PKEY_CTX_new_id(EVP_PKEY_SM2, NULL);
+int sm2_gen_pub_key(const unsigned char* pri_key, unsigned char* pub_key) {
+    EC_KEY *ec_key = EC_KEY_new_by_curve_name(NID_sm2);
+    if (ec_key == NULL) {
+        return OPENSSL_FAILURE;
+    }
+
+    BIGNUM *bn_pri_key = BN_bin2bn(pri_key, SM2_PRI_KEY_LEN, NULL);
+    if (bn_pri_key == NULL) {
+        EC_KEY_free(ec_key);
+        return OPENSSL_FAILURE;
+    }
+
+    if (!EC_KEY_set_private_key(ec_key, bn_pri_key)) {
+        EC_KEY_free(ec_key);
+        BN_free(bn_pri_key);
+        return OPENSSL_FAILURE;
+    }
+
+    const EC_GROUP *group = EC_KEY_get0_group(ec_key);
+    if (group == NULL) {
+        EC_KEY_free(ec_key);
+        BN_free(bn_pri_key);
+        return OPENSSL_FAILURE;
+    }
+
+    EC_POINT *pub_point = EC_POINT_new(group);
+    if (pub_point == NULL) {
+        EC_KEY_free(ec_key);
+        BN_free(bn_pri_key);
+        EC_POINT_free(pub_point);
+        return OPENSSL_FAILURE;
+    }
+
+    if (!EC_POINT_mul(group, pub_point, bn_pri_key, NULL, NULL, NULL)) {
+        EC_KEY_free(ec_key);
+        BN_free(bn_pri_key);
+        EC_POINT_free(pub_point);
+        return OPENSSL_FAILURE;
+    }
+
+    if (!EC_KEY_set_public_key(ec_key, pub_point)) {
+        EC_KEY_free(ec_key);
+        BN_free(bn_pri_key);
+        EC_POINT_free(pub_point);
+        return OPENSSL_FAILURE;
+    }
+
+    BN_CTX *bn_ctx = BN_CTX_new();
+    if (bn_ctx == NULL) {
+        EC_KEY_free(ec_key);
+        BN_free(bn_pri_key);
+        EC_POINT_free(pub_point);
+        return OPENSSL_FAILURE;
+    }
+
+    size_t pub_key_len = EC_POINT_point2oct(group, pub_point, POINT_CONVERSION_UNCOMPRESSED, NULL, 0, bn_ctx);
+    if (pub_key_len != SM2_PUB_KEY_LEN) {
+        EC_KEY_free(ec_key);
+        BN_free(bn_pri_key);
+        EC_POINT_free(pub_point);
+        BN_CTX_free(bn_ctx);
+        return OPENSSL_FAILURE;
+    }
+
+    if (!EC_POINT_point2oct(group, pub_point, POINT_CONVERSION_UNCOMPRESSED, pub_key, pub_key_len, bn_ctx)) {
+        EC_KEY_free(ec_key);
+        BN_free(bn_pri_key);
+        EC_POINT_free(pub_point);
+        BN_CTX_free(bn_ctx);
+        return OPENSSL_FAILURE;
+    }
+
+    EC_KEY_free(ec_key);
+    BN_free(bn_pri_key);
+    EC_POINT_free(pub_point);
+    BN_CTX_free(bn_ctx);
+
+    return OPENSSL_SUCCESS;
+}
+
+JNIEXPORT jbyteArray JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeCrypto_sm2GenPubKey
+  (JNIEnv *env, jobject thisObj, jbyteArray priKey) {
+    jsize pri_key_len = (*env)->GetArrayLength(env, priKey);
+    if (pri_key_len != SM2_PRI_KEY_LEN) {
+        return NULL;
+    }
+    jbyte *pri_key_bytes = (*env)->GetByteArrayElements(env, priKey, NULL);
+    if (pri_key_bytes == NULL) {
+        return NULL;
+    }
+
+    unsigned char pub_key_buf[SM2_PUB_KEY_LEN];
+    if (!sm2_gen_pub_key((const unsigned char *)pri_key_bytes, pub_key_buf)) {
+        (*env)->ReleaseByteArrayElements(env, priKey, pri_key_bytes, JNI_ABORT);
+        return NULL;
+    }
+    (*env)->ReleaseByteArrayElements(env, priKey, pri_key_bytes, JNI_ABORT);
+
+    jbyteArray pubKey = (*env)->NewByteArray(env, SM2_PUB_KEY_LEN);
+    if (pubKey == NULL) {
+        return NULL;
+    }
+    (*env)->SetByteArrayRegion(env, pubKey, 0, SM2_PUB_KEY_LEN, (jbyte *)pub_key_buf);
+
+    return pubKey;
+}
+
+EVP_PKEY_CTX* sm2_create_ctx(EVP_PKEY* pkey) {
+    EVP_PKEY_CTX *ctx = NULL;
+
+    if (pkey != NULL) {
+        ctx = EVP_PKEY_CTX_new(pkey, NULL);
+    } else {
+        ctx = EVP_PKEY_CTX_new_id(EVP_PKEY_SM2, NULL);
+    }
+
     if (ctx == NULL) {
         OSSL_print_err();
-        return KONA_BAD;
+        return OPENSSL_FAILURE;
     }
 
-    if(!EVP_PKEY_keygen_init(ctx)) {
+    return ctx;
+}
+
+JNIEXPORT jlong JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeCrypto_sm2CreateCtx
+  (JNIEnv *env, jobject thisObj) {
+    return (jlong)sm2_create_ctx(NULL);
+}
+
+EVP_PKEY* load_pub_key(const unsigned char* pub_key, size_t pub_key_len) {
+    EVP_PKEY_CTX *key_ctx = EVP_PKEY_CTX_new_from_name(NULL, "SM2", NULL);
+    if (key_ctx == NULL) {
         OSSL_print_err();
+        return NULL;
+    }
+
+    if (!EVP_PKEY_fromdata_init(key_ctx)) {
+        OSSL_print_err();
+        EVP_PKEY_CTX_free(key_ctx);
+        return NULL;
+    }
+
+    OSSL_PARAM params[] = {
+            OSSL_PARAM_construct_utf8_string(OSSL_PKEY_PARAM_GROUP_NAME, "SM2", 0),
+            OSSL_PARAM_construct_octet_string(OSSL_PKEY_PARAM_PUB_KEY, (void*)pub_key, pub_key_len),
+            OSSL_PARAM_construct_end()
+    };
+
+    EVP_PKEY *pkey = NULL;
+    if (!EVP_PKEY_fromdata(key_ctx, &pkey, EVP_PKEY_PUBLIC_KEY, params)) {
+        OSSL_print_err();
+        EVP_PKEY_CTX_free(key_ctx);
+        return NULL;
+    }
+
+    return pkey;
+}
+
+EVP_PKEY* load_key_pair(const unsigned char* pri_key, const unsigned char* pub_key) {
+    EC_KEY *ec_key = EC_KEY_new_by_curve_name(NID_sm2);
+    if (ec_key == NULL) {
+        OSSL_print_err();
+        return NULL;
+    }
+
+    BIGNUM *pri_key_bn = BN_bin2bn(pri_key, SM2_PRI_KEY_LEN, NULL);
+    if (pri_key_bn == NULL) {
+        OSSL_print_err();
+        EC_KEY_free(ec_key);
+
+        return NULL;
+    }
+
+    if (!EC_KEY_set_private_key(ec_key, pri_key_bn)) {
+        OSSL_print_err();
+        BN_free(pri_key_bn);
+        EC_KEY_free(ec_key);
+
+        return NULL;
+    }
+
+    const EC_GROUP *group = EC_KEY_get0_group(ec_key);
+    EC_POINT *pub_point = EC_POINT_new(group);
+    if (pub_point == NULL) {
+        OSSL_print_err();
+        BN_free(pri_key_bn);
+        EC_KEY_free(ec_key);
+
+        return NULL;
+    }
+
+    if (!EC_POINT_oct2point(group, pub_point, pub_key, SM2_PUB_KEY_LEN, NULL)) {
+        OSSL_print_err();
+        BN_free(pri_key_bn);
+        EC_POINT_free(pub_point);
+        EC_KEY_free(ec_key);
+
+        return NULL;
+    }
+
+    if (!EC_KEY_set_public_key(ec_key, pub_point)) {
+        OSSL_print_err();
+        BN_free(pri_key_bn);
+        EC_POINT_free(pub_point);
+        EC_KEY_free(ec_key);
+
+        return NULL;
+    }
+
+    EVP_PKEY *pkey = EVP_PKEY_new();
+    if (pkey == NULL) {
+        OSSL_print_err();
+
+        BN_free(pri_key_bn);
+        EC_POINT_free(pub_point);
+        EC_KEY_free(ec_key);
+
+        return NULL;
+    }
+
+    if (!EVP_PKEY_assign_EC_KEY(pkey, ec_key)) {
+        OSSL_print_err();
+        EVP_PKEY_free(pkey);
+        pkey = NULL;
+
+        BN_free(pri_key_bn);
+        EC_POINT_free(pub_point);
+        EC_KEY_free(ec_key);
+
+        return NULL;
+    }
+
+    BN_free(pri_key_bn);
+    EC_POINT_free(pub_point);
+    ec_key = NULL; // ec_key cannot be freed due pkey is using it.
+
+    return pkey;
+}
+
+JNIEXPORT jlong JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeCrypto_sm2CreateCtxWithKey
+  (JNIEnv *env, jobject thisObj, jbyteArray key) {
+    int key_len = (*env)->GetArrayLength(env, key);
+    if (key_len < SM2_PRI_KEY_LEN) {
+        return KONA_BAD;
+    }
+    jbyte *key_bytes = (*env)->GetByteArrayElements(env, key, NULL);
+    if (key_bytes == NULL) {
         return KONA_BAD;
     }
 
-    return (jlong)ctx;
+    EVP_PKEY *pkey = NULL;
+    if (key_len == SM2_PRI_KEY_LEN) {
+        unsigned char *pub_key_buf = OPENSSL_malloc(SM2_PUB_KEY_LEN);
+        if (!pub_key_buf) {
+            (*env)->ReleaseByteArrayElements(env, key, key_bytes, JNI_ABORT);
+
+            return KONA_BAD;
+        }
+
+        if (!sm2_gen_pub_key((const unsigned char *)key_bytes, pub_key_buf)) {
+            (*env)->ReleaseByteArrayElements(env, key, key_bytes, JNI_ABORT);
+
+            return KONA_BAD;
+        }
+
+        pkey = load_key_pair((const unsigned char *)key_bytes, pub_key_buf);
+
+        OPENSSL_free(pub_key_buf);
+    } else if (key_len == SM2_PUB_KEY_LEN) {
+        pkey = load_pub_key((const unsigned char *)key_bytes, key_len);
+    } else if (key_len == (SM2_PRI_KEY_LEN + SM2_PUB_KEY_LEN)) {
+        unsigned char *pri_key_buf = OPENSSL_malloc(SM2_PRI_KEY_LEN);
+        memcpy(pri_key_buf, (const unsigned char *)key_bytes, SM2_PRI_KEY_LEN);
+        unsigned char *pub_key_buf = OPENSSL_malloc(SM2_PUB_KEY_LEN);
+        memcpy(pub_key_buf, (const unsigned char *)key_bytes + SM2_PRI_KEY_LEN, SM2_PUB_KEY_LEN);
+
+        pkey = load_key_pair((const unsigned char *)pri_key_buf, pub_key_buf);
+
+        OPENSSL_free(pri_key_buf);
+        OPENSSL_free(pub_key_buf);
+    }
+
+    (*env)->ReleaseByteArrayElements(env, key, key_bytes, JNI_ABORT);
+
+    return pkey == NULL ? KONA_BAD : (jlong)sm2_create_ctx(pkey);
+}
+
+void sm2_free_ctx(EVP_PKEY_CTX *ctx) {
+    if (ctx != NULL) {
+        EVP_PKEY_CTX_free(ctx);
+    }
 }
 
 JNIEXPORT void JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeCrypto_sm2FreeCtx
@@ -692,41 +968,35 @@ JNIEXPORT void JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeCr
         return;
     }
 
-    EVP_PKEY_CTX *ctx = (EVP_PKEY_CTX *)pointer;
-    if (ctx != NULL) {
-        EVP_PKEY_CTX_free(ctx);
-    }
+    sm2_free_ctx((EVP_PKEY_CTX *)pointer);
 }
 
-JNIEXPORT jbyteArray JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeCrypto_sm2GenKeyPair
-  (JNIEnv *env, jobject thisObj, jlong pointer) {
-    EVP_PKEY_CTX *ctx = (EVP_PKEY_CTX *)pointer;
+int sm2_gen_key_pair(EVP_PKEY_CTX* ctx, unsigned char* key_pair, size_t* key_pair_len) {
     if (ctx == NULL) {
-        OSSL_print_err();
-        return NULL;
+        return OPENSSL_FAILURE;
     }
 
     if (!EVP_PKEY_keygen_init(ctx)) {
         OSSL_print_err();
-        return NULL;
+        return OPENSSL_FAILURE;
     }
 
     EVP_PKEY *pkey = NULL;
     if (!EVP_PKEY_keygen(ctx, &pkey)) {
         OSSL_print_err();
-        return NULL;
+        return OPENSSL_FAILURE;
     }
 
     BIGNUM *priv_key_bn = NULL;
     if (!EVP_PKEY_get_bn_param(pkey, OSSL_PKEY_PARAM_PRIV_KEY, &priv_key_bn)) {
         OSSL_print_err();
         EVP_PKEY_free(pkey);
-        return NULL;
+        return OPENSSL_FAILURE;
     }
     if (BN_num_bytes(priv_key_bn) > SM2_PRI_KEY_LEN) {
         EVP_PKEY_free(pkey);
         BN_free(priv_key_bn);
-        return NULL;
+        return OPENSSL_FAILURE;
     }
     unsigned char priv_key_buf[SM2_PRI_KEY_LEN] = {0};
     BN_bn2binpad(priv_key_bn, priv_key_buf, SM2_PRI_KEY_LEN);
@@ -737,39 +1007,209 @@ JNIEXPORT jbyteArray JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_Na
         OSSL_print_err();
         EVP_PKEY_free(pkey);
         OPENSSL_cleanse(priv_key_buf, SM2_PRI_KEY_LEN);
-        return NULL;
+        return OPENSSL_FAILURE;
     }
     unsigned char *pub_key_buf = OPENSSL_malloc(pub_key_len);
     if (!pub_key_buf) {
         EVP_PKEY_free(pkey);
         OPENSSL_cleanse(priv_key_buf, SM2_PRI_KEY_LEN);
-        return NULL;
+        return OPENSSL_FAILURE;
     }
     if (!EVP_PKEY_get_octet_string_param(pkey, OSSL_PKEY_PARAM_PUB_KEY, pub_key_buf, pub_key_len, &pub_key_len)) {
-        OSSL_print_err();
         EVP_PKEY_free(pkey);
         OPENSSL_cleanse(priv_key_buf, SM2_PRI_KEY_LEN);
         OPENSSL_free(pub_key_buf);
-        return NULL;
+        return OPENSSL_FAILURE;
     }
 
-    size_t total_len = SM2_PRI_KEY_LEN + pub_key_len;
-    jbyteArray result = (*env)->NewByteArray(env, total_len);
-    if (result) {
-        jbyte *result_bytes = (*env)->GetByteArrayElements(env, result, NULL);
-
-        if (result_bytes) {
-            memcpy(result_bytes, priv_key_buf, SM2_PRI_KEY_LEN);
-            memcpy(result_bytes + SM2_PRI_KEY_LEN, pub_key_buf, pub_key_len);
-
-            (*env)->ReleaseByteArrayElements(env, result, result_bytes, 0);
-        }
-    }
+    *key_pair_len = SM2_PRI_KEY_LEN + pub_key_len;
+    memcpy(key_pair, priv_key_buf, SM2_PRI_KEY_LEN);
+    memcpy(key_pair + SM2_PRI_KEY_LEN, pub_key_buf, pub_key_len);
 
     EVP_PKEY_free(pkey);
     OPENSSL_cleanse(priv_key_buf, SM2_PRI_KEY_LEN);
     OPENSSL_free(pub_key_buf);
 
+    return OPENSSL_SUCCESS;
+}
+
+JNIEXPORT jbyteArray JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeCrypto_sm2GenKeyPair
+  (JNIEnv *env, jobject thisObj, jlong pointer) {
+    EVP_PKEY_CTX *ctx = (EVP_PKEY_CTX *)pointer;
+    if (ctx == NULL) {
+        return NULL;
+    }
+
+    size_t key_pair_len = 0;
+    const unsigned char *key_pair = OPENSSL_malloc(SM2_PRI_KEY_LEN + SM2_PUB_KEY_LEN);
+    if (!sm2_gen_key_pair(ctx, key_pair, &key_pair_len)) {
+        return NULL;
+    }
+
+    jbyteArray result = (*env)->NewByteArray(env, key_pair_len);
+    if (result) {
+        jbyte *result_bytes = (*env)->GetByteArrayElements(env, result, NULL);
+
+        if (result_bytes) {
+            memcpy(result_bytes, key_pair, key_pair_len);
+
+            (*env)->ReleaseByteArrayElements(env, result, result_bytes, 0);
+        }
+    }
+
+    OPENSSL_free(key_pair);
+
     return result;
+}
+
+unsigned char* sm2_encrypt(EVP_PKEY_CTX* ctx, const unsigned char* plaintext, size_t plaintext_len, size_t* ciphertext_len) {
+    if (ctx == NULL) {
+        return NULL;
+    }
+
+    if (!EVP_PKEY_encrypt_init(ctx)) {
+        OSSL_print_err();
+
+        return NULL;
+    }
+
+    if (!EVP_PKEY_encrypt(ctx, NULL, ciphertext_len, plaintext, plaintext_len)) {
+        OSSL_print_err();
+
+        return NULL;
+    }
+
+    unsigned char *ciphertext = (unsigned char*)OPENSSL_malloc(*ciphertext_len);
+    if (ciphertext == NULL) {
+        OSSL_print_err();
+
+        return NULL;
+    }
+
+    if (!EVP_PKEY_encrypt(ctx, ciphertext, ciphertext_len, plaintext, plaintext_len)) {
+        OSSL_print_err();
+        OPENSSL_free(ciphertext);
+
+        return NULL;
+    }
+
+    return ciphertext;
+}
+
+JNIEXPORT jbyteArray JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeCrypto_sm2Encrypt
+  (JNIEnv *env, jobject thisObj, jlong pointer, jbyteArray plaintext) {
+    EVP_PKEY_CTX *ctx = (EVP_PKEY_CTX *)pointer;
+    if (ctx == NULL) {
+        return NULL;
+    }
+
+    jsize plaintext_len = (*env)->GetArrayLength(env, plaintext);
+    if (plaintext_len == 0) {
+        return NULL;
+    }
+    jbyte *plaintext_bytes = (*env)->GetByteArrayElements(env, plaintext, NULL);
+    if (plaintext_bytes == NULL) {
+        return NULL;
+    }
+
+    size_t ciphertext_len;
+    const unsigned char *ciphertext_buf = sm2_encrypt(ctx, (const unsigned char *)plaintext_bytes, plaintext_len, &ciphertext_len);
+    if (ciphertext_buf == NULL) {
+        (*env)->ReleaseByteArrayElements(env, plaintext, plaintext_bytes, JNI_ABORT);
+
+        return NULL;
+    }
+
+    jbyteArray ciphertext_bytes = (*env)->NewByteArray(env, ciphertext_len);
+    if (ciphertext_bytes == NULL) {
+        OPENSSL_free(ciphertext_buf);
+        (*env)->ReleaseByteArrayElements(env, plaintext, plaintext_bytes, JNI_ABORT);
+
+        return NULL;
+    }
+    (*env)->SetByteArrayRegion(env, ciphertext_bytes, 0, ciphertext_len, (jbyte*)ciphertext_buf);
+
+    OPENSSL_free(ciphertext_buf);
+    (*env)->ReleaseByteArrayElements(env, plaintext, plaintext_bytes, JNI_ABORT);
+
+    return ciphertext_bytes;
+}
+
+unsigned char* sm2_decrypt(EVP_PKEY_CTX *ctx, const unsigned char* ciphertext, size_t ciphertext_len, size_t* cleartext_len) {
+    if (ctx == NULL) {
+        OSSL_print_err();
+
+        return NULL;
+    }
+
+    if (!EVP_PKEY_decrypt_init(ctx)) {
+        OSSL_print_err();
+
+        return NULL;
+    }
+
+    // Determine the ciphertext length
+    if (!EVP_PKEY_decrypt(ctx, NULL, cleartext_len, ciphertext, ciphertext_len)) {
+        OSSL_print_err();
+
+        return NULL;
+    }
+
+    unsigned char *cleartext = (unsigned char*)OPENSSL_malloc(*cleartext_len);
+    if (cleartext == NULL) {
+        OSSL_print_err();
+
+        return NULL;
+    }
+
+    // Decrypt
+    if (!EVP_PKEY_decrypt(ctx, cleartext, cleartext_len, ciphertext, ciphertext_len)) {
+        OSSL_print_err();
+        OPENSSL_free(cleartext);
+        cleartext = NULL;
+
+        return NULL;
+    }
+
+    return cleartext;
+}
+
+JNIEXPORT jbyteArray JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeCrypto_sm2Decrypt
+  (JNIEnv *env, jobject thisObj, jlong pointer, jbyteArray ciphertext) {
+    EVP_PKEY_CTX *ctx = (EVP_PKEY_CTX *)pointer;
+    if (ctx == NULL) {
+        return NULL;
+    }
+
+    jsize ciphertext_len = (*env)->GetArrayLength(env, ciphertext);
+    if (ciphertext_len == 0) {
+        return NULL;
+    }
+    jbyte *ciphertext_bytes = (*env)->GetByteArrayElements(env, ciphertext, NULL);
+    if (ciphertext_bytes == NULL) {
+        return NULL;
+    }
+
+    size_t cleartext_len = 0;
+    const unsigned char* cleartext_buf = sm2_decrypt(ctx, (const unsigned char*)ciphertext_bytes, ciphertext_len, &cleartext_len);
+    if (cleartext_buf == NULL) {
+        (*env)->ReleaseByteArrayElements(env, ciphertext, ciphertext_bytes, JNI_ABORT);
+
+        return NULL;
+    }
+
+    jbyteArray cleartext_bytes = (*env)->NewByteArray(env, cleartext_len);
+    if (cleartext_bytes == NULL) {
+        OPENSSL_free(cleartext_buf);
+        (*env)->ReleaseByteArrayElements(env, ciphertext, ciphertext_bytes, JNI_ABORT);
+
+        return NULL;
+    }
+    (*env)->SetByteArrayRegion(env, cleartext_bytes, 0, cleartext_len, (jbyte*)cleartext_buf);
+
+    OPENSSL_free(cleartext_buf);
+    (*env)->ReleaseByteArrayElements(env, ciphertext, ciphertext_bytes, JNI_ABORT);
+
+    return cleartext_bytes;
 }
 /* ***** SM2 end ***** */
