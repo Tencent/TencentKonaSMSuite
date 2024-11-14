@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022, 2023, THL A29 Limited, a Tencent company. All rights reserved.
+ * Copyright (C) 2022, 2024, THL A29 Limited, a Tencent company. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -308,13 +308,12 @@ public class SM2CipherTest {
         Cipher cipher = Cipher.getInstance("SM2", PROVIDER);
 
         cipher.init(Cipher.ENCRYPT_MODE, pubKey);
-        byte[] ciphertext = cipher.doFinal(EMPTY);
+        Assertions.assertThrows(BadPaddingException.class,
+                () -> cipher.doFinal(EMPTY));
 
         cipher.init(Cipher.DECRYPT_MODE, priKey);
         Assertions.assertThrows(BadPaddingException.class,
                 () -> cipher.doFinal(EMPTY));
-        byte[] cleartext = cipher.doFinal(ciphertext);
-        Assertions.assertArrayEquals(EMPTY, cleartext);
     }
 
     @Test
@@ -329,16 +328,15 @@ public class SM2CipherTest {
 
         cipher.init(Cipher.ENCRYPT_MODE, pubKey);
         ByteBuffer ciphertextBuf = ByteBuffer.allocate(150);
-        cipher.doFinal(ByteBuffer.allocate(0), ciphertextBuf);
+
+        Assertions.assertThrows(BadPaddingException.class,
+                () -> cipher.doFinal(ByteBuffer.allocate(0), ciphertextBuf));
         ciphertextBuf.flip();
 
         cipher.init(Cipher.DECRYPT_MODE, priKey);
         ByteBuffer cleartextBuf = ByteBuffer.allocate(150);
         Assertions.assertThrows(BadPaddingException.class,
                 () -> cipher.doFinal(ByteBuffer.allocate(0), cleartextBuf));
-        cipher.doFinal(ciphertextBuf, cleartextBuf);
-
-        Assertions.assertEquals(0, cleartextBuf.position());
     }
 
     @Test
