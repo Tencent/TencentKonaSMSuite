@@ -258,7 +258,7 @@ public final class SM2Engine {
     }
 
     private static boolean checkInputBound(byte[] input, int offset, int len) {
-        return input != null
+        return input != null && input.length > 0
                 && offset >= 0 && len >= 0
                 && (input.length >= (offset + len));
     }
