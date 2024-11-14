@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022, 2023, THL A29 Limited, a Tencent company. All rights reserved.
+ * Copyright (C) 2022, 2024, THL A29 Limited, a Tencent company. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify
@@ -258,8 +258,8 @@ public final class SM2Engine {
     }
 
     private static boolean checkInputBound(byte[] input, int offset, int len) {
-        return input != null && input.length > 0
-                && offset >= 0 && len >= 0
+        return input != null
+                && offset >= 0 && len > 0
                 && (input.length >= (offset + len));
     }
 }
