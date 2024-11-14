@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022, 2023, THL A29 Limited, a Tencent company. All rights reserved.
+ * Copyright (C) 2022, 2024, THL A29 Limited, a Tencent company. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -57,6 +57,11 @@ import static com.tencent.kona.crypto.CryptoUtils.toBytes;
 @OutputTimeUnit(TimeUnit.SECONDS)
 public class SM2SignaturePerfTest {
 
+    static {
+        TestUtils.addProviders();
+        Security.addProvider(new BouncyCastleProvider());
+    }
+
     private final static String PUB_KEY
             = "041D9E2952A06C913BAD21CCC358905ADB3A8097DB6F2F87EB5F393284EC2B7208C30B4D9834D0120216D6F1A73164FDA11A87B0A053F63D992BFB0E4FC1C5D9AD";
     private final static String PRI_KEY
@@ -64,11 +69,6 @@ public class SM2SignaturePerfTest {
     private final static KeyPair KEY_PAIR = TestUtils.keyPair(PUB_KEY, PRI_KEY);
     private final static byte[] ID = toBytes("01234567");
     private final static byte[] MESSAGE = TestUtils.dataKB(1);
-
-    static {
-        TestUtils.addProviders();
-        Security.addProvider(new BouncyCastleProvider());
-    }
 
     @State(Scope.Benchmark)
     public static class SignerHolder {

@@ -307,7 +307,7 @@ public class TestUtils {
     public static KeyStore trustStore(String[] aliases, String[] certStrs)
             throws KeyStoreException, CertificateException, IOException,
             NoSuchAlgorithmException, NoSuchProviderException {
-        KeyStore keyStore = KeyStore.getInstance("PKCS12", "KonaPKIX");
+        KeyStore keyStore = KeyStore.getInstance("PKCS12", PROVIDER);
         keyStore.load(null, null);
 
         for (int i = 0; i < aliases.length; i++) {
@@ -319,7 +319,7 @@ public class TestUtils {
 
     public static KeyStore keyStore(String alias, String keyStr,
             char[] password, String[] certStrs) throws Exception {
-        KeyStore keyStore = KeyStore.getInstance("PKCS12", "KonaPKIX");
+        KeyStore keyStore = KeyStore.getInstance("PKCS12", PROVIDER);
         keyStore.load(null, null);
 
         keyStore.setKeyEntry(
