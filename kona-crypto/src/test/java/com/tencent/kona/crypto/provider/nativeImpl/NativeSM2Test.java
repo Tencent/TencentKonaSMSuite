@@ -76,7 +76,7 @@ public class NativeSM2Test {
 
     @Test
     public void testGenPubKey() {
-        try (NativeSM2 sm2 = new NativeSM2()) {
+        try (NativeSM2KeyGen sm2 = new NativeSM2KeyGen()) {
             byte[] keyPair = sm2.genKeyPair();
             byte[] pubKey = NativeCrypto.nativeCrypto().sm2GenPubKey(copy(keyPair, 0, SM2_PRIKEY_LEN));
             Assertions.assertArrayEquals(copy(keyPair, SM2_PRIKEY_LEN, SM2_PUBKEY_LEN), pubKey);
@@ -101,7 +101,7 @@ public class NativeSM2Test {
 
     @Test
     public void testGenKeyPair() {
-        try (NativeSM2 sm2 = new NativeSM2()) {
+        try (NativeSM2KeyGen sm2 = new NativeSM2KeyGen()) {
             byte[] keyPair = sm2.genKeyPair();
             Assertions.assertEquals(SM2_PRIKEY_LEN + SM2_PUBKEY_LEN, keyPair.length);
         }
@@ -125,15 +125,15 @@ public class NativeSM2Test {
 
     @Test
     public void testSM2Cipher() throws Exception {
-        try (NativeSM2 sm2KeyPairGen = new NativeSM2()) {
+        try (NativeSM2KeyGen sm2KeyPairGen = new NativeSM2KeyGen()) {
             byte[] keyPair = sm2KeyPairGen.genKeyPair();
             byte[] priKey = copy(keyPair, 0, SM2_PRIKEY_LEN);
             byte[] pubKey = copy(keyPair, SM2_PRIKEY_LEN, SM2_PUBKEY_LEN);
 
-            try (NativeSM2 sm2Encrypter = new NativeSM2(pubKey)) {
+            try (NativeSM2Cipher sm2Encrypter = new NativeSM2Cipher(pubKey)) {
                 byte[] ciphertext = sm2Encrypter.encrypt(MESSAGE);
 
-                try (NativeSM2 sm2Decrypter = new NativeSM2(priKey)) {
+                try (NativeSM2Cipher sm2Decrypter = new NativeSM2Cipher(priKey)) {
                     byte[] cleartext = sm2Decrypter.decrypt(ciphertext);
 
                     Assertions.assertArrayEquals(MESSAGE, cleartext);
@@ -144,13 +144,13 @@ public class NativeSM2Test {
 
     @Test
     public void testSM2CipherWithKeyPair() throws Exception {
-        try (NativeSM2 sm2KeyPairGen = new NativeSM2()) {
+        try (NativeSM2KeyGen sm2KeyPairGen = new NativeSM2KeyGen()) {
             byte[] keyPair = sm2KeyPairGen.genKeyPair();
 
-            try (NativeSM2 sm2Encrypter = new NativeSM2(keyPair)) {
+            try (NativeSM2Cipher sm2Encrypter = new NativeSM2Cipher(keyPair)) {
                 byte[] ciphertext = sm2Encrypter.encrypt(MESSAGE);
 
-                try (NativeSM2 sm2Decrypter = new NativeSM2(keyPair)) {
+                try (NativeSM2Cipher sm2Decrypter = new NativeSM2Cipher(keyPair)) {
                     byte[] cleartext = sm2Decrypter.decrypt(ciphertext);
 
                     Assertions.assertArrayEquals(MESSAGE, cleartext);
@@ -177,15 +177,15 @@ public class NativeSM2Test {
 
     @Test
     public void testSM2CipherEmptyInput() {
-        try (NativeSM2 sm2KeyPairGen = new NativeSM2()) {
+        try (NativeSM2KeyGen sm2KeyPairGen = new NativeSM2KeyGen()) {
             byte[] keyPair = sm2KeyPairGen.genKeyPair();
 
-            try (NativeSM2 sm2Encrypter = new NativeSM2(keyPair)) {
+            try (NativeSM2Cipher sm2Encrypter = new NativeSM2Cipher(keyPair)) {
                 Assertions.assertThrows(BadPaddingException.class,
                         () -> sm2Encrypter.encrypt(EMPTY));
             }
 
-            try (NativeSM2 sm2Decrypter = new NativeSM2(keyPair)) {
+            try (NativeSM2Cipher sm2Decrypter = new NativeSM2Cipher(keyPair)) {
                 Assertions.assertThrows(BadPaddingException.class,
                         () -> sm2Decrypter.decrypt(EMPTY));
             }

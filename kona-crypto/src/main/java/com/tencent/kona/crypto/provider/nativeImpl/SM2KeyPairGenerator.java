@@ -41,11 +41,11 @@ public final class SM2KeyPairGenerator extends KeyPairGenerator {
 
     private static final Sweeper SWEEPER = Sweeper.instance();
 
-    private final NativeSM2 sm2;
+    private final NativeSM2KeyGen sm2;
 
     public SM2KeyPairGenerator() {
         super("SM2");
-        sm2 = new NativeSM2();
+        sm2 = new NativeSM2KeyGen();
 
         SWEEPER.register(this, new SweepNativeRef(sm2));
     }
