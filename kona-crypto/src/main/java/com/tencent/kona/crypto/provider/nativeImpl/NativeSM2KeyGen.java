@@ -22,46 +22,28 @@ package com.tencent.kona.crypto.provider.nativeImpl;
 
 import com.tencent.kona.crypto.CryptoUtils;
 
-import javax.crypto.BadPaddingException;
-
 import static com.tencent.kona.crypto.provider.nativeImpl.NativeCrypto.nativeCrypto;
 
 import static com.tencent.kona.crypto.util.Constants.*;
 
 /**
- * The SM2 native implementation.
+ * The SM2 key generation native implementation.
  */
-final class NativeSM2 extends NativeRef {
+final class NativeSM2KeyGen extends NativeRef {
 
-    NativeSM2() {
+    NativeSM2KeyGen() {
         super(createCtx());
     }
 
     private static long createCtx() {
-        return nativeCrypto().sm2CreateCtx();
-    }
-
-    // key can be private key, public key or even key pair.
-    NativeSM2(byte[] key) {
-        super(createCtx(key));
-    }
-
-    private static long createCtx(byte[] key) {
-        if (key == null || (
-                key.length != SM2_PRIKEY_LEN &&
-                key.length != SM2_PUBKEY_LEN &&
-                key.length != (SM2_PRIKEY_LEN + SM2_PUBKEY_LEN))) {
-            throw new IllegalStateException("Illegal key");
-        }
-
-        return nativeCrypto().sm2CreateCtxWithKey(key);
+        return nativeCrypto().sm2KeyGenCreateCtx();
     }
 
     // Format: K || 0x04 || X || Y, 97-bytes
     // K is the private key, 32-bytes
     // X and Y are the coordinates of the public key, 32-bytes
     public byte[] genKeyPair() {
-        byte[] keyPair = nativeCrypto().sm2GenKeyPair(pointer);
+        byte[] keyPair = nativeCrypto().sm2KeyGenGenKeyPair(pointer);
 
         if (keyPair.length == SM2_PRIKEY_LEN + SM2_PUBKEY_LEN) {
             return keyPair;
@@ -78,33 +60,9 @@ final class NativeSM2 extends NativeRef {
         throw new IllegalStateException("Illegal key pair");
     }
 
-    public byte[] encrypt(byte[] plaintext) throws BadPaddingException {
-        if (!checkInputBound(plaintext, 0, plaintext.length)) {
-            throw new BadPaddingException("Invalid input");
-        }
-
-        byte[] ciphertext = nativeCrypto().sm2Encrypt(pointer, plaintext);
-        if (ciphertext == null) {
-            throw new BadPaddingException("Encrypt failed");
-        }
-        return ciphertext;
-    }
-
-    public byte[] decrypt(byte[] ciphertext) throws BadPaddingException {
-        if (!checkInputBound(ciphertext, 0, ciphertext.length)) {
-            throw new BadPaddingException("Invalid input");
-        }
-
-        byte[] cleartext = nativeCrypto().sm2Decrypt(pointer, ciphertext);
-        if (cleartext == null) {
-            throw new BadPaddingException("Decrypt failed");
-        }
-        return cleartext;
-    }
-
     @Override
     public void close() {
-        nativeCrypto().sm2FreeCtx(pointer);
+        nativeCrypto().sm2KeyGenFreeCtx(pointer);
         super.close();
     }
 

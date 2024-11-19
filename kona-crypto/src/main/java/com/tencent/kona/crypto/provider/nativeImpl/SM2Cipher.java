@@ -51,7 +51,7 @@ public final class SM2Cipher extends CipherSpi {
 
     private static final byte[] B0 = new byte[0];
 
-    private NativeSM2 sm2;
+    private NativeSM2Cipher sm2;
     private final Buffer buffer = new Buffer();
 
     private boolean encrypted = true;
@@ -81,7 +81,7 @@ public final class SM2Cipher extends CipherSpi {
 
             if (key instanceof ECPublicKey) {
                 SM2PublicKey publicKey = new SM2PublicKey((ECPublicKey) key);
-                sm2 = new NativeSM2(publicKey.getEncoded());
+                sm2 = new NativeSM2Cipher(publicKey.getEncoded());
             } else {
                 throw new InvalidKeyException(
                         "Only accept ECPublicKey for encryption");
@@ -98,7 +98,7 @@ public final class SM2Cipher extends CipherSpi {
                             "within the range [1, n - 1]");
                 }
 
-                sm2 = new NativeSM2(privateKey.getEncoded());
+                sm2 = new NativeSM2Cipher(privateKey.getEncoded());
             } else {
                 throw new InvalidKeyException(
                         "Only accept ECPrivateKey for decryption");
