@@ -22,6 +22,7 @@ package com.tencent.kona.crypto.provider.nativeImpl;
 
 import com.tencent.kona.crypto.provider.SM2PrivateKey;
 import com.tencent.kona.crypto.provider.SM2PublicKey;
+import com.tencent.kona.crypto.util.Sweeper;
 
 import javax.crypto.BadPaddingException;
 import javax.crypto.Cipher;
@@ -48,6 +49,8 @@ import static com.tencent.kona.crypto.util.Constants.SM3_DIGEST_LEN;
 import static java.math.BigInteger.ZERO;
 
 public final class SM2Cipher extends CipherSpi {
+
+    private static final Sweeper SWEEPER = Sweeper.instance();
 
     private static final byte[] B0 = new byte[0];
 
@@ -104,6 +107,8 @@ public final class SM2Cipher extends CipherSpi {
                         "Only accept ECPrivateKey for decryption");
             }
         }
+
+        SWEEPER.register(this, new SweepNativeRef(sm2));
     }
 
     @Override
