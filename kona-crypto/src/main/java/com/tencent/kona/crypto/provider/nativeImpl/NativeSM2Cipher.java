@@ -51,7 +51,7 @@ final class NativeSM2Cipher extends NativeRef {
     }
 
     public byte[] encrypt(byte[] plaintext) throws BadPaddingException {
-        if (!checkInputBound(plaintext, 0, plaintext.length)) {
+        if (plaintext == null || plaintext.length == 0) {
             throw new BadPaddingException("Invalid plaintext");
         }
 
@@ -63,7 +63,7 @@ final class NativeSM2Cipher extends NativeRef {
     }
 
     public byte[] decrypt(byte[] ciphertext) throws BadPaddingException {
-        if (!checkInputBound(ciphertext, 0, ciphertext.length)) {
+        if (ciphertext == null || ciphertext.length == 0) {
             throw new BadPaddingException("Invalid ciphertext");
         }
 
@@ -78,11 +78,5 @@ final class NativeSM2Cipher extends NativeRef {
     public void close() {
         nativeCrypto().sm2CipherFreeCtx(pointer);
         super.close();
-    }
-
-    private static boolean checkInputBound(byte[] input, int offset, int len) {
-        return input != null
-                && offset >= 0 && len > 0
-                && (input.length >= (offset + len));
     }
 }

@@ -47,6 +47,8 @@ public class NativeSM2Test {
     private static final byte[] MESSAGE = "message".getBytes();
     private static final byte[] EMPTY = new byte[0];
 
+    private static final byte[] ID = "012345678012345678".getBytes();
+
     @Test
     public void testToUncompPubKey() {
         testToUncompPubKey(toBytes(PUB_KEY_ODD), toBytes(COMP_PUB_KEY_ODD));
@@ -188,6 +190,123 @@ public class NativeSM2Test {
             try (NativeSM2Cipher sm2Decrypter = new NativeSM2Cipher(keyPair)) {
                 Assertions.assertThrows(BadPaddingException.class,
                         () -> sm2Decrypter.decrypt(EMPTY));
+            }
+        }
+    }
+
+    @Test
+    public void testSM2CipherNullInput() {
+        try (NativeSM2KeyGen sm2KeyPairGen = new NativeSM2KeyGen()) {
+            byte[] keyPair = sm2KeyPairGen.genKeyPair();
+
+            try (NativeSM2Cipher sm2Encrypter = new NativeSM2Cipher(keyPair)) {
+                Assertions.assertThrows(BadPaddingException.class,
+                        () -> sm2Encrypter.encrypt(null));
+            }
+
+            try (NativeSM2Cipher sm2Decrypter = new NativeSM2Cipher(keyPair)) {
+                Assertions.assertThrows(BadPaddingException.class,
+                        () -> sm2Decrypter.decrypt(null));
+            }
+        }
+    }
+
+    @Test
+    public void testSM2Signature() throws Exception {
+        try (NativeSM2KeyGen sm2KeyPairGen = new NativeSM2KeyGen()) {
+            byte[] keyPair = sm2KeyPairGen.genKeyPair();
+            byte[] priKey = copy(keyPair, 0, SM2_PRIKEY_LEN);
+            byte[] pubKey = copy(keyPair, SM2_PRIKEY_LEN, SM2_PUBKEY_LEN);
+
+            try (NativeSM2Signature sm2Signer
+                         = new NativeSM2Signature(priKey, null, ID, true)) {
+                byte[] signature = sm2Signer.sign(MESSAGE);
+
+                try (NativeSM2Signature sm2Verifier
+                             = new NativeSM2Signature(pubKey, ID, false)) {
+                    boolean verified = sm2Verifier.verify(MESSAGE, signature);
+
+                    Assertions.assertTrue(verified);
+                }
+            }
+        }
+    }
+
+    @Test
+    public void testSM2SignatureWithKeyPair() throws Exception {
+        try (NativeSM2KeyGen sm2KeyPairGen = new NativeSM2KeyGen()) {
+            byte[] keyPair = sm2KeyPairGen.genKeyPair();
+            byte[] priKey = copy(keyPair, 0, SM2_PRIKEY_LEN);
+            byte[] pubKey = copy(keyPair, SM2_PRIKEY_LEN, SM2_PUBKEY_LEN);
+
+            try (NativeSM2Signature sm2Signer
+                         = new NativeSM2Signature(priKey, pubKey, ID, true)) {
+                byte[] signature = sm2Signer.sign(MESSAGE);
+
+                try (NativeSM2Signature sm2Verifier
+                             = new NativeSM2Signature(pubKey, ID, false)) {
+                    boolean verified = sm2Verifier.verify(MESSAGE, signature);
+
+                    Assertions.assertTrue(verified);
+                }
+            }
+        }
+    }
+
+    @Test
+    public void testSM2SignatureParallelly() throws Exception {
+        TestUtils.repeatTaskParallelly(() -> {
+            testSM2Signature();
+            return null;
+        });
+    }
+
+    @Test
+    public void testSM2SignatureSerially() throws Exception {
+        TestUtils.repeatTaskSerially(() -> {
+            testSM2Signature();
+            return null;
+        });
+    }
+
+    @Test
+    public void testSM2SignatureEmptyInput() throws Exception {
+        try (NativeSM2KeyGen sm2KeyPairGen = new NativeSM2KeyGen()) {
+            byte[] keyPair = sm2KeyPairGen.genKeyPair();
+            byte[] priKey = copy(keyPair, 0, SM2_PRIKEY_LEN);
+            byte[] pubKey = copy(keyPair, SM2_PRIKEY_LEN, SM2_PUBKEY_LEN);
+
+            try (NativeSM2Signature sm2Signer
+                         = new NativeSM2Signature(priKey, pubKey, ID, true)) {
+                byte[] signature = sm2Signer.sign(EMPTY);
+
+                try (NativeSM2Signature sm2Verifier
+                             = new NativeSM2Signature(pubKey, ID, false)) {
+                    boolean verified = sm2Verifier.verify(EMPTY, signature);
+
+                    Assertions.assertTrue(verified);
+                }
+            }
+        }
+    }
+
+    @Test
+    public void testSM2SignatureNullInput() {
+        try (NativeSM2KeyGen sm2KeyPairGen = new NativeSM2KeyGen()) {
+            byte[] keyPair = sm2KeyPairGen.genKeyPair();
+            byte[] priKey = copy(keyPair, 0, SM2_PRIKEY_LEN);
+            byte[] pubKey = copy(keyPair, SM2_PRIKEY_LEN, SM2_PUBKEY_LEN);
+
+            try (NativeSM2Signature sm2Signer
+                         = new NativeSM2Signature(priKey, pubKey, ID, true)) {
+                Assertions.assertThrows(BadPaddingException.class,
+                        () -> sm2Signer.sign(null));
+            }
+
+            try (NativeSM2Signature sm2Verifier
+                         = new NativeSM2Signature(pubKey, ID, false)) {
+                Assertions.assertThrows(BadPaddingException.class,
+                        () -> sm2Verifier.verify(MESSAGE, null));
             }
         }
     }
