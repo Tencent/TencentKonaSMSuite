@@ -223,15 +223,33 @@ int sm3hmac_reset(EVP_MAC_CTX *ctx) {
     return KONA_GOOD;
 }
 
-JNIEXPORT jlong JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeCrypto_sm3hmacCreateCtx
-  (JNIEnv *env, jobject thisObj, jbyteArray key) {
-    if (key == NULL) {
-        return KONA_BAD;
-    }
-
+JNIEXPORT jlong JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeCrypto_sm3hmacCreateMac
+  (JNIEnv *env, jobject thisObj) {
     EVP_MAC *mac = EVP_MAC_fetch(NULL, "HMAC", NULL);
     if (mac == NULL) {
         OSSL_print_err();
+        return KONA_BAD;
+    }
+
+    return (jlong)mac;
+}
+
+JNIEXPORT void JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeCrypto_sm3hmacFreeMac
+  (JNIEnv *env, jobject thisObj, jlong pointer) {
+    EVP_MAC *mac = (EVP_MAC *)pointer;
+    if (mac != NULL) {
+        EVP_MAC_free(mac);
+    }
+}
+
+JNIEXPORT jlong JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeCrypto_sm3hmacCreateCtx
+  (JNIEnv *env, jobject thisObj, jlong macPointer, jbyteArray key) {
+    EVP_MAC *mac = (EVP_MAC *)macPointer;
+    if (mac == NULL) {
+        return KONA_BAD;
+    }
+
+    if (macPointer == NULL || key == NULL) {
         return KONA_BAD;
     }
 
@@ -248,7 +266,6 @@ JNIEXPORT jlong JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeC
 
     const int key_len = (*env)->GetArrayLength(env, key);
     jbyte *key_bytes = (*env)->GetByteArrayElements(env, key, NULL);
-    const EVP_MD *md = EVP_sm3();
     long result;
     if (EVP_MAC_init(ctx, (unsigned char *)key_bytes, key_len, params)) {
         result = (long)ctx;
@@ -271,12 +288,6 @@ JNIEXPORT void JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeCr
 
     EVP_MAC_CTX *ctx = (EVP_MAC_CTX *)pointer;
     if (ctx != NULL) {
-        EVP_MAC *mac = EVP_MAC_CTX_get0_mac(ctx);
-        if (mac != NULL) {
-        // TODO
-//            EVP_MAC_free(mac);
-        }
-
         EVP_MAC_CTX_free(ctx);
     }
 }

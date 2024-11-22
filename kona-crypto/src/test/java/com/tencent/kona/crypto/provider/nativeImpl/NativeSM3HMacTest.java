@@ -94,6 +94,9 @@ public class NativeSM3HMacTest {
 
                 Assertions.assertArrayEquals(MAC, mac);
             }
+
+            byte[] mac = sm3hmac.doFinal();
+            Assertions.assertArrayEquals(MAC, mac);
         }
     }
 

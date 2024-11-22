@@ -61,11 +61,27 @@ JNIEXPORT jlong JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeC
 
 /*
  * Class:     com_tencent_kona_crypto_provider_nativeImpl_NativeCrypto
+ * Method:    sm3hmacCreateMac
+ * Signature: ()J
+ */
+JNIEXPORT jlong JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeCrypto_sm3hmacCreateMac
+  (JNIEnv *, jobject);
+
+/*
+ * Class:     com_tencent_kona_crypto_provider_nativeImpl_NativeCrypto
+ * Method:    sm3hmacFreeMac
+ * Signature: (J)V
+ */
+JNIEXPORT void JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeCrypto_sm3hmacFreeMac
+  (JNIEnv *, jobject, jlong);
+
+/*
+ * Class:     com_tencent_kona_crypto_provider_nativeImpl_NativeCrypto
  * Method:    sm3hmacCreateCtx
- * Signature: ([B)J
+ * Signature: (J[B)J
  */
 JNIEXPORT jlong JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeCrypto_sm3hmacCreateCtx
-  (JNIEnv *, jobject, jbyteArray);
+  (JNIEnv *, jobject, jlong, jbyteArray);
 
 /*
  * Class:     com_tencent_kona_crypto_provider_nativeImpl_NativeCrypto
