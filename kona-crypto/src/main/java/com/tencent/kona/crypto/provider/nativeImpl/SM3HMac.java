@@ -34,7 +34,6 @@ public final class SM3HMac extends MacSpi implements Cloneable {
 
     private static final Sweeper SWEEPER = Sweeper.instance();
 
-    private byte[] key;
     private volatile NativeSM3HMac sm3HMac;
 
     @Override
@@ -59,8 +58,7 @@ public final class SM3HMac extends MacSpi implements Cloneable {
             throw new InvalidKeyException("No key data");
         }
 
-        this.key = key.getEncoded();
-        sm3HMac = new NativeSM3HMac(this.key);
+        sm3HMac = new NativeSM3HMac(key.getEncoded());
 
         SWEEPER.register(this, new SweepNativeRef(sm3HMac));
     }

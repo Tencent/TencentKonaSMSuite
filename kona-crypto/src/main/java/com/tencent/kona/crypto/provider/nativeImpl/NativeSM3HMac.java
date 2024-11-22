@@ -20,6 +20,8 @@
 
 package com.tencent.kona.crypto.provider.nativeImpl;
 
+import com.tencent.kona.crypto.util.Sweeper;
+
 import java.util.Objects;
 
 import static com.tencent.kona.crypto.provider.nativeImpl.NativeCrypto.*;
@@ -29,16 +31,27 @@ import static com.tencent.kona.crypto.provider.nativeImpl.NativeCrypto.*;
  */
 final class NativeSM3HMac extends NativeRef implements Cloneable {
 
-    public NativeSM3HMac(byte[] key) {
-        super(createContxt(key));
+    private static final Sweeper SWEEPER = Sweeper.instance();
+
+    private static final NativeMAC MAC = new NativeMAC();
+    static {
+        SWEEPER.register(NativeSM3HMac.class, new SweepNativeRef(MAC));
     }
 
-    private static long createContxt(byte[] key) {
-        if (key == null || key.length == 0) {
-            throw new IllegalStateException("key must not be null or empty");
+    public NativeSM3HMac(byte[] key) {
+        super(createCtx(MAC.pointer, key));
+    }
+
+    private static long createCtx(long macPointer, byte[] key) {
+        if (macPointer <= 0) {
+            throw new IllegalArgumentException("macPointer is invalid");
         }
 
-        return nativeCrypto().sm3hmacCreateCtx(key);
+        if (key == null || key.length == 0) {
+            throw new IllegalStateException("Key must not be null or empty");
+        }
+
+        return nativeCrypto().sm3hmacCreateCtx(macPointer, key);
     }
 
     public NativeSM3HMac(long pointer) {

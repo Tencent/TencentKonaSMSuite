@@ -173,7 +173,10 @@ final class NativeCrypto {
     native long   sm3Clone(long pointer);
 
     /* ***** SM3HMAC ***** */
-    native long   sm3hmacCreateCtx(byte[] key);
+    native long   sm3hmacCreateMac();
+    native void   sm3hmacFreeMac(long pointer);
+
+    native long   sm3hmacCreateCtx(long macPointer, byte[] key);
     native void   sm3hmacFreeCtx(long pointer);
     native int    sm3hmacUpdate(long pointer, byte[] data);
     native byte[] sm3hmacFinal(long pointer);
