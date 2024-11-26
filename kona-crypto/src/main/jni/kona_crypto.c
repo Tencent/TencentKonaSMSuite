@@ -1102,6 +1102,7 @@ JNIEXPORT void JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeCr
     if (ctx != NULL) {
         EVP_PKEY_free(ctx->pkey);
         EVP_PKEY_CTX_free(ctx->pctx);
+        OPENSSL_free(ctx);
     }
 }
 
@@ -1391,6 +1392,7 @@ JNIEXPORT void JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeCr
         EVP_MD_CTX_free(ctx->mctx);
         EVP_PKEY_CTX_free(ctx->pctx);
         EVP_PKEY_free(ctx->pkey);
+        OPENSSL_free(ctx);
     }
 }
 
