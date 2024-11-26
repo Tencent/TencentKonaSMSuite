@@ -909,7 +909,7 @@ EVP_PKEY_CTX* sm2_create_ctx(EVP_PKEY* pkey) {
 
     if (ctx == NULL) {
         OSSL_print_err();
-        return OPENSSL_FAILURE;
+        return NULL;
     }
 
     return ctx;
@@ -917,7 +917,8 @@ EVP_PKEY_CTX* sm2_create_ctx(EVP_PKEY* pkey) {
 
 JNIEXPORT jlong JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeCrypto_sm2KeyGenCreateCtx
   (JNIEnv *env, jobject thisObj) {
-    return (jlong)sm2_create_ctx(NULL);
+    EVP_PKEY_CTX* ctx = sm2_create_ctx(NULL);
+    return ctx == NULL ? KONA_BAD : (jlong)ctx;
 }
 
 JNIEXPORT void JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeCrypto_sm2KeyGenFreeCtx
@@ -1025,6 +1026,11 @@ JNIEXPORT jbyteArray JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_Na
 /* ***** SM2 key gen end ***** */
 
 /* ***** SM2 cipher start ***** */
+typedef struct {
+    EVP_PKEY* pkey;
+    EVP_PKEY_CTX* pctx;
+} SM2_CIPHER_CTX;
+
 JNIEXPORT jlong JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeCrypto_sm2CipherCreateCtx
   (JNIEnv *env, jobject thisObj, jbyteArray key) {
     int key_len = (*env)->GetArrayLength(env, key);
@@ -1070,7 +1076,20 @@ JNIEXPORT jlong JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeC
 
     (*env)->ReleaseByteArrayElements(env, key, key_bytes, JNI_ABORT);
 
-    return pkey == NULL ? KONA_BAD : (jlong)sm2_create_ctx(pkey);
+    if(pkey == NULL) {
+        return KONA_BAD;
+    }
+
+    EVP_PKEY_CTX* pctx = sm2_create_ctx(pkey);
+    if (pctx == NULL) {
+        return KONA_BAD;
+    }
+
+    SM2_CIPHER_CTX* ctx = (SM2_CIPHER_CTX*)malloc(sizeof(SM2_CIPHER_CTX));
+    ctx->pkey = pkey;
+    ctx->pctx = pctx;
+
+    return (jlong)ctx;
 }
 
 JNIEXPORT void JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeCrypto_sm2CipherFreeCtx
@@ -1079,9 +1098,10 @@ JNIEXPORT void JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeCr
         return;
     }
 
-    EVP_PKEY_CTX *ctx = (EVP_PKEY_CTX *)pointer;
+    SM2_CIPHER_CTX *ctx = (SM2_CIPHER_CTX *)pointer;
     if (ctx != NULL) {
-        EVP_PKEY_CTX_free(ctx);
+        EVP_PKEY_free(ctx->pkey);
+        EVP_PKEY_CTX_free(ctx->pctx);
     }
 }
 
@@ -1121,7 +1141,7 @@ unsigned char* sm2_encrypt(EVP_PKEY_CTX* ctx, const unsigned char* plaintext, si
 
 JNIEXPORT jbyteArray JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeCrypto_sm2CipherEncrypt
   (JNIEnv *env, jobject thisObj, jlong pointer, jbyteArray plaintext) {
-    EVP_PKEY_CTX *ctx = (EVP_PKEY_CTX *)pointer;
+    SM2_CIPHER_CTX *ctx = (SM2_CIPHER_CTX *)pointer;
     if (ctx == NULL) {
         return NULL;
     }
@@ -1136,7 +1156,7 @@ JNIEXPORT jbyteArray JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_Na
     }
 
     size_t ciphertext_len;
-    const unsigned char *ciphertext_buf = sm2_encrypt(ctx, (const unsigned char *)plaintext_bytes, plaintext_len, &ciphertext_len);
+    const unsigned char *ciphertext_buf = sm2_encrypt(ctx->pctx, (const unsigned char *)plaintext_bytes, plaintext_len, &ciphertext_len);
     if (ciphertext_buf == NULL) {
         (*env)->ReleaseByteArrayElements(env, plaintext, plaintext_bytes, JNI_ABORT);
 
@@ -1197,7 +1217,7 @@ unsigned char* sm2_decrypt(EVP_PKEY_CTX *ctx, const unsigned char* ciphertext, s
 
 JNIEXPORT jbyteArray JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeCrypto_sm2CipherDecrypt
   (JNIEnv *env, jobject thisObj, jlong pointer, jbyteArray ciphertext) {
-    EVP_PKEY_CTX *ctx = (EVP_PKEY_CTX *)pointer;
+    SM2_CIPHER_CTX *ctx = (SM2_CIPHER_CTX *)pointer;
     if (ctx == NULL) {
         return NULL;
     }
@@ -1212,7 +1232,7 @@ JNIEXPORT jbyteArray JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_Na
     }
 
     size_t cleartext_len = 0;
-    const unsigned char* cleartext_buf = sm2_decrypt(ctx, (const unsigned char*)ciphertext_bytes, ciphertext_len, &cleartext_len);
+    const unsigned char* cleartext_buf = sm2_decrypt(ctx->pctx, (const unsigned char*)ciphertext_bytes, ciphertext_len, &cleartext_len);
     if (cleartext_buf == NULL) {
         (*env)->ReleaseByteArrayElements(env, ciphertext, ciphertext_bytes, JNI_ABORT);
 
