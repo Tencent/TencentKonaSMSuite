@@ -27,7 +27,7 @@ import static com.tencent.kona.crypto.provider.nativeImpl.NativeCrypto.nativeCry
 import static com.tencent.kona.crypto.util.Constants.*;
 
 /**
- * The SM2 key generation native implementation.
+ * The SM2 key pair generation native implementation.
  */
 final class NativeSM2KeyGen extends NativeRef {
 
@@ -64,11 +64,5 @@ final class NativeSM2KeyGen extends NativeRef {
     public void close() {
         nativeCrypto().sm2KeyGenFreeCtx(pointer);
         super.close();
-    }
-
-    private static boolean checkInputBound(byte[] input, int offset, int len) {
-        return input != null
-                && offset >= 0 && len > 0
-                && (input.length >= (offset + len));
     }
 }

@@ -28,10 +28,10 @@ import static com.tencent.kona.crypto.provider.nativeImpl.NativeCrypto.nativeCry
 public class NativeMAC extends NativeRef {
 
     NativeMAC() {
-        super(createContxt());
+        super(createCtx());
     }
 
-    private static long createContxt() {
+    private static long createCtx() {
         return nativeCrypto().sm3hmacCreateMac();
     }
 
