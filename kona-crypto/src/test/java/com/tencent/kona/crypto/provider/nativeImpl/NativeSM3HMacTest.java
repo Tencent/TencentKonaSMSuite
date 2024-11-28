@@ -127,4 +127,14 @@ public class NativeSM3HMacTest {
                     () -> sm3hmac.doFinal(null));
         }
     }
+
+    @Test
+    public void testUseClosedRef() {
+        NativeSM3HMac sm3hmac = new NativeSM3HMac(KEY);
+        sm3hmac.close();
+
+        Assertions.assertThrows(
+                IllegalStateException.class,
+                () -> sm3hmac.doFinal(MESSAGE));
+    }
 }

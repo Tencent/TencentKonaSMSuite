@@ -29,9 +29,9 @@ import static com.tencent.kona.crypto.util.Constants.*;
 /**
  * The SM2 key pair generation native implementation.
  */
-final class NativeSM2KeyGen extends NativeRef {
+final class NativeSM2KeyPairGen extends NativeRef {
 
-    NativeSM2KeyGen() {
+    NativeSM2KeyPairGen() {
         super(createCtx());
     }
 
@@ -44,6 +44,9 @@ final class NativeSM2KeyGen extends NativeRef {
     // X and Y are the coordinates of the public key, 32-bytes
     public byte[] genKeyPair() {
         byte[] keyPair = nativeCrypto().sm2KeyGenGenKeyPair(pointer);
+        if (keyPair == null) {
+            throw new IllegalStateException("Generate key pair failed");
+        }
 
         if (keyPair.length == SM2_PRIKEY_LEN + SM2_PUBKEY_LEN) {
             return keyPair;
