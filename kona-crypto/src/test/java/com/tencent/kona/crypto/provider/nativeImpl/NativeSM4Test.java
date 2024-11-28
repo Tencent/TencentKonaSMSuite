@@ -477,4 +477,14 @@ public class NativeSM4Test {
                 IllegalStateException.class,
                 ()-> new SM4GCM(true, KEY, IV).close());
     }
+
+    @Test
+    public void testUseClosedRef() {
+        SM4ECB sm4 = new SM4ECB(true, false, KEY);
+        sm4.close();
+
+        Assertions.assertThrows(
+                IllegalStateException.class,
+                () -> sm4.doFinal(MESSAGE_32));
+    }
 }

@@ -123,4 +123,14 @@ public class NativeSM3Test {
                     () -> sm3.doFinal(null));
         }
     }
+
+    @Test
+    public void testUseClosedRef() {
+        NativeSM3 sm3 = new NativeSM3();
+        sm3.close();
+
+        Assertions.assertThrows(
+                IllegalStateException.class,
+                () -> sm3.doFinal(MESSAGE_SHORT));
+    }
 }

@@ -50,6 +50,6 @@ abstract class NativeRef implements Closeable {
 
     @Override
     public void close() {
-        pointer = -1;
+        pointer = 0;
     }
 }
