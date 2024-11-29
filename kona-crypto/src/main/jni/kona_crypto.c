@@ -190,7 +190,7 @@ JNIEXPORT jint JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeCr
         return KONA_BAD;
     }
 
-    return sm3_reset(ctx) == OPENSSL_SUCCESS ? KONA_GOOD : KONA_BAD;
+    return sm3_reset(ctx) ? KONA_GOOD : KONA_BAD;
 }
 
 JNIEXPORT jlong JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeCrypto_sm3Clone
@@ -358,7 +358,7 @@ JNIEXPORT jint JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeCr
         return KONA_BAD;
     }
 
-    return sm3hmac_reset(ctx) == OPENSSL_SUCCESS ? KONA_GOOD : KONA_BAD;
+    return sm3hmac_reset(ctx) ? KONA_GOOD : KONA_BAD;
 }
 
 JNIEXPORT jlong JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeCrypto_sm3hmacClone
@@ -879,13 +879,13 @@ EVP_PKEY_CTX* sm2_create_ctx(EVP_PKEY* pkey) {
     return ctx;
 }
 
-JNIEXPORT jlong JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeCrypto_sm2KeyGenCreateCtx
+JNIEXPORT jlong JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeCrypto_sm2KeyPairGenCreateCtx
   (JNIEnv* env, jobject thisObj) {
     EVP_PKEY_CTX* ctx = sm2_create_ctx(NULL);
     return ctx == NULL ? KONA_BAD : (jlong)ctx;
 }
 
-JNIEXPORT void JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeCrypto_sm2KeyGenFreeCtx
+JNIEXPORT void JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeCrypto_sm2KeyPairGenFreeCtx
   (JNIEnv* env, jobject thisObj, jlong pointer) {
     EVP_PKEY_CTX* ctx = (EVP_PKEY_CTX*)pointer;
     if (ctx != NULL) {
@@ -957,7 +957,7 @@ int sm2_gen_key_pair(EVP_PKEY_CTX* ctx, unsigned char* key_pair, size_t* key_pai
     return OPENSSL_SUCCESS;
 }
 
-JNIEXPORT jbyteArray JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeCrypto_sm2KeyGenGenKeyPair
+JNIEXPORT jbyteArray JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeCrypto_sm2KeyPairGenGenKeyPair
   (JNIEnv* env, jobject thisObj, jlong pointer) {
     EVP_PKEY_CTX* ctx = (EVP_PKEY_CTX*)pointer;
     if (ctx == NULL) {
@@ -1499,7 +1499,7 @@ JNIEXPORT jint JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeCr
         return KONA_BAD;
     }
 
-    int verified = sm2_verify(ctx->mctx, (unsigned char*)msg_bytes, msg_len, (unsigned char*)sig_bytes, sig_len) == OPENSSL_SUCCESS
+    int verified = sm2_verify(ctx->mctx, (unsigned char*)msg_bytes, msg_len, (unsigned char*)sig_bytes, sig_len)
             ? KONA_GOOD : KONA_BAD;
 
     (*env)->ReleaseByteArrayElements(env, message, msg_bytes, JNI_ABORT);

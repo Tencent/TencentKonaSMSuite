@@ -189,26 +189,26 @@ JNIEXPORT jbyteArray JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_Na
 
 /*
  * Class:     com_tencent_kona_crypto_provider_nativeImpl_NativeCrypto
- * Method:    sm2KeyGenCreateCtx
+ * Method:    sm2KeyPairGenCreateCtx
  * Signature: ()J
  */
-JNIEXPORT jlong JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeCrypto_sm2KeyGenCreateCtx
+JNIEXPORT jlong JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeCrypto_sm2KeyPairGenCreateCtx
   (JNIEnv *, jobject);
 
 /*
  * Class:     com_tencent_kona_crypto_provider_nativeImpl_NativeCrypto
- * Method:    sm2KeyGenFreeCtx
+ * Method:    sm2KeyPairGenFreeCtx
  * Signature: (J)V
  */
-JNIEXPORT void JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeCrypto_sm2KeyGenFreeCtx
+JNIEXPORT void JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeCrypto_sm2KeyPairGenFreeCtx
   (JNIEnv *, jobject, jlong);
 
 /*
  * Class:     com_tencent_kona_crypto_provider_nativeImpl_NativeCrypto
- * Method:    sm2KeyGenGenKeyPair
+ * Method:    sm2KeyPairGenGenKeyPair
  * Signature: (J)[B
  */
-JNIEXPORT jbyteArray JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeCrypto_sm2KeyGenGenKeyPair
+JNIEXPORT jbyteArray JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeCrypto_sm2KeyPairGenGenKeyPair
   (JNIEnv *, jobject, jlong);
 
 /*
