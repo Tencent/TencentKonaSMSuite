@@ -36,14 +36,14 @@ final class NativeSM2KeyPairGen extends NativeRef {
     }
 
     private static long createCtx() {
-        return nativeCrypto().sm2KeyGenCreateCtx();
+        return nativeCrypto().sm2KeyPairGenCreateCtx();
     }
 
     // Format: K || 0x04 || X || Y, 97-bytes
     // K is the private key, 32-bytes
     // X and Y are the coordinates of the public key, 32-bytes
     public byte[] genKeyPair() {
-        byte[] keyPair = nativeCrypto().sm2KeyGenGenKeyPair(pointer);
+        byte[] keyPair = nativeCrypto().sm2KeyPairGenGenKeyPair(pointer);
         if (keyPair == null) {
             throw new IllegalStateException("Generate key pair failed");
         }
@@ -65,7 +65,7 @@ final class NativeSM2KeyPairGen extends NativeRef {
 
     @Override
     public void close() {
-        nativeCrypto().sm2KeyGenFreeCtx(pointer);
+        nativeCrypto().sm2KeyPairGenFreeCtx(pointer);
         super.close();
     }
 }
