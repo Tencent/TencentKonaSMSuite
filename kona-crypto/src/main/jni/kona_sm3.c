@@ -22,8 +22,6 @@
 
 #include <jni.h>
 
-#include <openssl/core_names.h>
-#include <openssl/ec.h>
 #include <openssl/evp.h>
 
 #include "kona_common.h"
