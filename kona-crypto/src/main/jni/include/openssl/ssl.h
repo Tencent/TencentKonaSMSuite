@@ -235,10 +235,8 @@ typedef struct ssl_cipher_st SSL_CIPHER;
 typedef struct ssl_session_st SSL_SESSION;
 typedef struct tls_sigalgs_st TLS_SIGALGS;
 typedef struct ssl_conf_ctx_st SSL_CONF_CTX;
-typedef struct ssl_comp_st SSL_COMP;
 
 STACK_OF(SSL_CIPHER);
-STACK_OF(SSL_COMP);
 
 /* SRTP protection profiles for use with the use_srtp extension (RFC 5764)*/
 typedef struct srtp_protection_profile_st {
@@ -1023,32 +1021,6 @@ SKM_DEFINE_STACK_OF_INTERNAL(SSL_CIPHER, const SSL_CIPHER, SSL_CIPHER)
 #define sk_SSL_CIPHER_dup(sk) ((STACK_OF(SSL_CIPHER) *)OPENSSL_sk_dup(ossl_check_const_SSL_CIPHER_sk_type(sk)))
 #define sk_SSL_CIPHER_deep_copy(sk, copyfunc, freefunc) ((STACK_OF(SSL_CIPHER) *)OPENSSL_sk_deep_copy(ossl_check_const_SSL_CIPHER_sk_type(sk), ossl_check_SSL_CIPHER_copyfunc_type(copyfunc), ossl_check_SSL_CIPHER_freefunc_type(freefunc)))
 #define sk_SSL_CIPHER_set_cmp_func(sk, cmp) ((sk_SSL_CIPHER_compfunc)OPENSSL_sk_set_cmp_func(ossl_check_SSL_CIPHER_sk_type(sk), ossl_check_SSL_CIPHER_compfunc_type(cmp)))
-SKM_DEFINE_STACK_OF_INTERNAL(SSL_COMP, SSL_COMP, SSL_COMP)
-#define sk_SSL_COMP_num(sk) OPENSSL_sk_num(ossl_check_const_SSL_COMP_sk_type(sk))
-#define sk_SSL_COMP_value(sk, idx) ((SSL_COMP *)OPENSSL_sk_value(ossl_check_const_SSL_COMP_sk_type(sk), (idx)))
-#define sk_SSL_COMP_new(cmp) ((STACK_OF(SSL_COMP) *)OPENSSL_sk_new(ossl_check_SSL_COMP_compfunc_type(cmp)))
-#define sk_SSL_COMP_new_null() ((STACK_OF(SSL_COMP) *)OPENSSL_sk_new_null())
-#define sk_SSL_COMP_new_reserve(cmp, n) ((STACK_OF(SSL_COMP) *)OPENSSL_sk_new_reserve(ossl_check_SSL_COMP_compfunc_type(cmp), (n)))
-#define sk_SSL_COMP_reserve(sk, n) OPENSSL_sk_reserve(ossl_check_SSL_COMP_sk_type(sk), (n))
-#define sk_SSL_COMP_free(sk) OPENSSL_sk_free(ossl_check_SSL_COMP_sk_type(sk))
-#define sk_SSL_COMP_zero(sk) OPENSSL_sk_zero(ossl_check_SSL_COMP_sk_type(sk))
-#define sk_SSL_COMP_delete(sk, i) ((SSL_COMP *)OPENSSL_sk_delete(ossl_check_SSL_COMP_sk_type(sk), (i)))
-#define sk_SSL_COMP_delete_ptr(sk, ptr) ((SSL_COMP *)OPENSSL_sk_delete_ptr(ossl_check_SSL_COMP_sk_type(sk), ossl_check_SSL_COMP_type(ptr)))
-#define sk_SSL_COMP_push(sk, ptr) OPENSSL_sk_push(ossl_check_SSL_COMP_sk_type(sk), ossl_check_SSL_COMP_type(ptr))
-#define sk_SSL_COMP_unshift(sk, ptr) OPENSSL_sk_unshift(ossl_check_SSL_COMP_sk_type(sk), ossl_check_SSL_COMP_type(ptr))
-#define sk_SSL_COMP_pop(sk) ((SSL_COMP *)OPENSSL_sk_pop(ossl_check_SSL_COMP_sk_type(sk)))
-#define sk_SSL_COMP_shift(sk) ((SSL_COMP *)OPENSSL_sk_shift(ossl_check_SSL_COMP_sk_type(sk)))
-#define sk_SSL_COMP_pop_free(sk, freefunc) OPENSSL_sk_pop_free(ossl_check_SSL_COMP_sk_type(sk),ossl_check_SSL_COMP_freefunc_type(freefunc))
-#define sk_SSL_COMP_insert(sk, ptr, idx) OPENSSL_sk_insert(ossl_check_SSL_COMP_sk_type(sk), ossl_check_SSL_COMP_type(ptr), (idx))
-#define sk_SSL_COMP_set(sk, idx, ptr) ((SSL_COMP *)OPENSSL_sk_set(ossl_check_SSL_COMP_sk_type(sk), (idx), ossl_check_SSL_COMP_type(ptr)))
-#define sk_SSL_COMP_find(sk, ptr) OPENSSL_sk_find(ossl_check_SSL_COMP_sk_type(sk), ossl_check_SSL_COMP_type(ptr))
-#define sk_SSL_COMP_find_ex(sk, ptr) OPENSSL_sk_find_ex(ossl_check_SSL_COMP_sk_type(sk), ossl_check_SSL_COMP_type(ptr))
-#define sk_SSL_COMP_find_all(sk, ptr, pnum) OPENSSL_sk_find_all(ossl_check_SSL_COMP_sk_type(sk), ossl_check_SSL_COMP_type(ptr), pnum)
-#define sk_SSL_COMP_sort(sk) OPENSSL_sk_sort(ossl_check_SSL_COMP_sk_type(sk))
-#define sk_SSL_COMP_is_sorted(sk) OPENSSL_sk_is_sorted(ossl_check_const_SSL_COMP_sk_type(sk))
-#define sk_SSL_COMP_dup(sk) ((STACK_OF(SSL_COMP) *)OPENSSL_sk_dup(ossl_check_const_SSL_COMP_sk_type(sk)))
-#define sk_SSL_COMP_deep_copy(sk, copyfunc, freefunc) ((STACK_OF(SSL_COMP) *)OPENSSL_sk_deep_copy(ossl_check_const_SSL_COMP_sk_type(sk), ossl_check_SSL_COMP_copyfunc_type(copyfunc), ossl_check_SSL_COMP_freefunc_type(freefunc)))
-#define sk_SSL_COMP_set_cmp_func(sk, cmp) ((sk_SSL_COMP_compfunc)OPENSSL_sk_set_cmp_func(ossl_check_SSL_COMP_sk_type(sk), ossl_check_SSL_COMP_compfunc_type(cmp)))
 
 
 /* compatibility */
@@ -1644,7 +1616,11 @@ void SSL_CTX_set1_cert_store(SSL_CTX *, X509_STORE *);
 __owur int SSL_want(const SSL *s);
 __owur int SSL_clear(SSL *s);
 
+#ifndef OPENSSL_NO_DEPRECATED_3_4
+OSSL_DEPRECATEDIN_3_4_FOR("not Y2038-safe, replace with SSL_CTX_flush_sessions_ex()")
 void SSL_CTX_flush_sessions(SSL_CTX *ctx, long tm);
+#endif
+void SSL_CTX_flush_sessions_ex(SSL_CTX *ctx, time_t tm);
 
 __owur const SSL_CIPHER *SSL_get_current_cipher(const SSL *s);
 __owur const SSL_CIPHER *SSL_get_pending_cipher(const SSL *s);
@@ -1756,8 +1732,13 @@ __owur const char *SSL_state_string(const SSL *s);
 __owur const char *SSL_rstate_string(const SSL *s);
 __owur const char *SSL_state_string_long(const SSL *s);
 __owur const char *SSL_rstate_string_long(const SSL *s);
+
+#ifndef OPENSSL_NO_DEPRECATED_3_4
+OSSL_DEPRECATEDIN_3_4_FOR("not Y2038-safe, replace with SSL_SESSION_get_time_ex()")
 __owur long SSL_SESSION_get_time(const SSL_SESSION *s);
+OSSL_DEPRECATEDIN_3_4_FOR("not Y2038-safe, replace with SSL_SESSION_set_time_ex()")
 __owur long SSL_SESSION_set_time(SSL_SESSION *s, long t);
+#endif
 __owur long SSL_SESSION_get_timeout(const SSL_SESSION *s);
 __owur long SSL_SESSION_set_timeout(SSL_SESSION *s, long t);
 __owur int SSL_SESSION_get_protocol_version(const SSL_SESSION *s);
@@ -2329,6 +2310,8 @@ void SSL_CTX_set_record_padding_callback(SSL_CTX *ctx,
 void SSL_CTX_set_record_padding_callback_arg(SSL_CTX *ctx, void *arg);
 void *SSL_CTX_get_record_padding_callback_arg(const SSL_CTX *ctx);
 int SSL_CTX_set_block_padding(SSL_CTX *ctx, size_t block_size);
+int SSL_CTX_set_block_padding_ex(SSL_CTX *ctx, size_t app_block_size,
+                                 size_t hs_block_size);
 
 int SSL_set_record_padding_callback(SSL *ssl,
                                     size_t (*cb) (SSL *ssl, int type,
@@ -2336,7 +2319,8 @@ int SSL_set_record_padding_callback(SSL *ssl,
 void SSL_set_record_padding_callback_arg(SSL *ssl, void *arg);
 void *SSL_get_record_padding_callback_arg(const SSL *ssl);
 int SSL_set_block_padding(SSL *ssl, size_t block_size);
-
+int SSL_set_block_padding_ex(SSL *ssl, size_t app_block_size,
+                             size_t hs_block_size);
 int SSL_set_num_tickets(SSL *s, size_t num_tickets);
 size_t SSL_get_num_tickets(const SSL *s);
 int SSL_CTX_set_num_tickets(SSL_CTX *ctx, size_t num_tickets);
