@@ -1,5 +1,5 @@
 /*
- * Copyright 1995-2023 The OpenSSL Project Authors. All Rights Reserved.
+ * Copyright 1995-2024 The OpenSSL Project Authors. All Rights Reserved.
  * Copyright (c) 2002, Oracle and/or its affiliates. All rights reserved
  * Copyright 2005 Nokia. All rights reserved.
  *
@@ -231,6 +231,8 @@ extern "C" {
 # define TLSEXT_max_fragment_length_1024        2
 # define TLSEXT_max_fragment_length_2048        3
 # define TLSEXT_max_fragment_length_4096        4
+/* OpenSSL value for unset maximum fragment length extension */
+# define TLSEXT_max_fragment_length_UNSPECIFIED 255
 
 /*
  * TLS Certificate Type (for RFC7250)
@@ -279,6 +281,8 @@ int SSL_get_signature_type_nid(const SSL *s, int *pnid);
 int SSL_get_sigalgs(SSL *s, int idx,
                     int *psign, int *phash, int *psignandhash,
                     unsigned char *rsig, unsigned char *rhash);
+
+char *SSL_get1_builtin_sigalgs(OSSL_LIB_CTX *libctx);
 
 int SSL_get_shared_sigalgs(SSL *s, int idx,
                            int *psign, int *phash, int *psignandhash,
@@ -622,6 +626,10 @@ int SSL_CTX_set_tlsext_ticket_key_evp_cb
 # define TLS1_3_CK_AES_128_CCM_SHA256                     0x03001304
 # define TLS1_3_CK_AES_128_CCM_8_SHA256                   0x03001305
 
+/* Integrity-only ciphersuites from RFC 9150 */
+# define TLS1_3_CK_SHA256_SHA256                          0x0300C0B4
+# define TLS1_3_CK_SHA384_SHA384                          0x0300C0B5
+
 /* Aria ciphersuites from RFC6209 */
 # define TLS1_CK_RSA_WITH_ARIA_128_GCM_SHA256             0x0300C050
 # define TLS1_CK_RSA_WITH_ARIA_256_GCM_SHA384             0x0300C051
@@ -699,6 +707,8 @@ int SSL_CTX_set_tlsext_ticket_key_evp_cb
 # define TLS1_3_RFC_AES_128_GCM_SHA256                   "TLS_AES_128_GCM_SHA256"
 # define TLS1_3_RFC_AES_256_GCM_SHA384                   "TLS_AES_256_GCM_SHA384"
 # define TLS1_3_RFC_CHACHA20_POLY1305_SHA256             "TLS_CHACHA20_POLY1305_SHA256"
+# define TLS1_3_RFC_SHA256_SHA256                        "TLS_SHA256_SHA256"
+# define TLS1_3_RFC_SHA384_SHA384                        "TLS_SHA384_SHA384"
 # define TLS1_3_RFC_AES_128_CCM_SHA256                   "TLS_AES_128_CCM_SHA256"
 # define TLS1_3_RFC_AES_128_CCM_8_SHA256                 "TLS_AES_128_CCM_8_SHA256"
 # define TLS1_RFC_ECDHE_ECDSA_WITH_NULL_SHA              "TLS_ECDHE_ECDSA_WITH_NULL_SHA"
