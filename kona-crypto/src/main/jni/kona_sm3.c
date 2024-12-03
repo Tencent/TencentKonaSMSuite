@@ -122,7 +122,7 @@ JNIEXPORT jbyteArray JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_Na
         return NULL;
     }
 
-    unsigned char digest[SM3_DIGEST_LEN];
+    uint8_t digest[SM3_DIGEST_LEN];
     unsigned int digest_len = 0;
 
     if (!EVP_DigestFinal_ex(ctx, digest, &digest_len)) {
@@ -234,7 +234,7 @@ JNIEXPORT jlong JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeC
     const int key_len = (*env)->GetArrayLength(env, key);
     jbyte* key_bytes = (*env)->GetByteArrayElements(env, key, NULL);
     long result;
-    if (EVP_MAC_init(ctx, (unsigned char*)key_bytes, key_len, params)) {
+    if (EVP_MAC_init(ctx, (uint8_t*)key_bytes, key_len, params)) {
         result = (long)ctx;
     } else {
         OPENSSL_print_err();
@@ -272,7 +272,7 @@ JNIEXPORT jint JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeCr
     }
 
     int result = KONA_GOOD;
-    if (!EVP_MAC_update(ctx, (unsigned char*)data_bytes, data_len)) {
+    if (!EVP_MAC_update(ctx, (uint8_t*)data_bytes, data_len)) {
         OPENSSL_print_err();
         result = KONA_BAD;
     }
@@ -289,7 +289,7 @@ JNIEXPORT jbyteArray JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_Na
         return NULL;
     }
 
-    unsigned char mac[SM3_MAC_LEN];
+    uint8_t mac[SM3_MAC_LEN];
     size_t mac_len = 0;
 
     if (!EVP_MAC_final(ctx, mac, &mac_len, sizeof(mac))) {
