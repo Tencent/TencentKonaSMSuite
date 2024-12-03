@@ -67,7 +67,7 @@ JNIEXPORT jlong JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeC
     jbyte* iv_bytes = iv ? (*env)->GetByteArrayElements(env, iv, NULL) : NULL;
 
     jlong result = KONA_BAD;
-    if (EVP_CipherInit_ex(ctx, cipher, NULL, (unsigned char*)key_bytes, (unsigned char*)iv_bytes, encrypt)) {
+    if (EVP_CipherInit_ex(ctx, cipher, NULL, (uint8_t*)key_bytes, (uint8_t*)iv_bytes, encrypt)) {
         if (!padding && !EVP_CIPHER_CTX_set_padding(ctx, 0)) {
             OPENSSL_print_err();
         } else {
@@ -112,7 +112,7 @@ JNIEXPORT jbyteArray JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_Na
     jsize in_len = (*env)->GetArrayLength(env, in);
 
     int out_len = in_len + EVP_CIPHER_CTX_block_size(ctx);
-    unsigned char* out_buf = (unsigned char*)malloc(out_len);
+    uint8_t* out_buf = (uint8_t*)malloc(out_len);
     if (out_buf == NULL) {
         (*env)->ReleaseByteArrayElements(env, in, in_bytes, JNI_ABORT);
         return NULL;
@@ -120,7 +120,7 @@ JNIEXPORT jbyteArray JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_Na
 
     jbyteArray out_bytes = NULL;
     int len = 0;
-    if (EVP_CipherUpdate(ctx, out_buf, &len, (unsigned char*)in_bytes, in_len)) {
+    if (EVP_CipherUpdate(ctx, out_buf, &len, (uint8_t*)in_bytes, in_len)) {
         out_bytes = (*env)->NewByteArray(env, len);
         if (out_bytes != NULL && len > 0) {
             (*env)->SetByteArrayRegion(env, out_bytes, 0, len, (jbyte*)out_buf);
@@ -143,7 +143,7 @@ JNIEXPORT jbyteArray JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_Na
     }
 
     int block_size = EVP_CIPHER_CTX_block_size(ctx);
-    unsigned char* out_buf = (unsigned char*)malloc(block_size);
+    uint8_t* out_buf = (uint8_t*)malloc(block_size);
     if (out_buf == NULL) {
         return NULL;
     }
@@ -183,7 +183,7 @@ JNIEXPORT jint JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeCr
 
     int out_len = 0;
     int result = KONA_BAD;
-    if (EVP_CipherUpdate(ctx, NULL, &out_len, (unsigned char*)aad_bytes, aad_len)) {
+    if (EVP_CipherUpdate(ctx, NULL, &out_len, (uint8_t*)aad_bytes, aad_len)) {
         result = KONA_GOOD;
     } else {
         OPENSSL_print_err();
@@ -208,7 +208,7 @@ JNIEXPORT jint JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeCr
 
     int result = KONA_BAD;
     if (EVP_CIPHER_CTX_encrypting(ctx)) {
-        unsigned char tag_buf[SM4_GCM_TAG_LEN];
+        uint8_t tag_buf[SM4_GCM_TAG_LEN];
         if (EVP_CIPHER_CTX_ctrl(ctx, EVP_CTRL_GCM_GET_TAG, SM4_GCM_TAG_LEN, tag_buf)) {
             (*env)->SetByteArrayRegion(env, tag, 0, SM4_GCM_TAG_LEN, (jbyte*)tag_buf);
             result = KONA_GOOD;

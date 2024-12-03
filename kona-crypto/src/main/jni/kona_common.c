@@ -23,7 +23,7 @@
 #include "kona_common.h"
 
 const char* hex_digits = "0123456789abcdef";
-void bytes_to_hex(const unsigned char* bytes, size_t offset, size_t len, unsigned char* hex) {
+void bytes_to_hex(const uint8_t* bytes, size_t offset, size_t len, uint8_t* hex) {
     for (size_t i = 0; i < len; i++) {
         hex[i * 2] = hex_digits[bytes[i + offset] / 16];
         hex[i * 2 + 1] = hex_digits[bytes[i + offset] % 16];
@@ -32,8 +32,8 @@ void bytes_to_hex(const unsigned char* bytes, size_t offset, size_t len, unsigne
     hex[len * 2] = '\0';
 }
 
-void print_hex(const unsigned char* byte_array, size_t offset, size_t len) {
-    unsigned char* hex = malloc(len* 2 + 1);
+void print_hex(const uint8_t* byte_array, size_t offset, size_t len) {
+    uint8_t* hex = malloc(len* 2 + 1);
     bytes_to_hex(byte_array, offset, len, hex);
     KONA_print("%s", hex);
     free(hex);
