@@ -27,8 +27,8 @@
 #include <openssl/ec.h>
 #include <openssl/evp.h>
 
-#include "kona_common.h"
-#include "kona_sm2.h"
+#include "kona/kona_common.h"
+#include "kona/kona_sm2.h"
 
 JNIEXPORT jbyteArray JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeCrypto_sm2ToUncompPubKey
   (JNIEnv* env, jobject thisObj, jbyteArray compPubKey) {
