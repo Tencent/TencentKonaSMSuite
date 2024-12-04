@@ -24,7 +24,7 @@ project(KonaCrypto C)
 include_directories("include")
 
 set(SOURCES kona_common.c
-            kona_sm2.c
+            kona_sm2_common.c
             kona_sm2_keypair.c
             kona_sm2_cipher.c
             kona_sm2_signature.c

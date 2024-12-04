@@ -20,7 +20,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "kona_common.h"
+#include "kona/kona_common.h"
 
 const char* hex_digits = "0123456789abcdef";
 void bytes_to_hex(const uint8_t* bytes, size_t offset, size_t len, uint8_t* hex) {

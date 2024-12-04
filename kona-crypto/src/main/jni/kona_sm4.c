@@ -24,7 +24,7 @@
 
 #include <openssl/evp.h>
 
-#include "kona_common.h"
+#include "kona/kona_common.h"
 
 /* ***** SM4 start ***** */
 JNIEXPORT jlong JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeCrypto_sm4CreateCtx

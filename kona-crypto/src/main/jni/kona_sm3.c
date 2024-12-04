@@ -24,7 +24,7 @@
 
 #include <openssl/evp.h>
 
-#include "kona_common.h"
+#include "kona/kona_common.h"
 
 /* ***** SM3 start ***** */
 int sm3_reset(EVP_MD_CTX* ctx) {

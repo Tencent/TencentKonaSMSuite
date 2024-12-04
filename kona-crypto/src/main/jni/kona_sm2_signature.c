@@ -27,8 +27,8 @@
 #include <openssl/ec.h>
 #include <openssl/evp.h>
 
-#include "kona_common.h"
-#include "kona_sm2.h"
+#include "kona/kona_common.h"
+#include "kona/kona_sm2.h"
 
 typedef struct {
     EVP_PKEY* pkey;

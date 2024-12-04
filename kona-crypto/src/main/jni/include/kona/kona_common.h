@@ -35,3 +35,6 @@
 #define KONA_print(...) fprintf(stdout, __VA_ARGS__), fprintf(stdout, "\n")
 #define KONA_print_err(...) fprintf(stderr, __VA_ARGS__), fprintf(stderr, "\n")
 #define OPENSSL_print_err() ERR_print_errors_fp(stderr)
+
+void bytes_to_hex(const uint8_t* bytes, size_t offset, size_t len, uint8_t* hex);
+void print_hex(const uint8_t* byte_array, size_t offset, size_t len);
