@@ -23,7 +23,13 @@ project(KonaCrypto C)
 
 include_directories("include")
 
-set(SOURCES kona_common.c kona_sm2.c kona_sm3.c kona_sm4.c)
+set(SOURCES kona_common.c
+            kona_sm2.c
+            kona_sm2_keypair.c
+            kona_sm2_cipher.c
+            kona_sm2_signature.c
+            kona_sm3.c
+            kona_sm4.c)
 set(LIB_DIR "${CMAKE_SOURCE_DIR}/../resources")
 
 add_library(KonaCrypto SHARED ${SOURCES})
