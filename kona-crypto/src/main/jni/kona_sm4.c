@@ -24,9 +24,9 @@
 
 #include <openssl/evp.h>
 
+#include "kona/kona_jni.h"
 #include "kona/kona_common.h"
 
-/* ***** SM4 start ***** */
 JNIEXPORT jlong JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeCrypto_sm4CreateCtx
   (JNIEnv* env, jobject thisObj, jboolean encrypt, jstring mode, jboolean padding, jbyteArray key, jbyteArray iv) {
     if (key == NULL) {
@@ -230,4 +230,3 @@ JNIEXPORT jint JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeCr
 
     return result;
 }
-/* ***** SM4 end ***** */
