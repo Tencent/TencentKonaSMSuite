@@ -28,6 +28,7 @@
 #include <openssl/evp.h>
 
 #include "kona/kona_common.h"
+#include "kona/kona_sm2.h"
 
 EVP_PKEY* load_pub_key(const uint8_t* pub_key, size_t pub_key_len) {
     EVP_PKEY_CTX* key_ctx = EVP_PKEY_CTX_new_from_name(NULL, "SM2", NULL);

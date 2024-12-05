@@ -27,6 +27,7 @@
 #include <openssl/ec.h>
 #include <openssl/evp.h>
 
+#include "kona/kona_jni.h"
 #include "kona/kona_common.h"
 #include "kona/kona_sm2.h"
 

@@ -24,9 +24,9 @@
 
 #include <openssl/evp.h>
 
+#include "kona/kona_jni.h"
 #include "kona/kona_common.h"
 
-/* ***** SM3 start ***** */
 int sm3_reset(EVP_MD_CTX* ctx) {
     if (ctx == NULL) {
         return OPENSSL_FAILURE;
@@ -178,9 +178,7 @@ JNIEXPORT jlong JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeC
 
     return (jlong)new_ctx;
 }
-/* ***** SM3 end ***** */
 
-/* ***** SM3HMAC start ***** */
 int sm3hmac_reset(EVP_MAC_CTX* ctx) {
     if (!EVP_MAC_init(ctx, NULL, 0, NULL)) {
         OPENSSL_print_err();
@@ -341,4 +339,3 @@ JNIEXPORT jlong JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeC
 
     return (jlong)new_ctx;
 }
-/* ***** SM3HMAC end ***** */
