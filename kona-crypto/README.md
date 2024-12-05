@@ -20,7 +20,7 @@ For providing the above features, `KonaCrypto` implements the JDK-specified Serv
 
 ## Implementations
 
-Tencent Kona Crypto provides pure Java-based SM2, SM3 and SM4, and also JNI and OpenSSL-based SM3 and SM4 (SM2 implementation is on the way). The latter supports Linux x86_64/aarch64 platforms. OpenSSL version 3.4.0 is used by default, but versions 3.0 and later can be supported.
+Tencent Kona Crypto provides pure Java-based and JNI/OpenSSL-based SM2, SM3 and SM4. The latter supports `Linux x86_64/aarch64` platforms. OpenSSL version 3.4.0 is used by default, but versions 3.0 and later can be supported.
 
 The pure Java-based implementations is enabled. The java system property `com.tencent.kona.useNativeCrypto` can be used to enable the OpenSSL-based implementation. The additional system property `com.tencent.kona.openssl.crypto.lib.path` is used to specify an alternative local OpenSSL crypto lib file (`libcrypto.so`). The value of this property is a local absolute path.
 
