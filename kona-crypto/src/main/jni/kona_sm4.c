@@ -112,7 +112,7 @@ JNIEXPORT jbyteArray JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_Na
     jsize in_len = (*env)->GetArrayLength(env, in);
 
     int out_len = in_len + EVP_CIPHER_CTX_block_size(ctx);
-    uint8_t* out_buf = (uint8_t*)malloc(out_len);
+    uint8_t* out_buf = (uint8_t*)OPENSSL_malloc(out_len);
     if (out_buf == NULL) {
         (*env)->ReleaseByteArrayElements(env, in, in_bytes, JNI_ABORT);
         return NULL;
@@ -130,7 +130,7 @@ JNIEXPORT jbyteArray JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_Na
     }
 
     (*env)->ReleaseByteArrayElements(env, in, in_bytes, JNI_ABORT);
-    free(out_buf);
+    OPENSSL_free(out_buf);
 
     return out_bytes;
 }
@@ -143,7 +143,7 @@ JNIEXPORT jbyteArray JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_Na
     }
 
     int block_size = EVP_CIPHER_CTX_block_size(ctx);
-    uint8_t* out_buf = (uint8_t*)malloc(block_size);
+    uint8_t* out_buf = (uint8_t*)OPENSSL_malloc(block_size);
     if (out_buf == NULL) {
         return NULL;
     }
@@ -159,7 +159,7 @@ JNIEXPORT jbyteArray JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_Na
         OPENSSL_print_err();
     }
 
-    free(out_buf);
+    OPENSSL_free(out_buf);
 
     return out_bytes;
 }
