@@ -27,6 +27,27 @@
 #include "kona/kona_jni.h"
 #include "kona/kona_common.h"
 
+EVP_MD_CTX* sm3_create_ctx() {
+    EVP_MD_CTX* ctx = EVP_MD_CTX_new();
+    if (ctx == NULL) {
+        OPENSSL_print_err();
+        return NULL;
+    }
+
+    const EVP_MD* md = EVP_sm3();
+    if (md == NULL) {
+        OPENSSL_print_err();
+        return NULL;
+    }
+
+    if (!EVP_DigestInit_ex(ctx, md, NULL)) {
+        OPENSSL_print_err();
+        return NULL;
+    }
+
+    return ctx;
+}
+
 int sm3_reset(EVP_MD_CTX* ctx) {
     if (ctx == NULL) {
         return OPENSSL_FAILURE;
@@ -53,24 +74,8 @@ int sm3_reset(EVP_MD_CTX* ctx) {
 
 JNIEXPORT jlong JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeCrypto_sm3CreateCtx
   (JNIEnv* env, jobject thisObj) {
-    EVP_MD_CTX* ctx = EVP_MD_CTX_new();
-    if (ctx == NULL) {
-        OPENSSL_print_err();
-        return KONA_BAD;
-    }
-
-    const EVP_MD* md = EVP_sm3();
-    if (md == NULL) {
-        OPENSSL_print_err();
-        return KONA_BAD;
-    }
-
-    if (!EVP_DigestInit_ex(ctx, md, NULL)) {
-        OPENSSL_print_err();
-        return KONA_BAD;
-    }
-
-    return (jlong)ctx;
+    EVP_MD_CTX* ctx = sm3_create_ctx();
+    return ctx == NULL ? KONA_BAD : (jlong)ctx;
 }
 
 JNIEXPORT void JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeCrypto_sm3FreeCtx
@@ -85,14 +90,14 @@ JNIEXPORT jint JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeCr
   (JNIEnv* env, jobject thisObj, jlong pointer, jbyteArray data) {
     EVP_MD_CTX* ctx = (EVP_MD_CTX*)pointer;
     if (ctx == NULL) {
-      return KONA_BAD;
+        return KONA_BAD;
     }
 
     if (data == NULL) {
         return KONA_BAD;
     }
 
-    int data_len = (*env)->GetArrayLength(env, data);
+    jsize data_len = (*env)->GetArrayLength(env, data);
     if (data_len < 0) {
         return KONA_BAD;
     }
