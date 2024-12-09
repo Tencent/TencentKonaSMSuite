@@ -26,7 +26,6 @@ import com.tencent.kona.crypto.spec.SM2SignatureParameterSpec;
 import com.tencent.kona.crypto.util.Sweeper;
 
 import javax.crypto.BadPaddingException;
-import java.io.ByteArrayOutputStream;
 import java.math.BigInteger;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
@@ -39,7 +38,6 @@ import java.security.SignatureSpi;
 import java.security.interfaces.ECPrivateKey;
 import java.security.interfaces.ECPublicKey;
 import java.security.spec.AlgorithmParameterSpec;
-import java.util.Arrays;
 
 import static com.tencent.kona.crypto.spec.SM2ParameterSpec.ORDER;
 import static java.math.BigInteger.ONE;
@@ -54,13 +52,13 @@ public final class SM2Signature extends SignatureSpi {
 
     private static final Sweeper SWEEPER = Sweeper.instance();
 
-    private NativeSM2Signature sm2;
+    private volatile NativeSM2Signature sm2;
 
     private SM2PrivateKey privateKey;
     private SM2PublicKey publicKey;
     private byte[] id;
 
-    private final Buffer buffer = new Buffer();
+    private final ByteArrayWriter buffer = new ByteArrayWriter();
 
     @Override
     protected void engineInitSign(PrivateKey privateKey, SecureRandom random)
@@ -193,13 +191,5 @@ public final class SM2Signature extends SignatureSpi {
     private void reset() {
         sm2 = null;
         buffer.reset();
-    }
-
-    private static final class Buffer extends ByteArrayOutputStream {
-
-        public void reset() {
-            Arrays.fill(buf, (byte)0);
-            super.reset();
-        }
     }
 }
