@@ -23,7 +23,6 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import java.security.Provider;
 import java.security.Security;
 
 public class KonaCryptoProviderTest {
@@ -35,6 +34,6 @@ public class KonaCryptoProviderTest {
 
     @Test
     public void testAddProvider() {
-        Assertions.assertNotNull(Security.getProvider(TestUtils.PROVIDER));
+        Assertions.assertNotNull(Security.getProvider(KonaCryptoProvider.NAME));
     }
 }

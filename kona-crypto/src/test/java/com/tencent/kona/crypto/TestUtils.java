@@ -22,11 +22,7 @@ package com.tencent.kona.crypto;
 import com.tencent.kona.crypto.spec.SM2PrivateKeySpec;
 import com.tencent.kona.crypto.spec.SM2PublicKeySpec;
 
-import java.security.KeyFactory;
-import java.security.KeyPair;
-import java.security.PrivateKey;
-import java.security.PublicKey;
-import java.security.Security;
+import java.security.*;
 import java.security.interfaces.ECPrivateKey;
 import java.security.interfaces.ECPublicKey;
 import java.util.ArrayList;
@@ -44,7 +40,7 @@ import static com.tencent.kona.crypto.CryptoUtils.toBytes;
  */
 public class TestUtils {
 
-    public static final String PROVIDER = CryptoInsts.PROV_NAME;
+    public static final Provider PROVIDER = CryptoInsts.PROV;
 
     public static final byte[] EMPTY = new byte[0];
 

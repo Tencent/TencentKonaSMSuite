@@ -38,6 +38,8 @@ public class KonaCryptoProvider extends Provider {
     private static final String INFO = "Kona crypto provider "
             + "(implements SM2, SM3 and SM4 algorithms)";
 
+    private static volatile KonaCryptoProvider instance = null;
+
     public KonaCryptoProvider() {
         super(NAME, VERSION_NUM, INFO);
 
@@ -49,20 +51,20 @@ public class KonaCryptoProvider extends Provider {
                 });
     }
 
-    private static void putEntries(Provider provider) {
+    static void putEntries(Provider provider) {
+        putSMEntries(provider);
+        putSMPBES2Entries(provider);
+        putECEntries(provider);
         SunRsaSignEntries.putEntries(provider);
+    }
 
+    private static void putSMEntries(Provider provider) {
         provider.put("Cipher.SM4 SupportedPaddings", "NOPADDING|PKCS7PADDING");
         provider.put("Cipher.SM4 SupportedModes", "CBC|CTR|ECB|GCM");
-        if (CryptoUtils.useNativeCrypto()) {
-            provider.put("Cipher.SM4",
-                    "com.tencent.kona.crypto.provider.nativeImpl.SM4Cipher");;
-        } else {
-            provider.put("Cipher.SM4",
-                    "com.tencent.kona.crypto.provider.SM4Cipher$General");
-            provider.put("Cipher.SM4/GCM/NoPadding",
-                    "com.tencent.kona.crypto.provider.GaloisCounterMode$SM4");
-        }
+        provider.put("Cipher.SM4",
+                "com.tencent.kona.crypto.provider.SM4Cipher$General");
+        provider.put("Cipher.SM4/GCM/NoPadding",
+                "com.tencent.kona.crypto.provider.GaloisCounterMode$SM4");
         provider.put("AlgorithmParameters.SM4",
                 "com.tencent.kona.crypto.provider.SM4Parameters");
         provider.put("AlgorithmParameterGenerator.SM4",
@@ -71,18 +73,10 @@ public class KonaCryptoProvider extends Provider {
                 "com.tencent.kona.crypto.provider.SM4KeyGenerator");
 
         provider.put("Alg.Alias.MessageDigest.OID.1.2.156.10197.1.401", "SM3");
-
-        if (CryptoUtils.useNativeCrypto()) {
-            provider.put("MessageDigest.SM3",
-                    "com.tencent.kona.crypto.provider.nativeImpl.SM3MessageDigest");
-            provider.put("Mac.HmacSM3",
-                    "com.tencent.kona.crypto.provider.nativeImpl.SM3HMac");
-        } else {
-            provider.put("MessageDigest.SM3",
-                    "com.tencent.kona.crypto.provider.SM3MessageDigest");
-            provider.put("Mac.HmacSM3",
-                    "com.tencent.kona.crypto.provider.SM3HMac");
-        }
+        provider.put("MessageDigest.SM3",
+                "com.tencent.kona.crypto.provider.SM3MessageDigest");
+        provider.put("Mac.HmacSM3",
+                "com.tencent.kona.crypto.provider.SM3HMac");
         provider.put("Alg.Alias.Mac.SM3HMac", "HmacSM3");
         provider.put("KeyGenerator.HmacSM3",
                 "com.tencent.kona.crypto.provider.SM3HMacKeyGenerator");
@@ -90,21 +84,16 @@ public class KonaCryptoProvider extends Provider {
 
         provider.put("Alg.Alias.Cipher.OID.1.2.156.10197.1.301", "SM2");
         provider.put("Alg.Alias.Signature.OID.1.2.156.10197.1.501", "SM2");
-        if (CryptoUtils.useNativeCrypto()) {
-            provider.put("KeyPairGenerator.SM2",
-                    "com.tencent.kona.crypto.provider.nativeImpl.SM2KeyPairGenerator");
-            provider.put("Cipher.SM2", "com.tencent.kona.crypto.provider.nativeImpl.SM2Cipher");
-            provider.put("Signature.SM2", "com.tencent.kona.crypto.provider.nativeImpl.SM2Signature");
-        } else {
-            provider.put("KeyPairGenerator.SM2",
-                    "com.tencent.kona.crypto.provider.SM2KeyPairGenerator");
-            provider.put("Cipher.SM2", "com.tencent.kona.crypto.provider.SM2Cipher");
-            provider.put("Signature.SM2", "com.tencent.kona.crypto.provider.SM2Signature");
-        }
+        provider.put("KeyPairGenerator.SM2",
+                "com.tencent.kona.crypto.provider.SM2KeyPairGenerator");
+        provider.put("Cipher.SM2", "com.tencent.kona.crypto.provider.SM2Cipher");
+        provider.put("Signature.SM2", "com.tencent.kona.crypto.provider.SM2Signature");
         provider.put("KeyFactory.SM2", "com.tencent.kona.crypto.provider.SM2KeyFactory");
         provider.put("Alg.Alias.Signature.SM3withSM2", "SM2");
         provider.put("KeyAgreement.SM2", "com.tencent.kona.crypto.provider.SM2KeyAgreement");
+    }
 
+    static void putSMPBES2Entries(Provider provider) {
         // PBES2 on SM
         provider.put("AlgorithmParameters.PBES2",
                 "com.tencent.kona.crypto.provider.PBES2Parameters$General");
@@ -122,7 +111,9 @@ public class KonaCryptoProvider extends Provider {
                 "com.tencent.kona.crypto.provider.PBES2Core$HmacSM3AndSM4");
         provider.put("Alg.Alias.Cipher.PBEWithHmacSM3AndSM4_128",
                 "PBEWithHmacSM3AndSM4");
+    }
 
+    static void putECEntries(Provider provider) {
         /*
          * Algorithm Parameter engine
          */
@@ -192,5 +183,12 @@ public class KonaCryptoProvider extends Provider {
          */
         provider.put("KeyAgreement.ECDH", "com.tencent.kona.sun.security.ec.ECDHKeyAgreement");
         provider.put("KeyAgreement.ECDH SupportedKeyClasses", ecKeyClasses);
+    }
+
+    public static KonaCryptoProvider instance() {
+        if (instance == null) {
+            instance = new KonaCryptoProvider();
+        }
+        return instance;
     }
 }
