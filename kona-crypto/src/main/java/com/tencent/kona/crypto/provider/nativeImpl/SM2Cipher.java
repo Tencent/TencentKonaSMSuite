@@ -30,7 +30,6 @@ import javax.crypto.CipherSpi;
 import javax.crypto.IllegalBlockSizeException;
 import javax.crypto.NoSuchPaddingException;
 import javax.crypto.ShortBufferException;
-import java.io.ByteArrayOutputStream;
 import java.math.BigInteger;
 import java.security.AlgorithmParameters;
 import java.security.InvalidAlgorithmParameterException;
@@ -54,8 +53,8 @@ public final class SM2Cipher extends CipherSpi {
 
     private static final byte[] B0 = new byte[0];
 
-    private NativeSM2Cipher sm2;
-    private final Buffer buffer = new Buffer();
+    private volatile NativeSM2Cipher sm2;
+    private final ByteArrayWriter buffer = new ByteArrayWriter();
 
     private boolean encrypted = true;
 
@@ -245,13 +244,5 @@ public final class SM2Cipher extends CipherSpi {
     @Override
     public int engineGetKeySize(Key key) {
         return SM2_CURVE_FIELD_SIZE << 3;
-    }
-
-    private static final class Buffer extends ByteArrayOutputStream {
-
-        public void reset() {
-            Arrays.fill(buf, (byte)0);
-            super.reset();
-        }
     }
 }

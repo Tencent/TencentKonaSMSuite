@@ -31,7 +31,7 @@ public final class SM3MessageDigest extends MessageDigest implements Cloneable {
 
     private static final Sweeper SWEEPER = Sweeper.instance();
 
-    private volatile NativeSM3 sm3;
+    private NativeSM3 sm3;
 
     public SM3MessageDigest() {
         super("SM3");

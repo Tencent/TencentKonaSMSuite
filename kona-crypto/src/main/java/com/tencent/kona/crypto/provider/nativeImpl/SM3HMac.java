@@ -34,7 +34,7 @@ public final class SM3HMac extends MacSpi implements Cloneable {
 
     private static final Sweeper SWEEPER = Sweeper.instance();
 
-    private volatile NativeSM3HMac sm3HMac;
+    private NativeSM3HMac sm3HMac;
 
     @Override
     protected int engineGetMacLength() {
@@ -45,8 +45,7 @@ public final class SM3HMac extends MacSpi implements Cloneable {
     protected void engineInit(Key key, AlgorithmParameterSpec params)
             throws InvalidKeyException, InvalidAlgorithmParameterException {
         if (params != null) {
-            throw new InvalidAlgorithmParameterException(
-                    "No need parameters");
+            throw new InvalidAlgorithmParameterException("No need parameters");
         }
 
         if (!(key instanceof SecretKey)) {
