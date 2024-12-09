@@ -25,13 +25,7 @@ import javax.crypto.KeyAgreement;
 import javax.crypto.KeyGenerator;
 import javax.crypto.Mac;
 import javax.crypto.NoSuchPaddingException;
-import java.security.AlgorithmParameters;
-import java.security.KeyFactory;
-import java.security.KeyPairGenerator;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.security.NoSuchProviderException;
-import java.security.Signature;
+import java.security.*;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
@@ -39,8 +33,9 @@ import java.util.Set;
 
 public class CryptoInsts {
 
-    static final String PROV_NAME = CryptoUtils.privilegedGetProperty(
-            "com.tencent.kona.crypto.provider.name", KonaCryptoProvider.NAME);
+    static final Provider PROV = CryptoUtils.useNativeCrypto()
+            ? KonaCryptoNativeProvider.instance()
+            : KonaCryptoProvider.instance();
 
     private static final Set<String> ALGO_PARAMS_ALGOS
             = new HashSet<>(Arrays.asList("EC", "SM4", "PBES2"));
@@ -49,11 +44,7 @@ public class CryptoInsts {
             throws NoSuchAlgorithmException {
         AlgorithmParameters algoParams  = null;
         if (ALGO_PARAMS_ALGOS.contains(algorithm)) {
-            try {
-                algoParams = AlgorithmParameters.getInstance(algorithm, PROV_NAME);
-            } catch (NoSuchProviderException e) {
-                throw new IllegalStateException("No provider: " + PROV_NAME, e);
-            }
+            algoParams = AlgorithmParameters.getInstance(algorithm, PROV);
         } else {
             algoParams = AlgorithmParameters.getInstance(algorithm);
         }
@@ -67,11 +58,7 @@ public class CryptoInsts {
             throws NoSuchAlgorithmException {
         KeyFactory keyFactory  = null;
         if (KEY_FACTORY_ALGOS.contains(algorithm)) {
-            try {
-                keyFactory = KeyFactory.getInstance(algorithm, PROV_NAME);
-            } catch (NoSuchProviderException e) {
-                throw new IllegalStateException("No provider: " + PROV_NAME, e);
-            }
+            keyFactory = KeyFactory.getInstance(algorithm, PROV);
         } else {
             keyFactory = KeyFactory.getInstance(algorithm);
         }
@@ -85,11 +72,7 @@ public class CryptoInsts {
             throws NoSuchAlgorithmException {
         KeyGenerator keyGenerator  = null;
         if (KEY_GEN_ALGOS.contains(algorithm)) {
-            try {
-                keyGenerator = KeyGenerator.getInstance(algorithm, PROV_NAME);
-            } catch (NoSuchProviderException e) {
-                throw new IllegalStateException("No provider: " + PROV_NAME, e);
-            }
+            keyGenerator = KeyGenerator.getInstance(algorithm, PROV);
         } else {
             keyGenerator = KeyGenerator.getInstance(algorithm);
         }
@@ -103,11 +86,7 @@ public class CryptoInsts {
             throws NoSuchAlgorithmException {
         KeyPairGenerator keyPairGenerator  = null;
         if (KEY_PAIR_GEN_ALGOS.contains(algorithm)) {
-            try {
-                keyPairGenerator = KeyPairGenerator.getInstance(algorithm, PROV_NAME);
-            } catch (NoSuchProviderException e) {
-                throw new IllegalStateException("No provider: " + PROV_NAME, e);
-            }
+            keyPairGenerator = KeyPairGenerator.getInstance(algorithm, PROV);
         } else {
             keyPairGenerator = KeyPairGenerator.getInstance(algorithm);
         }
@@ -121,11 +100,7 @@ public class CryptoInsts {
             throws NoSuchPaddingException, NoSuchAlgorithmException {
         Cipher cipher  = null;
         if (CIPHER_ALGOS.contains(algorithm)) {
-            try {
-                cipher = Cipher.getInstance(algorithm, PROV_NAME);
-            } catch (NoSuchProviderException e) {
-                throw new IllegalStateException("No provider: " + PROV_NAME, e);
-            }
+            cipher = Cipher.getInstance(algorithm, PROV);
         } else {
             cipher = Cipher.getInstance(algorithm);
         }
@@ -139,11 +114,7 @@ public class CryptoInsts {
             throws NoSuchAlgorithmException {
         MessageDigest messageDigest  = null;
         if (MESSAGE_DIGEST_ALGOS.contains(algorithm)) {
-            try {
-                messageDigest = MessageDigest.getInstance(algorithm, PROV_NAME);
-            } catch (NoSuchProviderException e) {
-                throw new IllegalStateException("No provider: " + PROV_NAME, e);
-            }
+            messageDigest = MessageDigest.getInstance(algorithm, PROV);
         } else {
             messageDigest = MessageDigest.getInstance(algorithm);
         }
@@ -157,11 +128,7 @@ public class CryptoInsts {
     public static Mac getMac(String algorithm) throws NoSuchAlgorithmException {
         Mac mac  = null;
         if (MAC_ALGOS.contains(algorithm)) {
-            try {
-                mac = Mac.getInstance(algorithm, PROV_NAME);
-            } catch (NoSuchProviderException e) {
-                throw new IllegalStateException("No provider: " + PROV_NAME, e);
-            }
+            mac = Mac.getInstance(algorithm, PROV);
         } else {
              mac = Mac.getInstance(algorithm);
         }
@@ -179,11 +146,7 @@ public class CryptoInsts {
             throws NoSuchAlgorithmException {
         Signature signature  = null;
         if (SIGNATURE_ALGOS.contains(algorithm)) {
-            try {
-                signature = Signature.getInstance(algorithm, PROV_NAME);
-            } catch (NoSuchProviderException e) {
-                throw new IllegalStateException("No provider: " + PROV_NAME, e);
-            }
+            signature = Signature.getInstance(algorithm, PROV);
         } else {
             signature = Signature.getInstance(algorithm);
         }
@@ -197,11 +160,7 @@ public class CryptoInsts {
             throws NoSuchAlgorithmException {
         KeyAgreement keyAgreement  = null;
         if (KEY_AGREEMENT_ALGOS.contains(algorithm)) {
-            try {
-                keyAgreement = KeyAgreement.getInstance(algorithm, PROV_NAME);
-            } catch (NoSuchProviderException e) {
-                throw new IllegalStateException("No provider: " + PROV_NAME, e);
-            }
+            keyAgreement = KeyAgreement.getInstance(algorithm, PROV);
         } else {
             keyAgreement = KeyAgreement.getInstance(algorithm);
         }
