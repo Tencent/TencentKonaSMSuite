@@ -61,7 +61,7 @@ final class NativeSM3HMac extends NativeRef implements Cloneable {
     public void update(byte[] data) {
         Objects.requireNonNull(data);
 
-        if (nativeCrypto().sm3hmacUpdate(pointer, data) != GOOD) {
+        if (nativeCrypto().sm3hmacUpdate(pointer, data) != OPENSSL_SUCCESS) {
             throw new IllegalStateException("SM3Hmac update operation failed");
         }
     }
@@ -86,7 +86,7 @@ final class NativeSM3HMac extends NativeRef implements Cloneable {
     }
 
     public void reset() {
-        if (nativeCrypto().sm3hmacReset(pointer) != GOOD) {
+        if (nativeCrypto().sm3hmacReset(pointer) != OPENSSL_SUCCESS) {
             throw new IllegalStateException("SM3Hmac reset operation failed");
         }
     }

@@ -40,11 +40,11 @@ JNIEXPORT jlong JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeC
   (JNIEnv* env, jobject thisObj, jbyteArray key) {
     int key_len = (*env)->GetArrayLength(env, key);
     if (key_len < SM2_PRI_KEY_LEN) {
-        return KONA_BAD;
+        return OPENSSL_FAILURE;
     }
     jbyte* key_bytes = (*env)->GetByteArrayElements(env, key, NULL);
     if (key_bytes == NULL) {
-        return KONA_BAD;
+        return OPENSSL_FAILURE;
     }
 
     EVP_PKEY* pkey = NULL;
@@ -53,14 +53,14 @@ JNIEXPORT jlong JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeC
         if (!pub_key_buf) {
             (*env)->ReleaseByteArrayElements(env, key, key_bytes, JNI_ABORT);
 
-            return KONA_BAD;
+            return OPENSSL_FAILURE;
         }
 
         if (!sm2_gen_pub_key((const uint8_t*)key_bytes, pub_key_buf)) {
             OPENSSL_free(pub_key_buf);
             (*env)->ReleaseByteArrayElements(env, key, key_bytes, JNI_ABORT);
 
-            return KONA_BAD;
+            return OPENSSL_FAILURE;
         }
 
         pkey = load_key_pair((const uint8_t*)key_bytes, pub_key_buf);
@@ -72,7 +72,7 @@ JNIEXPORT jlong JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeC
         uint8_t* pri_key_buf = OPENSSL_malloc(SM2_PRI_KEY_LEN);
         if (!pri_key_buf) {
             (*env)->ReleaseByteArrayElements(env, key, key_bytes, JNI_ABORT);
-            return KONA_BAD;
+            return OPENSSL_FAILURE;
         }
         memcpy(pri_key_buf, (const uint8_t*)key_bytes, SM2_PRI_KEY_LEN);
 
@@ -80,7 +80,7 @@ JNIEXPORT jlong JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeC
         if (!pub_key_buf) {
             OPENSSL_free(pri_key_buf);
             (*env)->ReleaseByteArrayElements(env, key, key_bytes, JNI_ABORT);
-            return KONA_BAD;
+            return OPENSSL_FAILURE;
         }
         memcpy(pub_key_buf, (const uint8_t*)key_bytes + SM2_PRI_KEY_LEN, SM2_PUB_KEY_LEN);
 
@@ -92,20 +92,20 @@ JNIEXPORT jlong JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeC
     (*env)->ReleaseByteArrayElements(env, key, key_bytes, JNI_ABORT);
 
     if (pkey == NULL) {
-        return KONA_BAD;
+        return OPENSSL_FAILURE;
     }
 
     EVP_PKEY_CTX* pctx = sm2_create_pkey_ctx(pkey);
     if (pctx == NULL) {
         EVP_PKEY_free(pkey);
-        return KONA_BAD;
+        return OPENSSL_FAILURE;
     }
 
     SM2_CIPHER_CTX* ctx = (SM2_CIPHER_CTX*)OPENSSL_malloc(sizeof(SM2_CIPHER_CTX));
     if (ctx == NULL) {
         EVP_PKEY_free(pkey);
         EVP_PKEY_CTX_free(pctx);
-        return KONA_BAD;
+        return OPENSSL_FAILURE;
     }
     ctx->pkey = pkey;
     ctx->pctx = pctx;

@@ -29,8 +29,6 @@
 
 #define OPENSSL_SUCCESS       1
 #define OPENSSL_FAILURE       0
-#define KONA_GOOD             0
-#define KONA_BAD             -1
 
 #define KONA_print(...) fprintf(stdout, __VA_ARGS__), fprintf(stdout, "\n")
 #define KONA_print_err(...) fprintf(stderr, __VA_ARGS__), fprintf(stderr, "\n")

@@ -23,7 +23,7 @@ package com.tencent.kona.crypto.provider.nativeImpl;
 import javax.crypto.AEADBadTagException;
 import java.util.Objects;
 
-import static com.tencent.kona.crypto.provider.nativeImpl.NativeCrypto.GOOD;
+import static com.tencent.kona.crypto.provider.nativeImpl.NativeCrypto.OPENSSL_SUCCESS;
 import static com.tencent.kona.crypto.provider.nativeImpl.NativeCrypto.nativeCrypto;
 import static com.tencent.kona.crypto.util.Constants.*;
 
@@ -176,7 +176,7 @@ abstract class NativeSM4 extends NativeRef {
 
         byte[] getTag() {
             byte[] tag = new byte[SM4_GCM_TAG_LEN];
-            if (nativeCrypto().sm4GCMProcTag(pointer, tag) != GOOD) {
+            if (nativeCrypto().sm4GCMProcTag(pointer, tag) != OPENSSL_SUCCESS) {
                 throw new IllegalStateException("SM4GCM getTag operation failed");
             }
             return tag;
@@ -187,7 +187,7 @@ abstract class NativeSM4 extends NativeRef {
                 throw new IllegalArgumentException("Tag must be 16-bytes");
             }
 
-            if (nativeCrypto().sm4GCMProcTag(pointer, tag) != GOOD) {
+            if (nativeCrypto().sm4GCMProcTag(pointer, tag) != OPENSSL_SUCCESS) {
                 throw new IllegalStateException("SM4GCM setTag operation failed");
             }
         }
