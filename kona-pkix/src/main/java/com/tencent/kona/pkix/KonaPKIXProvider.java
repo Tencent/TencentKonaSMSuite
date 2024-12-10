@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022, 2023, THL A29 Limited, a Tencent company. All rights reserved.
+ * Copyright (C) 2022, 2024, THL A29 Limited, a Tencent company. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify
@@ -38,6 +38,8 @@ public class KonaPKIXProvider extends Provider {
 
     private static final double VERSION_NUM = 1.0D;
 
+    private static volatile KonaPKIXProvider instance = null;
+
     public KonaPKIXProvider() {
         super(NAME, VERSION_NUM, INFO);
 
@@ -64,5 +66,12 @@ public class KonaPKIXProvider extends Provider {
                 "com.tencent.kona.sun.security.provider.certpath.SunCertPathBuilder");
         provider.put("CertStore.Collection",
                 "com.tencent.kona.sun.security.provider.certpath.CollectionCertStore");
+    }
+
+    public static KonaPKIXProvider instance() {
+        if (instance == null) {
+            instance = new KonaPKIXProvider();
+        }
+        return instance;
     }
 }

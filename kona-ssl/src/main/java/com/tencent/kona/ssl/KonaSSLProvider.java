@@ -38,6 +38,8 @@ public class KonaSSLProvider extends Provider {
 
     private static final double VERSION_NUM = 1.0D;
 
+    private static volatile KonaSSLProvider instance = null;
+
     public KonaSSLProvider() {
         super(NAME, VERSION_NUM, INFO);
 
@@ -100,5 +102,13 @@ public class KonaSSLProvider extends Provider {
         provider.put("KeyGenerator.SunTlsRsaPremasterSecret",
                 "com.tencent.kona.sun.security.provider.TlsRsaPremasterSecretGenerator");
         provider.put("Alg.Alias.KeyGenerator.SunTls12RsaPremasterSecret", "SunTlsRsaPremasterSecret");
+    }
+
+    public static KonaSSLProvider instance() {
+        if (instance == null) {
+            instance = new KonaSSLProvider();
+        }
+
+        return instance;
     }
 }
