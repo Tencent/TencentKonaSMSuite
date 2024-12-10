@@ -82,39 +82,49 @@ public class CryptoInsts {
     private static final Set<String> KEY_PAIR_GEN_ALGOS
             = new HashSet<>(Arrays.asList("SM2"));
 
-    public static KeyPairGenerator getKeyPairGenerator(String algorithm)
+    public static KeyPairGenerator getKeyPairGenerator(String algorithm, Provider prov)
             throws NoSuchAlgorithmException {
         KeyPairGenerator keyPairGenerator  = null;
         if (KEY_PAIR_GEN_ALGOS.contains(algorithm)) {
-            keyPairGenerator = KeyPairGenerator.getInstance(algorithm, PROV);
+            keyPairGenerator = KeyPairGenerator.getInstance(algorithm, prov);
         } else {
             keyPairGenerator = KeyPairGenerator.getInstance(algorithm);
         }
         return keyPairGenerator;
     }
 
+    public static KeyPairGenerator getKeyPairGenerator(String algorithm)
+            throws NoSuchAlgorithmException {
+        return getKeyPairGenerator(algorithm, PROV);
+    }
+
     private static final Set<String> CIPHER_ALGOS
             = new HashSet<>(Arrays.asList("SM2", "SM4"));
 
-    public static Cipher getCipher(String algorithm)
+    public static Cipher getCipher(String algorithm, Provider prov)
             throws NoSuchPaddingException, NoSuchAlgorithmException {
         Cipher cipher  = null;
         if (CIPHER_ALGOS.contains(algorithm)) {
-            cipher = Cipher.getInstance(algorithm, PROV);
+            cipher = Cipher.getInstance(algorithm, prov);
         } else {
             cipher = Cipher.getInstance(algorithm);
         }
         return cipher;
     }
 
+    public static Cipher getCipher(String algorithm)
+            throws NoSuchPaddingException, NoSuchAlgorithmException {
+        return getCipher(algorithm, PROV);
+    }
+
     private static final Set<String> MESSAGE_DIGEST_ALGOS
             = new HashSet<>(Collections.singletonList("SM3"));
 
-    public static MessageDigest getMessageDigest(String algorithm)
+    public static MessageDigest getMessageDigest(String algorithm, Provider prov)
             throws NoSuchAlgorithmException {
         MessageDigest messageDigest  = null;
         if (MESSAGE_DIGEST_ALGOS.contains(algorithm)) {
-            messageDigest = MessageDigest.getInstance(algorithm, PROV);
+            messageDigest = MessageDigest.getInstance(algorithm, prov);
         } else {
             messageDigest = MessageDigest.getInstance(algorithm);
         }
@@ -122,17 +132,31 @@ public class CryptoInsts {
         return messageDigest;
     }
 
+    public static MessageDigest getMessageDigest(String algorithm)
+            throws NoSuchAlgorithmException {
+        return getMessageDigest(algorithm,
+                // use pure Java-based SM3 for TLCP/TLS protocol
+                KonaCryptoProvider.instance());
+    }
+
     private static final Set<String> MAC_ALGOS
             = new HashSet<>(Arrays.asList("HmacSM3", "SM3HMac"));
 
-    public static Mac getMac(String algorithm) throws NoSuchAlgorithmException {
+    public static Mac getMac(String algorithm, Provider prov)
+            throws NoSuchAlgorithmException {
         Mac mac  = null;
         if (MAC_ALGOS.contains(algorithm)) {
-            mac = Mac.getInstance(algorithm, PROV);
+            mac = Mac.getInstance(algorithm, prov);
         } else {
-             mac = Mac.getInstance(algorithm);
+            mac = Mac.getInstance(algorithm);
         }
         return mac;
+    }
+
+    public static Mac getMac(String algorithm) throws NoSuchAlgorithmException {
+        return getMac(algorithm,
+                // use pure Java-based SM3HMac for TLCP/TLS protocol
+                KonaCryptoProvider.instance());
     }
 
     private static final Set<String> SIGNATURE_ALGOS
@@ -142,28 +166,38 @@ public class CryptoInsts {
                     "SHA224withECDSA", "SHA256withECDSA",
                     "SHA384withECDSA", "SHA512withECDSA"));
 
-    public static Signature getSignature(String algorithm)
+    public static Signature getSignature(String algorithm, Provider prov)
             throws NoSuchAlgorithmException {
         Signature signature  = null;
         if (SIGNATURE_ALGOS.contains(algorithm)) {
-            signature = Signature.getInstance(algorithm, PROV);
+            signature = Signature.getInstance(algorithm, prov);
         } else {
             signature = Signature.getInstance(algorithm);
         }
         return signature;
     }
 
+    public static Signature getSignature(String algorithm)
+            throws NoSuchAlgorithmException {
+        return getSignature(algorithm, PROV);
+    }
+
     private static final Set<String> KEY_AGREEMENT_ALGOS
             = new HashSet<>(Arrays.asList("SM2", "ECDH"));
 
-    public static KeyAgreement getKeyAgreement(String algorithm)
+    public static KeyAgreement getKeyAgreement(String algorithm, Provider prov)
             throws NoSuchAlgorithmException {
         KeyAgreement keyAgreement  = null;
         if (KEY_AGREEMENT_ALGOS.contains(algorithm)) {
-            keyAgreement = KeyAgreement.getInstance(algorithm, PROV);
+            keyAgreement = KeyAgreement.getInstance(algorithm, prov);
         } else {
             keyAgreement = KeyAgreement.getInstance(algorithm);
         }
         return keyAgreement;
+    }
+
+    public static KeyAgreement getKeyAgreement(String algorithm)
+            throws NoSuchAlgorithmException {
+        return getKeyAgreement(algorithm, PROV);
     }
 }
