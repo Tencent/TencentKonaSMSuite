@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022, 2023, THL A29 Limited, a Tencent company. All rights reserved.
+ * Copyright (C) 2022, 2024, THL A29 Limited, a Tencent company. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify
@@ -39,6 +39,8 @@ public class KonaProvider extends Provider {
     public static final String NAME = "Kona";
 
     private static final double VERSION_NUM = 1.0D;
+
+    private static volatile KonaProvider instance = null;
 
     static {
         privilegedSetProperty("com.tencent.kona.crypto.provider.name", NAME);
@@ -87,5 +89,13 @@ public class KonaProvider extends Provider {
     private static String privilegedSetProperty(String key, String value) {
         return AccessController.doPrivileged(
                 (PrivilegedAction<String>) () -> System.setProperty(key, value));
+    }
+
+    public static KonaProvider instance() {
+        if (instance == null) {
+            instance = new KonaProvider();
+        }
+
+        return instance;
     }
 }
