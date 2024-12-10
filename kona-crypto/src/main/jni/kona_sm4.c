@@ -30,7 +30,7 @@
 JNIEXPORT jlong JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeCrypto_sm4CreateCtx
   (JNIEnv* env, jobject thisObj, jboolean encrypt, jstring mode, jboolean padding, jbyteArray key, jbyteArray iv) {
     if (key == NULL) {
-        return KONA_BAD;
+        return OPENSSL_FAILURE;
     }
 
     const char* mode_str = (*env)->GetStringUTFChars(env, mode, 0);
@@ -46,27 +46,27 @@ JNIEXPORT jlong JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeC
         sm4_mode = "SM4-GCM";
     } else {
         (*env)->ReleaseStringUTFChars(env, mode, mode_str);
-        return KONA_BAD;
+        return OPENSSL_FAILURE;
     }
 
     const EVP_CIPHER* cipher = EVP_CIPHER_fetch(NULL, sm4_mode, NULL);
     if (cipher == NULL) {
         OPENSSL_print_err();
         (*env)->ReleaseStringUTFChars(env, mode, mode_str);
-        return KONA_BAD;
+        return OPENSSL_FAILURE;
     }
 
     EVP_CIPHER_CTX* ctx = EVP_CIPHER_CTX_new();
     if (ctx == NULL) {
         OPENSSL_print_err();
         (*env)->ReleaseStringUTFChars(env, mode, mode_str);
-        return KONA_BAD;
+        return OPENSSL_FAILURE;
     }
 
     jbyte* key_bytes = (*env)->GetByteArrayElements(env, key, NULL);
     jbyte* iv_bytes = iv ? (*env)->GetByteArrayElements(env, iv, NULL) : NULL;
 
-    jlong result = KONA_BAD;
+    jlong result = OPENSSL_FAILURE;
     if (EVP_CipherInit_ex(ctx, cipher, NULL, (uint8_t*)key_bytes, (uint8_t*)iv_bytes, encrypt)) {
         if (!padding && !EVP_CIPHER_CTX_set_padding(ctx, 0)) {
             OPENSSL_print_err();
@@ -83,7 +83,7 @@ JNIEXPORT jlong JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeC
         (*env)->ReleaseByteArrayElements(env, iv, iv_bytes, JNI_ABORT);
     }
 
-    if (result == KONA_BAD && ctx != NULL) {
+    if (result == OPENSSL_FAILURE && ctx != NULL) {
         EVP_CIPHER_CTX_free(ctx);
     }
 
@@ -168,23 +168,23 @@ JNIEXPORT jint JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeCr
   (JNIEnv* env, jobject thisObj, jlong pointer, jbyteArray aad) {
     EVP_CIPHER_CTX* ctx = (EVP_CIPHER_CTX*)pointer;
     if (ctx == NULL || aad == NULL) {
-        return KONA_BAD;
+        return OPENSSL_FAILURE;
     }
 
     int aad_len = (*env)->GetArrayLength(env, aad);
     if (aad_len <= 0) {
-        return KONA_BAD;
+        return OPENSSL_FAILURE;
     }
 
     jbyte* aad_bytes = (*env)->GetByteArrayElements(env, aad, NULL);
     if (aad_bytes == NULL) {
-        return KONA_BAD;
+        return OPENSSL_FAILURE;
     }
 
     int out_len = 0;
-    int result = KONA_BAD;
+    int result = OPENSSL_FAILURE;
     if (EVP_CipherUpdate(ctx, NULL, &out_len, (uint8_t*)aad_bytes, aad_len)) {
-        result = KONA_GOOD;
+        result = OPENSSL_SUCCESS;
     } else {
         OPENSSL_print_err();
     }
@@ -198,20 +198,20 @@ JNIEXPORT jint JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeCr
   (JNIEnv* env, jobject thisObj, jlong pointer, jbyteArray tag) {
     EVP_CIPHER_CTX* ctx = (EVP_CIPHER_CTX*)pointer;
     if (ctx == NULL || tag == NULL) {
-        return KONA_BAD;
+        return OPENSSL_FAILURE;
     }
 
     int tag_len = (*env)->GetArrayLength(env, tag);
     if (tag_len != SM4_GCM_TAG_LEN) {
-        return KONA_BAD;
+        return OPENSSL_FAILURE;
     }
 
-    int result = KONA_BAD;
+    int result = OPENSSL_FAILURE;
     if (EVP_CIPHER_CTX_encrypting(ctx)) {
         uint8_t tag_buf[SM4_GCM_TAG_LEN];
         if (EVP_CIPHER_CTX_ctrl(ctx, EVP_CTRL_GCM_GET_TAG, SM4_GCM_TAG_LEN, tag_buf)) {
             (*env)->SetByteArrayRegion(env, tag, 0, SM4_GCM_TAG_LEN, (jbyte*)tag_buf);
-            result = KONA_GOOD;
+            result = OPENSSL_SUCCESS;
         } else {
             OPENSSL_print_err();
         }
@@ -219,7 +219,7 @@ JNIEXPORT jint JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeCr
         jbyte* tag_bytes = (*env)->GetByteArrayElements(env, tag, NULL);
         if (tag_bytes != NULL) {
             if (EVP_CIPHER_CTX_ctrl(ctx, EVP_CTRL_GCM_SET_TAG, SM4_GCM_TAG_LEN, tag_bytes)) {
-                result = KONA_GOOD;
+                result = OPENSSL_SUCCESS;
             } else {
                 OPENSSL_print_err();
             }

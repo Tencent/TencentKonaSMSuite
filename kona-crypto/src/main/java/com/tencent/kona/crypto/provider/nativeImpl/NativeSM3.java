@@ -40,7 +40,7 @@ final class NativeSM3 extends NativeRef implements Cloneable {
     public void update(byte[] data) {
         Objects.requireNonNull(data);
 
-        if (nativeCrypto().sm3Update(pointer, data) != GOOD) {
+        if (nativeCrypto().sm3Update(pointer, data) != OPENSSL_SUCCESS) {
             throw new IllegalStateException("sm3 update operation failed");
         }
     }
@@ -65,7 +65,7 @@ final class NativeSM3 extends NativeRef implements Cloneable {
     }
 
     public void reset() {
-        if (nativeCrypto().sm3Reset(pointer) != GOOD) {
+        if (nativeCrypto().sm3Reset(pointer) != OPENSSL_SUCCESS) {
             throw new IllegalStateException("sm3 reset operation failed");
         }
     }

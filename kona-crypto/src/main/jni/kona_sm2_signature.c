@@ -98,22 +98,22 @@ JNIEXPORT jlong JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeC
   (JNIEnv* env, jobject thisObj, jbyteArray key, jbyteArray id, jboolean isSign) {
     int key_len = (*env)->GetArrayLength(env, key);
     if (key_len < SM2_PRI_KEY_LEN) {
-        return KONA_BAD;
+        return OPENSSL_FAILURE;
     }
     jbyte* key_bytes = (*env)->GetByteArrayElements(env, key, NULL);
     if (key_bytes == NULL) {
-        return KONA_BAD;
+        return OPENSSL_FAILURE;
     }
 
     int id_len = (*env)->GetArrayLength(env, id);
     if (id_len <= 0) {
         (*env)->ReleaseByteArrayElements(env, key, key_bytes, JNI_ABORT);
-        return KONA_BAD;
+        return OPENSSL_FAILURE;
     }
     jbyte* id_bytes = (*env)->GetByteArrayElements(env, id, NULL);
     if (id_bytes == NULL) {
         (*env)->ReleaseByteArrayElements(env, key, key_bytes, JNI_ABORT);
-        return KONA_BAD;
+        return OPENSSL_FAILURE;
     }
 
     EVP_PKEY* pkey = NULL;
@@ -123,7 +123,7 @@ JNIEXPORT jlong JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeC
             (*env)->ReleaseByteArrayElements(env, key, key_bytes, JNI_ABORT);
             (*env)->ReleaseByteArrayElements(env, id, id_bytes, JNI_ABORT);
 
-            return KONA_BAD;
+            return OPENSSL_FAILURE;
         }
 
         if (!sm2_gen_pub_key((const uint8_t*)key_bytes, pub_key_buf)) {
@@ -131,7 +131,7 @@ JNIEXPORT jlong JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeC
             (*env)->ReleaseByteArrayElements(env, key, key_bytes, JNI_ABORT);
             (*env)->ReleaseByteArrayElements(env, id, id_bytes, JNI_ABORT);
 
-            return KONA_BAD;
+            return OPENSSL_FAILURE;
         }
 
         pkey = load_key_pair((const uint8_t*)key_bytes, pub_key_buf);
@@ -147,7 +147,7 @@ JNIEXPORT jlong JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeC
             OPENSSL_free(pub_key_buf);
             (*env)->ReleaseByteArrayElements(env, key, key_bytes, JNI_ABORT);
             (*env)->ReleaseByteArrayElements(env, id, id_bytes, JNI_ABORT);
-            return KONA_BAD;
+            return OPENSSL_FAILURE;
         }
 
         memcpy(pri_key_buf, (const uint8_t*)key_bytes, SM2_PRI_KEY_LEN);
@@ -162,7 +162,7 @@ JNIEXPORT jlong JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeC
     if (pkey == NULL) {
         (*env)->ReleaseByteArrayElements(env, key, key_bytes, JNI_ABORT);
         (*env)->ReleaseByteArrayElements(env, id, id_bytes, JNI_ABORT);
-        return KONA_BAD;
+        return OPENSSL_FAILURE;
     }
 
     SM2_SIGNATURE_CTX* ctx = sm2_create_md_ctx(pkey, (const uint8_t*)id_bytes, id_len, isSign);
@@ -274,24 +274,24 @@ JNIEXPORT jint JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeCr
   (JNIEnv* env, jobject thisObj, jlong pointer, jbyteArray message, jbyteArray signature) {
     SM2_SIGNATURE_CTX* ctx = (SM2_SIGNATURE_CTX*)pointer;
     if (ctx == NULL) {
-        return KONA_BAD;
+        return OPENSSL_FAILURE;
     }
 
     jsize msg_len = (*env)->GetArrayLength(env, message);
     jbyte* msg_bytes = (*env)->GetByteArrayElements(env, message, NULL);
     if (msg_bytes == NULL) {
-        return KONA_BAD;
+        return OPENSSL_FAILURE;
     }
 
     jsize sig_len = (*env)->GetArrayLength(env, signature);
     jbyte* sig_bytes = (*env)->GetByteArrayElements(env, signature, NULL);
     if (sig_bytes == NULL) {
         (*env)->ReleaseByteArrayElements(env, message, msg_bytes, JNI_ABORT);
-        return KONA_BAD;
+        return OPENSSL_FAILURE;
     }
 
     int verified = sm2_verify(ctx->mctx, (uint8_t*)msg_bytes, msg_len, (uint8_t*)sig_bytes, sig_len)
-            ? KONA_GOOD : KONA_BAD;
+            ? OPENSSL_SUCCESS : OPENSSL_FAILURE;
 
     (*env)->ReleaseByteArrayElements(env, message, msg_bytes, JNI_ABORT);
     (*env)->ReleaseByteArrayElements(env, signature, sig_bytes, JNI_ABORT);

@@ -22,7 +22,7 @@ package com.tencent.kona.crypto.provider.nativeImpl;
 
 import javax.crypto.BadPaddingException;
 
-import static com.tencent.kona.crypto.provider.nativeImpl.NativeCrypto.GOOD;
+import static com.tencent.kona.crypto.provider.nativeImpl.NativeCrypto.OPENSSL_SUCCESS;
 import static com.tencent.kona.crypto.provider.nativeImpl.NativeCrypto.nativeCrypto;
 import static com.tencent.kona.crypto.util.Constants.*;
 
@@ -98,7 +98,7 @@ final class NativeSM2Signature extends NativeRef {
         }
 
         int verified = nativeCrypto().sm2SignatureVerify(pointer, message, signature);
-        return verified == GOOD;
+        return verified == OPENSSL_SUCCESS;
     }
 
     @Override

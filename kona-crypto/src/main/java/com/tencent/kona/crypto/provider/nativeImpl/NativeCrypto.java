@@ -161,8 +161,8 @@ final class NativeCrypto {
         }
     }
 
-    static final int GOOD = 0;
-    static final int BAD = -1;
+    static final int OPENSSL_SUCCESS = 1;
+    static final int OPENSSL_FAILURE = 0;
 
     /* ***** SM3 ***** */
     native long   sm3CreateCtx();

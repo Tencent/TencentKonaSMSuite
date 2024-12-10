@@ -76,7 +76,7 @@ int sm3_reset(EVP_MD_CTX* ctx) {
 JNIEXPORT jlong JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeCrypto_sm3CreateCtx
   (JNIEnv* env, jobject thisObj) {
     EVP_MD_CTX* ctx = sm3_create_ctx();
-    return ctx == NULL ? KONA_BAD : (jlong)ctx;
+    return ctx == NULL ? OPENSSL_FAILURE : (jlong)ctx;
 }
 
 JNIEXPORT void JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeCrypto_sm3FreeCtx
@@ -91,29 +91,29 @@ JNIEXPORT jint JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeCr
   (JNIEnv* env, jobject thisObj, jlong pointer, jbyteArray data) {
     EVP_MD_CTX* ctx = (EVP_MD_CTX*)pointer;
     if (ctx == NULL) {
-        return KONA_BAD;
+        return OPENSSL_FAILURE;
     }
 
     if (data == NULL) {
-        return KONA_BAD;
+        return OPENSSL_FAILURE;
     }
 
     jsize data_len = (*env)->GetArrayLength(env, data);
     if (data_len < 0) {
-        return KONA_BAD;
+        return OPENSSL_FAILURE;
     }
 
     jbyte* data_bytes = (*env)->GetByteArrayElements(env, data, NULL);
     if (data_bytes == NULL) {
-        return KONA_BAD;
+        return OPENSSL_FAILURE;
     }
 
     int result;
     if (EVP_DigestUpdate(ctx, data_bytes, data_len)) {
-        result = KONA_GOOD;
+        result = OPENSSL_SUCCESS;
     } else {
         OPENSSL_print_err();
-        result = KONA_BAD;
+        result = OPENSSL_FAILURE;
     }
 
     (*env)->ReleaseByteArrayElements(env, data, data_bytes, JNI_ABORT);
@@ -158,28 +158,28 @@ JNIEXPORT jint JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeCr
   (JNIEnv* env, jobject thisObj, jlong pointer) {
     EVP_MD_CTX* ctx = (EVP_MD_CTX*)pointer;
     if (ctx == NULL) {
-        return KONA_BAD;
+        return OPENSSL_FAILURE;
     }
 
-    return sm3_reset(ctx) ? KONA_GOOD : KONA_BAD;
+    return sm3_reset(ctx) ? OPENSSL_SUCCESS : OPENSSL_FAILURE;
 }
 
 JNIEXPORT jlong JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeCrypto_sm3Clone
   (JNIEnv* env, jobject thisObj, jlong pointer) {
     EVP_MD_CTX* orig_ctx = (EVP_MD_CTX*)pointer;
     if (orig_ctx == NULL) {
-        return KONA_BAD;
+        return OPENSSL_FAILURE;
     }
 
     EVP_MD_CTX* new_ctx = EVP_MD_CTX_new();
     if (new_ctx == NULL) {
-        return KONA_BAD;
+        return OPENSSL_FAILURE;
     }
 
     if (!EVP_MD_CTX_copy_ex(new_ctx, orig_ctx)) {
         OPENSSL_print_err();
         EVP_MD_CTX_free(new_ctx);
-        return KONA_BAD;
+        return OPENSSL_FAILURE;
     }
 
     return (jlong)new_ctx;
@@ -228,7 +228,7 @@ JNIEXPORT jlong JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeC
     EVP_MAC* mac = EVP_MAC_fetch(NULL, "HMAC", NULL);
     if (mac == NULL) {
         OPENSSL_print_err();
-        return KONA_BAD;
+        return OPENSSL_FAILURE;
     }
 
     return (jlong)mac;
@@ -246,20 +246,20 @@ JNIEXPORT jlong JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeC
   (JNIEnv* env, jobject thisObj, jlong macPointer, jbyteArray key) {
     EVP_MAC* mac = (EVP_MAC*)macPointer;
     if (mac == NULL) {
-        return KONA_BAD;
+        return OPENSSL_FAILURE;
     }
 
     if (key == NULL) {
-        return KONA_BAD;
+        return OPENSSL_FAILURE;
     }
 
     const int key_len = (*env)->GetArrayLength(env, key);
     if (key_len <= 0) {
-        return KONA_BAD;
+        return OPENSSL_FAILURE;
     }
     jbyte* key_bytes = (*env)->GetByteArrayElements(env, key, NULL);
     if (key_bytes == NULL) {
-        return KONA_BAD;
+        return OPENSSL_FAILURE;
     }
 
     EVP_MAC_CTX* ctx = sm3hmac_create_ctx(mac, (const uint8_t*)key_bytes, key_len);
@@ -281,23 +281,23 @@ JNIEXPORT jint JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeCr
   (JNIEnv* env, jobject thisObj, jlong pointer, jbyteArray data) {
     EVP_MAC_CTX* ctx = (EVP_MAC_CTX*)pointer;
     if (ctx == NULL) {
-        return KONA_BAD;
+        return OPENSSL_FAILURE;
     }
 
     if (data == NULL) {
-        return KONA_BAD;
+        return OPENSSL_FAILURE;
     }
 
     const int data_len = (*env)->GetArrayLength(env, data);
     jbyte* data_bytes = (*env)->GetByteArrayElements(env, data, NULL);
     if (data_bytes == NULL) {
-        return KONA_BAD;
+        return OPENSSL_FAILURE;
     }
 
-    int result = KONA_GOOD;
+    int result = OPENSSL_SUCCESS;
     if (!EVP_MAC_update(ctx, (const uint8_t*)data_bytes, data_len)) {
         OPENSSL_print_err();
-        result = KONA_BAD;
+        result = OPENSSL_FAILURE;
     }
 
     (*env)->ReleaseByteArrayElements(env, data, data_bytes, JNI_ABORT);
@@ -343,23 +343,23 @@ JNIEXPORT jint JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeCr
   (JNIEnv* env, jobject thisObj, jlong pointer) {
     EVP_MAC_CTX* ctx = (EVP_MAC_CTX*)pointer;
     if (ctx == NULL) {
-        return KONA_BAD;
+        return OPENSSL_FAILURE;
     }
 
-    return sm3hmac_reset(ctx) ? KONA_GOOD : KONA_BAD;
+    return sm3hmac_reset(ctx) ? OPENSSL_SUCCESS : OPENSSL_FAILURE;
 }
 
 JNIEXPORT jlong JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeCrypto_sm3hmacClone
   (JNIEnv* env, jobject thisObj, jlong pointer) {
     EVP_MAC_CTX* orig_ctx = (EVP_MAC_CTX*)pointer;
     if (orig_ctx == NULL) {
-        return KONA_BAD;
+        return OPENSSL_FAILURE;
     }
 
     EVP_MAC_CTX* new_ctx = EVP_MAC_CTX_dup(orig_ctx);
     if (new_ctx == NULL) {
         OPENSSL_print_err();
-        return KONA_BAD;
+        return OPENSSL_FAILURE;
     }
 
     return (jlong)new_ctx;
