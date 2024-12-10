@@ -26,6 +26,7 @@
 
 #include "kona/kona_jni.h"
 #include "kona/kona_common.h"
+#include "kona/kona_sm3.h"
 
 EVP_MD_CTX* sm3_create_ctx() {
     EVP_MD_CTX* ctx = EVP_MD_CTX_new();
@@ -184,6 +185,35 @@ JNIEXPORT jlong JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeC
     return (jlong)new_ctx;
 }
 
+EVP_MAC_CTX* sm3hmac_create_ctx(EVP_MAC* mac, const uint8_t* key, size_t key_len) {
+    if (mac == NULL) {
+        return OPENSSL_FAILURE;
+    }
+
+    if (key == NULL || key_len == 0) {
+        return OPENSSL_FAILURE;
+    }
+
+    EVP_MAC_CTX* ctx = EVP_MAC_CTX_new(mac);
+    if (ctx == NULL) {
+        OPENSSL_print_err();
+        return OPENSSL_FAILURE;
+    }
+
+    OSSL_PARAM params[] = {
+            OSSL_PARAM_construct_utf8_string("digest", "SM3", 0),
+            OSSL_PARAM_construct_end()
+    };
+
+    if (!EVP_MAC_init(ctx, key, key_len, params)) {
+        OPENSSL_print_err();
+        EVP_MAC_CTX_free(ctx);
+        return OPENSSL_FAILURE;
+    }
+
+    return ctx;
+}
+
 int sm3hmac_reset(EVP_MAC_CTX* ctx) {
     if (!EVP_MAC_init(ctx, NULL, 0, NULL)) {
         OPENSSL_print_err();
@@ -223,30 +253,20 @@ JNIEXPORT jlong JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeC
         return KONA_BAD;
     }
 
-    EVP_MAC_CTX* ctx = EVP_MAC_CTX_new(mac);
-    if (ctx == NULL) {
-        OPENSSL_print_err();
+    const int key_len = (*env)->GetArrayLength(env, key);
+    if (key_len <= 0) {
+        return KONA_BAD;
+    }
+    jbyte* key_bytes = (*env)->GetByteArrayElements(env, key, NULL);
+    if (key_bytes == NULL) {
         return KONA_BAD;
     }
 
-    OSSL_PARAM params[] = {
-        OSSL_PARAM_construct_utf8_string("digest", "SM3", 0),
-        OSSL_PARAM_construct_end()
-    };
-
-    const int key_len = (*env)->GetArrayLength(env, key);
-    jbyte* key_bytes = (*env)->GetByteArrayElements(env, key, NULL);
-    long result;
-    if (EVP_MAC_init(ctx, (uint8_t*)key_bytes, key_len, params)) {
-        result = (long)ctx;
-    } else {
-        OPENSSL_print_err();
-        result = KONA_BAD;
-    }
+    EVP_MAC_CTX* ctx = sm3hmac_create_ctx(mac, (const uint8_t*)key_bytes, key_len);
 
     (*env)->ReleaseByteArrayElements(env, key, key_bytes, JNI_ABORT);
 
-    return (jlong)result;
+    return (jlong)ctx;
 }
 
 JNIEXPORT void JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeCrypto_sm3hmacFreeCtx
@@ -259,12 +279,12 @@ JNIEXPORT void JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeCr
 
 JNIEXPORT jint JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeCrypto_sm3hmacUpdate
   (JNIEnv* env, jobject thisObj, jlong pointer, jbyteArray data) {
-    if (data == NULL) {
+    EVP_MAC_CTX* ctx = (EVP_MAC_CTX*)pointer;
+    if (ctx == NULL) {
         return KONA_BAD;
     }
 
-    EVP_MAC_CTX* ctx = (EVP_MAC_CTX*)pointer;
-    if (ctx == NULL) {
+    if (data == NULL) {
         return KONA_BAD;
     }
 
@@ -275,7 +295,7 @@ JNIEXPORT jint JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeCr
     }
 
     int result = KONA_GOOD;
-    if (!EVP_MAC_update(ctx, (uint8_t*)data_bytes, data_len)) {
+    if (!EVP_MAC_update(ctx, (const uint8_t*)data_bytes, data_len)) {
         OPENSSL_print_err();
         result = KONA_BAD;
     }

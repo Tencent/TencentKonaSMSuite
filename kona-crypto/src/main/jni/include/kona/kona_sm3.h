@@ -17,9 +17,8 @@
  * Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-EVP_PKEY* load_pub_key(const uint8_t* pub_key, size_t pub_key_len);
-EVP_PKEY* load_key_pair(const uint8_t* pri_key, const uint8_t* pub_key);
+EVP_MD_CTX* sm3_create_ctx();
+int sm3_reset(EVP_MD_CTX*);
 
-int sm2_gen_pub_key(const uint8_t* pri_key, uint8_t* pub_key);
-
-EVP_PKEY_CTX* sm2_create_pkey_ctx(EVP_PKEY* pkey);
+EVP_MAC_CTX* sm3hmac_create_ctx(EVP_MAC*, const uint8_t*, size_t);
+int sm3hmac_reset(EVP_MAC_CTX*);
