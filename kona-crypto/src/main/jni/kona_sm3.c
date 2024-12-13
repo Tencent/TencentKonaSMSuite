@@ -54,18 +54,7 @@ int sm3_reset(EVP_MD_CTX* ctx) {
         return OPENSSL_FAILURE;
     }
 
-    if (!EVP_MD_CTX_reset(ctx)) {
-        OPENSSL_print_err();
-        return OPENSSL_FAILURE;
-    }
-
-    const EVP_MD* md = EVP_sm3();
-    if (md == NULL) {
-        OPENSSL_print_err();
-        return OPENSSL_FAILURE;
-    }
-
-    if (!EVP_DigestInit_ex(ctx, md, NULL)) {
+    if (!EVP_DigestInit_ex(ctx, NULL, NULL)) {
         OPENSSL_print_err();
         return OPENSSL_FAILURE;
     }
@@ -161,7 +150,7 @@ JNIEXPORT jint JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeCr
         return OPENSSL_FAILURE;
     }
 
-    return sm3_reset(ctx) ? OPENSSL_SUCCESS : OPENSSL_FAILURE;
+    return sm3_reset(ctx);
 }
 
 JNIEXPORT jlong JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeCrypto_sm3Clone
@@ -346,7 +335,7 @@ JNIEXPORT jint JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeCr
         return OPENSSL_FAILURE;
     }
 
-    return sm3hmac_reset(ctx) ? OPENSSL_SUCCESS : OPENSSL_FAILURE;
+    return sm3hmac_reset(ctx);
 }
 
 JNIEXPORT jlong JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeCrypto_sm3hmacClone
