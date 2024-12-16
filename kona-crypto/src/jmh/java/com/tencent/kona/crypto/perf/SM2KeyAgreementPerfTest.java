@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022, 2023, THL A29 Limited, a Tencent company. All rights reserved.
+ * Copyright (C) 2022, 2024, THL A29 Limited, a Tencent company. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -101,7 +101,7 @@ public class SM2KeyAgreementPerfTest {
 
         KeyAgreement keyAgreement;
 
-        @Setup(Level.Trial)
+        @Setup(Level.Invocation)
         public void setup() throws Exception {
             SM2KeyAgreementParamSpec paramSpec = new SM2KeyAgreementParamSpec(
                     toBytes(ID),
@@ -124,7 +124,7 @@ public class SM2KeyAgreementPerfTest {
         SM2KeyExchange keyAgreement;
         ParametersWithID params;
 
-        @Setup(Level.Trial)
+        @Setup(Level.Invocation)
         public void setup() throws Exception {
             ECCurve ecCurve = new ECCurve.Fp(
                 ((ECFieldFp) CURVE.getField()).getP(),
