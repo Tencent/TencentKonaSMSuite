@@ -17,7 +17,6 @@
  * Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -30,7 +29,93 @@
 #include "kona/kona_common.h"
 #include "kona/kona_sm2.h"
 
-EVP_PKEY* load_pub_key(const uint8_t* pub_key, size_t pub_key_len) {
+const EC_GROUP* sm2_group() {
+    static const EC_GROUP* sm2_group = NULL;
+
+    if (sm2_group == NULL) {
+        EC_GROUP* group = EC_GROUP_new_by_curve_name(NID_sm2);
+        if (group == NULL) {
+            return NULL;
+        }
+        sm2_group = group;
+    }
+
+    return sm2_group;
+}
+
+BIGNUM* sm2_pri_key(const uint8_t* pri_key_bytes) {
+    BIGNUM* pri_key = BN_new();
+    if (pri_key == NULL) {
+        return NULL;
+    }
+
+    if (BN_bin2bn(pri_key_bytes, 32, pri_key) == NULL) {
+        return NULL;
+    }
+
+    return pri_key;
+}
+
+EC_POINT* sm2_pub_key(const uint8_t* pub_key_bytes, const size_t pub_key_len) {
+    const EC_GROUP* group = sm2_group();
+
+    EC_POINT* pub_key = EC_POINT_new(group);
+    if (pub_key == NULL) {
+        return NULL;
+    }
+
+    if(!EC_POINT_oct2point(group, pub_key, pub_key_bytes, pub_key_len, NULL)) {
+        return NULL;
+    }
+
+    return pub_key;
+}
+
+int sm2_check_point_order(const EC_GROUP* group, const EC_POINT *point) {
+    BIGNUM* order = BN_new();
+    if (order == NULL) {
+        return OPENSSL_FAILURE;
+    }
+
+    if (!EC_GROUP_get_order(group, order, NULL)) {
+        BN_free(order);
+
+        return OPENSSL_FAILURE;
+    }
+
+    EC_POINT* product = EC_POINT_new(group);
+    if (product == NULL) {
+        BN_free(order);
+
+        return OPENSSL_FAILURE;
+    }
+
+    if (!EC_POINT_mul(group, product, NULL, point, order, NULL)) {
+        BN_free(order);
+        EC_POINT_free(product);
+
+        return OPENSSL_FAILURE;
+    }
+
+    if (!EC_POINT_is_at_infinity(group, product)) {
+        BN_free(order);
+        EC_POINT_free(product);
+
+        return OPENSSL_FAILURE;
+    }
+
+    BN_free(order);
+    EC_POINT_free(product);
+
+    return OPENSSL_SUCCESS;
+}
+
+int sm2_validate_point(EC_POINT *point) {
+    return EC_POINT_is_on_curve(sm2_group(), point, NULL) &&
+           sm2_check_point_order(sm2_group(), point);
+}
+
+EVP_PKEY* sm2_load_pub_key(const uint8_t* pub_key, size_t pub_key_len) {
     EVP_PKEY_CTX* key_ctx = EVP_PKEY_CTX_new_from_name(NULL, "SM2", NULL);
     if (key_ctx == NULL) {
         OPENSSL_print_err();
@@ -60,7 +145,7 @@ EVP_PKEY* load_pub_key(const uint8_t* pub_key, size_t pub_key_len) {
     return pkey;
 }
 
-EVP_PKEY* load_key_pair(const uint8_t* pri_key, const uint8_t* pub_key) {
+EVP_PKEY* sm2_load_key_pair(const uint8_t* pri_key, const uint8_t* pub_key) {
     EC_KEY* ec_key = EC_KEY_new_by_curve_name(NID_sm2);
     if (ec_key == NULL) {
         OPENSSL_print_err();

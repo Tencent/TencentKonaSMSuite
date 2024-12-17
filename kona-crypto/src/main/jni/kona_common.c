@@ -20,10 +20,26 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include <openssl/bn.h>
+
 #include "kona/kona_common.h"
 
+uint8_t* bn2bin(BIGNUM* bn) {
+    int bn_size = BN_num_bytes(bn);
+    if (bn_size <= 0) {
+        return NULL;
+    }
+
+    uint8_t* bn_bytes = (uint8_t*)malloc(bn_size);
+    if (BN_bn2bin(bn, bn_bytes) != bn_size) {
+        return NULL;
+    }
+
+    return bn_bytes;
+}
+
 const char* hex_digits = "0123456789abcdef";
-void bytes_to_hex(const uint8_t* bytes, size_t offset, size_t len, uint8_t* hex) {
+void bin2hex(const uint8_t* bytes, size_t offset, size_t len, uint8_t* hex) {
     for (size_t i = 0; i < len; i++) {
         hex[i * 2] = hex_digits[bytes[i + offset] / 16];
         hex[i * 2 + 1] = hex_digits[bytes[i + offset] % 16];
@@ -32,9 +48,48 @@ void bytes_to_hex(const uint8_t* bytes, size_t offset, size_t len, uint8_t* hex)
     hex[len * 2] = '\0';
 }
 
-void print_hex(const uint8_t* byte_array, size_t offset, size_t len) {
+int hexchar2int(char c) {
+    if (c >= '0' && c <= '9') {
+        return c - '0';
+    } else if (c >= 'a' && c <= 'f') {
+        return c - 'a' + 10;
+    } else if (c >= 'A' && c <= 'F') {
+        return c - 'A' + 10;
+    } else {
+        return -1;
+    }
+}
+
+uint8_t* hex2bin(const char* hex) {
+    size_t hex_len = strlen(hex);
+    if (hex_len % 2 != 0) {
+        return NULL;
+    }
+
+    size_t bytes_len = hex_len / 2;
+    uint8_t* bytes = (uint8_t*)malloc(bytes_len);
+    if (bytes == NULL) {
+        return NULL;
+    }
+
+    for (size_t i = 0; i < bytes_len; i++) {
+        int high_nibble = hexchar2int(hex[2 * i]);
+        int low_nibble = hexchar2int(hex[2 * i + 1]);
+
+        if (high_nibble == -1 || low_nibble == -1) {
+            free(bytes);
+            return NULL;
+        }
+
+        bytes[i] = (high_nibble << 4) | low_nibble;
+    }
+
+    return bytes;
+}
+
+void print_hex(const uint8_t* bytes, size_t offset, size_t len) {
     uint8_t* hex = malloc(len* 2 + 1);
-    bytes_to_hex(byte_array, offset, len, hex);
+    bin2hex(bytes, offset, len, hex);
     KONA_print("%s", hex);
     free(hex);
 }

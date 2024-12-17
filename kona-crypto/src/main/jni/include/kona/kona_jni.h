@@ -7,10 +7,10 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-#undef com_tencent_kona_crypto_provider_nativeImpl_NativeCrypto_GOOD
-#define com_tencent_kona_crypto_provider_nativeImpl_NativeCrypto_GOOD 0L
-#undef com_tencent_kona_crypto_provider_nativeImpl_NativeCrypto_BAD
-#define com_tencent_kona_crypto_provider_nativeImpl_NativeCrypto_BAD -1L
+#undef com_tencent_kona_crypto_provider_nativeImpl_NativeCrypto_OPENSSL_SUCCESS
+#define com_tencent_kona_crypto_provider_nativeImpl_NativeCrypto_OPENSSL_SUCCESS 1L
+#undef com_tencent_kona_crypto_provider_nativeImpl_NativeCrypto_OPENSSL_FAILURE
+#define com_tencent_kona_crypto_provider_nativeImpl_NativeCrypto_OPENSSL_FAILURE 0L
 /*
  * Class:     com_tencent_kona_crypto_provider_nativeImpl_NativeCrypto
  * Method:    sm3CreateCtx
@@ -185,6 +185,14 @@ JNIEXPORT jbyteArray JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_Na
  * Signature: ([B)[B
  */
 JNIEXPORT jbyteArray JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeCrypto_sm2GenPubKey
+  (JNIEnv *, jobject, jbyteArray);
+
+/*
+ * Class:     com_tencent_kona_crypto_provider_nativeImpl_NativeCrypto
+ * Method:    sm2ValidatePoint
+ * Signature: ([B)I
+ */
+JNIEXPORT jint JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeCrypto_sm2ValidatePoint
   (JNIEnv *, jobject, jbyteArray);
 
 /*
