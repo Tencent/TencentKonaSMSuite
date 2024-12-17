@@ -202,6 +202,32 @@ public class NativeRefProfTest {
         }
     }
 
+    private static void testSM2KeyAgreement() throws Exception {
+        NativeSM2KeyPairGen sm2KeyPairGen = new NativeSM2KeyPairGen();
+        byte[] keyPair = sm2KeyPairGen.genKeyPair();
+        byte[] priKey = copy(keyPair, 0, SM2_PRIKEY_LEN);
+        byte[] pubKey = copy(keyPair, SM2_PRIKEY_LEN, SM2_PUBKEY_LEN);
+
+        byte[] eKeyPair = sm2KeyPairGen.genKeyPair();
+        byte[] ePriKey = copy(eKeyPair, 0, SM2_PRIKEY_LEN);
+
+        byte[] peerKeyPair = sm2KeyPairGen.genKeyPair();
+        byte[] peerPubKey = copy(peerKeyPair, SM2_PRIKEY_LEN, SM2_PUBKEY_LEN);
+
+        byte[] peerEKeyPair = sm2KeyPairGen.genKeyPair();
+        byte[] peerEPubKey = copy(peerEKeyPair, SM2_PRIKEY_LEN, SM2_PUBKEY_LEN);
+        sm2KeyPairGen.close();
+
+        for (int i = 0; i < ITERATIONS; i++) {
+            NativeSM2KeyAgreement sm2KeyAgreement = new NativeSM2KeyAgreement();
+            sm2KeyAgreement.deriveKey(
+                priKey, pubKey, ePriKey, ID,
+                peerPubKey, peerEPubKey, ID,
+                true, 32);
+            sm2KeyAgreement.close();
+        }
+    }
+
     public static void main(String[] args) throws Exception {
         List<Callable<Void>> tasks = new ArrayList<>();
 
@@ -227,6 +253,8 @@ public class NativeRefProfTest {
 
         tasks.add(()-> {testSM2SignatureSign(); return null;});
         tasks.add(()-> {testSM2SignatureVerify(); return null;});
+
+        tasks.add(()-> {testSM2KeyAgreement(); return null;});
 
         execTasksParallelly(tasks);
     }

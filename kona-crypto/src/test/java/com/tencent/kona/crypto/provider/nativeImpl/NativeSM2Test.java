@@ -382,4 +382,87 @@ public class NativeSM2Test {
                     () -> sm2Verifier.verify(MESSAGE, null));
         }
     }
+
+    @Test
+    public void testSM2KeyAgreement() {
+        try (NativeSM2KeyAgreement sm2KeyAgreement
+                     = new NativeSM2KeyAgreement()) {
+            byte[] sharedKey = sm2KeyAgreement.deriveKey(
+                    PRI_KEY, PUB_KEY, E_PRI_KEY, ID,
+                    PEER_PUB_KEY, PEER_E_PUB_KEY, PEER_ID,
+                    true, 16);
+
+            Assertions.assertEquals(16, sharedKey.length);
+        }
+    }
+
+    @Test
+    public void testSM2KeyAgreementWithKeyPair() {
+        try (NativeSM2KeyPairGen sm2KeyPairGen = new NativeSM2KeyPairGen()) {
+            byte[] keyPair = sm2KeyPairGen.genKeyPair();
+            byte[] priKey = copy(keyPair, 0, SM2_PRIKEY_LEN);
+            byte[] pubKey = copy(keyPair, SM2_PRIKEY_LEN, SM2_PUBKEY_LEN);
+
+            byte[] eKeyPair = sm2KeyPairGen.genKeyPair();
+            byte[] ePriKey = copy(eKeyPair, 0, SM2_PRIKEY_LEN);
+
+            byte[] peerKeyPair = sm2KeyPairGen.genKeyPair();
+            byte[] peerPubKey = copy(peerKeyPair, SM2_PRIKEY_LEN, SM2_PUBKEY_LEN);
+
+            byte[] peerEKeyPair = sm2KeyPairGen.genKeyPair();
+            byte[] peerEPubKey = copy(peerEKeyPair, SM2_PRIKEY_LEN, SM2_PUBKEY_LEN);
+
+            try (NativeSM2KeyAgreement sm2KeyAgreement
+                         = new NativeSM2KeyAgreement()) {
+                byte[] sharedKey = sm2KeyAgreement.deriveKey(
+                        priKey, pubKey, ePriKey, ID,
+                        peerPubKey, peerEPubKey, PEER_ID,
+                        true, 32);
+
+                Assertions.assertEquals(32, sharedKey.length);
+            }
+        }
+    }
+
+    @Test
+    public void testSM2KeyAgreementParallelly() throws Exception {
+        TestUtils.repeatTaskParallelly(() -> {
+            testSM2KeyAgreement();
+            return null;
+        });
+    }
+
+    @Test
+    public void testSM2KeyAgreementSerially() throws Exception {
+        TestUtils.repeatTaskSerially(() -> {
+            testSM2KeyAgreement();
+            return null;
+        });
+    }
+
+    @Test
+    public void testSM2KeyAgreementUseClosedRef() {
+        try (NativeSM2KeyPairGen sm2KeyPairGen = new NativeSM2KeyPairGen()) {
+            byte[] keyPair = sm2KeyPairGen.genKeyPair();
+            byte[] priKey = copy(keyPair, 0, SM2_PRIKEY_LEN);
+            byte[] pubKey = copy(keyPair, SM2_PRIKEY_LEN, SM2_PUBKEY_LEN);
+
+            byte[] eKeyPair = sm2KeyPairGen.genKeyPair();
+            byte[] ePriKey = copy(eKeyPair, 0, SM2_PRIKEY_LEN);
+
+            byte[] peerKeyPair = sm2KeyPairGen.genKeyPair();
+            byte[] peerPubKey = copy(peerKeyPair, SM2_PRIKEY_LEN, SM2_PUBKEY_LEN);
+
+            byte[] peerEKeyPair = sm2KeyPairGen.genKeyPair();
+            byte[] peerEPubKey = copy(peerEKeyPair, SM2_PRIKEY_LEN, SM2_PUBKEY_LEN);
+
+            NativeSM2KeyAgreement sm2KeyAgreement = new NativeSM2KeyAgreement();
+            sm2KeyAgreement.close();
+            Assertions.assertThrows(IllegalStateException.class,
+                    () -> sm2KeyAgreement.deriveKey(
+                            priKey, pubKey, ePriKey, ID,
+                            peerPubKey, peerEPubKey, PEER_ID,
+                            true, 32));
+        }
+    }
 }
