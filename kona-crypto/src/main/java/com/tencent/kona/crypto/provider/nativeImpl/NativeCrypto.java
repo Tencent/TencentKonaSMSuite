@@ -209,4 +209,11 @@ final class NativeCrypto {
     native void   sm2SignatureFreeCtx(long pointer);
     native byte[] sm2SignatureSign(long pointer, byte[] message);
     native int    sm2SignatureVerify(long pointer, byte[] message, byte[] signature);
+
+    native long   sm2KeyExCreateCtx();
+    native void   sm2KeyExFreeCtx(long pointer);
+    native byte[] sm2DeriveKey(long pointer,
+                               byte[] priKey, byte[] pubKey, byte[] ePrivKey, byte[] id,
+                               byte[] peerPubKey, byte[] peerEPubKey, byte[] peerId,
+                               boolean isInitiator, int sharedKeyLength);
 }

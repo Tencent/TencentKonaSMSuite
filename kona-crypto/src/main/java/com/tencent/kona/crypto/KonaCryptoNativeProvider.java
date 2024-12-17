@@ -88,7 +88,7 @@ public class KonaCryptoNativeProvider extends Provider {
         provider.put("Signature.SM2", "com.tencent.kona.crypto.provider.nativeImpl.SM2Signature");
         provider.put("KeyFactory.SM2", "com.tencent.kona.crypto.provider.SM2KeyFactory");
         provider.put("Alg.Alias.Signature.SM3withSM2", "SM2");
-        provider.put("KeyAgreement.SM2", "com.tencent.kona.crypto.provider.SM2KeyAgreement");
+        provider.put("KeyAgreement.SM2", "com.tencent.kona.crypto.provider.nativeImpl.SM2KeyAgreement");
     }
 
     public static KonaCryptoNativeProvider instance() {
