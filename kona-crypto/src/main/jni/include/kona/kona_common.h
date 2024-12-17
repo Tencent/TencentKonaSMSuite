@@ -34,5 +34,8 @@
 #define KONA_print_err(...) fprintf(stderr, __VA_ARGS__), fprintf(stderr, "\n")
 #define OPENSSL_print_err() ERR_print_errors_fp(stderr)
 
-void bytes_to_hex(const uint8_t* bytes, size_t offset, size_t len, uint8_t* hex);
-void print_hex(const uint8_t* byte_array, size_t offset, size_t len);
+uint8_t* bn2bin(BIGNUM* bn);
+void bin2hex(const uint8_t* bytes, size_t offset, size_t len, uint8_t* hex);
+uint8_t* hex2bin(const char* hex);
+
+void print_hex(const uint8_t* bytes, size_t offset, size_t len);

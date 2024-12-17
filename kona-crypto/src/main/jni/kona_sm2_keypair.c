@@ -117,6 +117,25 @@ JNIEXPORT jbyteArray JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_Na
     return pubKey;
 }
 
+JNIEXPORT jint JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeCrypto_sm2ValidatePoint
+  (JNIEnv* env, jobject thisObj, jbyteArray point) {
+    int point_len = (*env)->GetArrayLength(env, point);
+    if (point_len != SM2_PUB_KEY_LEN) {
+        return OPENSSL_FAILURE;
+    }
+    jbyte* point_bytes = (*env)->GetByteArrayElements(env, point, NULL);
+    if (point_bytes == NULL) {
+        return OPENSSL_FAILURE;
+    }
+
+    EC_POINT* ec_point = sm2_pub_key((uint8_t*)point_bytes, point_len);
+    if (ec_point == NULL) {
+        return OPENSSL_FAILURE;
+    }
+
+    return (jint)sm2_validate_point(ec_point);
+}
+
 JNIEXPORT jlong JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeCrypto_sm2KeyPairGenCreateCtx
   (JNIEnv* env, jobject thisObj) {
     EVP_PKEY_CTX* ctx = sm2_create_pkey_ctx(NULL);

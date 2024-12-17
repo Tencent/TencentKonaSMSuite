@@ -194,6 +194,7 @@ final class NativeCrypto {
     /* ***** SM2 ***** */
     native byte[] sm2ToUncompPubKey(byte[] compPubKey);
     native byte[] sm2GenPubKey(byte[] priKey);
+    native int    sm2ValidatePoint(byte[] point);
 
     native long   sm2KeyPairGenCreateCtx();
     native void   sm2KeyPairGenFreeCtx(long pointer);

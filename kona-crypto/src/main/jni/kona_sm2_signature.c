@@ -31,12 +31,6 @@
 #include "kona/kona_common.h"
 #include "kona/kona_sm2.h"
 
-typedef struct {
-    EVP_PKEY* pkey;
-    EVP_PKEY_CTX* pctx;
-    EVP_MD_CTX* mctx;
-} SM2_SIGNATURE_CTX;
-
 SM2_SIGNATURE_CTX* sm2_create_md_ctx(EVP_PKEY* pkey, const uint8_t* id, size_t id_len, bool is_sign) {
     if (pkey == NULL || id == NULL || id_len == 0) {
         return NULL;
@@ -134,11 +128,11 @@ JNIEXPORT jlong JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeC
             return OPENSSL_FAILURE;
         }
 
-        pkey = load_key_pair((const uint8_t*)key_bytes, pub_key_buf);
+        pkey = sm2_load_key_pair((const uint8_t*)key_bytes, pub_key_buf);
 
         OPENSSL_free(pub_key_buf);
     } else if (key_len == SM2_PUB_KEY_LEN) {
-        pkey = load_pub_key((const uint8_t*)key_bytes, key_len);
+        pkey = sm2_load_pub_key((const uint8_t*)key_bytes, key_len);
     } else if (key_len == (SM2_PRI_KEY_LEN + SM2_PUB_KEY_LEN)) {
         uint8_t* pri_key_buf = OPENSSL_malloc(SM2_PRI_KEY_LEN);
         uint8_t* pub_key_buf = OPENSSL_malloc(SM2_PUB_KEY_LEN);
@@ -153,7 +147,7 @@ JNIEXPORT jlong JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeC
         memcpy(pri_key_buf, (const uint8_t*)key_bytes, SM2_PRI_KEY_LEN);
         memcpy(pub_key_buf, (const uint8_t*)key_bytes + SM2_PRI_KEY_LEN, SM2_PUB_KEY_LEN);
 
-        pkey = load_key_pair((const uint8_t*)pri_key_buf, pub_key_buf);
+        pkey = sm2_load_key_pair((const uint8_t*)pri_key_buf, pub_key_buf);
 
         OPENSSL_free(pri_key_buf);
         OPENSSL_free(pub_key_buf);
@@ -173,15 +167,19 @@ JNIEXPORT jlong JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeC
     return (jlong)ctx;
 }
 
-JNIEXPORT void JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeCrypto_sm2SignatureFreeCtx
-  (JNIEnv* env, jobject thisObj, jlong pointer) {
-    SM2_SIGNATURE_CTX* ctx = (SM2_SIGNATURE_CTX*)pointer;
+void sm2_signature_ctx_free(SM2_SIGNATURE_CTX* ctx) {
     if (ctx != NULL) {
-        EVP_MD_CTX_free(ctx->mctx);
-        EVP_PKEY_CTX_free(ctx->pctx);
-        EVP_PKEY_free(ctx->pkey);
+        if (ctx->mctx != NULL) EVP_MD_CTX_free(ctx->mctx);
+        if (ctx->pctx != NULL) EVP_PKEY_CTX_free(ctx->pctx);
+        if (ctx->pkey != NULL) EVP_PKEY_free(ctx->pkey);
+
         OPENSSL_free(ctx);
     }
+}
+
+JNIEXPORT void JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeCrypto_sm2SignatureFreeCtx
+  (JNIEnv* env, jobject thisObj, jlong pointer) {
+    sm2_signature_ctx_free((SM2_SIGNATURE_CTX*)pointer);
 }
 
 uint8_t* sm2_sign(EVP_MD_CTX* ctx, const uint8_t* msg, size_t msg_len, size_t* sig_len) {

@@ -50,11 +50,13 @@ import org.openjdk.jmh.annotations.Threads;
 import org.openjdk.jmh.annotations.Warmup;
 
 import javax.crypto.KeyAgreement;
+import java.security.InvalidKeyException;
 import java.security.Security;
 import java.security.spec.ECFieldFp;
 import java.util.concurrent.TimeUnit;
 
 import static com.tencent.kona.crypto.CryptoUtils.toBytes;
+import static com.tencent.kona.crypto.TestUtils.PROVIDER;
 import static com.tencent.kona.crypto.spec.SM2ParameterSpec.COFACTOR;
 import static com.tencent.kona.crypto.spec.SM2ParameterSpec.CURVE;
 import static com.tencent.kona.crypto.spec.SM2ParameterSpec.GENERATOR;
@@ -111,10 +113,9 @@ public class SM2KeyAgreementPerfTest {
                     new SM2PublicKey(toBytes(PEER_PUB_KEY)),
                     true,
                     16);
-            keyAgreement = KeyAgreement.getInstance("SM2");
+            keyAgreement = KeyAgreement.getInstance("SM2", PROVIDER);
             keyAgreement.init(
                     new SM2PrivateKey(toBytes(TMP_PRI_KEY)), paramSpec);
-            keyAgreement.doPhase(new SM2PublicKey(toBytes(PEER_TMP_PUB_KEY)), true);
         }
     }
 
@@ -167,7 +168,8 @@ public class SM2KeyAgreementPerfTest {
     }
 
     @Benchmark
-    public byte[] generateSecret(KeyAgreementHolder holder) {
+    public byte[] generateSecret(KeyAgreementHolder holder) throws InvalidKeyException {
+        holder.keyAgreement.doPhase(new SM2PublicKey(toBytes(PEER_TMP_PUB_KEY)), true);
         return holder.keyAgreement.generateSecret();
     }
 
