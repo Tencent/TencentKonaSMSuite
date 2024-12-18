@@ -6,9 +6,10 @@ English | **[中文]**
 # Tencent Kona SM Suite
 
 ## Overview
-Tencent Kona SM Suite is a set of Java security providers, which service the ShangMi applications in Java ecosystem. This suite contains four providers:
+Tencent Kona SM Suite is a set of Java security providers, which service the ShangMi applications in Java ecosystem. This suite contains five providers:
 
-- [KonaCrypto]，which implements SM2, SM3 and SM4 algorithms based on Java Cryptography Architecture. There are two implementations: based on pure Java; based on JNI/OpenSSL. The former is enabled by default, however the latter supports only `Linux x86_64/aarch64` platforms.
+- [KonaCrypto]，which implements SM2, SM3 and SM4 algorithms based on Java Cryptography Architecture.
+- [KonaCrypto-Native]，which implements as the same features as `KonaCrypto` does. However, it is based on `JNI` and `OpenSSL` and supports only `Linux x86_64/aarch64` platforms.
 - [KonaPKIX]，which supports ShangMi algorithms on loading certificate and certificate chain verification. It also can load and write keystores containing ShangMi certificates. Additionally, this component provides two utility classes:
   - KeyTool, which is the same as `keytool` in JDK, can generate private keys, and create certificates and keystores. It can use `PBEWithHmacSM3AndSM4` to encrypt private keys and keystores, and use `HmacPBESM3` to validate the integrity of keystores.
   - KeyStoreTool, which can import the existing [PEM]-encoded private keys and certificates to keystores.
@@ -109,6 +110,9 @@ In addition, your problems may be already raised by others. Before open a new is
 <https://docs.oracle.com/en/java/javase/11/security/java-cryptography-architecture-jca-reference-guide.html>
 
 [KonaCrypto]:
+<kona-crypto/README.md>
+
+[KonaCrypto-Native]:
 <kona-crypto/README.md>
 
 [KonaPKIX]:

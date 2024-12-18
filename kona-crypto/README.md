@@ -3,7 +3,7 @@ English | **[中文]**
 # Tencent Kona Crypto
 
 ## Introduction
-Tencent Kona Crypto is a Java security provider, which is named `KonaCrypto`. Per the associated China's specifications, it implements the following ShangMi algorithms:
+Tencent Kona Crypto contains two Java security providers, one is `KonaCrypto` and the other is `KonaCrypto-Native`. Per the associated China's specifications, they implement the following ShangMi algorithms:
 
 - SM2, which is [Elliptic Curve Cryptography (ECC)]-based public key algorithm. It complies with the below national specifications:
   - GB/T 32918.1-2016 Part 1：General
@@ -16,15 +16,18 @@ Tencent Kona Crypto is a Java security provider, which is named `KonaCrypto`. Pe
 - SM4, which is a block encryption algorithm. It complies with the below national specification:
   - GB/T 32907-2016 SM4 block cipher algorithm
 
-For providing the above features, `KonaCrypto` implements the JDK-specified Service Provider Interfaces (SPIs), such as KeyPairGeneratorSpi，SignatureSpi，CipherSpi，MessageDigestSpi，MacSpi and KeyAgreementSpi.
+For providing the above features, the providers implements the JDK-specified Service Provider Interfaces (SPIs), such as KeyPairGeneratorSpi，SignatureSpi，CipherSpi，MessageDigestSpi，MacSpi and KeyAgreementSpi.
 
 ## Implementations
 
-Tencent Kona Crypto provides pure Java-based and JNI/OpenSSL-based SM2, SM3 and SM4. The latter supports `Linux x86_64/aarch64` platforms. OpenSSL version 3.4.0 is used by default, but versions 3.0 and later can be supported.
+Tencent Kona Crypto provides pure Java-based implementations via provider `KonaCrypto`, and JNI and OpenSSL-based implementations via provider `KonaCrypto-Native`. The latter provider supports `Linux x86_64/aarch64` platforms. OpenSSL version 3.4.0 is used by default, but versions 3.0 and later can be supported.
 
-The pure Java-based implementations is enabled. The java system property `com.tencent.kona.useNativeCrypto` can be used to enable the OpenSSL-based implementation. The additional system property `com.tencent.kona.openssl.crypto.lib.path` is used to specify an alternative local OpenSSL crypto lib file (`libcrypto.so`). The value of this property is a local absolute path.
+The system property `com.tencent.kona.openssl.crypto.lib.path` is used to specify an alternative OpenSSL crypto lib file (`libcrypto.so`). The value of this property is a local absolute path.
 
 ## Usages
+
+The application can use `KonaCrypto` and `KonaCrypto-Native` on the same way, so this doc just describe the usages with provider `KonaCrypto`.
+
 Now that `KonaCrypto` is based on JCA framework, then the usages are the same as other JCA implementations, such as [SunJCE] and [SunEC]. Understanding the design and coding style on JCA really helps for applying `KonaCrypto`, please read the official [JCA reference].
 
 ### Loading
