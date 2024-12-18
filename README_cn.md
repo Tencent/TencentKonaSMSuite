@@ -6,9 +6,10 @@
 # 腾讯Kona国密套件
 
 ## 概览
-腾讯Kona国密套件是一组Java安全特性的Provider实现，主要服务于Java生态中的国密应用场景。具体地，该套件包含有四个Provider：
+腾讯Kona国密套件是一组Java安全特性的Provider实现，主要服务于Java生态中的国密应用场景。具体地，该套件包含有五个Provider：
 
 - [KonaCrypto]，它遵循标准的[JCA]框架实现了国密密码学算法SM2，SM3和SM4。在实现方式上，分为基于纯Java的实现和基于JNI/OpenSSL的实现。默认启用前者，而后者仅支持`Linux x86_64/aarch64`平台。
+- [KonaCrypto-Native]，它实现的特性与`KonaCrypto`相同。然而，它是基于`JNI`和`OpenSSL`的，并且仅支持`Linux x86_64/aarch64`平台。
 - [KonaPKIX]，它实现了国密证书的解析与验证，并可加载和创建包含国密证书的密钥库。它需要依赖`KonaCrypto`。另外，该组件还提供了两个工具类：
   - KeyTool，它的功能与JDK中的`keytool`相同，可以生成密钥对，创建证书以及密钥库。它支持使用`PBEWithHmacSM3AndSM4`算法对私钥和密钥库进行加密，也可使用`HmacPBESM3`算法验证密钥库的完整性。
   - KeyStoreTool，它可以将已有的[PEM]格式的私钥和证书导入密钥库。

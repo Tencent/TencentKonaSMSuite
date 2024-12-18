@@ -3,7 +3,7 @@
 # 腾讯Kona Crypto
 
 ## 简介
-腾讯Kona Crypto是一个Java安全Provider实现，其Provider名称为`KonaCrypto`。它遵循相关的国家标准实现了如下的国密基础算法：
+腾讯Kona Crypto包含两个Java Security Provider，一个是`KonaCrypto`，另一个是`KonaCrypto-Native`。它们遵循相关的国家标准实现了如下的国密基础算法：
 
 - SM2，它是一个基于[椭圆曲线(ECC)]的公钥加密算法，在实现该算法时遵循了如下的国家标准：
   - GB/T 32918.1-2016 第1部分：总则
@@ -16,15 +16,18 @@
 - SM4，它是一个分组加密算法，在实现该算法时遵循了如下的国家标准：
   - GB/T 32907-2016 SM4分组密码算法
 
-为了提供上述特性，`KonaCrypto`基于JDK标准的[Java Cryptography Architecture (JCA)]框架，实现了JDK定义的KeyPairGeneratorSpi，SignatureSpi，CipherSpi，MessageDigestSpi，MacSpi和KeyAgreementSpi等Service Provider Interface (SPI)。
+为了提供上述特性，这些Provider基于JDK标准的[Java Cryptography Architecture (JCA)]框架，实现了JDK定义的KeyPairGeneratorSpi，SignatureSpi，CipherSpi，MessageDigestSpi，MacSpi和KeyAgreementSpi等Service Provider Interface (SPI)。
 
 ## 实现方式
 
-目前既提供了基于纯Java语言和基于JNI与OpenSSL实现的SM2，SM3和SM4算法。后者仅支持`Linux x86_64/aarch64`平台。本项目默认使用的OpenSSL版本为3.4.0，但可以支持3.0及之后的版本。
+目前提供了纯Java语言实现的`KonaCrypto` Provider，以及基于JNI与OpenSSL实现的`KonaCrypto-Native` Provider。后者仅支持`Linux x86_64/aarch64`平台。本项目默认使用的OpenSSL版本为3.4.0，但可以支持3.0及之后的版本。
 
-默认地，启用纯Java的实现。若要启用基于OpenSSL的实现，需要设置系统属性`com.tencent.kona.useNativeCrypto`的值为`true`。另外，还提供了系统属性`com.tencent.kona.openssl.crypto.lib.path`以指定使用本地的其他OpenSSL crypto库文件（`libcrypto.so`），该系统属性的值是一个本地绝对路径。
+可以使用系统属性`com.tencent.kona.openssl.crypto.lib.path`去指定使用其他的OpenSSL crypto库文件（`libcrypto.so`），该系统属性的值是一个本地绝对路径。
 
 ## 使用
+
+应用程序使用`KonaCrypto`和`KonaCrypto-Native`的方法完全相同，所以本文仅以`KonaCrypto`为例来描述用法。
+
 由于`KonaCrypto`是基于JCA框架的，所以在使用风格上，与其它的JCA实现（如JDK自带的[SunJCE]和[SunEC]）是一样的。正常地，应用程序并不需要直接访问`KonaCrypto`中的算法实现类，而是通过相关的JDK API去调用指定算法的实现。了解JCA的设计原理与代码风格，对于应用`KonaCrypto`是非常有帮助的，请阅读官方的[参考指南]。
 
 ### 加载
