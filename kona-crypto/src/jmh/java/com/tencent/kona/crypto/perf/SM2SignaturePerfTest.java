@@ -43,7 +43,6 @@ import java.security.Signature;
 import java.security.interfaces.ECPublicKey;
 import java.util.concurrent.TimeUnit;
 
-import static com.tencent.kona.crypto.TestUtils.PROVIDER;
 import static com.tencent.kona.crypto.CryptoUtils.toBytes;
 
 /**
@@ -77,7 +76,21 @@ public class SM2SignaturePerfTest {
 
         @Setup(Level.Trial)
         public void setup() throws Exception {
-            signer = Signature.getInstance("SM2", PROVIDER);
+            signer = Signature.getInstance("SM2", "KonaCrypto");
+            signer.setParameter(new SM2SignatureParameterSpec(
+                    ID, (ECPublicKey) KEY_PAIR.getPublic()));
+            signer.initSign(KEY_PAIR.getPrivate());
+        }
+    }
+
+    @State(Scope.Benchmark)
+    public static class SignerHolderNative {
+
+        Signature signer;
+
+        @Setup(Level.Trial)
+        public void setup() throws Exception {
+            signer = Signature.getInstance("SM2", "KonaCrypto-Native");
             signer.setParameter(new SM2SignatureParameterSpec(
                     ID, (ECPublicKey) KEY_PAIR.getPublic()));
             signer.initSign(KEY_PAIR.getPrivate());
@@ -108,14 +121,40 @@ public class SM2SignaturePerfTest {
         public void setup() throws Exception {
             signature = signature();
 
-            verifier = Signature.getInstance("SM2", PROVIDER);
+            verifier = Signature.getInstance("SM2", "KonaCrypto");
             verifier.setParameter(new SM2SignatureParameterSpec(
                     ID, (ECPublicKey) KEY_PAIR.getPublic()));
             verifier.initVerify(KEY_PAIR.getPublic());
         }
 
         private byte[] signature() throws Exception {
-            Signature signer = Signature.getInstance("SM2", PROVIDER);
+            Signature signer = Signature.getInstance("SM2", "KonaCrypto");
+            signer.setParameter(new SM2SignatureParameterSpec(
+                    ID, (ECPublicKey) KEY_PAIR.getPublic()));
+            signer.initSign(KEY_PAIR.getPrivate());
+            signer.update(MESSAGE);
+            return signer.sign();
+        }
+    }
+
+    @State(Scope.Benchmark)
+    public static class VerifierHolderNative {
+
+        byte[] signature;
+        Signature verifier;
+
+        @Setup(Level.Trial)
+        public void setup() throws Exception {
+            signature = signature();
+
+            verifier = Signature.getInstance("SM2", "KonaCrypto-Native");
+            verifier.setParameter(new SM2SignatureParameterSpec(
+                    ID, (ECPublicKey) KEY_PAIR.getPublic()));
+            verifier.initVerify(KEY_PAIR.getPublic());
+        }
+
+        private byte[] signature() throws Exception {
+            Signature signer = Signature.getInstance("SM2", "KonaCrypto-Native");
             signer.setParameter(new SM2SignatureParameterSpec(
                     ID, (ECPublicKey) KEY_PAIR.getPublic()));
             signer.initSign(KEY_PAIR.getPrivate());
@@ -156,6 +195,12 @@ public class SM2SignaturePerfTest {
     }
 
     @Benchmark
+    public byte[] signNative(SignerHolderNative holder) throws Exception {
+        holder.signer.update(MESSAGE);
+        return holder.signer.sign();
+    }
+
+    @Benchmark
     public byte[] signBC(SignerHolderBC holder) throws Exception {
         holder.signer.update(MESSAGE);
         return holder.signer.sign();
@@ -163,6 +208,12 @@ public class SM2SignaturePerfTest {
 
     @Benchmark
     public boolean verify(VerifierHolder holder) throws Exception {
+        holder.verifier.update(MESSAGE);
+        return holder.verifier.verify(holder.signature);
+    }
+
+    @Benchmark
+    public boolean verifyNative(VerifierHolderNative holder) throws Exception {
         holder.verifier.update(MESSAGE);
         return holder.verifier.verify(holder.signature);
     }

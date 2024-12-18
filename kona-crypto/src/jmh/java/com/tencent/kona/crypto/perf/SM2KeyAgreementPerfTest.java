@@ -56,7 +56,6 @@ import java.security.spec.ECFieldFp;
 import java.util.concurrent.TimeUnit;
 
 import static com.tencent.kona.crypto.CryptoUtils.toBytes;
-import static com.tencent.kona.crypto.TestUtils.PROVIDER;
 import static com.tencent.kona.crypto.spec.SM2ParameterSpec.COFACTOR;
 import static com.tencent.kona.crypto.spec.SM2ParameterSpec.CURVE;
 import static com.tencent.kona.crypto.spec.SM2ParameterSpec.GENERATOR;
@@ -113,7 +112,28 @@ public class SM2KeyAgreementPerfTest {
                     new SM2PublicKey(toBytes(PEER_PUB_KEY)),
                     true,
                     16);
-            keyAgreement = KeyAgreement.getInstance("SM2", PROVIDER);
+            keyAgreement = KeyAgreement.getInstance("SM2", "KonaCrypto");
+            keyAgreement.init(
+                    new SM2PrivateKey(toBytes(TMP_PRI_KEY)), paramSpec);
+        }
+    }
+
+    @State(Scope.Benchmark)
+    public static class KeyAgreementNativeHolder {
+
+        KeyAgreement keyAgreement;
+
+        @Setup(Level.Invocation)
+        public void setup() throws Exception {
+            SM2KeyAgreementParamSpec paramSpec = new SM2KeyAgreementParamSpec(
+                    toBytes(ID),
+                    new SM2PrivateKey(toBytes(PRI_KEY)),
+                    new SM2PublicKey(toBytes(PUB_KEY)),
+                    toBytes(PEER_ID),
+                    new SM2PublicKey(toBytes(PEER_PUB_KEY)),
+                    true,
+                    16);
+            keyAgreement = KeyAgreement.getInstance("SM2", "KonaCrypto-Native");
             keyAgreement.init(
                     new SM2PrivateKey(toBytes(TMP_PRI_KEY)), paramSpec);
         }
@@ -169,6 +189,12 @@ public class SM2KeyAgreementPerfTest {
 
     @Benchmark
     public byte[] generateSecret(KeyAgreementHolder holder) throws InvalidKeyException {
+        holder.keyAgreement.doPhase(new SM2PublicKey(toBytes(PEER_TMP_PUB_KEY)), true);
+        return holder.keyAgreement.generateSecret();
+    }
+
+    @Benchmark
+    public byte[] generateSecretNative(KeyAgreementNativeHolder holder) throws InvalidKeyException {
         holder.keyAgreement.doPhase(new SM2PublicKey(toBytes(PEER_TMP_PUB_KEY)), true);
         return holder.keyAgreement.generateSecret();
     }

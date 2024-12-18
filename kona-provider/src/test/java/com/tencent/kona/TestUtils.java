@@ -26,6 +26,6 @@ public class TestUtils {
     public static final String PROVIDER = KonaProvider.NAME;
 
     public static void addProviders() {
-        Security.addProvider(new KonaProvider());
+        Security.addProvider(KonaProvider.instance());
     }
 }
