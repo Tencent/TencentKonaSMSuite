@@ -190,12 +190,22 @@ public class SM4EncrypterPerfTest {
     }
 
     @Benchmark
+    public byte[] cbcPaddingNative(EncrypterHolderNative holder) throws Exception {
+        return holder.encrypterCBCPadding.doFinal(DATA);
+    }
+
+    @Benchmark
     public byte[] cbcPaddingBC(EncrypterHolderBC holder) throws Exception {
         return holder.encrypterCBCPadding.doFinal(DATA);
     }
 
     @Benchmark
     public byte[] cbcNoPadding(EncrypterHolder holder) throws Exception {
+        return holder.encrypterCBCNoPadding.doFinal(DATA);
+    }
+
+    @Benchmark
+    public byte[] cbcNoPaddingNative(EncrypterHolderNative holder) throws Exception {
         return holder.encrypterCBCNoPadding.doFinal(DATA);
     }
 
@@ -210,6 +220,11 @@ public class SM4EncrypterPerfTest {
     }
 
     @Benchmark
+    public byte[] ctrNative(EncrypterHolderNative holder) throws Exception {
+        return holder.encrypterCTRNoPadding.doFinal(DATA);
+    }
+
+    @Benchmark
     public byte[] ctrBC(EncrypterHolderBC holder) throws Exception {
         return holder.encrypterCTRNoPadding.doFinal(DATA);
     }
@@ -220,12 +235,22 @@ public class SM4EncrypterPerfTest {
     }
 
     @Benchmark
+    public byte[] ecbNative(EncrypterHolderNative holder) throws Exception {
+        return holder.encrypterECBNoPadding.doFinal(DATA);
+    }
+
+    @Benchmark
     public byte[] ecbBC(EncrypterHolderBC holder) throws Exception {
         return holder.encrypterECBNoPadding.doFinal(DATA);
     }
 
     @Benchmark
     public byte[] gcm(EncrypterHolder holder) throws Exception {
+        return holder.encrypterGCMNoPadding.doFinal(DATA);
+    }
+
+    @Benchmark
+    public byte[] gcmNative(EncrypterHolderNative holder) throws Exception {
         return holder.encrypterGCMNoPadding.doFinal(DATA);
     }
 

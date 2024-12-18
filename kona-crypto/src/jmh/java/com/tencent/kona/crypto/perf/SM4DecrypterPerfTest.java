@@ -292,12 +292,22 @@ public class SM4DecrypterPerfTest {
     }
 
     @Benchmark
+    public byte[] cbcPaddingNative(DecrypterHolderNative holder) throws Exception {
+        return holder.decrypterCBCPadding.doFinal(holder.ciphertextCBCPadding);
+    }
+
+    @Benchmark
     public byte[] cbcPaddingBC(DecrypterHolderBC holder) throws Exception {
         return holder.decrypterCBCPadding.doFinal(holder.ciphertextCBCPadding);
     }
 
     @Benchmark
     public byte[] cbcNoPadding(DecrypterHolder holder) throws Exception {
+        return holder.decrypterCBCNoPadding.doFinal(holder.ciphertextCBCNoPadding);
+    }
+
+    @Benchmark
+    public byte[] cbcNoPaddingNative(DecrypterHolderNative holder) throws Exception {
         return holder.decrypterCBCNoPadding.doFinal(holder.ciphertextCBCNoPadding);
     }
 
@@ -312,6 +322,11 @@ public class SM4DecrypterPerfTest {
     }
 
     @Benchmark
+    public byte[] ecbNative(DecrypterHolderNative holder) throws Exception {
+        return holder.decrypterECBNoPadding.doFinal(holder.ciphertextECBNoPadding);
+    }
+
+    @Benchmark
     public byte[] ecbBC(DecrypterHolderBC holder) throws Exception {
         return holder.decrypterECBNoPadding.doFinal(holder.ciphertextECBNoPadding);
     }
@@ -322,12 +337,22 @@ public class SM4DecrypterPerfTest {
     }
 
     @Benchmark
+    public byte[] ctrNative(DecrypterHolderNative holder) throws Exception {
+        return holder.decrypterCTRNoPadding.doFinal(holder.ciphertextCTRNoPadding);
+    }
+
+    @Benchmark
     public byte[] ctrBC(DecrypterHolderBC holder) throws Exception {
         return holder.decrypterCTRNoPadding.doFinal(holder.ciphertextCTRNoPadding);
     }
 
     @Benchmark
     public byte[] gcm(DecrypterHolder holder) throws Exception {
+        return holder.decrypterGCMNoPadding.doFinal(holder.ciphertextGCMNoPadding);
+    }
+
+    @Benchmark
+    public byte[] gcmNative(DecrypterHolderNative holder) throws Exception {
         return holder.decrypterGCMNoPadding.doFinal(holder.ciphertextGCMNoPadding);
     }
 
