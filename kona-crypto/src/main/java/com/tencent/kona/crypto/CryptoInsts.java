@@ -33,7 +33,7 @@ import java.util.Set;
 
 public class CryptoInsts {
 
-    static final Provider PROV = CryptoUtils.useNativeCrypto()
+    public static final Provider PROV = CryptoUtils.useNativeCrypto()
             ? KonaCryptoNativeProvider.instance()
             : KonaCryptoProvider.instance();
 

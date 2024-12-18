@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022, 2023, THL A29 Limited, a Tencent company. All rights reserved.
+ * Copyright (C) 2022, 2024, THL A29 Limited, a Tencent company. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -38,8 +38,6 @@ import java.security.MessageDigest;
 import java.security.Security;
 import java.util.concurrent.TimeUnit;
 
-import static com.tencent.kona.crypto.TestUtils.PROVIDER;
-
 /**
  * The JMH-based performance test for SM3 message digest.
  */
@@ -65,7 +63,18 @@ public class SM3MessageDigestPerfTest {
 
         @Setup(Level.Trial)
         public void setup() throws Exception {
-            md = MessageDigest.getInstance("SM3", PROVIDER);
+            md = MessageDigest.getInstance("SM3", "KonaCrypto");
+        }
+    }
+
+    @State(Scope.Benchmark)
+    public static class MessageDigestHolderNative {
+
+        MessageDigest md;
+
+        @Setup(Level.Trial)
+        public void setup() throws Exception {
+            md = MessageDigest.getInstance("SM3", "KonaCrypto-Native");
         }
     }
 
@@ -82,6 +91,11 @@ public class SM3MessageDigestPerfTest {
 
     @Benchmark
     public byte[] digest(MessageDigestHolder holder) {
+        return holder.md.digest(MESSAGE);
+    }
+
+    @Benchmark
+    public byte[] digestNative(MessageDigestHolderNative holder) {
         return holder.md.digest(MESSAGE);
     }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022, 2023, THL A29 Limited, a Tencent company. All rights reserved.
+ * Copyright (C) 2022, 2024, THL A29 Limited, a Tencent company. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -19,6 +19,7 @@
 
 package com.tencent.kona.pkix.provider;
 
+import com.tencent.kona.crypto.CryptoInsts;
 import com.tencent.kona.sun.security.x509.X509Key;
 import com.tencent.kona.pkix.TestUtils;
 import org.junit.jupiter.api.Assertions;
@@ -55,7 +56,7 @@ public class KeyFactoryTest {
         X509Certificate x509Cert = TestUtils.certAsFile("ca-sm2sm2.crt");
         PublicKey publicKey = x509Cert.getPublicKey();
 
-        KeyFactory keyFactory = KeyFactory.getInstance("EC", "KonaCrypto");
+        KeyFactory keyFactory = KeyFactory.getInstance("EC", CryptoInsts.PROV);
 
         ECPublicKeySpec publicKeySpec = keyFactory.getKeySpec(
                 publicKey, ECPublicKeySpec.class);
@@ -81,7 +82,7 @@ public class KeyFactoryTest {
         X509Certificate x509Cert = TestUtils.certAsFile("ca-sm2sm2.crt");
         ECPublicKey publicKey = (ECPublicKey) x509Cert.getPublicKey();
 
-        KeyFactory keyFactory = KeyFactory.getInstance("EC", "KonaCrypto");
+        KeyFactory keyFactory = KeyFactory.getInstance("EC", CryptoInsts.PROV);
 
         ECPublicKeySpec ecPublicKeySpec = keyFactory.getKeySpec(
                 publicKey, ECPublicKeySpec.class);
@@ -152,7 +153,7 @@ public class KeyFactoryTest {
 
     private void testGenerateECPrivateKey(ECPrivateKey privateKey)
             throws Exception {
-        KeyFactory keyFactory = KeyFactory.getInstance("EC", "KonaCrypto");
+        KeyFactory keyFactory = KeyFactory.getInstance("EC", CryptoInsts.PROV);
 
         ECPrivateKeySpec ecPrivateKeySpec = keyFactory.getKeySpec(
                 privateKey, ECPrivateKeySpec.class);

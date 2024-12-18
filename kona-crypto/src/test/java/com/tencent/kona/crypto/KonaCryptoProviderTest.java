@@ -34,6 +34,6 @@ public class KonaCryptoProviderTest {
 
     @Test
     public void testAddProvider() {
-        Assertions.assertNotNull(Security.getProvider(KonaCryptoProvider.NAME));
+        Assertions.assertNotNull(Security.getProvider(TestUtils.PROVIDER.getName()));
     }
 }

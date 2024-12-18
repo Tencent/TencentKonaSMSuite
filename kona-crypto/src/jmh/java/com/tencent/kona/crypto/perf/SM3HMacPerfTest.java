@@ -41,7 +41,6 @@ import javax.crypto.spec.SecretKeySpec;
 import java.security.Security;
 import java.util.concurrent.TimeUnit;
 
-import static com.tencent.kona.crypto.TestUtils.PROVIDER;
 import static com.tencent.kona.crypto.CryptoUtils.toBytes;
 
 /**
@@ -71,7 +70,19 @@ public class SM3HMacPerfTest {
 
         @Setup(Level.Trial)
         public void setup() throws Exception {
-            mac = Mac.getInstance("HmacSM3", PROVIDER);
+            mac = Mac.getInstance("HmacSM3", "KonaCrypto");
+            mac.init(SECRET_KEY);
+        }
+    }
+
+    @State(Scope.Benchmark)
+    public static class MacHolderNative {
+
+        Mac mac;
+
+        @Setup(Level.Trial)
+        public void setup() throws Exception {
+            mac = Mac.getInstance("HmacSM3", "KonaCrypto-Native");
             mac.init(SECRET_KEY);
         }
     }
@@ -90,6 +101,11 @@ public class SM3HMacPerfTest {
 
     @Benchmark
     public byte[] mac(MacHolder holder) throws Exception {
+        return holder.mac.doFinal(MESSAGE);
+    }
+
+    @Benchmark
+    public byte[] macNative(MacHolderNative holder) throws Exception {
         return holder.mac.doFinal(MESSAGE);
     }
 

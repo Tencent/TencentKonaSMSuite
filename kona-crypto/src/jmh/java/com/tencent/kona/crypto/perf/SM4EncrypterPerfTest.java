@@ -44,7 +44,6 @@ import javax.crypto.spec.SecretKeySpec;
 import java.security.Security;
 import java.util.concurrent.TimeUnit;
 
-import static com.tencent.kona.crypto.TestUtils.PROVIDER;
 import static com.tencent.kona.crypto.CryptoUtils.toBytes;
 
 /**
@@ -85,27 +84,64 @@ public class SM4EncrypterPerfTest {
         @Setup(Level.Invocation)
         public void setup() throws Exception {
             encrypterCBCPadding = Cipher.getInstance(
-                    "SM4/CBC/PKCS7Padding", PROVIDER);
+                    "SM4/CBC/PKCS7Padding", "KonaCrypto");
             encrypterCBCPadding.init(
                     Cipher.ENCRYPT_MODE, SECRET_KEY, IV_PARAM_SPEC);
 
             encrypterCBCNoPadding = Cipher.getInstance(
-                    "SM4/CBC/NoPadding", PROVIDER);
+                    "SM4/CBC/NoPadding", "KonaCrypto");
             encrypterCBCNoPadding.init(
                     Cipher.ENCRYPT_MODE, SECRET_KEY, IV_PARAM_SPEC);
 
             encrypterECBNoPadding = Cipher.getInstance(
-                    "SM4/ECB/NoPadding", PROVIDER);
+                    "SM4/ECB/NoPadding", "KonaCrypto");
             encrypterECBNoPadding.init(
                     Cipher.ENCRYPT_MODE, SECRET_KEY);
 
             encrypterCTRNoPadding = Cipher.getInstance(
-                    "SM4/CTR/NoPadding", PROVIDER);
+                    "SM4/CTR/NoPadding", "KonaCrypto");
             encrypterCTRNoPadding.init(
                     Cipher.ENCRYPT_MODE, SECRET_KEY, IV_PARAM_SPEC);
 
             encrypterGCMNoPadding = Cipher.getInstance(
-                    "SM4/GCM/NoPadding", PROVIDER);
+                    "SM4/GCM/NoPadding", "KonaCrypto");
+            encrypterGCMNoPadding.init(
+                    Cipher.ENCRYPT_MODE, SECRET_KEY, GCM_PARAM_SPEC);
+        }
+    }
+
+    @State(Scope.Benchmark)
+    public static class EncrypterHolderNative {
+        Cipher encrypterCBCPadding;
+        Cipher encrypterCBCNoPadding;
+        Cipher encrypterECBNoPadding;
+        Cipher encrypterCTRNoPadding;
+        Cipher encrypterGCMNoPadding;
+
+        @Setup(Level.Invocation)
+        public void setup() throws Exception {
+            encrypterCBCPadding = Cipher.getInstance(
+                    "SM4/CBC/PKCS7Padding", "KonaCrypto-Native");
+            encrypterCBCPadding.init(
+                    Cipher.ENCRYPT_MODE, SECRET_KEY, IV_PARAM_SPEC);
+
+            encrypterCBCNoPadding = Cipher.getInstance(
+                    "SM4/CBC/NoPadding", "KonaCrypto-Native");
+            encrypterCBCNoPadding.init(
+                    Cipher.ENCRYPT_MODE, SECRET_KEY, IV_PARAM_SPEC);
+
+            encrypterECBNoPadding = Cipher.getInstance(
+                    "SM4/ECB/NoPadding", "KonaCrypto-Native");
+            encrypterECBNoPadding.init(
+                    Cipher.ENCRYPT_MODE, SECRET_KEY);
+
+            encrypterCTRNoPadding = Cipher.getInstance(
+                    "SM4/CTR/NoPadding", "KonaCrypto-Native");
+            encrypterCTRNoPadding.init(
+                    Cipher.ENCRYPT_MODE, SECRET_KEY, IV_PARAM_SPEC);
+
+            encrypterGCMNoPadding = Cipher.getInstance(
+                    "SM4/GCM/NoPadding", "KonaCrypto-Native");
             encrypterGCMNoPadding.init(
                     Cipher.ENCRYPT_MODE, SECRET_KEY, GCM_PARAM_SPEC);
         }

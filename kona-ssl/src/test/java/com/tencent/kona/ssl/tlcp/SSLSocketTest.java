@@ -36,6 +36,7 @@
 
 package com.tencent.kona.ssl.tlcp;
 
+import com.tencent.kona.crypto.CryptoInsts;
 import com.tencent.kona.ssl.TestUtils;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -439,7 +440,7 @@ public class SSLSocketTest {
                 PKCS8EncodedKeySpec priKeySpec = new PKCS8EncodedKeySpec(
                         Base64.getMimeDecoder().decode(endEntityCerts[i].privKeyStr));
                 KeyFactory kf = KeyFactory.getInstance(
-                        endEntityCerts[i].keyAlgo, "KonaCrypto");
+                        endEntityCerts[i].keyAlgo, CryptoInsts.PROV);
                 PrivateKey priKey = kf.generatePrivate(priKeySpec);
 
                 // generate certificate chain

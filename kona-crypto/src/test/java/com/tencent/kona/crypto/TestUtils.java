@@ -45,7 +45,13 @@ public class TestUtils {
     public static final byte[] EMPTY = new byte[0];
 
     public static void addProviders() {
-        Security.addProvider(new KonaCryptoProvider());
+        if (PROVIDER instanceof KonaCryptoProvider) {
+            Security.addProvider(KonaCryptoProvider.instance());
+            Security.addProvider(KonaCryptoNativeProvider.instance());
+        } else {
+            Security.addProvider(KonaCryptoNativeProvider.instance());
+            Security.addProvider(KonaCryptoProvider.instance());
+        }
     }
 
     public static void repeatTaskParallelly(Callable<Void> task, int count)

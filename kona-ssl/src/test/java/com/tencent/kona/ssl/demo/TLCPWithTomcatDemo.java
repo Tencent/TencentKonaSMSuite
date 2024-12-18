@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023, THL A29 Limited, a Tencent company. All rights reserved.
+ * Copyright (C) 2023, 2024, THL A29 Limited, a Tencent company. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -19,6 +19,7 @@
 
 package com.tencent.kona.ssl.demo;
 
+import com.tencent.kona.crypto.CryptoInsts;
 import com.tencent.kona.ssl.TestUtils;
 import com.tencent.kona.sun.security.x509.SMCertificate;
 import org.apache.catalina.Context;
@@ -392,7 +393,7 @@ public class TLCPWithTomcatDemo {
     private static PrivateKey loadPrivateKey(String keyPEM) throws Exception {
         PKCS8EncodedKeySpec privateKeySpec = new PKCS8EncodedKeySpec(
                 Base64.getMimeDecoder().decode(keyPEM));
-        KeyFactory keyFactory = KeyFactory.getInstance("EC", "KonaCrypto");
+        KeyFactory keyFactory = KeyFactory.getInstance("EC", CryptoInsts.PROV);
         return keyFactory.generatePrivate(privateKeySpec);
     }
 

@@ -21,25 +21,12 @@ package com.tencent.kona.crypto.perf;
 
 import com.tencent.kona.crypto.TestUtils;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
-import org.openjdk.jmh.annotations.Benchmark;
-import org.openjdk.jmh.annotations.BenchmarkMode;
-import org.openjdk.jmh.annotations.Fork;
-import org.openjdk.jmh.annotations.Level;
-import org.openjdk.jmh.annotations.Measurement;
-import org.openjdk.jmh.annotations.Mode;
-import org.openjdk.jmh.annotations.OutputTimeUnit;
-import org.openjdk.jmh.annotations.Scope;
-import org.openjdk.jmh.annotations.Setup;
-import org.openjdk.jmh.annotations.State;
-import org.openjdk.jmh.annotations.Threads;
-import org.openjdk.jmh.annotations.Warmup;
+import org.openjdk.jmh.annotations.*;
 
 import javax.crypto.Cipher;
 import java.security.KeyPair;
 import java.security.Security;
 import java.util.concurrent.TimeUnit;
-
-import static com.tencent.kona.crypto.TestUtils.PROVIDER;
 
 /**
  * The JMH-based performance test for SM2 decryption.
@@ -71,7 +58,19 @@ public class SM2CipherPerfTest {
 
         @Setup(Level.Trial)
         public void setup() throws Exception {
-            encrypter = Cipher.getInstance("SM2", PROVIDER);
+            encrypter = Cipher.getInstance("SM2", "KonaCrypto");
+            encrypter.init(Cipher.ENCRYPT_MODE, KEY_PAIR.getPublic());
+        }
+    }
+
+    @State(Scope.Benchmark)
+    public static class EncrypterHolderNative {
+
+        Cipher encrypter;
+
+        @Setup(Level.Trial)
+        public void setup() throws Exception {
+            encrypter = Cipher.getInstance("SM2", "KonaCrypto-Native");
             encrypter.init(Cipher.ENCRYPT_MODE, KEY_PAIR.getPublic());
         }
     }
@@ -97,12 +96,32 @@ public class SM2CipherPerfTest {
         @Setup(Level.Trial)
         public void setup() throws Exception {
             ciphertext = ciphertext();
-            decrypter = Cipher.getInstance("SM2", PROVIDER);
+            decrypter = Cipher.getInstance("SM2", "KonaCrypto");
             decrypter.init(Cipher.DECRYPT_MODE, KEY_PAIR.getPrivate());
         }
 
         private byte[] ciphertext() throws Exception {
-            Cipher cipher = Cipher.getInstance("SM2", PROVIDER);
+            Cipher cipher = Cipher.getInstance("SM2", "KonaCrypto");
+            cipher.init(Cipher.ENCRYPT_MODE, KEY_PAIR.getPublic());
+            return cipher.doFinal(MESSAGE);
+        }
+    }
+
+    @State(Scope.Benchmark)
+    public static class DecrypterHolderNative {
+
+        byte[] ciphertext;
+        Cipher decrypter;
+
+        @Setup(Level.Trial)
+        public void setup() throws Exception {
+            ciphertext = ciphertext();
+            decrypter = Cipher.getInstance("SM2", "KonaCrypto-Native");
+            decrypter.init(Cipher.DECRYPT_MODE, KEY_PAIR.getPrivate());
+        }
+
+        private byte[] ciphertext() throws Exception {
+            Cipher cipher = Cipher.getInstance("SM2", "KonaCrypto-Native");
             cipher.init(Cipher.ENCRYPT_MODE, KEY_PAIR.getPublic());
             return cipher.doFinal(MESSAGE);
         }
@@ -134,12 +153,22 @@ public class SM2CipherPerfTest {
     }
 
     @Benchmark
+    public byte[] encryptNative(EncrypterHolderNative holder) throws Exception {
+        return holder.encrypter.doFinal(MESSAGE);
+    }
+
+    @Benchmark
     public byte[] encryptBC(EncrypterHolderBC holder) throws Exception {
         return holder.encrypter.doFinal(MESSAGE);
     }
 
     @Benchmark
     public byte[] decrypt(DecrypterHolder holder) throws Exception {
+        return holder.decrypter.doFinal(holder.ciphertext);
+    }
+
+    @Benchmark
+    public byte[] decryptNative(DecrypterHolderNative holder) throws Exception {
         return holder.decrypter.doFinal(holder.ciphertext);
     }
 

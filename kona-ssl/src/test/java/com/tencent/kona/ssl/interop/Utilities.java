@@ -23,6 +23,7 @@
 
 package com.tencent.kona.ssl.interop;
 
+import com.tencent.kona.crypto.CryptoInsts;
 import com.tencent.kona.pkix.PKIXUtils;
 import com.tencent.kona.ssl.SSLInsts;
 
@@ -211,7 +212,7 @@ public class Utilities {
     // JDK uses different provider for EC and RSA.
     private static String cryptoProvider(String provider, Cert cert) {
         if (!"SUN".equalsIgnoreCase(provider)) {
-            return "KonaCrypto";
+            return CryptoInsts.PROV.getName();
         }
 
         if("RSA".equalsIgnoreCase(cert.keyAlgo.name)) {

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022, 2023, THL A29 Limited, a Tencent company. All rights reserved.
+ * Copyright (C) 2022, 2024, THL A29 Limited, a Tencent company. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -39,8 +39,6 @@ import java.security.Security;
 import java.security.spec.ECGenParameterSpec;
 import java.util.concurrent.TimeUnit;
 
-import static com.tencent.kona.crypto.TestUtils.PROVIDER;
-
 /**
  * The JMH-based performance test for SM2 key pair generation.
  */
@@ -64,7 +62,18 @@ public class SM2KeyPairGenPerfTest {
 
         @Setup
         public void setup() throws Exception {
-            keyPairGenerator = KeyPairGenerator.getInstance("SM2", PROVIDER);
+            keyPairGenerator = KeyPairGenerator.getInstance("SM2", "KonaCrypto");
+        }
+    }
+
+    @State(Scope.Benchmark)
+    public static class KeyPairGenHolderNative {
+
+        KeyPairGenerator keyPairGenerator;
+
+        @Setup
+        public void setup() throws Exception {
+            keyPairGenerator = KeyPairGenerator.getInstance("SM2", "KonaCrypto-Native");
         }
     }
 
@@ -82,6 +91,11 @@ public class SM2KeyPairGenPerfTest {
 
     @Benchmark
     public KeyPair genKeyPair(KeyPairGenHolder holder) {
+        return holder.keyPairGenerator.generateKeyPair();
+    }
+
+    @Benchmark
+    public KeyPair genKeyPairNative(KeyPairGenHolderNative holder) {
         return holder.keyPairGenerator.generateKeyPair();
     }
 
