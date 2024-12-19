@@ -249,6 +249,13 @@ tasks {
     register("jmh", type=JavaExec::class) {
         mainClass.set("org.openjdk.jmh.Main")
         classpath(sourceSets["jmh"].runtimeClasspath)
+        jvmArgs("-Dcom.tencent.kona.useNativeCrypto=false")
+    }
+
+    register("jmhNative", type=JavaExec::class) {
+        mainClass.set("org.openjdk.jmh.Main")
+        classpath(sourceSets["jmh"].runtimeClasspath)
+        jvmArgs("-Dcom.tencent.kona.useNativeCrypto=true")
     }
 }
 
