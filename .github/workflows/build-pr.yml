@@ -56,5 +56,8 @@ jobs:
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v3
 
-      - name: Execute Gradle build
-        run: ./gradlew clean build
+      - name: Execute tests with the pure Java crypto
+        run: ./gradlew clean test
+
+      - name: Execute tests with the native crypto
+        run: ./gradlew clean testNativeOnCurrent

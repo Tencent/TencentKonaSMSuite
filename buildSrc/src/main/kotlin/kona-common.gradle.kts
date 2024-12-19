@@ -60,6 +60,18 @@ tasks {
     }
 
     val testOnCurrent = register("testOnCurrent", CommonTest::class) {
+        jvmArgs("-Dcom.tencent.kona.useNativeCrypto=false")
+
+        systemProperty("test.classpath", classpath.joinToString(separator = ":"))
+
+        doFirst {
+            println("Testing JDK: " + javaLauncher.get().metadata.installationPath)
+        }
+    }
+
+    register("testNativeOnCurrent", CommonTest::class) {
+        jvmArgs("-Dcom.tencent.kona.useNativeCrypto=true")
+
         systemProperty("test.classpath", classpath.joinToString(separator = ":"))
 
         doFirst {
@@ -68,6 +80,8 @@ tasks {
     }
 
     register("testOnAdop8", CommonTest::class) {
+        jvmArgs("-Dcom.tencent.kona.useNativeCrypto=false")
+
         systemProperty("test.classpath", classpath.joinToString(separator = ":"))
 
         javaLauncher.set(javaToolchains.launcherFor {
@@ -81,7 +95,8 @@ tasks {
     }
 
     register("testOnAdop11", CommonTest::class) {
-        jvmArgs("--add-exports", "java.base/jdk.internal.misc=ALL-UNNAMED")
+        jvmArgs("-Dcom.tencent.kona.useNativeCrypto=false",
+            "--add-exports", "java.base/jdk.internal.misc=ALL-UNNAMED")
 
         systemProperty("test.classpath", classpath.joinToString(separator = ":"))
 
@@ -96,7 +111,8 @@ tasks {
     }
 
     register("testOnAdop17", CommonTest::class) {
-        jvmArgs("--add-exports", "java.base/jdk.internal.access=ALL-UNNAMED")
+        jvmArgs("-Dcom.tencent.kona.useNativeCrypto=false",
+            "--add-exports", "java.base/jdk.internal.access=ALL-UNNAMED")
 
         systemProperty("test.classpath", classpath.joinToString(separator = ":"))
 
@@ -111,7 +127,8 @@ tasks {
     }
 
     register("testOnAdop21", CommonTest::class) {
-        jvmArgs("--add-exports", "java.base/jdk.internal.access=ALL-UNNAMED")
+        jvmArgs("-Dcom.tencent.kona.useNativeCrypto=false",
+            "--add-exports", "java.base/jdk.internal.access=ALL-UNNAMED")
 
         systemProperty("test.classpath", classpath.joinToString(separator = ":"))
 
@@ -126,6 +143,8 @@ tasks {
     }
 
     register("testOnKona8", CommonTest::class) {
+        jvmArgs("-Dcom.tencent.kona.useNativeCrypto=false");
+
         systemProperty("test.classpath", classpath.joinToString(separator = ":"))
 
         javaLauncher.set(javaToolchains.launcherFor {
@@ -139,6 +158,9 @@ tasks {
     }
 
     register("testOnKona11", CommonTest::class) {
+        jvmArgs("-Dcom.tencent.kona.useNativeCrypto=false",
+            "--add-exports", "java.base/jdk.internal.misc=ALL-UNNAMED")
+
         systemProperty("test.classpath", classpath.joinToString(separator = ":"))
 
         javaLauncher.set(javaToolchains.launcherFor {
@@ -152,6 +174,9 @@ tasks {
     }
 
     register("testOnKona17", CommonTest::class) {
+        jvmArgs("-Dcom.tencent.kona.useNativeCrypto=false",
+            "--add-exports", "java.base/jdk.internal.access=ALL-UNNAMED")
+
         systemProperty("test.classpath", classpath.joinToString(separator = ":"))
 
         javaLauncher.set(javaToolchains.launcherFor {
@@ -165,6 +190,9 @@ tasks {
     }
 
     register("testOnKona21", CommonTest::class) {
+        jvmArgs("-Dcom.tencent.kona.useNativeCrypto=false",
+            "--add-exports", "java.base/jdk.internal.access=ALL-UNNAMED")
+
         systemProperty("test.classpath", classpath.joinToString(separator = ":"))
 
         javaLauncher.set(javaToolchains.launcherFor {
@@ -178,6 +206,9 @@ tasks {
     }
 
     register("testOnGraal17", CommonTest::class) {
+        jvmArgs("-Dcom.tencent.kona.useNativeCrypto=false",
+            "--add-exports", "java.base/jdk.internal.access=ALL-UNNAMED")
+
         systemProperty("test.classpath", classpath.joinToString(separator = ":"))
 
         javaLauncher.set(javaToolchains.launcherFor {
@@ -191,6 +222,9 @@ tasks {
     }
 
     register("testOnGraal21", CommonTest::class) {
+        jvmArgs("-Dcom.tencent.kona.useNativeCrypto=false",
+            "--add-exports", "java.base/jdk.internal.access=ALL-UNNAMED")
+
         systemProperty("test.classpath", classpath.joinToString(separator = ":"))
 
         javaLauncher.set(javaToolchains.launcherFor {
