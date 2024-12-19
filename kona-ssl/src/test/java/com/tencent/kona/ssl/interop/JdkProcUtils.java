@@ -58,6 +58,8 @@ public class JdkProcUtils {
     public static final String PROP_MESSAGE = "test.message";
     public static final String PROP_READ_RESPONSE = "test.read.response";
 
+    public static final String PROP_USE_NATIVE_CRYPTO = "com.tencent.kona.useNativeCrypto";
+
     /*
      * Converts a Cert instance to a string, which contains the field values of
      * the Cert. The values are separated by comma.

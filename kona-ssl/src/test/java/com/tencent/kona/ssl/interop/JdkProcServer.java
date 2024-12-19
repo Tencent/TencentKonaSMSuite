@@ -23,6 +23,7 @@
 
 package com.tencent.kona.ssl.interop;
 
+import com.tencent.kona.crypto.CryptoUtils;
 import com.tencent.kona.ssl.TestUtils;
 
 import javax.net.ssl.KeyManagerFactory;
@@ -213,6 +214,9 @@ public class JdkProcServer extends AbstractServer {
 
     @Override
     public void accept() throws IOException {
+        props.put(JdkProcUtils.PROP_USE_NATIVE_CRYPTO,
+                CryptoUtils.useNativeCrypto() + "");
+
         process = JdkProcUtils.java(jdk, Collections.emptyList(), getClass(),
                 props, getLogPath());
         try {
