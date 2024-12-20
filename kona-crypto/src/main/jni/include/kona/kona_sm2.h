@@ -21,6 +21,35 @@
 
 #include <openssl/ec.h>
 
+typedef struct {
+    const uint8_t* id;
+    size_t id_len;
+} SM2_ID;
+
+const SM2_ID* sm2_id();
+
+typedef struct {
+    const uint8_t* field;
+    size_t field_len;
+
+    const uint8_t* order;
+    size_t order_len;
+
+    const uint8_t* a;
+    size_t a_len;
+
+    const uint8_t* b;
+    size_t b_len;
+
+    const uint8_t* gen_x;
+    size_t gen_x_len;
+
+    const uint8_t* gen_y;
+    size_t gen_y_len;
+} SM2_CURVE;
+
+const SM2_CURVE* sm2_curve();
+
 const EC_GROUP* sm2_group();
 
 BIGNUM* sm2_pri_key(const uint8_t* pri_key_bytes);
