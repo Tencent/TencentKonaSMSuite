@@ -30,7 +30,7 @@ uint8_t* bn2bin(BIGNUM* bn) {
         return NULL;
     }
 
-    uint8_t* bn_bytes = (uint8_t*)malloc(bn_size);
+    uint8_t* bn_bytes = (uint8_t*)OPENSSL_malloc(bn_size);
     if (BN_bn2bin(bn, bn_bytes) != bn_size) {
         return NULL;
     }
@@ -67,7 +67,7 @@ uint8_t* hex2bin(const char* hex) {
     }
 
     size_t bytes_len = hex_len / 2;
-    uint8_t* bytes = (uint8_t*)malloc(bytes_len);
+    uint8_t* bytes = (uint8_t*)OPENSSL_malloc(bytes_len);
     if (bytes == NULL) {
         return NULL;
     }
@@ -77,7 +77,7 @@ uint8_t* hex2bin(const char* hex) {
         int low_nibble = hexchar2int(hex[2 * i + 1]);
 
         if (high_nibble == -1 || low_nibble == -1) {
-            free(bytes);
+            OPENSSL_free(bytes);
             return NULL;
         }
 
@@ -88,8 +88,8 @@ uint8_t* hex2bin(const char* hex) {
 }
 
 void print_hex(const uint8_t* bytes, size_t offset, size_t len) {
-    uint8_t* hex = malloc(len* 2 + 1);
+    uint8_t* hex = OPENSSL_malloc(len* 2 + 1);
     bin2hex(bytes, offset, len, hex);
     KONA_print("%s", hex);
-    free(hex);
+    OPENSSL_free(hex);
 }

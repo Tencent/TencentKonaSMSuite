@@ -179,7 +179,8 @@ public class NativeRefProfTest {
         sm2KeyPairGen.close();
 
         for (int i = 0; i < ITERATIONS; i++) {
-            NativeSM2Signature sm2Signer = new NativeSM2Signature(priKey, pubKey, ID, true);
+            NativeSM2Signature sm2Signer
+                    = new NativeSM2Signature(priKey, pubKey, ID, true);
             sm2Signer.sign(DATA);
             sm2Signer.close();
         }
@@ -192,11 +193,13 @@ public class NativeRefProfTest {
         byte[] priKey = copy(keyPair, 0, SM2_PRIKEY_LEN);
         byte[] pubKey = copy(keyPair, SM2_PRIKEY_LEN, SM2_PUBKEY_LEN);
 
-        NativeSM2Signature sm2Signer = new NativeSM2Signature(priKey, pubKey, ID, true);
+        NativeSM2Signature sm2Signer
+                = new NativeSM2Signature(priKey, pubKey, ID, true);
         byte[] signature = sm2Signer.sign(DATA);
 
         for (int i = 0; i < ITERATIONS; i++) {
-            NativeSM2Signature sm2Verifier = new NativeSM2Signature(pubKey, ID, false);
+            NativeSM2Signature sm2Verifier
+                    = new NativeSM2Signature(pubKey, ID, false);
             sm2Verifier.verify(DATA, signature);
             sm2Verifier.close();
         }
@@ -221,9 +224,9 @@ public class NativeRefProfTest {
         for (int i = 0; i < ITERATIONS; i++) {
             NativeSM2KeyAgreement sm2KeyAgreement = new NativeSM2KeyAgreement();
             sm2KeyAgreement.deriveKey(
-                priKey, pubKey, ePriKey, ID,
-                peerPubKey, peerEPubKey, ID,
-                true, 32);
+                    priKey, pubKey, ePriKey, ID,
+                    peerPubKey, peerEPubKey, ID,
+                    true, 32);
             sm2KeyAgreement.close();
         }
     }
