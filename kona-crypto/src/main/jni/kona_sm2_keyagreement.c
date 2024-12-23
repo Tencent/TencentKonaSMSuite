@@ -36,11 +36,13 @@
 SM2_KEYEX_CTX* sm2_create_keyex_ctx() {
     EVP_MD_CTX* sm3_ctx = sm3_create_ctx();
     if (sm3_ctx == NULL) {
+        OPENSSL_print_err();
         return NULL;
     }
 
     BN_CTX* bn_ctx = BN_CTX_new();
     if (bn_ctx == NULL) {
+        OPENSSL_print_err();
         return NULL;
     }
 
@@ -48,7 +50,6 @@ SM2_KEYEX_CTX* sm2_create_keyex_ctx() {
     if (ctx == NULL) {
         return NULL;
     }
-
     ctx->sm3_ctx = sm3_ctx;
     ctx->bn_ctx = bn_ctx;
 
@@ -85,6 +86,8 @@ int z(uint8_t* out, SM2_KEYEX_CTX* ctx,
 
         !EVP_DigestUpdate(ctx->sm3_ctx, curve->gen_x, curve->gen_x_len) ||
         !EVP_DigestUpdate(ctx->sm3_ctx, curve->gen_y, curve->gen_y_len)) {
+        OPENSSL_print_err();
+
         return OPENSSL_FAILURE;
     }
 
@@ -95,6 +98,8 @@ int z(uint8_t* out, SM2_KEYEX_CTX* ctx,
     }
 
     if (!EC_POINT_get_affine_coordinates(group, point, x_bn, y_bn, ctx->bn_ctx)) {
+        OPENSSL_print_err();
+
         BN_free(x_bn);
         BN_free(y_bn);
         return OPENSSL_FAILURE;
@@ -104,11 +109,15 @@ int z(uint8_t* out, SM2_KEYEX_CTX* ctx,
     uint8_t y_bytes[32];
     if (!BN_bn2binpad(x_bn, x_bytes, sizeof(x_bytes)) ||
         !BN_bn2binpad(y_bn, y_bytes, sizeof(y_bytes))) {
+        OPENSSL_print_err();
+
         return OPENSSL_FAILURE;
     }
 
     if (!EVP_DigestUpdate(ctx->sm3_ctx, x_bytes, sizeof(x_bytes)) ||
         !EVP_DigestUpdate(ctx->sm3_ctx, y_bytes, sizeof(y_bytes))) {
+        OPENSSL_print_err();
+
         return OPENSSL_FAILURE;
     }
 
@@ -130,13 +139,17 @@ int kdf(uint8_t* key_out, const int key_len, EVP_MD_CTX* sm3_ctx, const uint8_t*
     for (int i = 1; i <= count; i++) {
         uint8_t digest[SM3_DIGEST_LEN];
         if (!EVP_DigestUpdate(sm3_ctx, in, in_len)) {
+            OPENSSL_print_err();
+
             return OPENSSL_FAILURE;
         }
 
         uint8_t counter[4] = { (i >> 24) & 0xFF, (i >> 16) & 0xFF, (i >> 8) & 0xFF, i & 0xFF };
         if (!EVP_DigestUpdate(sm3_ctx, counter, 4) ||
-            !EVP_DigestFinal_ex(sm3_ctx, digest, NULL) |
+            !EVP_DigestFinal_ex(sm3_ctx, digest, NULL) ||
             !sm3_reset(sm3_ctx)) {
+            OPENSSL_print_err();
+
             return OPENSSL_FAILURE;
         }
 
@@ -198,10 +211,14 @@ int sm2_derive_key(uint8_t* key_out, int key_len,
     }
 
     if (!EC_GROUP_get_order(group, order, ctx->bn_ctx)) {
+        OPENSSL_print_err();
+
         goto cleanup;
     }
 
     if (!BN_sub(order_minus_one, order, BN_value_one())) {
+        OPENSSL_print_err();
+
         goto cleanup;
     }
 
@@ -210,6 +227,8 @@ int sm2_derive_key(uint8_t* key_out, int key_len,
 
     if (!BN_lshift(two_pow_w, BN_value_one(), w) ||
         !BN_sub(two_pow_w_sub_one, two_pow_w, BN_value_one())) {
+        OPENSSL_print_err();
+
         goto cleanup;
     }
 
@@ -217,32 +236,44 @@ int sm2_derive_key(uint8_t* key_out, int key_len,
 
     rA_p = EC_POINT_new(group);
     if (rA_p == NULL || !EC_POINT_mul(group, rA_p, rA, NULL, NULL, ctx->bn_ctx)) {
+        OPENSSL_print_err();
+
         goto cleanup;
     }
 
     if (!EC_POINT_get_affine_coordinates(group, rA_p, x1, NULL, ctx->bn_ctx) ||
         !calc_bar(x1, two_pow_w, two_pow_w_sub_one)) {
+        OPENSSL_print_err();
+
         goto cleanup;
     }
 
     if (!BN_mul(x1, x1, rA, ctx->bn_ctx) ||
         !BN_add(x1, x1, params->pri_key) ||
         !BN_mod(tA, x1, order, ctx->bn_ctx)) {
+        OPENSSL_print_err();
+
         goto cleanup;
     }
 
     if (!EC_POINT_get_affine_coordinates(group, params->peer_e_pub_key, x2, NULL, ctx->bn_ctx) ||
         !calc_bar(x2, two_pow_w, two_pow_w_sub_one)) {
+        OPENSSL_print_err();
+
         goto cleanup;
     }
 
     interim_p = EC_POINT_new(group);
     if (interim_p == NULL || !EC_POINT_mul(group, interim_p, NULL, params->peer_e_pub_key, x2, ctx->bn_ctx) ||
         !EC_POINT_add(group, interim_p, interim_p, params->peer_pub_key, ctx->bn_ctx)) {
+        OPENSSL_print_err();
+
         goto cleanup;
     }
 
     if (!EC_GROUP_get_cofactor(group, cofactor, ctx->bn_ctx)) {
+        OPENSSL_print_err();
+
         goto cleanup;
     }
 
@@ -250,14 +281,20 @@ int sm2_derive_key(uint8_t* key_out, int key_len,
     if (u_p == NULL ||
         !BN_mul(tA, tA, cofactor, ctx->bn_ctx) ||
         !EC_POINT_mul(group, u_p, NULL, interim_p, tA, ctx->bn_ctx)) {
+        OPENSSL_print_err();
+
         goto cleanup;
     }
 
     if (EC_POINT_is_at_infinity(group, u_p)) {
+        OPENSSL_print_err();
+
         goto cleanup;
     }
 
     if (!EC_POINT_get_affine_coordinates(group, u_p, vX_bn, vY_bn, ctx->bn_ctx)) {
+        OPENSSL_print_err();
+
         goto cleanup;
     }
 
@@ -271,6 +308,8 @@ int sm2_derive_key(uint8_t* key_out, int key_len,
     uint8_t vY[32] = {0};
     if (!BN_bn2bin(vX_bn, vX + (32 - vX_len)) ||
         !BN_bn2bin(vY_bn, vY + (32 - vY_len))) {
+        OPENSSL_print_err();
+
         goto cleanup;
     }
 
@@ -294,7 +333,7 @@ int sm2_derive_key(uint8_t* key_out, int key_len,
 
     ret = OPENSSL_SUCCESS;
 
-    cleanup:
+cleanup:
     BN_free(order);
     BN_free(order_minus_one);
     BN_free(two_pow_w);
@@ -447,78 +486,78 @@ JNIEXPORT jbyteArray JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_Na
     }
 
     e_pri_key = sm2_pri_key((const uint8_t *)e_pri_key_bytes);
-        if (e_pri_key == NULL) {
-            goto cleanup;
-        }
+    if (e_pri_key == NULL) {
+        goto cleanup;
+    }
 
-        peer_pub_key = sm2_pub_key((const uint8_t *)peer_pub_key_bytes, peer_pub_key_len);
-        if (peer_pub_key == NULL) {
-            goto cleanup;
-        }
+    peer_pub_key = sm2_pub_key((const uint8_t *)peer_pub_key_bytes, peer_pub_key_len);
+    if (peer_pub_key == NULL) {
+        goto cleanup;
+    }
 
-        peer_e_pub_key = sm2_pub_key((const uint8_t *)peer_e_pub_key_bytes, peer_e_pub_key_len);
-        if (peer_e_pub_key == NULL) {
-            goto cleanup;
-        }
+    peer_e_pub_key = sm2_pub_key((const uint8_t *)peer_e_pub_key_bytes, peer_e_pub_key_len);
+    if (peer_e_pub_key == NULL) {
+        goto cleanup;
+    }
 
-        params = OPENSSL_malloc(sizeof(SM2_KEYEX_PARAMS));
-        if (params == NULL) {
-            goto cleanup;
-        }
-        params->pri_key = pri_key;
-        params->pub_key = pub_key;
-        params->e_pri_key = e_pri_key;
-        params->id = (uint8_t*)id_bytes;
-        params->id_len = id_len;
-        params->peer_pub_key = peer_pub_key;
-        params->peer_e_pub_key = peer_e_pub_key;
-        params->peer_id = (uint8_t*)peer_id_bytes;
-        params->peer_id_len = peer_id_len;
+    params = OPENSSL_malloc(sizeof(SM2_KEYEX_PARAMS));
+    if (params == NULL) {
+        goto cleanup;
+    }
+    params->pri_key = pri_key;
+    params->pub_key = pub_key;
+    params->e_pri_key = e_pri_key;
+    params->id = (uint8_t*)id_bytes;
+    params->id_len = id_len;
+    params->peer_pub_key = peer_pub_key;
+    params->peer_e_pub_key = peer_e_pub_key;
+    params->peer_id = (uint8_t*)peer_id_bytes;
+    params->peer_id_len = peer_id_len;
 
-        shared_key_buf = OPENSSL_malloc(shared_key_len);
-        if (shared_key_buf == NULL) {
-            goto cleanup;
-        }
+    shared_key_buf = OPENSSL_malloc(shared_key_len);
+    if (shared_key_buf == NULL) {
+        goto cleanup;
+    }
 
-        if (!sm2_derive_key(shared_key_buf, shared_key_len, ctx, params, is_initiator)) {
-            goto cleanup;
-        }
+    if (!sm2_derive_key(shared_key_buf, shared_key_len, ctx, params, is_initiator)) {
+        goto cleanup;
+    }
 
-        shared_key_bytes = (*env)->NewByteArray(env, shared_key_len);
-        if (shared_key_bytes == NULL) {
-            goto cleanup;
-        }
-        (*env)->SetByteArrayRegion(env, shared_key_bytes, 0, shared_key_len, (jbyte*)shared_key_buf);
+    shared_key_bytes = (*env)->NewByteArray(env, shared_key_len);
+    if (shared_key_bytes == NULL) {
+        goto cleanup;
+    }
+    (*env)->SetByteArrayRegion(env, shared_key_bytes, 0, shared_key_len, (jbyte*)shared_key_buf);
 
-    cleanup:
-        if (pri_key_bytes != NULL) {
-            (*env)->ReleaseByteArrayElements(env, priKey, pri_key_bytes, JNI_ABORT);
-        }
-        if (pub_key_bytes != NULL) {
-            (*env)->ReleaseByteArrayElements(env, pubKey, pub_key_bytes, JNI_ABORT);
-        }
-        if (e_pri_key_bytes != NULL) {
-            (*env)->ReleaseByteArrayElements(env, ePriKey, e_pri_key_bytes, JNI_ABORT);
-        }
-        if (id_bytes != NULL) {
-            (*env)->ReleaseByteArrayElements(env, id, id_bytes, JNI_ABORT);
-        }
-        if (peer_pub_key_bytes != NULL) {
-            (*env)->ReleaseByteArrayElements(env, peerPubKey, peer_pub_key_bytes, JNI_ABORT);
-        }
-        if (peer_e_pub_key_bytes != NULL) {
-            (*env)->ReleaseByteArrayElements(env, peerEPubKey, peer_e_pub_key_bytes, JNI_ABORT);
-        }
-        if (peer_id_bytes != NULL) {
-            (*env)->ReleaseByteArrayElements(env, peerId, peer_id_bytes, JNI_ABORT);
-        }
-        BN_free(pri_key);
-        EC_POINT_free(pub_key);
-        BN_free(e_pri_key);
-        EC_POINT_free(peer_pub_key);
-        EC_POINT_free(peer_e_pub_key);
-        OPENSSL_free(params);
-        OPENSSL_free(shared_key_buf);
+cleanup:
+    if (pri_key_bytes != NULL) {
+        (*env)->ReleaseByteArrayElements(env, priKey, pri_key_bytes, JNI_ABORT);
+    }
+    if (pub_key_bytes != NULL) {
+        (*env)->ReleaseByteArrayElements(env, pubKey, pub_key_bytes, JNI_ABORT);
+    }
+    if (e_pri_key_bytes != NULL) {
+        (*env)->ReleaseByteArrayElements(env, ePriKey, e_pri_key_bytes, JNI_ABORT);
+    }
+    if (id_bytes != NULL) {
+        (*env)->ReleaseByteArrayElements(env, id, id_bytes, JNI_ABORT);
+    }
+    if (peer_pub_key_bytes != NULL) {
+        (*env)->ReleaseByteArrayElements(env, peerPubKey, peer_pub_key_bytes, JNI_ABORT);
+    }
+    if (peer_e_pub_key_bytes != NULL) {
+        (*env)->ReleaseByteArrayElements(env, peerEPubKey, peer_e_pub_key_bytes, JNI_ABORT);
+    }
+    if (peer_id_bytes != NULL) {
+        (*env)->ReleaseByteArrayElements(env, peerId, peer_id_bytes, JNI_ABORT);
+    }
+    BN_free(pri_key);
+    EC_POINT_free(pub_key);
+    BN_free(e_pri_key);
+    EC_POINT_free(peer_pub_key);
+    EC_POINT_free(peer_e_pub_key);
+    OPENSSL_free(params);
+    OPENSSL_free(shared_key_buf);
 
-        return shared_key_bytes;
+    return shared_key_bytes;
 }
