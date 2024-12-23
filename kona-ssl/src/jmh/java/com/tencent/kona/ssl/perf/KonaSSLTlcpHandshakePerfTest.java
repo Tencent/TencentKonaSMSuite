@@ -87,6 +87,9 @@ public class KonaSSLTlcpHandshakePerfTest {
     @Param({"TLCPv1.1"})
     String protocol;
 
+    @Param({"TLCP_ECC_SM4_CBC_SM3", "TLCP_ECDHE_SM4_CBC_SM3"})
+    String cipherSuite;
+
     @Param({"false", "true"})
     boolean resume;
 
@@ -168,7 +171,7 @@ public class KonaSSLTlcpHandshakePerfTest {
         clientEngine = clientContext.createSSLEngine("client", 80);
         clientEngine.setUseClientMode(true);
         clientEngine.setEnabledProtocols(new String[] {"TLCPv1.1"});
-        clientEngine.setEnabledCipherSuites(new String[] { "TLCP_ECC_SM4_CBC_SM3" });
+        clientEngine.setEnabledCipherSuites(new String[] {cipherSuite});
     }
 
     private HandshakeStatus checkResult(SSLEngine engine, SSLEngineResult result) {
