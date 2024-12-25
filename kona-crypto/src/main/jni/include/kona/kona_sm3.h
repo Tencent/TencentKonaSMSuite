@@ -17,8 +17,12 @@
  * Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-EVP_MD_CTX* sm3_create_ctx();
-int sm3_reset(EVP_MD_CTX*);
+#include <openssl/evp.h>
 
-EVP_MAC_CTX* sm3hmac_create_ctx(EVP_MAC*, const uint8_t*, size_t);
-int sm3hmac_reset(EVP_MAC_CTX*);
+#include "kona/kona_common.h"
+
+EVP_MD_CTX* sm3_create_ctx();
+int sm3_reset(EVP_MD_CTX* ctx);
+
+EVP_MAC_CTX* sm3hmac_create_ctx(EVP_MAC* mac, const uint8_t* key, size_t key_len);
+int sm3hmac_reset(EVP_MAC_CTX* ctx);

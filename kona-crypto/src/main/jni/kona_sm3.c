@@ -17,9 +17,6 @@
  * Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include <stdlib.h>
-#include <string.h>
-
 #include <jni.h>
 
 #include <openssl/evp.h>
@@ -32,17 +29,20 @@ EVP_MD_CTX* sm3_create_ctx() {
     EVP_MD_CTX* ctx = EVP_MD_CTX_new();
     if (ctx == NULL) {
         OPENSSL_print_err();
+
         return NULL;
     }
 
     const EVP_MD* md = EVP_sm3();
     if (md == NULL) {
         OPENSSL_print_err();
+
         return NULL;
     }
 
     if (!EVP_DigestInit_ex(ctx, md, NULL)) {
         OPENSSL_print_err();
+
         return NULL;
     }
 
@@ -56,6 +56,7 @@ int sm3_reset(EVP_MD_CTX* ctx) {
 
     if (!EVP_DigestInit_ex(ctx, NULL, NULL)) {
         OPENSSL_print_err();
+
         return OPENSSL_FAILURE;
     }
 
@@ -65,6 +66,7 @@ int sm3_reset(EVP_MD_CTX* ctx) {
 JNIEXPORT jlong JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeCrypto_sm3CreateCtx
   (JNIEnv* env, jobject thisObj) {
     EVP_MD_CTX* ctx = sm3_create_ctx();
+
     return ctx == NULL ? OPENSSL_FAILURE : (jlong)ctx;
 }
 
@@ -102,6 +104,7 @@ JNIEXPORT jint JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeCr
         result = OPENSSL_SUCCESS;
     } else {
         OPENSSL_print_err();
+
         result = OPENSSL_FAILURE;
     }
 
@@ -122,6 +125,7 @@ JNIEXPORT jbyteArray JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_Na
 
     if (!EVP_DigestFinal_ex(ctx, digest, &digest_len)) {
         OPENSSL_print_err();
+
         return NULL;
     }
 
@@ -168,6 +172,7 @@ JNIEXPORT jlong JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeC
     if (!EVP_MD_CTX_copy_ex(new_ctx, orig_ctx)) {
         OPENSSL_print_err();
         EVP_MD_CTX_free(new_ctx);
+
         return OPENSSL_FAILURE;
     }
 
@@ -186,6 +191,7 @@ EVP_MAC_CTX* sm3hmac_create_ctx(EVP_MAC* mac, const uint8_t* key, size_t key_len
     EVP_MAC_CTX* ctx = EVP_MAC_CTX_new(mac);
     if (ctx == NULL) {
         OPENSSL_print_err();
+
         return OPENSSL_FAILURE;
     }
 
@@ -197,6 +203,7 @@ EVP_MAC_CTX* sm3hmac_create_ctx(EVP_MAC* mac, const uint8_t* key, size_t key_len
     if (!EVP_MAC_init(ctx, key, key_len, params)) {
         OPENSSL_print_err();
         EVP_MAC_CTX_free(ctx);
+
         return OPENSSL_FAILURE;
     }
 
@@ -286,6 +293,7 @@ JNIEXPORT jint JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeCr
     int result = OPENSSL_SUCCESS;
     if (!EVP_MAC_update(ctx, (const uint8_t*)data_bytes, data_len)) {
         OPENSSL_print_err();
+
         result = OPENSSL_FAILURE;
     }
 
@@ -306,6 +314,7 @@ JNIEXPORT jbyteArray JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_Na
 
     if (!EVP_MAC_final(ctx, mac, &mac_len, sizeof(mac))) {
         OPENSSL_print_err();
+
         return NULL;
     }
 
@@ -348,6 +357,7 @@ JNIEXPORT jlong JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeC
     EVP_MAC_CTX* new_ctx = EVP_MAC_CTX_dup(orig_ctx);
     if (new_ctx == NULL) {
         OPENSSL_print_err();
+
         return OPENSSL_FAILURE;
     }
 

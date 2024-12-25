@@ -17,8 +17,6 @@
  * Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include <stdbool.h>
-#include <stdlib.h>
 #include <string.h>
 
 #include <jni.h>
@@ -46,6 +44,7 @@ JNIEXPORT jbyteArray JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_Na
     if (group == NULL) {
         OPENSSL_print_err();
         (*env)->ReleaseByteArrayElements(env, compPubKey, comp_pub_key_bytes, JNI_ABORT);
+
         return NULL;
     }
 
@@ -54,6 +53,7 @@ JNIEXPORT jbyteArray JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_Na
         OPENSSL_print_err();
         (*env)->ReleaseByteArrayElements(env, compPubKey, comp_pub_key_bytes, JNI_ABORT);
         EC_GROUP_free(group);
+
         return NULL;
     }
 
@@ -63,6 +63,7 @@ JNIEXPORT jbyteArray JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_Na
         (*env)->ReleaseByteArrayElements(env, compPubKey, comp_pub_key_bytes, JNI_ABORT);
         EC_GROUP_free(group);
         EC_POINT_free(point);
+
         return NULL;
     }
 
@@ -74,6 +75,7 @@ JNIEXPORT jbyteArray JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_Na
         (*env)->ReleaseByteArrayElements(env, compPubKey, comp_pub_key_bytes, JNI_ABORT);
         EC_GROUP_free(group);
         EC_POINT_free(point);
+
         return NULL;
     }
 
@@ -104,6 +106,7 @@ JNIEXPORT jbyteArray JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_Na
     uint8_t pub_key_buf[SM2_PUB_KEY_LEN];
     if (!sm2_gen_pub_key((const uint8_t*)pri_key_bytes, pub_key_buf)) {
         (*env)->ReleaseByteArrayElements(env, priKey, pri_key_bytes, JNI_ABORT);
+
         return NULL;
     }
     (*env)->ReleaseByteArrayElements(env, priKey, pri_key_bytes, JNI_ABORT);
@@ -157,58 +160,64 @@ int sm2_gen_key_pair(EVP_PKEY_CTX* ctx, uint8_t* key_pair, size_t* key_pair_len)
 
     if (!EVP_PKEY_keygen_init(ctx)) {
         OPENSSL_print_err();
+
         return OPENSSL_FAILURE;
     }
 
     EVP_PKEY* pkey = NULL;
     if (!EVP_PKEY_keygen(ctx, &pkey)) {
         OPENSSL_print_err();
+
         return OPENSSL_FAILURE;
     }
 
-    BIGNUM* priv_key_bn = NULL;
-    if (!EVP_PKEY_get_bn_param(pkey, OSSL_PKEY_PARAM_PRIV_KEY, &priv_key_bn)) {
+    BIGNUM* pri_key_bn = NULL;
+    if (!EVP_PKEY_get_bn_param(pkey, OSSL_PKEY_PARAM_PRIV_KEY, &pri_key_bn)) {
         OPENSSL_print_err();
         EVP_PKEY_free(pkey);
+
         return OPENSSL_FAILURE;
     }
-    if (BN_num_bytes(priv_key_bn) > SM2_PRI_KEY_LEN) {
+    if (BN_num_bytes(pri_key_bn) > SM2_PRI_KEY_LEN) {
         EVP_PKEY_free(pkey);
-        BN_free(priv_key_bn);
+        BN_free(pri_key_bn);
+
         return OPENSSL_FAILURE;
     }
-    uint8_t priv_key_buf[SM2_PRI_KEY_LEN] = {0};
-    BN_bn2binpad(priv_key_bn, priv_key_buf, SM2_PRI_KEY_LEN);
-    BN_free(priv_key_bn);
+    uint8_t pri_key_buf[SM2_PRI_KEY_LEN] = {0};
+    BN_bn2binpad(pri_key_bn, pri_key_buf, SM2_PRI_KEY_LEN);
+    BN_free(pri_key_bn);
 
     size_t pub_key_len = 0;
     if (!EVP_PKEY_get_octet_string_param(pkey, OSSL_PKEY_PARAM_PUB_KEY, NULL, 0, &pub_key_len)) {
         OPENSSL_print_err();
         EVP_PKEY_free(pkey);
-        OPENSSL_cleanse(priv_key_buf, SM2_PRI_KEY_LEN);
+        OPENSSL_cleanse(pri_key_buf, SM2_PRI_KEY_LEN);
+
         return OPENSSL_FAILURE;
     }
     uint8_t* pub_key_buf = OPENSSL_malloc(pub_key_len);
     if (pub_key_buf == NULL) {
         EVP_PKEY_free(pkey);
-        OPENSSL_cleanse(priv_key_buf, SM2_PRI_KEY_LEN);
+        OPENSSL_cleanse(pri_key_buf, SM2_PRI_KEY_LEN);
         return OPENSSL_FAILURE;
     }
 
     if (!EVP_PKEY_get_octet_string_param(pkey, OSSL_PKEY_PARAM_PUB_KEY, pub_key_buf, pub_key_len, &pub_key_len)) {
         OPENSSL_print_err();
         EVP_PKEY_free(pkey);
-        OPENSSL_cleanse(priv_key_buf, SM2_PRI_KEY_LEN);
+        OPENSSL_cleanse(pri_key_buf, SM2_PRI_KEY_LEN);
         OPENSSL_free(pub_key_buf);
+
         return OPENSSL_FAILURE;
     }
 
     *key_pair_len = SM2_PRI_KEY_LEN + pub_key_len;
-    memcpy(key_pair, priv_key_buf, SM2_PRI_KEY_LEN);
+    memcpy(key_pair, pri_key_buf, SM2_PRI_KEY_LEN);
     memcpy(key_pair + SM2_PRI_KEY_LEN, pub_key_buf, pub_key_len);
 
     EVP_PKEY_free(pkey);
-    OPENSSL_cleanse(priv_key_buf, SM2_PRI_KEY_LEN);
+    OPENSSL_cleanse(pri_key_buf, SM2_PRI_KEY_LEN);
     OPENSSL_free(pub_key_buf);
 
     return OPENSSL_SUCCESS;
