@@ -53,7 +53,7 @@ import java.util.concurrent.TimeUnit;
 import static com.tencent.kona.ssl.tlcp.TlcpUtils.*;
 
 @Warmup(iterations = 5, time = 5)
-@Measurement(iterations = 5, time = 10)
+@Measurement(iterations = 5, time = 5)
 @Fork(value = 2, jvmArgsAppend = {"-server", "-Xms2048M", "-Xmx2048M", "-XX:+UseG1GC"})
 @Threads(1)
 @BenchmarkMode(Mode.Throughput)

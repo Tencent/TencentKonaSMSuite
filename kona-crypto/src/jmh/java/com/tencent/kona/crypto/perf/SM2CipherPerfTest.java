@@ -20,19 +20,17 @@
 package com.tencent.kona.crypto.perf;
 
 import com.tencent.kona.crypto.TestUtils;
-import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.openjdk.jmh.annotations.*;
 
 import javax.crypto.Cipher;
 import java.security.KeyPair;
-import java.security.Security;
 import java.util.concurrent.TimeUnit;
 
 /**
  * The JMH-based performance test for SM2 decryption.
  */
 @Warmup(iterations = 5, time = 5)
-@Measurement(iterations = 5, time = 10)
+@Measurement(iterations = 5, time = 5)
 @Fork(value = 2, jvmArgsAppend = {"-server", "-Xms2048M", "-Xmx2048M", "-XX:+UseG1GC"})
 @Threads(1)
 @BenchmarkMode(Mode.Throughput)
@@ -41,7 +39,6 @@ public class SM2CipherPerfTest {
 
     static {
         TestUtils.addProviders();
-        Security.addProvider(new BouncyCastleProvider());
     }
 
     private final static String PUB_KEY
@@ -49,40 +46,28 @@ public class SM2CipherPerfTest {
     private final static String PRI_KEY
             = "3B03B35C2F26DBC56F6D33677F1B28AF15E45FE9B594A6426BDCAD4A69FF976B";
     private final static KeyPair KEY_PAIR = TestUtils.keyPair(PUB_KEY, PRI_KEY);
-    private static final byte[] MESSAGE = TestUtils.dataKB(1);
+
+    private final static byte[] SMALL_DATA = TestUtils.data(128);
+    private final static byte[] MEDIUM_DATA = TestUtils.dataKB(1);
+    private final static byte[] BIG_DATA = TestUtils.dataMB(1);
 
     @State(Scope.Benchmark)
     public static class EncrypterHolder {
 
+        @Param({"KonaCrypto", "KonaCrypto-Native"})
+        String provider;
+
+        @Param({"Small", "Mid", "Big"})
+        String dataType;
+
+        byte[] data;
         Cipher encrypter;
 
         @Setup(Level.Trial)
         public void setup() throws Exception {
-            encrypter = Cipher.getInstance("SM2", "KonaCrypto");
-            encrypter.init(Cipher.ENCRYPT_MODE, KEY_PAIR.getPublic());
-        }
-    }
+            data = data(dataType);
 
-    @State(Scope.Benchmark)
-    public static class EncrypterHolderNative {
-
-        Cipher encrypter;
-
-        @Setup(Level.Trial)
-        public void setup() throws Exception {
-            encrypter = Cipher.getInstance("SM2", "KonaCrypto-Native");
-            encrypter.init(Cipher.ENCRYPT_MODE, KEY_PAIR.getPublic());
-        }
-    }
-
-    @State(Scope.Benchmark)
-    public static class EncrypterHolderBC {
-
-        Cipher encrypter;
-
-        @Setup(Level.Trial)
-        public void setup() throws Exception {
-            encrypter = Cipher.getInstance("SM2", "BC");
+            encrypter = Cipher.getInstance("SM2", provider);
             encrypter.init(Cipher.ENCRYPT_MODE, KEY_PAIR.getPublic());
         }
     }
@@ -90,90 +75,46 @@ public class SM2CipherPerfTest {
     @State(Scope.Benchmark)
     public static class DecrypterHolder {
 
+        @Param({"KonaCrypto", "KonaCrypto-Native"})
+        String provider;
+
+        @Param({"Small", "Mid", "Big"})
+        String dataType;
+
         byte[] ciphertext;
         Cipher decrypter;
 
         @Setup(Level.Trial)
         public void setup() throws Exception {
             ciphertext = ciphertext();
-            decrypter = Cipher.getInstance("SM2", "KonaCrypto");
+            decrypter = Cipher.getInstance("SM2", provider);
             decrypter.init(Cipher.DECRYPT_MODE, KEY_PAIR.getPrivate());
         }
 
         private byte[] ciphertext() throws Exception {
-            Cipher cipher = Cipher.getInstance("SM2", "KonaCrypto");
+            Cipher cipher = Cipher.getInstance("SM2", provider);
             cipher.init(Cipher.ENCRYPT_MODE, KEY_PAIR.getPublic());
-            return cipher.doFinal(MESSAGE);
+            return cipher.doFinal(data(dataType));
         }
     }
 
-    @State(Scope.Benchmark)
-    public static class DecrypterHolderNative {
-
-        byte[] ciphertext;
-        Cipher decrypter;
-
-        @Setup(Level.Trial)
-        public void setup() throws Exception {
-            ciphertext = ciphertext();
-            decrypter = Cipher.getInstance("SM2", "KonaCrypto-Native");
-            decrypter.init(Cipher.DECRYPT_MODE, KEY_PAIR.getPrivate());
-        }
-
-        private byte[] ciphertext() throws Exception {
-            Cipher cipher = Cipher.getInstance("SM2", "KonaCrypto-Native");
-            cipher.init(Cipher.ENCRYPT_MODE, KEY_PAIR.getPublic());
-            return cipher.doFinal(MESSAGE);
-        }
-    }
-
-    @State(Scope.Benchmark)
-    public static class DecrypterHolderBC {
-
-        byte[] ciphertext;
-        Cipher decrypter;
-
-        @Setup(Level.Trial)
-        public void setup() throws Exception {
-            ciphertext = ciphertext();
-            decrypter = Cipher.getInstance("SM2", "BC");
-            decrypter.init(Cipher.DECRYPT_MODE, KEY_PAIR.getPrivate());
-        }
-
-        private byte[] ciphertext() throws Exception {
-            Cipher cipher = Cipher.getInstance("SM2", "BC");
-            cipher.init(Cipher.ENCRYPT_MODE, KEY_PAIR.getPublic());
-            return cipher.doFinal(MESSAGE);
+    private static byte[] data(String dataType) {
+        switch (dataType) {
+            case "Small": return SMALL_DATA;
+            case "Mid": return MEDIUM_DATA;
+            case "Big": return BIG_DATA;
+            default: throw new IllegalArgumentException(
+                    "Unsupported data type: " + dataType);
         }
     }
 
     @Benchmark
     public byte[] encrypt(EncrypterHolder holder) throws Exception {
-        return holder.encrypter.doFinal(MESSAGE);
-    }
-
-    @Benchmark
-    public byte[] encryptNative(EncrypterHolderNative holder) throws Exception {
-        return holder.encrypter.doFinal(MESSAGE);
-    }
-
-    @Benchmark
-    public byte[] encryptBC(EncrypterHolderBC holder) throws Exception {
-        return holder.encrypter.doFinal(MESSAGE);
+        return holder.encrypter.doFinal(holder.data);
     }
 
     @Benchmark
     public byte[] decrypt(DecrypterHolder holder) throws Exception {
-        return holder.decrypter.doFinal(holder.ciphertext);
-    }
-
-    @Benchmark
-    public byte[] decryptNative(DecrypterHolderNative holder) throws Exception {
-        return holder.decrypter.doFinal(holder.ciphertext);
-    }
-
-    @Benchmark
-    public byte[] decryptBC(DecrypterHolderBC holder) throws Exception {
         return holder.decrypter.doFinal(holder.ciphertext);
     }
 }

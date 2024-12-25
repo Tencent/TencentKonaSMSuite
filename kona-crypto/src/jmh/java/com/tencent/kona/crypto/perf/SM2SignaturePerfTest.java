@@ -21,24 +21,9 @@ package com.tencent.kona.crypto.perf;
 
 import com.tencent.kona.crypto.TestUtils;
 import com.tencent.kona.crypto.spec.SM2SignatureParameterSpec;
-import org.bouncycastle.asn1.gm.GMObjectIdentifiers;
-import org.bouncycastle.jcajce.spec.SM2ParameterSpec;
-import org.bouncycastle.jce.provider.BouncyCastleProvider;
-import org.openjdk.jmh.annotations.Benchmark;
-import org.openjdk.jmh.annotations.BenchmarkMode;
-import org.openjdk.jmh.annotations.Fork;
-import org.openjdk.jmh.annotations.Level;
-import org.openjdk.jmh.annotations.Measurement;
-import org.openjdk.jmh.annotations.Mode;
-import org.openjdk.jmh.annotations.OutputTimeUnit;
-import org.openjdk.jmh.annotations.Scope;
-import org.openjdk.jmh.annotations.Setup;
-import org.openjdk.jmh.annotations.State;
-import org.openjdk.jmh.annotations.Threads;
-import org.openjdk.jmh.annotations.Warmup;
+import org.openjdk.jmh.annotations.*;
 
 import java.security.KeyPair;
-import java.security.Security;
 import java.security.Signature;
 import java.security.interfaces.ECPublicKey;
 import java.util.concurrent.TimeUnit;
@@ -49,7 +34,7 @@ import static com.tencent.kona.crypto.CryptoUtils.toBytes;
  * The JMH-based performance test for SM2 signature.
  */
 @Warmup(iterations = 5, time = 5)
-@Measurement(iterations = 5, time = 10)
+@Measurement(iterations = 5, time = 5)
 @Fork(value = 2, jvmArgsAppend = {"-server", "-Xms2048M", "-Xmx2048M", "-XX:+UseG1GC"})
 @Threads(1)
 @BenchmarkMode(Mode.Throughput)
@@ -58,7 +43,6 @@ public class SM2SignaturePerfTest {
 
     static {
         TestUtils.addProviders();
-        Security.addProvider(new BouncyCastleProvider());
     }
 
     private final static String PUB_KEY
@@ -67,46 +51,30 @@ public class SM2SignaturePerfTest {
             = "3B03B35C2F26DBC56F6D33677F1B28AF15E45FE9B594A6426BDCAD4A69FF976B";
     private final static KeyPair KEY_PAIR = TestUtils.keyPair(PUB_KEY, PRI_KEY);
     private final static byte[] ID = toBytes("01234567");
-    private final static byte[] MESSAGE = TestUtils.dataKB(1);
+
+    private final static byte[] SMALL_DATA = TestUtils.data(128);
+    private final static byte[] MEDIUM_DATA = TestUtils.dataKB(1);
+    private final static byte[] BIG_DATA = TestUtils.dataMB(1);
 
     @State(Scope.Benchmark)
     public static class SignerHolder {
 
+        @Param({"KonaCrypto", "KonaCrypto-Native"})
+        String provider;
+
+        @Param({"Small", "Mid", "Big"})
+        String dataType;
+
+        byte[] data;
         Signature signer;
 
         @Setup(Level.Trial)
         public void setup() throws Exception {
-            signer = Signature.getInstance("SM2", "KonaCrypto");
+            data = data(dataType);
+
+            signer = Signature.getInstance("SM2", provider);
             signer.setParameter(new SM2SignatureParameterSpec(
                     ID, (ECPublicKey) KEY_PAIR.getPublic()));
-            signer.initSign(KEY_PAIR.getPrivate());
-        }
-    }
-
-    @State(Scope.Benchmark)
-    public static class SignerHolderNative {
-
-        Signature signer;
-
-        @Setup(Level.Trial)
-        public void setup() throws Exception {
-            signer = Signature.getInstance("SM2", "KonaCrypto-Native");
-            signer.setParameter(new SM2SignatureParameterSpec(
-                    ID, (ECPublicKey) KEY_PAIR.getPublic()));
-            signer.initSign(KEY_PAIR.getPrivate());
-        }
-    }
-
-    @State(Scope.Benchmark)
-    public static class SignerHolderBC {
-
-        Signature signer;
-
-        @Setup(Level.Trial)
-        public void setup() throws Exception {
-            signer = Signature.getInstance(
-                    GMObjectIdentifiers.sm2sign_with_sm3.toString(), "BC");
-            signer.setParameter(new SM2ParameterSpec(ID));
             signer.initSign(KEY_PAIR.getPrivate());
         }
     }
@@ -114,113 +82,56 @@ public class SM2SignaturePerfTest {
     @State(Scope.Benchmark)
     public static class VerifierHolder {
 
+        @Param({"KonaCrypto", "KonaCrypto-Native"})
+        String provider;
+
+        @Param({"Small", "Mid", "Big"})
+        String dataType;
+
+        byte[] data;
         byte[] signature;
         Signature verifier;
 
         @Setup(Level.Trial)
         public void setup() throws Exception {
+            data = data(dataType);
             signature = signature();
 
-            verifier = Signature.getInstance("SM2", "KonaCrypto");
+            verifier = Signature.getInstance("SM2", provider);
             verifier.setParameter(new SM2SignatureParameterSpec(
                     ID, (ECPublicKey) KEY_PAIR.getPublic()));
             verifier.initVerify(KEY_PAIR.getPublic());
         }
 
         private byte[] signature() throws Exception {
-            Signature signer = Signature.getInstance("SM2", "KonaCrypto");
+            Signature signer = Signature.getInstance("SM2", provider);
             signer.setParameter(new SM2SignatureParameterSpec(
                     ID, (ECPublicKey) KEY_PAIR.getPublic()));
             signer.initSign(KEY_PAIR.getPrivate());
-            signer.update(MESSAGE);
+            signer.update(data);
             return signer.sign();
         }
     }
 
-    @State(Scope.Benchmark)
-    public static class VerifierHolderNative {
-
-        byte[] signature;
-        Signature verifier;
-
-        @Setup(Level.Trial)
-        public void setup() throws Exception {
-            signature = signature();
-
-            verifier = Signature.getInstance("SM2", "KonaCrypto-Native");
-            verifier.setParameter(new SM2SignatureParameterSpec(
-                    ID, (ECPublicKey) KEY_PAIR.getPublic()));
-            verifier.initVerify(KEY_PAIR.getPublic());
-        }
-
-        private byte[] signature() throws Exception {
-            Signature signer = Signature.getInstance("SM2", "KonaCrypto-Native");
-            signer.setParameter(new SM2SignatureParameterSpec(
-                    ID, (ECPublicKey) KEY_PAIR.getPublic()));
-            signer.initSign(KEY_PAIR.getPrivate());
-            signer.update(MESSAGE);
-            return signer.sign();
-        }
-    }
-
-    @State(Scope.Benchmark)
-    public static class VerifierHolderBC {
-
-        byte[] signature;
-        Signature verifier;
-
-        @Setup(Level.Trial)
-        public void setup() throws Exception {
-            signature = signature();
-
-            verifier = Signature.getInstance(
-                    GMObjectIdentifiers.sm2sign_with_sm3.toString(), "BC");
-            verifier.setParameter(new SM2ParameterSpec(ID));
-            verifier.initVerify(KEY_PAIR.getPublic());
-        }
-
-        private byte[] signature() throws Exception {
-            Signature signer = Signature.getInstance(
-                    GMObjectIdentifiers.sm2sign_with_sm3.toString(), "BC");
-            signer.setParameter(new SM2ParameterSpec(ID));
-            signer.initSign(KEY_PAIR.getPrivate());
-            return signer.sign();
+    private static byte[] data(String dataType) {
+        switch (dataType) {
+            case "Small": return SMALL_DATA;
+            case "Mid": return MEDIUM_DATA;
+            case "Big": return BIG_DATA;
+            default: throw new IllegalArgumentException(
+                    "Unsupported data type: " + dataType);
         }
     }
 
     @Benchmark
     public byte[] sign(SignerHolder holder) throws Exception {
-        holder.signer.update(MESSAGE);
-        return holder.signer.sign();
-    }
-
-    @Benchmark
-    public byte[] signNative(SignerHolderNative holder) throws Exception {
-        holder.signer.update(MESSAGE);
-        return holder.signer.sign();
-    }
-
-    @Benchmark
-    public byte[] signBC(SignerHolderBC holder) throws Exception {
-        holder.signer.update(MESSAGE);
+        holder.signer.update(holder.data);
         return holder.signer.sign();
     }
 
     @Benchmark
     public boolean verify(VerifierHolder holder) throws Exception {
-        holder.verifier.update(MESSAGE);
-        return holder.verifier.verify(holder.signature);
-    }
-
-    @Benchmark
-    public boolean verifyNative(VerifierHolderNative holder) throws Exception {
-        holder.verifier.update(MESSAGE);
-        return holder.verifier.verify(holder.signature);
-    }
-
-    @Benchmark
-    public boolean verifyBC(VerifierHolderBC holder) throws Exception {
-        holder.verifier.update(MESSAGE);
+        holder.verifier.update(holder.data);
         return holder.verifier.verify(holder.signature);
     }
 }
