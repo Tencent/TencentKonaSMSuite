@@ -20,7 +20,6 @@
 package com.tencent.kona.crypto.perf;
 
 import com.tencent.kona.crypto.TestUtils;
-import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.BenchmarkMode;
 import org.openjdk.jmh.annotations.Fork;
@@ -37,7 +36,6 @@ import org.openjdk.jmh.annotations.Warmup;
 
 import javax.crypto.Cipher;
 import javax.crypto.spec.SecretKeySpec;
-import java.security.Security;
 import java.util.concurrent.TimeUnit;
 
 import static com.tencent.kona.crypto.CryptoUtils.toBytes;
@@ -63,13 +61,12 @@ public class SM4ConstantTimeTest {
 
     static {
         TestUtils.addProviders();
-        Security.addProvider(new BouncyCastleProvider());
     }
 
     @State(Scope.Benchmark)
     public static class CipherHolder {
 
-        @Param({"KonaCrypto", "KonaCrypto-Native", "BC"})
+        @Param({"KonaCrypto", "KonaCrypto-Native"})
         String provider;
 
         @Param({"Small", "Mid", "Big"})
@@ -99,16 +96,17 @@ public class SM4ConstantTimeTest {
             cipher = Cipher.getInstance("SM4/ECB/NoPadding", provider);
             cipher.init(Cipher.ENCRYPT_MODE, new SecretKeySpec(key, "SM4"));
 
-            switch (dataType) {
-                case "Small":
-                    data = MESG_SMALL;
-                    break;
-                case "Mid":
-                    data = MESG_MID;
-                    break;
-                case "Big":
-                    data = MESG_BIG;
-            }
+            data = data(dataType);
+        }
+    }
+
+    private static byte[] data(String dataType) {
+        switch (dataType) {
+            case "Small": return MESG_SMALL;
+            case "Mid": return MESG_MID;
+            case "Big": return MESG_BIG;
+            default: throw new IllegalArgumentException(
+                    "Unsupported data type: " + dataType);
         }
     }
 

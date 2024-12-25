@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2023, THL A29 Limited, a Tencent company. All rights reserved.
+ * Copyright (C) 2023, 2024, THL A29 Limited, a Tencent company. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -50,7 +50,7 @@ import java.util.concurrent.TimeUnit;
  * The JMH-based performance test for keystore operations.
  */
 @Warmup(iterations = 5, time = 5)
-@Measurement(iterations = 5, time = 10)
+@Measurement(iterations = 5, time = 5)
 @Fork(value = 2, jvmArgsAppend = {"-server", "-Xms2048M", "-Xmx2048M", "-XX:+UseG1GC"})
 @Threads(1)
 @BenchmarkMode(Mode.Throughput)

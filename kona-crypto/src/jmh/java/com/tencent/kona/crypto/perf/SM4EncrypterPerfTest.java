@@ -21,19 +21,7 @@ package com.tencent.kona.crypto.perf;
 
 import com.tencent.kona.crypto.TestUtils;
 import com.tencent.kona.crypto.util.Constants;
-import org.bouncycastle.jce.provider.BouncyCastleProvider;
-import org.openjdk.jmh.annotations.Benchmark;
-import org.openjdk.jmh.annotations.BenchmarkMode;
-import org.openjdk.jmh.annotations.Fork;
-import org.openjdk.jmh.annotations.Level;
-import org.openjdk.jmh.annotations.Measurement;
-import org.openjdk.jmh.annotations.Mode;
-import org.openjdk.jmh.annotations.OutputTimeUnit;
-import org.openjdk.jmh.annotations.Scope;
-import org.openjdk.jmh.annotations.Setup;
-import org.openjdk.jmh.annotations.State;
-import org.openjdk.jmh.annotations.Threads;
-import org.openjdk.jmh.annotations.Warmup;
+import org.openjdk.jmh.annotations.*;
 
 import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
@@ -41,7 +29,6 @@ import javax.crypto.spec.GCMParameterSpec;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
-import java.security.Security;
 import java.util.concurrent.TimeUnit;
 
 import static com.tencent.kona.crypto.CryptoUtils.toBytes;
@@ -50,7 +37,7 @@ import static com.tencent.kona.crypto.CryptoUtils.toBytes;
  * The JMH-based performance test for SM4 encryption.
  */
 @Warmup(iterations = 5, time = 5)
-@Measurement(iterations = 5, time = 10)
+@Measurement(iterations = 5, time = 5)
 @Fork(value = 2, jvmArgsAppend = {"-server", "-Xms2048M", "-Xmx2048M", "-XX:+UseG1GC"})
 @Threads(1)
 @BenchmarkMode(Mode.Throughput)
@@ -66,15 +53,25 @@ public class SM4EncrypterPerfTest {
     private static final GCMParameterSpec GCM_PARAM_SPEC
             = new GCMParameterSpec(Constants.SM4_GCM_TAG_LEN * 8, GCM_IV);
 
-    private final static byte[] DATA = TestUtils.dataMB(1);
+    private final static byte[] SMALL_DATA = TestUtils.data(128);
+    private final static byte[] MEDIUM_DATA = TestUtils.dataKB(1);
+    private final static byte[] BIG_DATA = TestUtils.dataMB(1);
 
     static {
         TestUtils.addProviders();
-        Security.addProvider(new BouncyCastleProvider());
     }
 
     @State(Scope.Benchmark)
     public static class EncrypterHolder {
+
+        @Param({"KonaCrypto", "KonaCrypto-Native"})
+        String provider;
+
+        @Param({"Small", "Mid", "Big"})
+        String dataType;
+
+        byte[] data;
+
         Cipher encrypterCBCPadding;
         Cipher encrypterCBCNoPadding;
         Cipher encrypterECBNoPadding;
@@ -83,179 +80,67 @@ public class SM4EncrypterPerfTest {
 
         @Setup(Level.Invocation)
         public void setup() throws Exception {
+            data = data(dataType);
+
             encrypterCBCPadding = Cipher.getInstance(
-                    "SM4/CBC/PKCS7Padding", "KonaCrypto");
+                    "SM4/CBC/PKCS7Padding", provider);
             encrypterCBCPadding.init(
                     Cipher.ENCRYPT_MODE, SECRET_KEY, IV_PARAM_SPEC);
 
             encrypterCBCNoPadding = Cipher.getInstance(
-                    "SM4/CBC/NoPadding", "KonaCrypto");
+                    "SM4/CBC/NoPadding", provider);
             encrypterCBCNoPadding.init(
                     Cipher.ENCRYPT_MODE, SECRET_KEY, IV_PARAM_SPEC);
 
             encrypterECBNoPadding = Cipher.getInstance(
-                    "SM4/ECB/NoPadding", "KonaCrypto");
+                    "SM4/ECB/NoPadding", provider);
             encrypterECBNoPadding.init(
                     Cipher.ENCRYPT_MODE, SECRET_KEY);
 
             encrypterCTRNoPadding = Cipher.getInstance(
-                    "SM4/CTR/NoPadding", "KonaCrypto");
+                    "SM4/CTR/NoPadding", provider);
             encrypterCTRNoPadding.init(
                     Cipher.ENCRYPT_MODE, SECRET_KEY, IV_PARAM_SPEC);
 
             encrypterGCMNoPadding = Cipher.getInstance(
-                    "SM4/GCM/NoPadding", "KonaCrypto");
+                    "SM4/GCM/NoPadding", provider);
             encrypterGCMNoPadding.init(
                     Cipher.ENCRYPT_MODE, SECRET_KEY, GCM_PARAM_SPEC);
         }
     }
 
-    @State(Scope.Benchmark)
-    public static class EncrypterHolderNative {
-        Cipher encrypterCBCPadding;
-        Cipher encrypterCBCNoPadding;
-        Cipher encrypterECBNoPadding;
-        Cipher encrypterCTRNoPadding;
-        Cipher encrypterGCMNoPadding;
-
-        @Setup(Level.Invocation)
-        public void setup() throws Exception {
-            encrypterCBCPadding = Cipher.getInstance(
-                    "SM4/CBC/PKCS7Padding", "KonaCrypto-Native");
-            encrypterCBCPadding.init(
-                    Cipher.ENCRYPT_MODE, SECRET_KEY, IV_PARAM_SPEC);
-
-            encrypterCBCNoPadding = Cipher.getInstance(
-                    "SM4/CBC/NoPadding", "KonaCrypto-Native");
-            encrypterCBCNoPadding.init(
-                    Cipher.ENCRYPT_MODE, SECRET_KEY, IV_PARAM_SPEC);
-
-            encrypterECBNoPadding = Cipher.getInstance(
-                    "SM4/ECB/NoPadding", "KonaCrypto-Native");
-            encrypterECBNoPadding.init(
-                    Cipher.ENCRYPT_MODE, SECRET_KEY);
-
-            encrypterCTRNoPadding = Cipher.getInstance(
-                    "SM4/CTR/NoPadding", "KonaCrypto-Native");
-            encrypterCTRNoPadding.init(
-                    Cipher.ENCRYPT_MODE, SECRET_KEY, IV_PARAM_SPEC);
-
-            encrypterGCMNoPadding = Cipher.getInstance(
-                    "SM4/GCM/NoPadding", "KonaCrypto-Native");
-            encrypterGCMNoPadding.init(
-                    Cipher.ENCRYPT_MODE, SECRET_KEY, GCM_PARAM_SPEC);
-        }
-    }
-
-    @State(Scope.Benchmark)
-    public static class EncrypterHolderBC {
-        Cipher encrypterCBCPadding;
-        Cipher encrypterCBCNoPadding;
-        Cipher encrypterECBNoPadding;
-        Cipher encrypterCTRNoPadding;
-        Cipher encrypterGCMNoPadding;
-
-        @Setup(Level.Invocation)
-        public void setup() throws Exception {
-            encrypterCBCPadding = Cipher.getInstance(
-                    "SM4/CBC/PKCS7Padding", "BC");
-            encrypterCBCPadding.init(
-                    Cipher.ENCRYPT_MODE, SECRET_KEY, IV_PARAM_SPEC);
-
-            encrypterCBCNoPadding = Cipher.getInstance(
-                    "SM4/CBC/NoPadding", "BC");
-            encrypterCBCNoPadding.init(
-                    Cipher.ENCRYPT_MODE, SECRET_KEY, IV_PARAM_SPEC);
-
-            encrypterECBNoPadding = Cipher.getInstance(
-                    "SM4/ECB/NoPadding", "BC");
-            encrypterECBNoPadding.init(
-                    Cipher.ENCRYPT_MODE, SECRET_KEY);
-
-            encrypterCTRNoPadding = Cipher.getInstance(
-                    "SM4/CTR/NoPadding", "BC");
-            encrypterCTRNoPadding.init(
-                    Cipher.ENCRYPT_MODE, SECRET_KEY, IV_PARAM_SPEC);
-
-            encrypterGCMNoPadding = Cipher.getInstance(
-                    "SM4/GCM/NoPadding", "BC");
-            encrypterGCMNoPadding.init(
-                    Cipher.ENCRYPT_MODE, SECRET_KEY, GCM_PARAM_SPEC);
+    private static byte[] data(String dataType) {
+        switch (dataType) {
+            case "Small": return SMALL_DATA;
+            case "Mid": return MEDIUM_DATA;
+            case "Big": return BIG_DATA;
+            default: throw new IllegalArgumentException(
+                    "Unsupported data type: " + dataType);
         }
     }
 
     @Benchmark
     public byte[] cbcPadding(EncrypterHolder holder) throws Exception {
-        return holder.encrypterCBCPadding.doFinal(DATA);
-    }
-
-    @Benchmark
-    public byte[] cbcPaddingNative(EncrypterHolderNative holder) throws Exception {
-        return holder.encrypterCBCPadding.doFinal(DATA);
-    }
-
-    @Benchmark
-    public byte[] cbcPaddingBC(EncrypterHolderBC holder) throws Exception {
-        return holder.encrypterCBCPadding.doFinal(DATA);
+        return holder.encrypterCBCPadding.doFinal(holder.data);
     }
 
     @Benchmark
     public byte[] cbcNoPadding(EncrypterHolder holder) throws Exception {
-        return holder.encrypterCBCNoPadding.doFinal(DATA);
-    }
-
-    @Benchmark
-    public byte[] cbcNoPaddingNative(EncrypterHolderNative holder) throws Exception {
-        return holder.encrypterCBCNoPadding.doFinal(DATA);
-    }
-
-    @Benchmark
-    public byte[] cbcNoPaddingBC(EncrypterHolderBC holder) throws Exception {
-        return holder.encrypterCBCNoPadding.doFinal(DATA);
+        return holder.encrypterCBCNoPadding.doFinal(holder.data);
     }
 
     @Benchmark
     public byte[] ctr(EncrypterHolder holder) throws Exception {
-        return holder.encrypterCTRNoPadding.doFinal(DATA);
-    }
-
-    @Benchmark
-    public byte[] ctrNative(EncrypterHolderNative holder) throws Exception {
-        return holder.encrypterCTRNoPadding.doFinal(DATA);
-    }
-
-    @Benchmark
-    public byte[] ctrBC(EncrypterHolderBC holder) throws Exception {
-        return holder.encrypterCTRNoPadding.doFinal(DATA);
+        return holder.encrypterCTRNoPadding.doFinal(holder.data);
     }
 
     @Benchmark
     public byte[] ecb(EncrypterHolder holder) throws Exception {
-        return holder.encrypterECBNoPadding.doFinal(DATA);
-    }
-
-    @Benchmark
-    public byte[] ecbNative(EncrypterHolderNative holder) throws Exception {
-        return holder.encrypterECBNoPadding.doFinal(DATA);
-    }
-
-    @Benchmark
-    public byte[] ecbBC(EncrypterHolderBC holder) throws Exception {
-        return holder.encrypterECBNoPadding.doFinal(DATA);
+        return holder.encrypterECBNoPadding.doFinal(holder.data);
     }
 
     @Benchmark
     public byte[] gcm(EncrypterHolder holder) throws Exception {
-        return holder.encrypterGCMNoPadding.doFinal(DATA);
-    }
-
-    @Benchmark
-    public byte[] gcmNative(EncrypterHolderNative holder) throws Exception {
-        return holder.encrypterGCMNoPadding.doFinal(DATA);
-    }
-
-    @Benchmark
-    public byte[] gcmBC(EncrypterHolderBC holder) throws Exception {
-        return holder.encrypterGCMNoPadding.doFinal(DATA);
+        return holder.encrypterGCMNoPadding.doFinal(holder.data);
     }
 }

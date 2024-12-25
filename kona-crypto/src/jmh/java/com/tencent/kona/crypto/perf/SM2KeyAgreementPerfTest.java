@@ -23,49 +23,19 @@ import com.tencent.kona.crypto.TestUtils;
 import com.tencent.kona.crypto.provider.SM2PrivateKey;
 import com.tencent.kona.crypto.provider.SM2PublicKey;
 import com.tencent.kona.crypto.spec.SM2KeyAgreementParamSpec;
-import org.bouncycastle.crypto.agreement.SM2KeyExchange;
-import org.bouncycastle.crypto.params.ECDomainParameters;
-import org.bouncycastle.crypto.params.ECPrivateKeyParameters;
-import org.bouncycastle.crypto.params.ECPublicKeyParameters;
-import org.bouncycastle.crypto.params.ParametersWithID;
-import org.bouncycastle.crypto.params.SM2KeyExchangePrivateParameters;
-import org.bouncycastle.crypto.params.SM2KeyExchangePublicParameters;
-import org.bouncycastle.jcajce.provider.asymmetric.ec.BCECPrivateKey;
-import org.bouncycastle.jcajce.provider.asymmetric.ec.BCECPublicKey;
-import org.bouncycastle.jcajce.provider.asymmetric.util.EC5Util;
-import org.bouncycastle.jce.provider.BouncyCastleProvider;
-import org.bouncycastle.math.ec.ECCurve;
-import org.bouncycastle.math.ec.ECPoint;
-import org.openjdk.jmh.annotations.Benchmark;
-import org.openjdk.jmh.annotations.BenchmarkMode;
-import org.openjdk.jmh.annotations.Fork;
-import org.openjdk.jmh.annotations.Level;
-import org.openjdk.jmh.annotations.Measurement;
-import org.openjdk.jmh.annotations.Mode;
-import org.openjdk.jmh.annotations.OutputTimeUnit;
-import org.openjdk.jmh.annotations.Scope;
-import org.openjdk.jmh.annotations.Setup;
-import org.openjdk.jmh.annotations.State;
-import org.openjdk.jmh.annotations.Threads;
-import org.openjdk.jmh.annotations.Warmup;
+import org.openjdk.jmh.annotations.*;
 
 import javax.crypto.KeyAgreement;
 import java.security.InvalidKeyException;
-import java.security.Security;
-import java.security.spec.ECFieldFp;
 import java.util.concurrent.TimeUnit;
 
 import static com.tencent.kona.crypto.CryptoUtils.toBytes;
-import static com.tencent.kona.crypto.spec.SM2ParameterSpec.COFACTOR;
-import static com.tencent.kona.crypto.spec.SM2ParameterSpec.CURVE;
-import static com.tencent.kona.crypto.spec.SM2ParameterSpec.GENERATOR;
-import static com.tencent.kona.crypto.spec.SM2ParameterSpec.ORDER;
 
 /**
  * The JMH-based performance test for SM2 encryption.
  */
 @Warmup(iterations = 5, time = 5)
-@Measurement(iterations = 5, time = 10)
+@Measurement(iterations = 5, time = 5)
 @Fork(value = 2, jvmArgsAppend = {"-server", "-Xms2048M", "-Xmx2048M", "-XX:+UseG1GC"})
 @Threads(1)
 @BenchmarkMode(Mode.Throughput)
@@ -94,32 +64,13 @@ public class SM2KeyAgreementPerfTest {
 
     static {
         TestUtils.addProviders();
-        Security.addProvider(new BouncyCastleProvider());
     }
 
     @State(Scope.Benchmark)
     public static class KeyAgreementHolder {
 
-        KeyAgreement keyAgreement;
-
-        @Setup(Level.Invocation)
-        public void setup() throws Exception {
-            SM2KeyAgreementParamSpec paramSpec = new SM2KeyAgreementParamSpec(
-                    toBytes(ID),
-                    new SM2PrivateKey(toBytes(PRI_KEY)),
-                    new SM2PublicKey(toBytes(PUB_KEY)),
-                    toBytes(PEER_ID),
-                    new SM2PublicKey(toBytes(PEER_PUB_KEY)),
-                    true,
-                    16);
-            keyAgreement = KeyAgreement.getInstance("SM2", "KonaCrypto");
-            keyAgreement.init(
-                    new SM2PrivateKey(toBytes(TMP_PRI_KEY)), paramSpec);
-        }
-    }
-
-    @State(Scope.Benchmark)
-    public static class KeyAgreementNativeHolder {
+        @Param({"KonaCrypto", "KonaCrypto-Native"})
+        String provider;
 
         KeyAgreement keyAgreement;
 
@@ -133,57 +84,9 @@ public class SM2KeyAgreementPerfTest {
                     new SM2PublicKey(toBytes(PEER_PUB_KEY)),
                     true,
                     16);
-            keyAgreement = KeyAgreement.getInstance("SM2", "KonaCrypto-Native");
+            keyAgreement = KeyAgreement.getInstance("SM2", provider);
             keyAgreement.init(
                     new SM2PrivateKey(toBytes(TMP_PRI_KEY)), paramSpec);
-        }
-    }
-
-    @State(Scope.Benchmark)
-    public static class KeyAgreementHolderBC {
-
-        SM2KeyExchange keyAgreement;
-        ParametersWithID params;
-
-        @Setup(Level.Invocation)
-        public void setup() throws Exception {
-            ECCurve ecCurve = new ECCurve.Fp(
-                ((ECFieldFp) CURVE.getField()).getP(),
-                CURVE.getA(), CURVE.getB(), ORDER, COFACTOR);
-            ECPoint genPoint = ecCurve.createPoint(
-                    GENERATOR.getAffineX(), GENERATOR.getAffineY());
-            ECDomainParameters ecDomainParams = new ECDomainParameters(
-                    ecCurve, genPoint, ORDER);
-
-            BCECPrivateKey privateKey = new BCECPrivateKey(
-                    new SM2PrivateKey(toBytes(PRI_KEY)), null);
-            BCECPrivateKey tmpPrivateKey = new BCECPrivateKey(
-                    new SM2PrivateKey(toBytes(TMP_PRI_KEY)), null);
-
-            BCECPublicKey peerPublicKey = new BCECPublicKey(
-                    new SM2PublicKey(toBytes(PEER_PUB_KEY)), null);
-            BCECPublicKey peerTmpPublicKey = new BCECPublicKey(
-                    new SM2PublicKey(toBytes(PEER_TMP_PUB_KEY)), null);
-
-            ECPrivateKeyParameters privateKeyParams = new ECPrivateKeyParameters(
-                    privateKey.getS(), ecDomainParams);
-            ECPrivateKeyParameters tmpPrivateKeyParams = new ECPrivateKeyParameters(
-                    tmpPrivateKey.getS(), ecDomainParams);
-            keyAgreement = new SM2KeyExchange();
-            keyAgreement.init(new ParametersWithID(
-                    new SM2KeyExchangePrivateParameters(
-                            true, privateKeyParams, tmpPrivateKeyParams),
-                    toBytes(ID)));
-
-            ECPublicKeyParameters peerPublicKeyParams = new ECPublicKeyParameters(
-                    EC5Util.convertPoint(ecCurve, peerPublicKey.getW()),
-                    ecDomainParams);
-            ECPublicKeyParameters peerTmpPublicKeyParams = new ECPublicKeyParameters(
-                    EC5Util.convertPoint(ecCurve, peerTmpPublicKey.getW()),
-                    ecDomainParams);
-            params = new ParametersWithID(new SM2KeyExchangePublicParameters(
-                    peerPublicKeyParams, peerTmpPublicKeyParams),
-                    toBytes(PEER_ID));
         }
     }
 
@@ -191,16 +94,5 @@ public class SM2KeyAgreementPerfTest {
     public byte[] generateSecret(KeyAgreementHolder holder) throws InvalidKeyException {
         holder.keyAgreement.doPhase(new SM2PublicKey(toBytes(PEER_TMP_PUB_KEY)), true);
         return holder.keyAgreement.generateSecret();
-    }
-
-    @Benchmark
-    public byte[] generateSecretNative(KeyAgreementNativeHolder holder) throws InvalidKeyException {
-        holder.keyAgreement.doPhase(new SM2PublicKey(toBytes(PEER_TMP_PUB_KEY)), true);
-        return holder.keyAgreement.generateSecret();
-    }
-
-    @Benchmark
-    public byte[] generateSecretBC(KeyAgreementHolderBC holder) {
-        return holder.keyAgreement.calculateKey(128, holder.params);
     }
 }

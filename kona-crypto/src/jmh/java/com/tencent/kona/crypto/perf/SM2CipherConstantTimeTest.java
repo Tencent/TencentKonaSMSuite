@@ -25,7 +25,6 @@ import com.tencent.kona.crypto.provider.SM2PublicKey;
 import com.tencent.kona.crypto.spec.SM2ParameterSpec;
 import com.tencent.kona.crypto.util.Constants;
 import com.tencent.kona.sun.security.ec.ECOperator;
-import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.BenchmarkMode;
 import org.openjdk.jmh.annotations.Fork;
@@ -43,14 +42,13 @@ import org.openjdk.jmh.annotations.Warmup;
 import javax.crypto.Cipher;
 import java.math.BigInteger;
 import java.security.KeyPair;
-import java.security.Security;
 import java.util.concurrent.TimeUnit;
 
 /**
  * The JMH-based performance test for checking constant-time issue.
  */
 @Warmup(iterations = 3, time = 5)
-@Measurement(iterations = 3, time = 5)
+@Measurement(iterations = 5, time = 5)
 @Fork(value = 2, jvmArgsAppend = {"-server", "-Xms2048M", "-Xmx2048M", "-XX:+UseG1GC"})
 @Threads(1)
 @BenchmarkMode(Mode.Throughput)
@@ -69,7 +67,6 @@ public class SM2CipherConstantTimeTest {
 
     static {
         TestUtils.addProviders();
-        Security.addProvider(new BouncyCastleProvider());
     }
 
     private static KeyPair keyPair(BigInteger priKeyValue) {
@@ -82,7 +79,7 @@ public class SM2CipherConstantTimeTest {
     @State(Scope.Thread)
     public static class CipherHolder {
 
-        @Param({"KonaCrypto", "KonaCrypto-Native", "BC"})
+        @Param({"KonaCrypto", "KonaCrypto-Native"})
         String provider;
 
         @Param({"Small", "Mid", "Big"})
