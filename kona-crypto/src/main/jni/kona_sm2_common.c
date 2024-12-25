@@ -17,9 +17,6 @@
  * Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include <stdlib.h>
-#include <string.h>
-
 #include <jni.h>
 
 #include <openssl/core_names.h>
@@ -204,25 +201,28 @@ EVP_PKEY* sm2_load_pub_key(const uint8_t* pub_key, size_t pub_key_len) {
     EVP_PKEY_CTX* key_ctx = EVP_PKEY_CTX_new_from_name(NULL, "SM2", NULL);
     if (key_ctx == NULL) {
         OPENSSL_print_err();
+
         return NULL;
     }
 
     if (!EVP_PKEY_fromdata_init(key_ctx)) {
         OPENSSL_print_err();
         EVP_PKEY_CTX_free(key_ctx);
+
         return NULL;
     }
 
     OSSL_PARAM params[] = {
-        OSSL_PARAM_construct_utf8_string(OSSL_PKEY_PARAM_GROUP_NAME, "SM2", 0),
-        OSSL_PARAM_construct_octet_string(OSSL_PKEY_PARAM_PUB_KEY, (void*)pub_key, pub_key_len),
-        OSSL_PARAM_construct_end()
+            OSSL_PARAM_construct_utf8_string(OSSL_PKEY_PARAM_GROUP_NAME, "SM2", 0),
+            OSSL_PARAM_construct_octet_string(OSSL_PKEY_PARAM_PUB_KEY, (void*)pub_key, pub_key_len),
+            OSSL_PARAM_construct_end()
     };
 
     EVP_PKEY* pkey = NULL;
     if (!EVP_PKEY_fromdata(key_ctx, &pkey, EVP_PKEY_PUBLIC_KEY, params)) {
         OPENSSL_print_err();
         EVP_PKEY_CTX_free(key_ctx);
+
         return NULL;
     }
 
@@ -305,7 +305,7 @@ EVP_PKEY* sm2_load_key_pair(const uint8_t* pri_key, const uint8_t* pub_key) {
 
     BN_free(pri_key_bn);
     EC_POINT_free(pub_point);
-    ec_key = NULL; // ec_key cannot be freed due pkey is using it.
+    ec_key = NULL; // ec_key cannot be freed due to pkey is using it.
 
     return pkey;
 }
@@ -319,12 +319,14 @@ int sm2_gen_pub_key(const uint8_t* pri_key, uint8_t* pub_key) {
     BIGNUM* bn_pri_key = BN_bin2bn(pri_key, SM2_PRI_KEY_LEN, NULL);
     if (bn_pri_key == NULL) {
         EC_KEY_free(ec_key);
+
         return OPENSSL_FAILURE;
     }
 
     if (!EC_KEY_set_private_key(ec_key, bn_pri_key)) {
         EC_KEY_free(ec_key);
         BN_free(bn_pri_key);
+
         return OPENSSL_FAILURE;
     }
 
@@ -332,6 +334,7 @@ int sm2_gen_pub_key(const uint8_t* pri_key, uint8_t* pub_key) {
     if (group == NULL) {
         EC_KEY_free(ec_key);
         BN_free(bn_pri_key);
+
         return OPENSSL_FAILURE;
     }
 
@@ -339,6 +342,7 @@ int sm2_gen_pub_key(const uint8_t* pri_key, uint8_t* pub_key) {
     if (pub_point == NULL) {
         EC_KEY_free(ec_key);
         BN_free(bn_pri_key);
+
         return OPENSSL_FAILURE;
     }
 
@@ -346,6 +350,7 @@ int sm2_gen_pub_key(const uint8_t* pri_key, uint8_t* pub_key) {
         EC_KEY_free(ec_key);
         BN_free(bn_pri_key);
         EC_POINT_free(pub_point);
+
         return OPENSSL_FAILURE;
     }
 
@@ -353,6 +358,7 @@ int sm2_gen_pub_key(const uint8_t* pri_key, uint8_t* pub_key) {
         EC_KEY_free(ec_key);
         BN_free(bn_pri_key);
         EC_POINT_free(pub_point);
+
         return OPENSSL_FAILURE;
     }
 
@@ -361,6 +367,7 @@ int sm2_gen_pub_key(const uint8_t* pri_key, uint8_t* pub_key) {
         EC_KEY_free(ec_key);
         BN_free(bn_pri_key);
         EC_POINT_free(pub_point);
+
         return OPENSSL_FAILURE;
     }
 
@@ -370,6 +377,7 @@ int sm2_gen_pub_key(const uint8_t* pri_key, uint8_t* pub_key) {
         BN_free(bn_pri_key);
         EC_POINT_free(pub_point);
         BN_CTX_free(bn_ctx);
+
         return OPENSSL_FAILURE;
     }
 
@@ -378,6 +386,7 @@ int sm2_gen_pub_key(const uint8_t* pri_key, uint8_t* pub_key) {
         BN_free(bn_pri_key);
         EC_POINT_free(pub_point);
         BN_CTX_free(bn_ctx);
+
         return OPENSSL_FAILURE;
     }
 
@@ -400,6 +409,7 @@ EVP_PKEY_CTX* sm2_create_pkey_ctx(EVP_PKEY* pkey) {
 
     if (ctx == NULL) {
         OPENSSL_print_err();
+
         return NULL;
     }
 

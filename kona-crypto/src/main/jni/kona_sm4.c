@@ -17,7 +17,6 @@
  * Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include <stdlib.h>
 #include <string.h>
 
 #include <jni.h>
@@ -46,6 +45,7 @@ JNIEXPORT jlong JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeC
         sm4_mode = "SM4-GCM";
     } else {
         (*env)->ReleaseStringUTFChars(env, mode, mode_str);
+
         return OPENSSL_FAILURE;
     }
 
@@ -53,6 +53,7 @@ JNIEXPORT jlong JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeC
     if (cipher == NULL) {
         OPENSSL_print_err();
         (*env)->ReleaseStringUTFChars(env, mode, mode_str);
+
         return OPENSSL_FAILURE;
     }
 
@@ -60,6 +61,7 @@ JNIEXPORT jlong JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeC
     if (ctx == NULL) {
         OPENSSL_print_err();
         (*env)->ReleaseStringUTFChars(env, mode, mode_str);
+
         return OPENSSL_FAILURE;
     }
 
@@ -115,6 +117,7 @@ JNIEXPORT jbyteArray JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_Na
     uint8_t* out_buf = (uint8_t*)OPENSSL_malloc(out_len);
     if (out_buf == NULL) {
         (*env)->ReleaseByteArrayElements(env, in, in_bytes, JNI_ABORT);
+
         return NULL;
     }
 

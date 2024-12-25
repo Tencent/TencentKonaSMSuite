@@ -17,7 +17,6 @@
  * Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
 #include <math.h>
@@ -37,12 +36,14 @@ SM2_KEYEX_CTX* sm2_create_keyex_ctx() {
     EVP_MD_CTX* sm3_ctx = sm3_create_ctx();
     if (sm3_ctx == NULL) {
         OPENSSL_print_err();
+
         return NULL;
     }
 
     BN_CTX* bn_ctx = BN_CTX_new();
     if (bn_ctx == NULL) {
         OPENSSL_print_err();
+
         return NULL;
     }
 
@@ -66,8 +67,8 @@ void sm2_free_keyex_ctx(SM2_KEYEX_CTX* ctx) {
 }
 
 int z(uint8_t* out, SM2_KEYEX_CTX* ctx,
-       const uint8_t* id, const size_t id_len,
-       const EC_GROUP* group, const EC_POINT* point) {
+      const uint8_t* id, const size_t id_len,
+      const EC_GROUP* group, const EC_POINT* point) {
     const SM2_ID* default_id = sm2_id();
     const SM2_CURVE* curve = sm2_curve();
 
@@ -102,6 +103,7 @@ int z(uint8_t* out, SM2_KEYEX_CTX* ctx,
 
         BN_free(x_bn);
         BN_free(y_bn);
+
         return OPENSSL_FAILURE;
     }
 
@@ -380,10 +382,10 @@ JNIEXPORT void JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeCr
 }
 
 JNIEXPORT jbyteArray JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeCrypto_sm2DeriveKey
-  (JNIEnv* env, jobject thisObj, jlong pointer,
-   jbyteArray priKey, jbyteArray pubKey, jbyteArray ePriKey, jbyteArray id,
-   jbyteArray peerPubKey, jbyteArray peerEPubKey, jbyteArray peerId,
-   jboolean isInitiator, jint sharedKeyLength) {
+ (JNIEnv* env, jobject thisObj, jlong pointer,
+         jbyteArray priKey, jbyteArray pubKey, jbyteArray ePriKey, jbyteArray id,
+         jbyteArray peerPubKey, jbyteArray peerEPubKey, jbyteArray peerId,
+         jboolean isInitiator, jint sharedKeyLength) {
     SM2_KEYEX_CTX* ctx = (SM2_KEYEX_CTX*)pointer;
     if (ctx == NULL) {
         return NULL;

@@ -18,7 +18,6 @@
  */
 
 #include <stdbool.h>
-#include <stdlib.h>
 #include <string.h>
 
 #include <jni.h>
@@ -39,12 +38,14 @@ SM2_SIGNATURE_CTX* sm2_create_md_ctx(EVP_PKEY* pkey, const uint8_t* id, size_t i
     EVP_PKEY_CTX* pctx = EVP_PKEY_CTX_new(pkey, NULL);
     if (pctx == NULL) {
         OPENSSL_print_err();
+
         return NULL;
     }
 
     if (!EVP_PKEY_CTX_set1_id(pctx, id, id_len)) {
         OPENSSL_print_err();
         EVP_PKEY_CTX_free(pctx);
+
         return NULL;
     }
 
@@ -52,6 +53,7 @@ SM2_SIGNATURE_CTX* sm2_create_md_ctx(EVP_PKEY* pkey, const uint8_t* id, size_t i
     if (mctx == NULL) {
         OPENSSL_print_err();
         EVP_PKEY_CTX_free(pctx);
+
         return NULL;
     }
 
@@ -62,6 +64,7 @@ SM2_SIGNATURE_CTX* sm2_create_md_ctx(EVP_PKEY* pkey, const uint8_t* id, size_t i
             OPENSSL_print_err();
             EVP_PKEY_CTX_free(pctx);
             EVP_MD_CTX_free(mctx);
+
             return NULL;
         }
     } else {
@@ -69,6 +72,7 @@ SM2_SIGNATURE_CTX* sm2_create_md_ctx(EVP_PKEY* pkey, const uint8_t* id, size_t i
             OPENSSL_print_err();
             EVP_PKEY_CTX_free(pctx);
             EVP_MD_CTX_free(mctx);
+
             return NULL;
         }
     }
@@ -102,11 +106,13 @@ JNIEXPORT jlong JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeC
     int id_len = (*env)->GetArrayLength(env, id);
     if (id_len <= 0) {
         (*env)->ReleaseByteArrayElements(env, key, key_bytes, JNI_ABORT);
+
         return OPENSSL_FAILURE;
     }
     jbyte* id_bytes = (*env)->GetByteArrayElements(env, id, NULL);
     if (id_bytes == NULL) {
         (*env)->ReleaseByteArrayElements(env, key, key_bytes, JNI_ABORT);
+
         return OPENSSL_FAILURE;
     }
 
@@ -141,6 +147,7 @@ JNIEXPORT jlong JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeC
             OPENSSL_free(pub_key_buf);
             (*env)->ReleaseByteArrayElements(env, key, key_bytes, JNI_ABORT);
             (*env)->ReleaseByteArrayElements(env, id, id_bytes, JNI_ABORT);
+
             return OPENSSL_FAILURE;
         }
 
@@ -156,6 +163,7 @@ JNIEXPORT jlong JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeC
     if (pkey == NULL) {
         (*env)->ReleaseByteArrayElements(env, key, key_bytes, JNI_ABORT);
         (*env)->ReleaseByteArrayElements(env, id, id_bytes, JNI_ABORT);
+
         return OPENSSL_FAILURE;
     }
 
@@ -189,23 +197,27 @@ uint8_t* sm2_sign(EVP_MD_CTX* ctx, const uint8_t* msg, size_t msg_len, size_t* s
 
     if (!EVP_DigestSignUpdate(ctx, msg, msg_len)) {
         OPENSSL_print_err();
+
         return NULL;
     }
 
     if (!EVP_DigestSignFinal(ctx, NULL, sig_len)) {
         OPENSSL_print_err();
+
         return NULL;
     }
 
     uint8_t* sig_buf = (uint8_t*)OPENSSL_malloc(*sig_len);
     if (sig_buf == NULL) {
         OPENSSL_print_err();
+
         return NULL;
     }
 
     if (!EVP_DigestSignFinal(ctx, sig_buf, sig_len)) {
         OPENSSL_print_err();
         OPENSSL_free(sig_buf);
+
         return NULL;
     }
 
@@ -240,6 +252,7 @@ JNIEXPORT jbyteArray JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_Na
     jbyteArray sig_bytes = (*env)->NewByteArray(env, sig_len);
     if (sig_bytes == NULL) {
         OPENSSL_free(sig_buf);
+
         return NULL;
     }
 
@@ -257,11 +270,13 @@ int sm2_verify(EVP_MD_CTX* ctx, const uint8_t* msg, size_t msg_len, const uint8_
 
     if (!EVP_DigestVerifyUpdate(ctx, msg, msg_len)) {
         OPENSSL_print_err();
+
         return OPENSSL_FAILURE;
     }
 
     if (!EVP_DigestVerifyFinal(ctx, sig, sig_len)) {
         OPENSSL_print_err();
+
         return OPENSSL_FAILURE;
     }
 
@@ -285,11 +300,12 @@ JNIEXPORT jint JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeCr
     jbyte* sig_bytes = (*env)->GetByteArrayElements(env, signature, NULL);
     if (sig_bytes == NULL) {
         (*env)->ReleaseByteArrayElements(env, message, msg_bytes, JNI_ABORT);
+
         return OPENSSL_FAILURE;
     }
 
     int verified = sm2_verify(ctx->mctx, (uint8_t*)msg_bytes, msg_len, (uint8_t*)sig_bytes, sig_len)
-            ? OPENSSL_SUCCESS : OPENSSL_FAILURE;
+                   ? OPENSSL_SUCCESS : OPENSSL_FAILURE;
 
     (*env)->ReleaseByteArrayElements(env, message, msg_bytes, JNI_ABORT);
     (*env)->ReleaseByteArrayElements(env, signature, sig_bytes, JNI_ABORT);
