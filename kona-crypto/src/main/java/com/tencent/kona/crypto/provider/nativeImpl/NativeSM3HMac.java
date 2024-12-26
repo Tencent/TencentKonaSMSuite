@@ -43,7 +43,7 @@ final class NativeSM3HMac extends NativeRef implements Cloneable {
     }
 
     private static long createCtx(long macPointer, byte[] key) {
-        if (macPointer <= 0) {
+        if (macPointer == 0) {
             throw new IllegalArgumentException("macPointer is invalid");
         }
 
@@ -61,13 +61,16 @@ final class NativeSM3HMac extends NativeRef implements Cloneable {
     public void update(byte[] data) {
         Objects.requireNonNull(data);
 
-        if (nativeCrypto().sm3hmacUpdate(pointer, data) != OPENSSL_SUCCESS) {
+        if (pointer == 0
+                || nativeCrypto().sm3hmacUpdate(pointer, data) != OPENSSL_SUCCESS) {
             throw new IllegalStateException("SM3Hmac update operation failed");
         }
     }
 
     public byte[] doFinal() {
-        byte[] result = nativeCrypto().sm3hmacFinal(pointer);
+        byte[] result = pointer == 0
+                ? null
+                : nativeCrypto().sm3hmacFinal(pointer);
         if (result == null) {
             throw new IllegalStateException("SM3Hmac final operation failed");
         }
@@ -81,20 +84,27 @@ final class NativeSM3HMac extends NativeRef implements Cloneable {
 
     @Override
     public void close() {
-        nativeCrypto().sm3hmacFreeCtx(pointer);
-        super.close();
+        if (pointer != 0) {
+            nativeCrypto().sm3hmacFreeCtx(pointer);
+            super.close();
+        }
     }
 
     public void reset() {
-        if (nativeCrypto().sm3hmacReset(pointer) != OPENSSL_SUCCESS) {
+        if (pointer == 0
+                || nativeCrypto().sm3hmacReset(pointer) != OPENSSL_SUCCESS) {
             throw new IllegalStateException("SM3Hmac reset operation failed");
         }
     }
 
     @Override
     protected NativeSM3HMac clone() {
+        if (pointer == 0) {
+            throw new IllegalStateException("Cannot clone closed SM3Hmac instance");
+        }
+
         long clonePointer = nativeCrypto().sm3hmacClone(pointer);
-        if (clonePointer <= 0) {
+        if (clonePointer == 0) {
             throw new IllegalStateException("SM3Hmac clone operation failed");
         }
         return new NativeSM3HMac(clonePointer);

@@ -40,13 +40,15 @@ final class NativeSM3 extends NativeRef implements Cloneable {
     public void update(byte[] data) {
         Objects.requireNonNull(data);
 
-        if (nativeCrypto().sm3Update(pointer, data) != OPENSSL_SUCCESS) {
+        if (pointer == 0 || nativeCrypto().sm3Update(pointer, data) != OPENSSL_SUCCESS) {
             throw new IllegalStateException("sm3 update operation failed");
         }
     }
 
     public byte[] doFinal() {
-        byte[] result = nativeCrypto().sm3Final(pointer);
+        byte[] result = pointer == 0
+                ? null
+                : nativeCrypto().sm3Final(pointer);
         if (result == null) {
             throw new IllegalStateException("sm3 final operation failed");
         }
@@ -60,21 +62,27 @@ final class NativeSM3 extends NativeRef implements Cloneable {
 
     @Override
     public void close() {
-        nativeCrypto().sm3FreeCtx(pointer);
-        super.close();
+        if (pointer != 0) {
+            nativeCrypto().sm3FreeCtx(pointer);
+            super.close();
+        }
     }
 
     public void reset() {
-        if (nativeCrypto().sm3Reset(pointer) != OPENSSL_SUCCESS) {
+        if (pointer == 0 || nativeCrypto().sm3Reset(pointer) != OPENSSL_SUCCESS) {
             throw new IllegalStateException("sm3 reset operation failed");
         }
     }
 
     @Override
     protected NativeSM3 clone() {
+        if (pointer == 0) {
+            throw new IllegalStateException("Cannot clone SM3 instance");
+        }
+
         long clonePointer = nativeCrypto().sm3Clone(pointer);
         if (clonePointer <= 0) {
-            throw new IllegalStateException("sm3 clone operation failed");
+            throw new IllegalStateException("SM3 clone operation failed");
         }
         return new NativeSM3(clonePointer);
     }

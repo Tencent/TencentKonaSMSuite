@@ -52,7 +52,7 @@ public class NativeSM2KeyAgreement extends NativeRef {
             throw new IllegalStateException("Shared key length must be greater than 0");
         }
 
-        byte[] sharedKey = nativeCrypto().sm2DeriveKey(pointer,
+        byte[] sharedKey = pointer == 0 ? null : nativeCrypto().sm2DeriveKey(pointer,
                 priKey, pubKey, ePriKey, id,
                 peerPubKey, peerEPubKey, peerId,
                 isInitiator, sharedKeyLength);
@@ -64,7 +64,9 @@ public class NativeSM2KeyAgreement extends NativeRef {
 
     @Override
     public void close() {
-        nativeCrypto().sm2KeyExFreeCtx(pointer);
-        super.close();
+        if (pointer != 0) {
+            nativeCrypto().sm2KeyExFreeCtx(pointer);
+            super.close();
+        }
     }
 }

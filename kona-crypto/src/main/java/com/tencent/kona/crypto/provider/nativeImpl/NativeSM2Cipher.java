@@ -55,7 +55,9 @@ final class NativeSM2Cipher extends NativeRef {
             throw new BadPaddingException("Invalid plaintext");
         }
 
-        byte[] ciphertext = nativeCrypto().sm2CipherEncrypt(pointer, plaintext);
+        byte[] ciphertext = pointer == 0
+                ? null
+                : nativeCrypto().sm2CipherEncrypt(pointer, plaintext);
         if (ciphertext == null) {
             throw new BadPaddingException("Encrypt failed");
         }
@@ -67,7 +69,9 @@ final class NativeSM2Cipher extends NativeRef {
             throw new BadPaddingException("Invalid ciphertext");
         }
 
-        byte[] cleartext = nativeCrypto().sm2CipherDecrypt(pointer, ciphertext);
+        byte[] cleartext = pointer == 0
+                ? null
+                : nativeCrypto().sm2CipherDecrypt(pointer, ciphertext);
         if (cleartext == null) {
             throw new BadPaddingException("Decrypt failed");
         }
@@ -76,7 +80,9 @@ final class NativeSM2Cipher extends NativeRef {
 
     @Override
     public void close() {
-        nativeCrypto().sm2CipherFreeCtx(pointer);
-        super.close();
+        if (pointer != 0) {
+            nativeCrypto().sm2CipherFreeCtx(pointer);
+            super.close();
+        }
     }
 }
