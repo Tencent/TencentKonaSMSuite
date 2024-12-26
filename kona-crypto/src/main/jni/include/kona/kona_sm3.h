@@ -21,6 +21,8 @@
 
 #include "kona/kona_common.h"
 
+EVP_MAC* hmac();
+
 EVP_MD_CTX* sm3_create_ctx();
 int sm3_reset(EVP_MD_CTX* ctx);
 

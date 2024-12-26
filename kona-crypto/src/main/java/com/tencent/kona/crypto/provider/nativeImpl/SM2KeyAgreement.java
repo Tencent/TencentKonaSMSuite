@@ -54,7 +54,7 @@ public final class SM2KeyAgreement extends KeyAgreementSpi {
     private SM2KeyAgreementParamSpec paramSpec;
     private SM2PublicKey peerEphemeralPublicKey;
 
-    private volatile NativeSM2KeyAgreement sm2;
+    private NativeSM2KeyAgreement sm2;
 
     @Override
     protected void engineInit(Key key, SecureRandom random) {
