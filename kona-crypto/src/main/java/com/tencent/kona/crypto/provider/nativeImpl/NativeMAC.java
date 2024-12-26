@@ -37,7 +37,9 @@ public class NativeMAC extends NativeRef {
 
     @Override
     public void close() {
-        nativeCrypto().sm3hmacFreeMac(pointer);
-        super.close();
+        if (pointer != 0) {
+            nativeCrypto().sm3hmacFreeMac(pointer);
+            super.close();
+        }
     }
 }

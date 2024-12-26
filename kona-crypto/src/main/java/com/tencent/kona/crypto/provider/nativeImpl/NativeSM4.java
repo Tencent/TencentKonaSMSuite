@@ -76,7 +76,9 @@ abstract class NativeSM4 extends NativeRef {
     byte[] update(byte[] data) {
         Objects.requireNonNull(data);
 
-        byte[] result = nativeCrypto().sm4Update(pointer, data);
+        byte[] result = pointer == 0
+                ? null
+                : nativeCrypto().sm4Update(pointer, data);
         if (result == null) {
             throw new IllegalStateException("SM4 update operation failed");
         }
@@ -84,7 +86,9 @@ abstract class NativeSM4 extends NativeRef {
     }
 
     byte[] doFinal() {
-        byte[] result = nativeCrypto().sm4Final(pointer);
+        byte[] result = pointer == 0
+                ? null
+                : nativeCrypto().sm4Final(pointer);
         if (result == null) {
             throw new IllegalStateException("SM4 final operation failed");
         }
@@ -104,8 +108,10 @@ abstract class NativeSM4 extends NativeRef {
 
     @Override
     public void close() {
-        nativeCrypto().sm4FreeCtx(pointer);
-        super.close();
+        if (pointer != 0) {
+            nativeCrypto().sm4FreeCtx(pointer);
+            super.close();
+        }
     }
 
     final static class SM4CBC extends NativeSM4 {
@@ -161,7 +167,11 @@ abstract class NativeSM4 extends NativeRef {
         void updateAAD(byte[] aad) {
             Objects.requireNonNull(aad);
 
-            nativeCrypto().sm4GCMUpdateAAD(pointer, aad);
+            if (pointer != 0) {
+                nativeCrypto().sm4GCMUpdateAAD(pointer, aad);
+            } else {
+                throw new IllegalStateException("SM4 updateAAD operation failed");
+            }
         }
 
         @Override
@@ -176,7 +186,8 @@ abstract class NativeSM4 extends NativeRef {
 
         byte[] getTag() {
             byte[] tag = new byte[SM4_GCM_TAG_LEN];
-            if (nativeCrypto().sm4GCMProcTag(pointer, tag) != OPENSSL_SUCCESS) {
+            if (pointer == 0
+                    || nativeCrypto().sm4GCMProcTag(pointer, tag) != OPENSSL_SUCCESS) {
                 throw new IllegalStateException("SM4GCM getTag operation failed");
             }
             return tag;
@@ -187,7 +198,8 @@ abstract class NativeSM4 extends NativeRef {
                 throw new IllegalArgumentException("Tag must be 16-bytes");
             }
 
-            if (nativeCrypto().sm4GCMProcTag(pointer, tag) != OPENSSL_SUCCESS) {
+            if (pointer == 0
+                    || nativeCrypto().sm4GCMProcTag(pointer, tag) != OPENSSL_SUCCESS) {
                 throw new IllegalStateException("SM4GCM setTag operation failed");
             }
         }

@@ -22,8 +22,7 @@ package com.tencent.kona.crypto.provider.nativeImpl;
 
 import javax.crypto.BadPaddingException;
 
-import static com.tencent.kona.crypto.provider.nativeImpl.NativeCrypto.OPENSSL_SUCCESS;
-import static com.tencent.kona.crypto.provider.nativeImpl.NativeCrypto.nativeCrypto;
+import static com.tencent.kona.crypto.provider.nativeImpl.NativeCrypto.*;
 import static com.tencent.kona.crypto.util.Constants.*;
 
 /**
@@ -81,7 +80,9 @@ final class NativeSM2Signature extends NativeRef {
             throw new BadPaddingException("Message cannot be null");
         }
 
-        byte[] signature = nativeCrypto().sm2SignatureSign(pointer, message);
+        byte[] signature = pointer == 0
+                ? null
+                : nativeCrypto().sm2SignatureSign(pointer, message);
         if (signature == null) {
             throw new BadPaddingException("Sign failed");
         }
@@ -97,13 +98,17 @@ final class NativeSM2Signature extends NativeRef {
             throw new BadPaddingException("Invalid signature");
         }
 
-        int verified = nativeCrypto().sm2SignatureVerify(pointer, message, signature);
+        int verified = pointer == 0
+                ? OPENSSL_FAILURE
+                : nativeCrypto().sm2SignatureVerify(pointer, message, signature);
         return verified == OPENSSL_SUCCESS;
     }
 
     @Override
     public void close() {
-        nativeCrypto().sm2SignatureFreeCtx(pointer);
-        super.close();
+        if (pointer != 0) {
+            nativeCrypto().sm2SignatureFreeCtx(pointer);
+            super.close();
+        }
     }
 }

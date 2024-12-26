@@ -28,7 +28,7 @@ abstract class NativeRef implements Closeable {
     long pointer;
 
     NativeRef(long pointer) {
-        if (pointer <= 0) {
+        if (pointer == 0) {
             throw new IllegalStateException("Create context failed");
         }
 
