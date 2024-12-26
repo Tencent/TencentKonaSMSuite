@@ -52,7 +52,7 @@ public final class SM2Signature extends SignatureSpi {
 
     private static final Sweeper SWEEPER = Sweeper.instance();
 
-    private volatile NativeSM2Signature sm2;
+    private NativeSM2Signature sm2;
 
     private SM2PrivateKey privateKey;
     private SM2PublicKey publicKey;

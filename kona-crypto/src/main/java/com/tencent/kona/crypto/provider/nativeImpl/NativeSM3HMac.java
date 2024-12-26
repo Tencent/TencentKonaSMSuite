@@ -33,25 +33,16 @@ final class NativeSM3HMac extends NativeRef implements Cloneable {
 
     private static final Sweeper SWEEPER = Sweeper.instance();
 
-    private static final NativeMAC MAC = new NativeMAC();
-    static {
-        SWEEPER.register(NativeSM3HMac.class, new SweepNativeRef(MAC));
-    }
-
     public NativeSM3HMac(byte[] key) {
-        super(createCtx(MAC.pointer, key));
+        super(createCtx(key));
     }
 
-    private static long createCtx(long macPointer, byte[] key) {
-        if (macPointer == 0) {
-            throw new IllegalArgumentException("macPointer is invalid");
-        }
-
+    private static long createCtx(byte[] key) {
         if (key == null || key.length == 0) {
             throw new IllegalStateException("Key must not be null or empty");
         }
 
-        return nativeCrypto().sm3hmacCreateCtx(macPointer, key);
+        return nativeCrypto().sm3hmacCreateCtx(key);
     }
 
     public NativeSM3HMac(long pointer) {

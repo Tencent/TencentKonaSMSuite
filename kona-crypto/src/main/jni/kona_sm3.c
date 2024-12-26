@@ -25,6 +25,19 @@
 #include "kona/kona_common.h"
 #include "kona/kona_sm3.h"
 
+EVP_MAC* hmac() {
+    static EVP_MAC* hmac = NULL;
+    if (hmac == NULL) {
+        EVP_MAC* mac = EVP_MAC_fetch(NULL, "HMAC", NULL);
+        if (mac == NULL) {
+            OPENSSL_print_err();
+        }
+        hmac = mac;
+    }
+
+    return hmac;
+}
+
 EVP_MD_CTX* sm3_create_ctx() {
     EVP_MD_CTX* ctx = EVP_MD_CTX_new();
     if (ctx == NULL) {
@@ -219,28 +232,9 @@ int sm3hmac_reset(EVP_MAC_CTX* ctx) {
     }
 }
 
-JNIEXPORT jlong JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeCrypto_sm3hmacCreateMac
-  (JNIEnv* env, jobject thisObj) {
-    EVP_MAC* mac = EVP_MAC_fetch(NULL, "HMAC", NULL);
-    if (mac == NULL) {
-        OPENSSL_print_err();
-        return OPENSSL_FAILURE;
-    }
-
-    return (jlong)mac;
-}
-
-JNIEXPORT void JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeCrypto_sm3hmacFreeMac
-  (JNIEnv* env, jobject thisObj, jlong pointer) {
-    EVP_MAC* mac = (EVP_MAC*)pointer;
-    if (mac != NULL) {
-        EVP_MAC_free(mac);
-    }
-}
-
 JNIEXPORT jlong JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeCrypto_sm3hmacCreateCtx
-  (JNIEnv* env, jobject thisObj, jlong macPointer, jbyteArray key) {
-    EVP_MAC* mac = (EVP_MAC*)macPointer;
+  (JNIEnv* env, jobject thisObj, jbyteArray key) {
+    EVP_MAC* mac = hmac();
     if (mac == NULL) {
         return OPENSSL_FAILURE;
     }

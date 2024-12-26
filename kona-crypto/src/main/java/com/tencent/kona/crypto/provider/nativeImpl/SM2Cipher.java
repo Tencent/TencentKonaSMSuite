@@ -53,7 +53,7 @@ public final class SM2Cipher extends CipherSpi {
 
     private static final byte[] B0 = new byte[0];
 
-    private volatile NativeSM2Cipher sm2;
+    private NativeSM2Cipher sm2;
     private final ByteArrayWriter buffer = new ByteArrayWriter();
 
     private boolean encrypted = true;
