@@ -384,6 +384,37 @@ public class NativeSM2Test {
     }
 
     @Test
+    public void testSM2SignatureTwice() throws Exception {
+        try (NativeSM2KeyPairGen sm2KeyPairGen = new NativeSM2KeyPairGen()) {
+            byte[] keyPair = sm2KeyPairGen.genKeyPair();
+            byte[] priKey = copy(keyPair, 0, SM2_PRIKEY_LEN);
+            byte[] pubKey = copy(keyPair, SM2_PRIKEY_LEN, SM2_PUBKEY_LEN);
+            byte[] id = toBytes("3132333435363738");
+
+            try (NativeSM2Signature sm2Signer
+                         = new NativeSM2Signature(priKey, null, id, true)) {
+                // Sign with the partial message
+                sm2Signer.sign(copy(MESSAGE, 0, MESSAGE.length / 2));
+
+                // Re-sign with the full message
+                byte[] signature = sm2Signer.sign(MESSAGE);
+
+                try (NativeSM2Signature sm2Verifier
+                             = new NativeSM2Signature(pubKey, id, false)) {
+                    // Verify with the partial message
+                    boolean verified = sm2Verifier.verify(
+                            copy(MESSAGE, 0, MESSAGE.length / 2), signature);
+                    Assertions.assertFalse(verified);
+
+                    // Re-verify with the full message
+                    verified = sm2Verifier.verify(MESSAGE, signature);
+                    Assertions.assertTrue(verified);
+                }
+            }
+        }
+    }
+
+    @Test
     public void testSM2KeyAgreement() {
         try (NativeSM2KeyAgreement sm2KeyAgreement
                      = new NativeSM2KeyAgreement()) {
@@ -392,7 +423,7 @@ public class NativeSM2Test {
                     PEER_PUB_KEY, PEER_E_PUB_KEY, PEER_ID,
                     true, 16);
 
-            Assertions.assertEquals(16, sharedKey.length);
+            Assertions.assertArrayEquals(SHARED_KEY, sharedKey);
         }
     }
 

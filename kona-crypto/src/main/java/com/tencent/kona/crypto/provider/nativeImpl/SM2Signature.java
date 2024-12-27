@@ -63,8 +63,6 @@ public final class SM2Signature extends SignatureSpi {
     @Override
     protected void engineInitSign(PrivateKey privateKey, SecureRandom random)
             throws InvalidKeyException {
-        reset();
-
         if (!(privateKey instanceof ECPrivateKey)) {
             throw new InvalidKeyException("Only ECPrivateKey accepted!");
         }
@@ -89,8 +87,6 @@ public final class SM2Signature extends SignatureSpi {
     @Override
     protected void engineInitVerify(PublicKey publicKey)
             throws InvalidKeyException {
-        reset();
-
         if (!(publicKey instanceof ECPublicKey)) {
             throw new InvalidKeyException("Only ECPublicKey accepted!");
         }
@@ -160,7 +156,7 @@ public final class SM2Signature extends SignatureSpi {
         } catch (BadPaddingException e) {
             throw new SignatureException(e);
         } finally {
-            reset();
+            buffer.reset();
         }
     }
 
@@ -184,12 +180,7 @@ public final class SM2Signature extends SignatureSpi {
         } catch (BadPaddingException e) {
             throw new SignatureException(e);
         } finally {
-            reset();
+            buffer.reset();
         }
-    }
-
-    private void reset() {
-        sm2 = null;
-        buffer.reset();
     }
 }
