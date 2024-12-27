@@ -260,6 +260,13 @@ JNIEXPORT jbyteArray JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_Na
 
     OPENSSL_free(sig_buf);
 
+    // Re-init with the original parameters for the next operation
+    if (!EVP_DigestSignInit(ctx->mctx, NULL, NULL, NULL, NULL)) {
+        OPENSSL_print_err();
+
+        return NULL;
+    }
+
     return sig_bytes;
 }
 
@@ -309,6 +316,13 @@ JNIEXPORT jint JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeCr
 
     (*env)->ReleaseByteArrayElements(env, message, msg_bytes, JNI_ABORT);
     (*env)->ReleaseByteArrayElements(env, signature, sig_bytes, JNI_ABORT);
+
+    // Re-init with the original parameters for the next operation
+    if (!EVP_DigestVerifyInit(ctx->mctx, NULL, NULL, NULL, NULL)) {
+        OPENSSL_print_err();
+
+        return OPENSSL_FAILURE;
+    }
 
     return verified;
 }
