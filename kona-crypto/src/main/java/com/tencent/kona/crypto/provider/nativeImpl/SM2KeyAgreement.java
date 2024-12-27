@@ -54,7 +54,12 @@ public final class SM2KeyAgreement extends KeyAgreementSpi {
     private SM2KeyAgreementParamSpec paramSpec;
     private SM2PublicKey peerEphemeralPublicKey;
 
-    private NativeSM2KeyAgreement sm2;
+    private final NativeSM2KeyAgreement sm2;
+
+    public SM2KeyAgreement() {
+        sm2 = new NativeSM2KeyAgreement();
+        SWEEPER.register(this, new SweepNativeRef(sm2));
+    }
 
     @Override
     protected void engineInit(Key key, SecureRandom random) {
@@ -85,10 +90,6 @@ public final class SM2KeyAgreement extends KeyAgreementSpi {
         ephemeralPrivateKey = new SM2PrivateKey((ECPrivateKey) key);
         paramSpec = (SM2KeyAgreementParamSpec) params;
         peerEphemeralPublicKey = null;
-
-        sm2 = new NativeSM2KeyAgreement();
-
-        SWEEPER.register(this, new SweepNativeRef(sm2));
     }
 
     @Override
