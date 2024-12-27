@@ -26,7 +26,6 @@ import com.tencent.kona.crypto.spec.SM2KeyAgreementParamSpec;
 import org.openjdk.jmh.annotations.*;
 
 import javax.crypto.KeyAgreement;
-import java.security.InvalidKeyException;
 import java.util.concurrent.TimeUnit;
 
 import static com.tencent.kona.crypto.CryptoUtils.toBytes;
@@ -72,11 +71,12 @@ public class SM2KeyAgreementPerfTest {
         @Param({"KonaCrypto", "KonaCrypto-Native"})
         String provider;
 
+        SM2KeyAgreementParamSpec paramSpec;
         KeyAgreement keyAgreement;
 
-        @Setup(Level.Invocation)
+        @Setup(Level.Trial)
         public void setup() throws Exception {
-            SM2KeyAgreementParamSpec paramSpec = new SM2KeyAgreementParamSpec(
+            paramSpec = new SM2KeyAgreementParamSpec(
                     toBytes(ID),
                     new SM2PrivateKey(toBytes(PRI_KEY)),
                     new SM2PublicKey(toBytes(PUB_KEY)),
@@ -85,13 +85,13 @@ public class SM2KeyAgreementPerfTest {
                     true,
                     16);
             keyAgreement = KeyAgreement.getInstance("SM2", provider);
-            keyAgreement.init(
-                    new SM2PrivateKey(toBytes(TMP_PRI_KEY)), paramSpec);
         }
     }
 
     @Benchmark
-    public byte[] generateSecret(KeyAgreementHolder holder) throws InvalidKeyException {
+    public byte[] generateSecret(KeyAgreementHolder holder) throws Exception {
+        holder.keyAgreement.init(
+                new SM2PrivateKey(toBytes(TMP_PRI_KEY)), holder.paramSpec);
         holder.keyAgreement.doPhase(new SM2PublicKey(toBytes(PEER_TMP_PUB_KEY)), true);
         return holder.keyAgreement.generateSecret();
     }
