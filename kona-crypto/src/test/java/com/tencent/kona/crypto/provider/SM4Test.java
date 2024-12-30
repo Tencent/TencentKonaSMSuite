@@ -732,6 +732,26 @@ public class SM4Test {
     }
 
     @Test
+    public void testGCMWithBadTag() throws Exception {
+        SecretKey secretKey = new SecretKeySpec(KEY, "SM4");
+        GCMParameterSpec paramSpec = new GCMParameterSpec(
+                SM4_GCM_TAG_LEN * 8, GCM_IV);
+
+        Cipher cipher = Cipher.getInstance("SM4/GCM/NoPadding", PROVIDER);
+
+        cipher.init(Cipher.ENCRYPT_MODE, secretKey, paramSpec);
+        byte[] ciphertext = cipher.doFinal(MESSAGE);
+
+        // Change the tag bytes
+        ciphertext[ciphertext.length - 1] = 0x00;
+        ciphertext[ciphertext.length - 2] = 0x00;
+
+        cipher.init(Cipher.DECRYPT_MODE, secretKey, paramSpec);
+        Assertions.assertThrows(AEADBadTagException.class,
+                () -> cipher.doFinal(ciphertext));
+    }
+
+    @Test
     public void testUpdateData() throws Exception {
         testUpdateData("SM4/CBC/NoPadding", new IvParameterSpec(IV), true);
         testUpdateData("SM4/CBC/NoPadding", new IvParameterSpec(IV), false);
