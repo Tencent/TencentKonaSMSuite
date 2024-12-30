@@ -33,6 +33,7 @@ class SM4Crypt extends SymmetricCipher {
 
     private static final Sweeper SWEEPER = Sweeper.instance();
 
+    private boolean opChanged = false;
     private boolean decrypting = false;
     private SM4Params paramSpec;
     private byte[] key;
@@ -62,6 +63,7 @@ class SM4Crypt extends SymmetricCipher {
                     "Wrong key size: expected 16-byte, actual " + key.length);
         }
 
+        this.opChanged = this.decrypting != decrypting;
         this.decrypting = decrypting;
         this.paramSpec = paramSpec;
         this.key = key;
@@ -85,7 +87,7 @@ class SM4Crypt extends SymmetricCipher {
                 break;
             case GCM:
                 gcmLastCipherBlock = new DataWindow(SM4_GCM_TAG_LEN);
-                if (sm4 == null) {
+                if (sm4 == null || opChanged) {
                     sm4 = new NativeSM4.SM4GCM(!decrypting, key, iv);
                     SWEEPER.register(this, new SweepNativeRef(sm4));
                 } else {

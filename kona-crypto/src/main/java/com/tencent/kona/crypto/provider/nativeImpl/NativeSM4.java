@@ -215,7 +215,7 @@ abstract class NativeSM4 extends NativeRef {
             return encrypt ? encDoFinal(data) : decDoFinal(data);
         }
 
-        byte[] encDoFinal(byte[] data) {
+        private byte[] encDoFinal(byte[] data) {
             Objects.requireNonNull(data);
 
             byte[] lastOut = update(data);
@@ -229,7 +229,7 @@ abstract class NativeSM4 extends NativeRef {
             return out;
         }
 
-        byte[] decDoFinal(byte[] data) {
+        private byte[] decDoFinal(byte[] data) {
             if (data == null || data.length < SM4_GCM_TAG_LEN) {
                 throw new IllegalArgumentException("data must not be less than 16-bytes");
             }
