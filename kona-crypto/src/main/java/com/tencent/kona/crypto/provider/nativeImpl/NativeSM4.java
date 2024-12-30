@@ -32,8 +32,20 @@ import static com.tencent.kona.crypto.util.Constants.*;
  */
 abstract class NativeSM4 extends NativeRef {
 
+    final boolean encrypt;
+    final Mode mode;
+    final boolean padding;
+    final byte[] key;
+    byte[] iv;
+
     NativeSM4(boolean encrypt, Mode mode, boolean padding, byte[] key, byte[] iv) {
         super(createCtx(encrypt, mode, padding, key, iv));
+
+        this.encrypt = encrypt;
+        this.mode = mode;
+        this.padding = padding;
+        this.key = key;
+        this.iv = iv;
     }
 
     private static long createCtx(boolean encrypt, Mode mode, boolean padding,
@@ -69,10 +81,6 @@ abstract class NativeSM4 extends NativeRef {
         return nativeCrypto().sm4CreateCtx(encrypt, mode.name, padding, key, iv);
     }
 
-    NativeSM4(long pointer) {
-        super(pointer);
-    }
-
     byte[] update(byte[] data) {
         Objects.requireNonNull(data);
 
@@ -88,7 +96,7 @@ abstract class NativeSM4 extends NativeRef {
     byte[] doFinal() {
         byte[] result = pointer == 0
                 ? null
-                : nativeCrypto().sm4Final(pointer);
+                : nativeCrypto().sm4Final(pointer, key, iv);
         if (result == null) {
             throw new IllegalStateException("SM4 final operation failed");
         }
@@ -119,10 +127,6 @@ abstract class NativeSM4 extends NativeRef {
         SM4CBC(boolean encrypt, boolean padding, byte[] key, byte[] iv) {
             super(encrypt, Mode.CBC, padding, key, iv);
         }
-
-        SM4CBC(long pointer) {
-            super(pointer);
-        }
     }
 
     final static class SM4CTR extends NativeSM4 {
@@ -130,20 +134,12 @@ abstract class NativeSM4 extends NativeRef {
         SM4CTR(boolean encrypt, byte[] key, byte[] iv) {
             super(encrypt, Mode.CTR, false, key, iv);
         }
-
-        SM4CTR(long pointer) {
-            super(pointer);
-        }
     }
 
     final static class SM4ECB extends NativeSM4 {
 
         SM4ECB(boolean encrypt, boolean padding, byte[] key) {
             super(encrypt, Mode.ECB, padding, key, null);
-        }
-
-        SM4ECB(long pointer) {
-            super(pointer);
         }
 
         void processBlock(byte[] in, int inOff, byte[] out, int outOff) {
@@ -167,21 +163,32 @@ abstract class NativeSM4 extends NativeRef {
         void updateAAD(byte[] aad) {
             Objects.requireNonNull(aad);
 
-            if (pointer != 0) {
-                nativeCrypto().sm4GCMUpdateAAD(pointer, aad);
-            } else {
+            if (pointer == 0
+                    || nativeCrypto().sm4GCMUpdateAAD(pointer, aad) != OPENSSL_SUCCESS){
                 throw new IllegalStateException("SM4 updateAAD operation failed");
             }
         }
 
-        @Override
         byte[] doFinal() {
-            try {
-                return super.doFinal();
-            } catch (IllegalStateException e) {
+            byte[] result = pointer == 0
+                    ? null
+                    : nativeCrypto().sm4Final(pointer, null, null);
+            if (result == null) {
                 throw new IllegalStateException(
                         new AEADBadTagException("Tag is incorrect"));
             }
+            return result;
+        }
+
+        void setIV(byte[] iv) {
+            Objects.requireNonNull(iv);
+
+            if (pointer == 0
+                    || nativeCrypto().sm4GCMSetIV(pointer, iv) != OPENSSL_SUCCESS) {
+                throw new IllegalStateException("SM4 re-init context operation failed");
+            }
+
+            this.iv = iv;
         }
 
         byte[] getTag() {

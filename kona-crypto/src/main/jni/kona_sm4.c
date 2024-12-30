@@ -139,7 +139,7 @@ JNIEXPORT jbyteArray JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_Na
 }
 
 JNIEXPORT jbyteArray JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeCrypto_sm4Final
-  (JNIEnv* env, jobject thisObj, jlong pointer) {
+  (JNIEnv* env, jobject thisObj, jlong pointer, jbyteArray key, jbyteArray iv) {
     EVP_CIPHER_CTX* ctx = (EVP_CIPHER_CTX*)pointer;
     if (ctx == NULL) {
         return NULL;
@@ -164,7 +164,44 @@ JNIEXPORT jbyteArray JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_Na
 
     OPENSSL_free(out_buf);
 
+    // Re-init with the original parameters for the next operations.
+    jbyte* key_bytes = key ? (*env)->GetByteArrayElements(env, key, NULL) : NULL;
+    jbyte* iv_bytes = iv ? (*env)->GetByteArrayElements(env, iv, NULL) : NULL;
+    if (!EVP_CipherInit_ex(ctx, NULL, NULL, (uint8_t*)key_bytes, (uint8_t*)iv_bytes, EVP_CIPHER_CTX_encrypting(ctx))) {
+        OPENSSL_print_err();
+    }
+    if (key != NULL) {
+        (*env)->ReleaseByteArrayElements(env, key, key_bytes, JNI_ABORT);
+    }
+    if (iv_bytes != NULL) {
+        (*env)->ReleaseByteArrayElements(env, iv, iv_bytes, JNI_ABORT);
+    }
+
     return out_bytes;
+}
+
+JNIEXPORT jint JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeCrypto_sm4GCMSetIV
+  (JNIEnv* env, jobject thisObj, jlong pointer, jbyteArray iv) {
+    EVP_CIPHER_CTX* ctx = (EVP_CIPHER_CTX*)pointer;
+    if (ctx == NULL) {
+        return OPENSSL_FAILURE;
+    }
+
+    if (iv == NULL) {
+        return OPENSSL_FAILURE;
+    }
+
+    jbyte* iv_bytes = (*env)->GetByteArrayElements(env, iv, NULL);
+
+    jlong result = OPENSSL_SUCCESS;
+    if (!EVP_CipherInit_ex(ctx, NULL, NULL, NULL, (uint8_t*)iv_bytes, EVP_CIPHER_CTX_encrypting(ctx))) {
+        OPENSSL_print_err();
+        result = OPENSSL_FAILURE;
+    }
+
+    (*env)->ReleaseByteArrayElements(env, iv, iv_bytes, JNI_ABORT);
+
+    return (jint)result;
 }
 
 JNIEXPORT jint JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeCrypto_sm4GCMUpdateAAD

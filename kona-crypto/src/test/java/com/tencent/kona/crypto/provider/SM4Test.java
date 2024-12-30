@@ -54,6 +54,7 @@ import java.security.spec.AlgorithmParameterSpec;
 
 import static com.tencent.kona.crypto.CryptoUtils.toBytes;
 import static com.tencent.kona.crypto.TestUtils.PROVIDER;
+import static com.tencent.kona.crypto.util.Constants.SM4_GCM_IV_LEN;
 import static com.tencent.kona.crypto.util.Constants.SM4_GCM_TAG_LEN;
 
 /**
@@ -62,8 +63,9 @@ import static com.tencent.kona.crypto.util.Constants.SM4_GCM_TAG_LEN;
 public class SM4Test {
 
     private static final byte[] KEY = toBytes("0123456789abcdef0123456789abcdef");
-    private static final byte[] IV = toBytes("00000000000000000000000000000000");
-    private static final byte[] GCM_IV = toBytes("000000000000000000000000");
+    private static final byte[] IV = toBytes("00000000000000000000000000000001");
+    private static final byte[] GCM_IV = toBytes("000000000000000000000001");
+    private static final byte[] ALT_GCM_IV = toBytes("000000000000000000000002");
     private static final byte[] AAD = toBytes("616263");
 
     private static final byte[] MESSAGE = toBytes(
@@ -659,7 +661,7 @@ public class SM4Test {
         } else {
             cipher.init(Cipher.ENCRYPT_MODE, secretKey);
         }
-        cipher.doFinal(message1);
+        byte[] ciphertext1 = cipher.doFinal(message1);
         byte[] ciphertext2 = cipher.doFinal(message2);
 
         if (paramSpec != null) {
@@ -667,8 +669,39 @@ public class SM4Test {
         } else {
             cipher.init(Cipher.DECRYPT_MODE, secretKey);
         }
+        byte[] cleartext1 = cipher.doFinal(ciphertext1);
         byte[] cleartext2 = cipher.doFinal(ciphertext2);
 
+        Assertions.assertArrayEquals(message1, cleartext1);
+        Assertions.assertArrayEquals(message2, cleartext2);
+    }
+
+    @Test
+    public void testReuseGCM() throws Exception {
+        byte[] message1 = "0123456789abcdef".getBytes();
+        byte[] message2 = "0123456789ABCDEF".getBytes();
+
+        SecretKey secretKey = new SecretKeySpec(KEY, "SM4");
+
+        Cipher cipher = Cipher.getInstance("SM4/GCM/NoPadding", PROVIDER);
+
+        cipher.init(Cipher.ENCRYPT_MODE, secretKey,
+                new GCMParameterSpec(SM4_GCM_TAG_LEN * 8, GCM_IV));
+        byte[] ciphertext1 = cipher.doFinal(message1);
+
+        cipher.init(Cipher.ENCRYPT_MODE, secretKey,
+                new GCMParameterSpec(SM4_GCM_TAG_LEN * 8, ALT_GCM_IV));
+        byte[] ciphertext2 = cipher.doFinal(message2);
+
+        cipher.init(Cipher.DECRYPT_MODE, secretKey,
+                new GCMParameterSpec(SM4_GCM_TAG_LEN * 8, GCM_IV));
+        byte[] cleartext1 = cipher.doFinal(ciphertext1);
+
+        cipher.init(Cipher.DECRYPT_MODE, secretKey,
+                new GCMParameterSpec(SM4_GCM_TAG_LEN * 8, ALT_GCM_IV));
+        byte[] cleartext2 = cipher.doFinal(ciphertext2);
+
+        Assertions.assertArrayEquals(message1, cleartext1);
         Assertions.assertArrayEquals(message2, cleartext2);
     }
 

@@ -64,7 +64,7 @@ public class SM4DecrypterPerfTest {
     @State(Scope.Benchmark)
     public static class DecrypterHolder {
 
-        @Param({"KonaCrypto", "KonaCrypto-Native"})
+        @Param({"KonaCrypto-Native"})
         String provider;
 
         @Param({"Small", "Mid", "Big"})
@@ -84,7 +84,7 @@ public class SM4DecrypterPerfTest {
         Cipher decrypterCTRNoPadding;
         Cipher decrypterGCMNoPadding;
 
-        @Setup(Level.Invocation)
+        @Setup(Level.Trial)
         public void setup() throws Exception {
             setupCiphertexts();
             setupDecrypters();
@@ -138,8 +138,6 @@ public class SM4DecrypterPerfTest {
 
             decrypterGCMNoPadding = Cipher.getInstance(
                     "SM4/GCM/NoPadding", provider);
-            decrypterGCMNoPadding.init(
-                    Cipher.DECRYPT_MODE, SECRET_KEY, GCM_PARAM_SPEC);
         }
     }
 
@@ -154,12 +152,7 @@ public class SM4DecrypterPerfTest {
     }
 
     @Benchmark
-    public byte[] cbcPadding(DecrypterHolder holder) throws Exception {
-        return holder.decrypterCBCPadding.doFinal(holder.ciphertextCBCPadding);
-    }
-
-    @Benchmark
-    public byte[] cbcNoPadding(DecrypterHolder holder) throws Exception {
+    public byte[] cbc(DecrypterHolder holder) throws Exception {
         return holder.decrypterCBCNoPadding.doFinal(holder.ciphertextCBCNoPadding);
     }
 
@@ -175,6 +168,8 @@ public class SM4DecrypterPerfTest {
 
     @Benchmark
     public byte[] gcm(DecrypterHolder holder) throws Exception {
+        holder.decrypterGCMNoPadding.init(
+                Cipher.DECRYPT_MODE, SECRET_KEY, GCM_PARAM_SPEC);
         return holder.decrypterGCMNoPadding.doFinal(holder.ciphertextGCMNoPadding);
     }
 }

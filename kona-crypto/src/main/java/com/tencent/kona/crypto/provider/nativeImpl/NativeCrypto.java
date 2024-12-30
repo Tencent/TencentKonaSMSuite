@@ -184,7 +184,8 @@ final class NativeCrypto {
     native long   sm4CreateCtx(boolean encrypt, String mode, boolean padding, byte[] key, byte[] iv);
     native void   sm4FreeCtx(long pointer);
     native byte[] sm4Update(long pointer, byte[] in);
-    native byte[] sm4Final(long pointer);
+    native byte[] sm4Final(long pointer, byte[] key, byte[] iv);
+    native int    sm4GCMSetIV(long pointer, byte[] iv);
     native int    sm4GCMUpdateAAD(long pointer, byte[] aad);
     native int    sm4GCMProcTag(long pointer, byte[] tag);
 
