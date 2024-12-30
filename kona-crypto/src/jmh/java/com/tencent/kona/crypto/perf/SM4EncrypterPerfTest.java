@@ -29,6 +29,7 @@ import javax.crypto.spec.GCMParameterSpec;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
+import java.math.BigInteger;
 import java.util.concurrent.TimeUnit;
 
 import static com.tencent.kona.crypto.CryptoUtils.toBytes;
@@ -45,13 +46,10 @@ import static com.tencent.kona.crypto.CryptoUtils.toBytes;
 public class SM4EncrypterPerfTest {
 
     private static final byte[] KEY = toBytes("0123456789abcdef0123456789abcdef");
-    private static final byte[] IV = toBytes("00000000000000000000000000000000");
-    private static final byte[] GCM_IV = toBytes("000000000000000000000000");
+    private static final byte[] IV = toBytes("10000000000000000000000000000000");
 
     private static final SecretKey SECRET_KEY = new SecretKeySpec(KEY, "SM4");
     private static final IvParameterSpec IV_PARAM_SPEC = new IvParameterSpec(IV);
-    private static final GCMParameterSpec GCM_PARAM_SPEC
-            = new GCMParameterSpec(Constants.SM4_GCM_TAG_LEN * 8, GCM_IV);
 
     private final static byte[] SMALL_DATA = TestUtils.data(128);
     private final static byte[] MEDIUM_DATA = TestUtils.dataKB(1);
@@ -64,6 +62,8 @@ public class SM4EncrypterPerfTest {
     @State(Scope.Benchmark)
     public static class EncrypterHolder {
 
+        private BigInteger gcmIvValue = BigInteger.ZERO;
+
         @Param({"KonaCrypto", "KonaCrypto-Native"})
         String provider;
 
@@ -72,20 +72,14 @@ public class SM4EncrypterPerfTest {
 
         byte[] data;
 
-        Cipher encrypterCBCPadding;
         Cipher encrypterCBCNoPadding;
         Cipher encrypterECBNoPadding;
         Cipher encrypterCTRNoPadding;
         Cipher encrypterGCMNoPadding;
 
-        @Setup(Level.Invocation)
+        @Setup(Level.Trial)
         public void setup() throws Exception {
             data = data(dataType);
-
-            encrypterCBCPadding = Cipher.getInstance(
-                    "SM4/CBC/PKCS7Padding", provider);
-            encrypterCBCPadding.init(
-                    Cipher.ENCRYPT_MODE, SECRET_KEY, IV_PARAM_SPEC);
 
             encrypterCBCNoPadding = Cipher.getInstance(
                     "SM4/CBC/NoPadding", provider);
@@ -104,8 +98,6 @@ public class SM4EncrypterPerfTest {
 
             encrypterGCMNoPadding = Cipher.getInstance(
                     "SM4/GCM/NoPadding", provider);
-            encrypterGCMNoPadding.init(
-                    Cipher.ENCRYPT_MODE, SECRET_KEY, GCM_PARAM_SPEC);
         }
     }
 
@@ -120,12 +112,7 @@ public class SM4EncrypterPerfTest {
     }
 
     @Benchmark
-    public byte[] cbcPadding(EncrypterHolder holder) throws Exception {
-        return holder.encrypterCBCPadding.doFinal(holder.data);
-    }
-
-    @Benchmark
-    public byte[] cbcNoPadding(EncrypterHolder holder) throws Exception {
+    public byte[] cbc(EncrypterHolder holder) throws Exception {
         return holder.encrypterCBCNoPadding.doFinal(holder.data);
     }
 
@@ -141,6 +128,24 @@ public class SM4EncrypterPerfTest {
 
     @Benchmark
     public byte[] gcm(EncrypterHolder holder) throws Exception {
+        holder.gcmIvValue = holder.gcmIvValue.add(BigInteger.ONE);
+        GCMParameterSpec GCM_PARAM_SPEC = new GCMParameterSpec(
+                Constants.SM4_GCM_TAG_LEN * 8, toByte12(holder.gcmIvValue));
+        holder.encrypterGCMNoPadding.init(
+                Cipher.ENCRYPT_MODE, SECRET_KEY, GCM_PARAM_SPEC);
         return holder.encrypterGCMNoPadding.doFinal(holder.data);
+    }
+
+    private static byte[] toByte12(BigInteger ivValue) {
+        byte[] result = new byte[12];
+
+        byte[] iv = ivValue.toByteArray();
+        if (iv.length >= 12) {
+            System.arraycopy(iv, iv.length - 12, result, 0, 12);
+        } else {
+            System.arraycopy(iv, 0, result, 12 - iv.length, iv.length);
+        }
+
+        return result;
     }
 }

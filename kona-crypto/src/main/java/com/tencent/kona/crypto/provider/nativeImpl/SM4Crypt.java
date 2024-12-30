@@ -77,22 +77,28 @@ class SM4Crypt extends SymmetricCipher {
         switch (mode) {
             case ECB:
                 sm4 = new NativeSM4.SM4ECB(!decrypting, padding, key);
+                SWEEPER.register(this, new SweepNativeRef(sm4));
                 break;
             case CBC:
                 sm4 = new NativeSM4.SM4CBC(!decrypting, padding, key, iv);
+                SWEEPER.register(this, new SweepNativeRef(sm4));
                 break;
             case GCM:
                 gcmLastCipherBlock = new DataWindow(SM4_GCM_TAG_LEN);
-                sm4 = new NativeSM4.SM4GCM(!decrypting, key, iv);
+                if (sm4 == null) {
+                    sm4 = new NativeSM4.SM4GCM(!decrypting, key, iv);
+                    SWEEPER.register(this, new SweepNativeRef(sm4));
+                } else {
+                    ((NativeSM4.SM4GCM) sm4).setIV (iv);
+                }
                 break;
             case CTR:
                 sm4 = new NativeSM4.SM4CTR(!decrypting, key, iv);
+                SWEEPER.register(this, new SweepNativeRef(sm4));
                 break;
             default:
                 throw new IllegalStateException("Unexpected mode: " + mode);
         }
-
-        SWEEPER.register(this, new SweepNativeRef(sm4));
     }
 
     @Override
@@ -206,9 +212,6 @@ class SM4Crypt extends SymmetricCipher {
             throw new IllegalStateException(
                     "Unexpected SM4: " + sm4.getClass());
         }
-
-        // re-init
-        init();
 
         return CryptoUtils.concat(updateOut, finalOut);
     }

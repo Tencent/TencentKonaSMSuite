@@ -134,10 +134,18 @@ JNIEXPORT jbyteArray JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_Na
 /*
  * Class:     com_tencent_kona_crypto_provider_nativeImpl_NativeCrypto
  * Method:    sm4Final
- * Signature: (J)[B
+ * Signature: (J[B[B)[B
  */
 JNIEXPORT jbyteArray JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeCrypto_sm4Final
-  (JNIEnv *, jobject, jlong);
+  (JNIEnv *, jobject, jlong, jbyteArray, jbyteArray);
+
+/*
+ * Class:     com_tencent_kona_crypto_provider_nativeImpl_NativeCrypto
+ * Method:    sm4GCMSetIV
+ * Signature: (J[B)I
+ */
+JNIEXPORT jint JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeCrypto_sm4GCMSetIV
+  (JNIEnv *, jobject, jlong, jbyteArray);
 
 /*
  * Class:     com_tencent_kona_crypto_provider_nativeImpl_NativeCrypto
