@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022, 2024, THL A29 Limited, a Tencent company. All rights reserved.
+ * Copyright (C) 2022, 2025, THL A29 Limited, a Tencent company. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify
@@ -63,6 +63,10 @@ public final class SM2Signature extends SignatureSpi {
     @Override
     protected void engineInitSign(PrivateKey privateKey, SecureRandom random)
             throws InvalidKeyException {
+        sm2 = null;
+        this.privateKey = null;
+        buffer.reset();
+
         if (!(privateKey instanceof ECPrivateKey)) {
             throw new InvalidKeyException("Only ECPrivateKey accepted!");
         }
@@ -87,6 +91,10 @@ public final class SM2Signature extends SignatureSpi {
     @Override
     protected void engineInitVerify(PublicKey publicKey)
             throws InvalidKeyException {
+        this.privateKey = null;
+        this.publicKey = null;
+        buffer.reset();
+
         if (!(publicKey instanceof ECPublicKey)) {
             throw new InvalidKeyException("Only ECPublicKey accepted!");
         }
@@ -97,6 +105,10 @@ public final class SM2Signature extends SignatureSpi {
     @Override
     protected void engineSetParameter(AlgorithmParameterSpec params)
             throws InvalidAlgorithmParameterException {
+        privateKey = null;
+        publicKey = null;
+        id = null;
+
         if (!(params instanceof SM2SignatureParameterSpec)) {
             throw new InvalidAlgorithmParameterException(
                     "Only accept SM2SignatureParameterSpec");
