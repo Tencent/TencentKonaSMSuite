@@ -91,7 +91,7 @@ class SM4Crypt extends SymmetricCipher {
                     sm4 = new NativeSM4.SM4GCM(!decrypting, key, iv);
                     SWEEPER.register(this, new SweepNativeRef(sm4));
                 } else {
-                    ((NativeSM4.SM4GCM) sm4).setIV (iv);
+                    ((NativeSM4.SM4GCM) sm4).setIV(iv);
                 }
                 break;
             case CTR:
