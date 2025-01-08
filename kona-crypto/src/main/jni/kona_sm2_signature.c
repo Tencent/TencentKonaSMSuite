@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024, THL A29 Limited, a Tencent company. All rights reserved.
+ * Copyright (C) 2024, 2025, THL A29 Limited, a Tencent company. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -177,9 +177,18 @@ JNIEXPORT jlong JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeC
 
 void sm2_signature_ctx_free(SM2_SIGNATURE_CTX* ctx) {
     if (ctx != NULL) {
-        if (ctx->mctx != NULL) EVP_MD_CTX_free(ctx->mctx);
-        if (ctx->pctx != NULL) EVP_PKEY_CTX_free(ctx->pctx);
-        if (ctx->pkey != NULL) EVP_PKEY_free(ctx->pkey);
+        if (ctx->mctx != NULL) {
+            EVP_MD_CTX_free(ctx->mctx);
+            ctx->mctx = NULL;
+        }
+        if (ctx->pctx != NULL) {
+            EVP_PKEY_CTX_free(ctx->pctx);
+            ctx->pctx = NULL;
+        }
+        if (ctx->pkey != NULL) {
+            EVP_PKEY_free(ctx->pkey);
+            ctx->pkey = NULL;
+        }
 
         OPENSSL_free(ctx);
     }
