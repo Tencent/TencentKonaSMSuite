@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024, THL A29 Limited, a Tencent company. All rights reserved.
+ * Copyright (C) 2024, 2025, THL A29 Limited, a Tencent company. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -59,8 +59,14 @@ SM2_KEYEX_CTX* sm2_create_keyex_ctx() {
 
 void sm2_free_keyex_ctx(SM2_KEYEX_CTX* ctx) {
     if (ctx != NULL) {
-        if (ctx->sm3_ctx != NULL) EVP_MD_CTX_free(ctx->sm3_ctx);
-        if (ctx->bn_ctx != NULL) BN_CTX_free(ctx->bn_ctx);
+        if (ctx->sm3_ctx != NULL) {
+            EVP_MD_CTX_free(ctx->sm3_ctx);
+            ctx->sm3_ctx = NULL;
+        }
+        if (ctx->bn_ctx != NULL) {
+            BN_CTX_free(ctx->bn_ctx);
+            ctx->bn_ctx = NULL;
+        }
 
         OPENSSL_free(ctx);
     }
@@ -358,14 +364,35 @@ cleanup:
 
 void sm2_keyex_params_free(SM2_KEYEX_PARAMS* ctx) {
     if (ctx != NULL) {
-        if (ctx->pri_key != NULL) BN_free(ctx->pri_key);
-        if (ctx->pub_key != NULL) EC_POINT_free(ctx->pub_key);
-        if (ctx->e_pri_key != NULL) BN_free(ctx->e_pri_key);
-        if (ctx->id != NULL) OPENSSL_free(ctx->id);
+        if (ctx->pri_key != NULL) {
+            BN_free(ctx->pri_key);
+            ctx->pri_key = NULL;
+        }
+        if (ctx->pub_key != NULL) {
+            EC_POINT_free(ctx->pub_key);
+            ctx->pub_key = NULL;
+        }
+        if (ctx->e_pri_key != NULL) {
+            BN_free(ctx->e_pri_key);
+            ctx->e_pri_key = NULL;
+        }
+        if (ctx->id != NULL) {
+            OPENSSL_free(ctx->id);
+            ctx->id = NULL;
+        }
 
-        if (ctx->peer_pub_key != NULL) EC_POINT_free(ctx->peer_pub_key);
-        if (ctx->peer_e_pub_key != NULL) EC_POINT_free(ctx->peer_e_pub_key);
-        if (ctx->peer_id != NULL) OPENSSL_free(ctx->peer_id);
+        if (ctx->peer_pub_key != NULL) {
+            EC_POINT_free(ctx->peer_pub_key);
+            ctx->peer_pub_key = NULL;
+        }
+        if (ctx->peer_e_pub_key != NULL) {
+            EC_POINT_free(ctx->peer_e_pub_key);
+            ctx->peer_e_pub_key = NULL;
+        }
+        if (ctx->peer_id != NULL) {
+            OPENSSL_free(ctx->peer_id);
+            ctx->peer_id = NULL;
+        }
 
         OPENSSL_free(ctx);
     }
@@ -382,7 +409,7 @@ JNIEXPORT void JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeCr
 }
 
 JNIEXPORT jbyteArray JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeCrypto_sm2DeriveKey
- (JNIEnv* env, jobject thisObj, jlong pointer,
+  (JNIEnv* env, jobject thisObj, jlong pointer,
          jbyteArray priKey, jbyteArray pubKey, jbyteArray ePriKey, jbyteArray id,
          jbyteArray peerPubKey, jbyteArray peerEPubKey, jbyteArray peerId,
          jboolean isInitiator, jint sharedKeyLength) {

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024, THL A29 Limited, a Tencent company. All rights reserved.
+ * Copyright (C) 2024, 2025, THL A29 Limited, a Tencent company. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify
@@ -185,7 +185,7 @@ abstract class NativeSM4 extends NativeRef {
 
             if (pointer == 0
                     || nativeCrypto().sm4GCMSetIV(pointer, iv) != OPENSSL_SUCCESS) {
-                throw new IllegalStateException("SM4 re-init context operation failed");
+                throw new IllegalStateException("SM4 setting IV operation failed");
             }
 
             this.iv = iv;
