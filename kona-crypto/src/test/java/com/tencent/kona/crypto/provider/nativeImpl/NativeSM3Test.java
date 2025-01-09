@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024, THL A29 Limited, a Tencent company. All rights reserved.
+ * Copyright (C) 2024, 2025, THL A29 Limited, a Tencent company. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -132,5 +132,13 @@ public class NativeSM3Test {
         Assertions.assertThrows(
                 IllegalStateException.class,
                 () -> sm3.doFinal(MESSAGE_SHORT));
+    }
+
+    @Test
+    public void testCloseTwice() {
+        NativeSM3 sm3 = new NativeSM3();
+        sm3.doFinal(MESSAGE_LONG);
+        sm3.close();
+        sm3.close();
     }
 }

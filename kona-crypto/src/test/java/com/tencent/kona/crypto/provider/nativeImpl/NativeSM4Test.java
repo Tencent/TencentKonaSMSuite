@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024, THL A29 Limited, a Tencent company. All rights reserved.
+ * Copyright (C) 2024, 2025, THL A29 Limited, a Tencent company. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -171,6 +171,23 @@ public class NativeSM4Test {
     }
 
     @Test
+    public void testUseClosedCBCRef() {
+        SM4CBC sm4 = new SM4CBC(true, false, KEY, IV);
+        sm4.close();
+
+        Assertions.assertThrows(
+                IllegalStateException.class,
+                () -> sm4.doFinal(MESSAGE_32));
+    }
+
+    @Test
+    public void testCloseCBCTwice() {
+        SM4CBC sm4 = new SM4CBC(true, false, KEY, IV);
+        sm4.close();
+        sm4.close();
+    }
+
+    @Test
     public void testCTR() {
         try(SM4CTR encrypter = new SM4CTR(true, KEY, IV)) {
             byte[] ciphertext = encrypter.doFinal(MESSAGE_32);
@@ -246,6 +263,23 @@ public class NativeSM4Test {
                     NullPointerException.class,
                     () -> encrypter.doFinal(null));
         }
+    }
+
+    @Test
+    public void testUseClosedCTRRef() {
+        SM4CTR sm4 = new SM4CTR(true, KEY, IV);
+        sm4.close();
+
+        Assertions.assertThrows(
+                IllegalStateException.class,
+                () -> sm4.doFinal(MESSAGE_32));
+    }
+
+    @Test
+    public void testCloseCTRTwice() {
+        SM4CTR sm4 = new SM4CTR(true, KEY, IV);
+        sm4.close();
+        sm4.close();
     }
 
     @Test
@@ -339,6 +373,23 @@ public class NativeSM4Test {
                     NullPointerException.class,
                     () -> encrypter.doFinal(null));
         }
+    }
+
+    @Test
+    public void testUseClosedECBRef() {
+        SM4ECB sm4 = new SM4ECB(true, false, KEY);
+        sm4.close();
+
+        Assertions.assertThrows(
+                IllegalStateException.class,
+                () -> sm4.doFinal(MESSAGE_32));
+    }
+
+    @Test
+    public void testCloseECBTwice() {
+        SM4ECB sm4 = new SM4ECB(true, false, KEY);
+        sm4.close();
+        sm4.close();
     }
 
     @Test
@@ -453,6 +504,23 @@ public class NativeSM4Test {
     }
 
     @Test
+    public void testUseClosedGCMRef() {
+        SM4GCM sm4 = new SM4GCM(false, KEY, GCM_IV);
+        sm4.close();
+
+        Assertions.assertThrows(
+                IllegalStateException.class,
+                () -> sm4.doFinal(MESSAGE_32));
+    }
+
+    @Test
+    public void testCloseGCMTwice() {
+        SM4GCM sm4 = new SM4GCM(false, KEY, GCM_IV);
+        sm4.close();
+        sm4.close();
+    }
+
+    @Test
     public void testKey() {
         Assertions.assertThrows(
                 IllegalStateException.class,
@@ -476,15 +544,5 @@ public class NativeSM4Test {
         Assertions.assertThrows(
                 IllegalStateException.class,
                 ()-> new SM4GCM(true, KEY, IV).close());
-    }
-
-    @Test
-    public void testUseClosedRef() {
-        SM4ECB sm4 = new SM4ECB(true, false, KEY);
-        sm4.close();
-
-        Assertions.assertThrows(
-                IllegalStateException.class,
-                () -> sm4.doFinal(MESSAGE_32));
     }
 }

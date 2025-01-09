@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024, THL A29 Limited, a Tencent company. All rights reserved.
+ * Copyright (C) 2024, 2025, THL A29 Limited, a Tencent company. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -136,5 +136,13 @@ public class NativeSM3HMacTest {
         Assertions.assertThrows(
                 IllegalStateException.class,
                 () -> sm3hmac.doFinal(MESSAGE));
+    }
+
+    @Test
+    public void testCloseTwice() {
+        NativeSM3HMac sm3hmac = new NativeSM3HMac(KEY);
+        sm3hmac.doFinal(MESSAGE);
+        sm3hmac.close();
+        sm3hmac.close();
     }
 }
