@@ -10,11 +10,11 @@
 
 - [KonaCrypto]，它遵循标准的[JCA]框架实现了国密密码学算法SM2，SM3和SM4。在实现方式上，分为基于纯Java的实现和基于JNI/OpenSSL的实现。默认启用前者，而后者仅支持`Linux x86_64/aarch64`平台。
 - [KonaCrypto-Native]，它实现的特性与`KonaCrypto`相同。然而，它是基于`JNI`和`OpenSSL`的，并且仅支持`Linux x86_64/aarch64`平台。
-- [KonaPKIX]，它实现了国密证书的解析与验证，并可加载和创建包含国密证书的密钥库。它需要依赖`KonaCrypto`。另外，该组件还提供了两个工具类：
+- [KonaPKIX]，它实现了国密证书的解析与验证，并可加载和创建包含国密证书的密钥库。该Provider需要依赖`KonaCrypto`或`KonaCrypto-Native`。另外，它还提供了两个工具类：
   - KeyTool，它的功能与JDK中的`keytool`相同，可以生成密钥对，创建证书以及密钥库。它支持使用`PBEWithHmacSM3AndSM4`算法对私钥和密钥库进行加密，也可使用`HmacPBESM3`算法验证密钥库的完整性。
   - KeyStoreTool，它可以将已有的[PEM]格式的私钥和证书导入密钥库。
-- [KonaSSL]，它实现了中国的传输层密码协议（TLCP），并遵循RFC 8998规范将国密基础算法应用到了TLS 1.3协议中。它需要依赖`KonaCrypto`和`KonaPKIX`。
-- [Kona]，它将`KonaCrypto`，`KonaPKIX`和`KonaSSL`中的特性进行了简单的封装，所以它需要根据实际需求去依赖这些Provider中的一个或多个。一般地，**建议使用这个Provider**。
+- [KonaSSL]，它实现了中国的传输层密码协议（TLCP），并遵循RFC 8998规范将国密基础算法应用到了TLS 1.3协议中。它需要依赖`KonaCrypto`或`KonaCrypto-Native`，以及`KonaPKIX`。
+- [Kona]，它将`KonaCrypto`，`KonaPKIX`和`KonaSSL`中的特性进行了简单的封装，所以它需要根据实际需求去依赖这些Provider中的一个或多个。。
 
 本项目还提供了一个Spring Boot模块，即[kona-demo]，作为服务端的示例。该模块演示了将腾讯Kona国密套件集成入第三方Web服务器，包括`Jetty`和`Tomcat`，的途径。但该模块并不是本项目的制品之一。另外，`kona-ssl`模块的[测试集]还提供了与`Netty`，`gRPC`，`Apache HttpClient`和`OkHttp`进行集成的示例。
 
@@ -59,7 +59,7 @@ dependencies {
 ```
 
 ## 构建
-腾讯Kona国密套件使用Gradle进行构建，其脚本使用[Kotlin DSL]。该Gradle项目包含有四个子模块，即*kona-crypto*，*kona-pkix*，*kona-ssl*和*kona-provider*，它们分别对应于四个Provider，即`KonaCrypto`，`KonaPKIX`，`KonaSSL`和`Kona`。
+腾讯Kona国密套件使用Gradle进行构建，其脚本使用[Kotlin DSL]。该Gradle项目包含有四个子模块，即*kona-crypto*，*kona-pkix*，*kona-ssl*和*kona-provider*，它们分别对应于五个Provider，即`KonaCrypto`和`KonaCrypto-Native`，`KonaPKIX`，`KonaSSL`和`Kona`。
 
 构建该项目的一个典型方法就是在项目的根目录下执行命令：
 
@@ -90,7 +90,7 @@ dependencies {
 **答**：国家标准GB/T 38636-2020定义的这个类TLS安全通信协议是`传输层密码协议`，其英文为`Transport layer cryptography protocol`。本组件使用它的简称`TLCP`，版本为`1.1`。而`TLCP`或`TLCP 1.1`就是`GMSSL`或`GMSSL 1.1`。
 
 **问**：为什么不能在Oracle JDK下执行本项目中的测试用例？<br>
-**答**：Oracle JDK会验证JCE实现（此处为`KonaCrypto`）是否被签名，并且其关联的证书要由JCE Code Signing CA颁发。而在执行本项目中的测试用例时，其使用的`KonaCrypto` Provider还没有签名，所以不能在Oracle JDK中执行它们。但发布到Maven中央仓库中的jar文件都被签名了，所以它们都可以在Oracle JDK中运行。
+**答**：Oracle JDK会验证JCE实现（此处为`KonaCrypto`或`KonaCrypto-Native`）是否被签名，并且其关联的证书要由JCE Code Signing CA颁发。而在执行本项目中的测试用例时，其使用的`KonaCrypto`和`KonaCrypto-Native` Provider还没有签名，所以不能在Oracle JDK中执行它们。但发布到Maven中央仓库中的jar文件都被签名了，所以它们都可以在Oracle JDK中运行。
 
 **问**：本项目与BoucyCastle中的国密实现有何关系？<br>
 **答**：本项目的早期版本会依赖BouncyCastle中的国密密码学算法，但从`1.0.5`版开始，已经不再对BouncyCastle有任何的依赖。由于都是遵循中国相关标准来实现的国密密码学算法，所以这两个组件之间可以正常交互。另外，需要了解的是，BouncyCastle并不支持国密安全通信协议，包括TLCP和TLS 1.3/RFC 8998。
@@ -110,6 +110,9 @@ dependencies {
 <https://docs.oracle.com/en/java/javase/11/security/java-cryptography-architecture-jca-reference-guide.html>
 
 [KonaCrypto]:
+<kona-crypto/README_cn.md>
+
+[KonaCrypto-Native]:
 <kona-crypto/README_cn.md>
 
 [KonaPKIX]:

@@ -10,11 +10,11 @@ Tencent Kona SM Suite is a set of Java security providers, which service the Sha
 
 - [KonaCrypto]，which implements SM2, SM3 and SM4 algorithms based on Java Cryptography Architecture.
 - [KonaCrypto-Native]，which implements as the same features as `KonaCrypto` does. However, it is based on `JNI` and `OpenSSL` and supports only `Linux x86_64/aarch64` platforms.
-- [KonaPKIX]，which supports ShangMi algorithms on loading certificate and certificate chain verification. It also can load and write keystores containing ShangMi certificates. Additionally, this component provides two utility classes:
+- [KonaPKIX]，which supports ShangMi algorithms on loading certificate and certificate chain verification. It also can load and write keystores containing ShangMi certificates. This provider depends on `KonaCrypto` or `KonaCrypto-Native`. Additionally, it provides two utility classes:
   - KeyTool, which is the same as `keytool` in JDK, can generate private keys, and create certificates and keystores. It can use `PBEWithHmacSM3AndSM4` to encrypt private keys and keystores, and use `HmacPBESM3` to validate the integrity of keystores.
   - KeyStoreTool, which can import the existing [PEM]-encoded private keys and certificates to keystores.
-- [KonaSSL] implements China's Transport Layer Cryptographic Protocol (TLCP), and also applies ShangMi algorithms to TLS 1.3 based on RFC 8998.
-- [Kona], which wraps all the features in `KonaCrypto`，`KonaPKIX` and `KonaSSL`, so it has to depend on one or more of them. Generally, **this provider is recommended**.
+- [KonaSSL] implements China's Transport Layer Cryptographic Protocol (TLCP), and also applies ShangMi algorithms to TLS 1.3 based on RFC 8998. It depends on `KonaCrypto` or `KonaCrypto-Native`, and `KonaPKIX`.
+- [Kona], which wraps all the features in `KonaCrypto`，`KonaPKIX` and `KonaSSL`, so it has to depend on one or more of them.
 
 This project provides a Spring Boot module, exactly [kona-demo], as a server-side demo. This module demonstrates the approach on integrating Tencent Kona SM Suite to the 3rd-party web servers, including `Jetty` and `Tomcat`. But this module is not one of the artifacts of this project. In addition, [the test set] in `kona-ssl` module provides the demon on integrating with `Netty`, `gRPC`, `Apache HttpClient` and `OkHttp`.
 
@@ -59,7 +59,7 @@ dependencies {
 ```
 
 ## Build
-Tencent Kona SM Suite uses Gradle to build this project. And the build script uses [Kotlin DSL]. This Gradle project contains four subprojects, namely *kona-crypto*，*kona-pkix*，*kona-ssl* and *kona-provider*. They respectively correspond to the four providers, namely `KonaCrypto`，`KonaPKIX`，`KonaSSL` and `Kona`.
+Tencent Kona SM Suite uses Gradle to build this project. And the build script uses [Kotlin DSL]. This Gradle project contains four subprojects, namely *kona-crypto*，*kona-pkix*，*kona-ssl* and *kona-provider*. They respectively correspond to the four providers, namely `KonaCrypto` and `KonaCrypto-Native`，`KonaPKIX`，`KonaSSL` and `Kona`.
 
 A typical way to build this project just usts the following command:
 
@@ -90,7 +90,7 @@ Tencent Kona SM Suite is licensed under GNU GPL v2.0 license with classpath exce
 **A**: China's specification GB/T 38636-2020 defined the TLS-liked protocol as `Transport layer cryptography protocol`, so the protocol name in this project is`TLCP`, and the version is `1.1`. Certainly, `TLCP` or `TLCP 1.1` is `GMSSL` or`GMSSL 1.1`.
 
 **Q**: Why cannot run the tests in this project with Oracle JDK?<br>
-**A**: Oracle JDK requires a JCE implementation (here is `KoneCrypto`) must be signed and the associated certificate must be issued by Oracle JCE Code Signing CA. When directly executing the tests with the project source, `KonaCrypto` Provider is not signed yet, so they cannot run on Oracle JDK. But note that, the artifacts in Maven Central repository are already signed and surely can run on Oracle JDK.
+**A**: Oracle JDK requires a JCE implementation (here is `KoneCrypto` or `KonaCrypto-Native`) must be signed and the associated certificate must be issued by Oracle JCE Code Signing CA. When directly executing the tests with the project source, `KonaCrypto` and `KonaCrypto-Native` Provider are not signed yet, so they cannot run on Oracle JDK. But note that, the artifacts in Maven Central repository are already signed and surely can run on Oracle JDK.
 
 **Q**: Is this project related to BouncyCastle?<br>
 **A**: The earlier versions of this project used the SM algorithms from BouncyCastle, but since version `1.0.5`, this project doesn't depend on BouncyCastle anymore. Both of the components comply with China's specification, so they can interoperate with each other. In addition, please note BouncyCastle doesn't support SM protocols, including TLCP and TLS 1.3/RFC 8998.
