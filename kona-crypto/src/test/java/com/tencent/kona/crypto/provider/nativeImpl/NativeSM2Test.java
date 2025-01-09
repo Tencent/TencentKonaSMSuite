@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024, THL A29 Limited, a Tencent company. All rights reserved.
+ * Copyright (C) 2024, 2025, THL A29 Limited, a Tencent company. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -162,6 +162,14 @@ public class NativeSM2Test {
     }
 
     @Test
+    public void testCloseSM2KeyPairGenTwice() {
+        NativeSM2KeyPairGen sm2KeyPairGen = new NativeSM2KeyPairGen();
+        sm2KeyPairGen.genKeyPair();
+        sm2KeyPairGen.close();
+        sm2KeyPairGen.close();
+    }
+
+    @Test
     public void testSM2Cipher() throws Exception {
         try (NativeSM2KeyPairGen sm2KeyPairGen = new NativeSM2KeyPairGen()) {
             byte[] keyPair = sm2KeyPairGen.genKeyPair();
@@ -261,6 +269,23 @@ public class NativeSM2Test {
             sm2Decrypter.close();
             Assertions.assertThrows(BadPaddingException.class,
                     () -> sm2Decrypter.decrypt(EMPTY));
+        }
+    }
+
+    @Test
+    public void testCloseSM2CipherTwice() throws Exception {
+        try (NativeSM2KeyPairGen sm2KeyPairGen = new NativeSM2KeyPairGen()) {
+            byte[] keyPair = sm2KeyPairGen.genKeyPair();
+
+            NativeSM2Cipher sm2Encrypter = new NativeSM2Cipher(keyPair);
+            byte[] ciphertext = sm2Encrypter.encrypt(MESSAGE);
+            sm2Encrypter.close();
+            sm2Encrypter.close();
+
+            NativeSM2Cipher sm2Decrypter = new NativeSM2Cipher(keyPair);
+            sm2Decrypter.decrypt(ciphertext);
+            sm2Decrypter.close();
+            sm2Decrypter.close();
         }
     }
 
@@ -384,6 +409,25 @@ public class NativeSM2Test {
     }
 
     @Test
+    public void testCloseSM2SignatureTwice() throws Exception {
+        try (NativeSM2KeyPairGen sm2KeyPairGen = new NativeSM2KeyPairGen()) {
+            byte[] keyPair = sm2KeyPairGen.genKeyPair();
+            byte[] priKey = copy(keyPair, 0, SM2_PRIKEY_LEN);
+            byte[] pubKey = copy(keyPair, SM2_PRIKEY_LEN, SM2_PUBKEY_LEN);
+
+            NativeSM2Signature sm2Signer = new NativeSM2Signature(priKey, pubKey, ID, true);
+            byte[] sign = sm2Signer.sign(MESSAGE);
+            sm2Signer.close();
+            sm2Signer.close();
+
+            NativeSM2Signature sm2Verifier = new NativeSM2Signature(pubKey, ID, false);
+            sm2Verifier.verify(MESSAGE, sign);
+            sm2Verifier.close();
+            sm2Signer.close();
+        }
+    }
+
+    @Test
     public void testSM2SignatureTwice() throws Exception {
         try (NativeSM2KeyPairGen sm2KeyPairGen = new NativeSM2KeyPairGen()) {
             byte[] keyPair = sm2KeyPairGen.genKeyPair();
@@ -494,6 +538,32 @@ public class NativeSM2Test {
                             priKey, pubKey, ePriKey, ID,
                             peerPubKey, peerEPubKey, PEER_ID,
                             true, 32));
+        }
+    }
+
+    @Test
+    public void testCloseSM2KeyAgreementTwice() {
+        try (NativeSM2KeyPairGen sm2KeyPairGen = new NativeSM2KeyPairGen()) {
+            byte[] keyPair = sm2KeyPairGen.genKeyPair();
+            byte[] priKey = copy(keyPair, 0, SM2_PRIKEY_LEN);
+            byte[] pubKey = copy(keyPair, SM2_PRIKEY_LEN, SM2_PUBKEY_LEN);
+
+            byte[] eKeyPair = sm2KeyPairGen.genKeyPair();
+            byte[] ePriKey = copy(eKeyPair, 0, SM2_PRIKEY_LEN);
+
+            byte[] peerKeyPair = sm2KeyPairGen.genKeyPair();
+            byte[] peerPubKey = copy(peerKeyPair, SM2_PRIKEY_LEN, SM2_PUBKEY_LEN);
+
+            byte[] peerEKeyPair = sm2KeyPairGen.genKeyPair();
+            byte[] peerEPubKey = copy(peerEKeyPair, SM2_PRIKEY_LEN, SM2_PUBKEY_LEN);
+
+            NativeSM2KeyAgreement sm2KeyAgreement = new NativeSM2KeyAgreement();
+            sm2KeyAgreement.deriveKey(
+                            priKey, pubKey, ePriKey, ID,
+                            peerPubKey, peerEPubKey, PEER_ID,
+                            true, 32);
+            sm2KeyAgreement.close();
+            sm2KeyAgreement.close();
         }
     }
 }
