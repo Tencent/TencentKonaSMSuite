@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024, THL A29 Limited, a Tencent company. All rights reserved.
+ * Copyright (C) 2024, 2025, THL A29 Limited, a Tencent company. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify
@@ -54,7 +54,7 @@ final class NativeSM2KeyPairGen extends NativeRef {
             return keyPair;
         } else if (keyPair.length == SM2_PRIKEY_LEN + SM2_COMP_PUBKEY_LEN) {
             // Convert the compressed public key to the uncompressed
-            byte[] uncompPubKey = nativeCrypto().sm2ToUncompPubKey(
+            byte[] uncompPubKey = NativeCrypto.sm2ToUncompPubKey(
                     CryptoUtils.copy(keyPair, SM2_PRIKEY_LEN, SM2_COMP_PUBKEY_LEN));
             byte[] uncompKeyPair = new byte[SM2_PRIKEY_LEN + SM2_PUBKEY_LEN];
             System.arraycopy(keyPair, 0, uncompKeyPair, 0, SM2_PRIKEY_LEN);

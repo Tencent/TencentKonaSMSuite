@@ -81,7 +81,7 @@ public class NativeSM2Test {
     }
 
     private void testToUncompPubKey(byte[] expectedPubKey, byte[] compPubKey) {
-        byte[] uncompPubKey = NativeCrypto.nativeCrypto().sm2ToUncompPubKey(compPubKey);
+        byte[] uncompPubKey = NativeCrypto.sm2ToUncompPubKey(compPubKey);
         Assertions.assertArrayEquals(expectedPubKey, uncompPubKey);
     }
 
@@ -105,7 +105,7 @@ public class NativeSM2Test {
     public void testSM2GenPubKey() {
         try (NativeSM2KeyPairGen sm2 = new NativeSM2KeyPairGen()) {
             byte[] keyPair = sm2.genKeyPair();
-            byte[] pubKey = NativeCrypto.nativeCrypto().sm2GenPubKey(copy(keyPair, 0, SM2_PRIKEY_LEN));
+            byte[] pubKey = NativeCrypto.sm2GenPubKey(copy(keyPair, 0, SM2_PRIKEY_LEN));
             Assertions.assertArrayEquals(copy(keyPair, SM2_PRIKEY_LEN, SM2_PUBKEY_LEN), pubKey);
         }
     }

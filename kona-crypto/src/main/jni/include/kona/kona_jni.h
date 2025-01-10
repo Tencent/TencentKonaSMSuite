@@ -169,7 +169,7 @@ JNIEXPORT jint JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeCr
  * Signature: ([B)[B
  */
 JNIEXPORT jbyteArray JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeCrypto_sm2ToUncompPubKey
-  (JNIEnv *, jobject, jbyteArray);
+  (JNIEnv *, jclass, jbyteArray);
 
 /*
  * Class:     com_tencent_kona_crypto_provider_nativeImpl_NativeCrypto
@@ -177,7 +177,7 @@ JNIEXPORT jbyteArray JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_Na
  * Signature: ([B)[B
  */
 JNIEXPORT jbyteArray JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeCrypto_sm2GenPubKey
-  (JNIEnv *, jobject, jbyteArray);
+  (JNIEnv *, jclass, jbyteArray);
 
 /*
  * Class:     com_tencent_kona_crypto_provider_nativeImpl_NativeCrypto
@@ -185,7 +185,7 @@ JNIEXPORT jbyteArray JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_Na
  * Signature: ([B)I
  */
 JNIEXPORT jint JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeCrypto_sm2ValidatePoint
-  (JNIEnv *, jobject, jbyteArray);
+  (JNIEnv *, jclass, jbyteArray);
 
 /*
  * Class:     com_tencent_kona_crypto_provider_nativeImpl_NativeCrypto
