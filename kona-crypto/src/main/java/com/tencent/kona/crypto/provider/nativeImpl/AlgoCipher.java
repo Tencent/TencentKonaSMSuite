@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022, 2024, THL A29 Limited, a Tencent company. All rights reserved.
+ * Copyright (C) 2022, 2025, THL A29 Limited, a Tencent company. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify
@@ -91,8 +91,7 @@ class AlgoCipher {
     // Only used by GCM mode
     void updateAAD(byte[] src, int offset, int len) {
         checkState();
-        SM4Crypt sm4Crypt = (SM4Crypt) getEmbeddedCipher();
-        sm4Crypt.updateAAD(CryptoUtils.copy(src, offset, len));
+        getEmbeddedCipher().updateAAD(CryptoUtils.copy(src, offset, len));
     }
 
     private void checkState() {
