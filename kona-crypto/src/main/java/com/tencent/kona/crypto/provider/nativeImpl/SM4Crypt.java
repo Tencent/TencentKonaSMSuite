@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022, 2024, THL A29 Limited, a Tencent company. All rights reserved.
+ * Copyright (C) 2022, 2025, THL A29 Limited, a Tencent company. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify
@@ -53,6 +53,12 @@ class SM4Crypt extends SymmetricCipher {
               byte[] key,
               SM4Params paramSpec)
             throws InvalidKeyException {
+        this.paramSpec = null;
+        this.key = null;
+        this.gcmLastCipherBlock = null;
+
+        this.sm4 = null;
+
         if (!"SM4".equalsIgnoreCase(algorithm)) {
             throw new InvalidKeyException(
                     "Wrong algorithm: expected SM4, actual: " + algorithm);
