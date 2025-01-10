@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022, 2024, THL A29 Limited, a Tencent company. All rights reserved.
+ * Copyright (C) 2022, 2025, THL A29 Limited, a Tencent company. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify
@@ -88,9 +88,9 @@ public class KonaCryptoProvider extends Provider {
                 "com.tencent.kona.crypto.provider.SM2KeyPairGenerator");
         provider.put("Cipher.SM2", "com.tencent.kona.crypto.provider.SM2Cipher");
         provider.put("Signature.SM2", "com.tencent.kona.crypto.provider.SM2Signature");
-        provider.put("KeyFactory.SM2", "com.tencent.kona.crypto.provider.SM2KeyFactory");
         provider.put("Alg.Alias.Signature.SM3withSM2", "SM2");
         provider.put("KeyAgreement.SM2", "com.tencent.kona.crypto.provider.SM2KeyAgreement");
+        provider.put("KeyFactory.SM2", "com.tencent.kona.crypto.provider.SM2KeyFactory");
     }
 
     static void putSMPBES2Entries(Provider provider) {

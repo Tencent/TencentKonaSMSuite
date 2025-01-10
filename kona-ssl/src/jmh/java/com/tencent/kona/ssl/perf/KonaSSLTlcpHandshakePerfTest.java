@@ -87,7 +87,8 @@ public class KonaSSLTlcpHandshakePerfTest {
     @Param({"TLCPv1.1"})
     String protocol;
 
-    @Param({"TLCP_ECC_SM4_CBC_SM3", "TLCP_ECDHE_SM4_CBC_SM3"})
+    @Param({"TLCP_ECC_SM4_CBC_SM3", "TLCP_ECDHE_SM4_CBC_SM3",
+            "TLCP_ECC_SM4_GCM_SM3", "TLCP_ECDHE_SM4_GCM_SM3"})
     String cipherSuite;
 
     @Param({"false", "true"})
