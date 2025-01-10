@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024, THL A29 Limited, a Tencent company. All rights reserved.
+ * Copyright (C) 2024, 2025, THL A29 Limited, a Tencent company. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify
@@ -22,6 +22,7 @@ package com.tencent.kona.crypto.provider.nativeImpl;
 
 import com.tencent.kona.crypto.util.Constants;
 import com.tencent.kona.crypto.util.Sweeper;
+import com.tencent.kona.jdk.internal.util.Preconditions;
 
 import javax.crypto.MacSpi;
 import javax.crypto.SecretKey;
@@ -57,7 +58,7 @@ public final class SM3HMac extends MacSpi implements Cloneable {
             throw new InvalidKeyException("No key data");
         }
 
-        sm3HMac = new NativeSM3HMac(key.getEncoded());
+        sm3HMac = new NativeSM3HMac(secret);
 
         SWEEPER.register(this, new SweepNativeRef(sm3HMac));
     }
@@ -69,6 +70,12 @@ public final class SM3HMac extends MacSpi implements Cloneable {
 
     @Override
     protected void engineUpdate(byte[] input, int offset, int len) {
+        if (len == 0) {
+            return;
+        }
+        Preconditions.checkFromIndexSize(
+                offset, len, input.length, Preconditions.AIOOBE_FORMATTER);
+
         byte[] data = new byte[len];
         System.arraycopy(input, offset, data, 0, len);
         sm3HMac.update(data);
