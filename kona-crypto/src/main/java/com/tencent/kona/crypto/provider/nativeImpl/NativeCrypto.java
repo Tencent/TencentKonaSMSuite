@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024, THL A29 Limited, a Tencent company. All rights reserved.
+ * Copyright (C) 2024, 2025, THL A29 Limited, a Tencent company. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify
@@ -190,9 +190,9 @@ final class NativeCrypto {
     native int    sm4GCMProcTag(long pointer, byte[] tag);
 
     /* ***** SM2 ***** */
-    native byte[] sm2ToUncompPubKey(byte[] compPubKey);
-    native byte[] sm2GenPubKey(byte[] priKey);
-    native int    sm2ValidatePoint(byte[] point);
+    static native byte[] sm2ToUncompPubKey(byte[] compPubKey);
+    static native byte[] sm2GenPubKey(byte[] priKey);
+    static native int    sm2ValidatePoint(byte[] point);
 
     native long   sm2KeyPairGenCreateCtx();
     native void   sm2KeyPairGenFreeCtx(long pointer);

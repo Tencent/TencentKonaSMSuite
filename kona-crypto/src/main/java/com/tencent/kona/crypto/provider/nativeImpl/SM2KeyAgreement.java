@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024, THL A29 Limited, a Tencent company. All rights reserved.
+ * Copyright (C) 2024, 2025, THL A29 Limited, a Tencent company. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify
@@ -113,7 +113,7 @@ public final class SM2KeyAgreement extends KeyAgreementSpi {
         }
 
         SM2PublicKey sm2PublicKey = new SM2PublicKey((ECPublicKey) key);
-        if (NativeCrypto.nativeCrypto().sm2ValidatePoint(sm2PublicKey.getEncoded())
+        if (NativeCrypto.sm2ValidatePoint(sm2PublicKey.getEncoded())
                 != OPENSSL_SUCCESS) {
             throw new InvalidKeyException("Public key is invalid");
         }

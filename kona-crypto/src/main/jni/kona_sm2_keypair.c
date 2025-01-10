@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024, THL A29 Limited, a Tencent company. All rights reserved.
+ * Copyright (C) 2024, 2025, THL A29 Limited, a Tencent company. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -30,7 +30,7 @@
 #include "kona/kona_sm2.h"
 
 JNIEXPORT jbyteArray JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeCrypto_sm2ToUncompPubKey
-  (JNIEnv* env, jobject thisObj, jbyteArray compPubKey) {
+  (JNIEnv* env, jclass classObj, jbyteArray compPubKey) {
     jsize comp_pub_key_len = (*env)->GetArrayLength(env, compPubKey);
     if (comp_pub_key_len != SM2_COMP_PUB_KEY_LEN) {
         return NULL;
@@ -93,7 +93,7 @@ JNIEXPORT jbyteArray JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_Na
 }
 
 JNIEXPORT jbyteArray JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeCrypto_sm2GenPubKey
-  (JNIEnv* env, jobject thisObj, jbyteArray priKey) {
+  (JNIEnv* env, jclass classObj, jbyteArray priKey) {
     jsize pri_key_len = (*env)->GetArrayLength(env, priKey);
     if (pri_key_len != SM2_PRI_KEY_LEN) {
         return NULL;
@@ -121,7 +121,7 @@ JNIEXPORT jbyteArray JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_Na
 }
 
 JNIEXPORT jint JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeCrypto_sm2ValidatePoint
-  (JNIEnv* env, jobject thisObj, jbyteArray point) {
+  (JNIEnv* env, jclass classObj, jbyteArray point) {
     int point_len = (*env)->GetArrayLength(env, point);
     if (point_len != SM2_PUB_KEY_LEN) {
         return OPENSSL_FAILURE;
