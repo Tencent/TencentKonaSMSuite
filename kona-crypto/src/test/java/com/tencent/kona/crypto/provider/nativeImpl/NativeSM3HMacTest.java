@@ -49,6 +49,12 @@ public class NativeSM3HMacTest {
     }
 
     @Test
+    public void testOneShotMac() {
+        byte[] mac = NativeCrypto.sm3hmacOneShotMac(KEY, MESSAGE);
+        Assertions.assertArrayEquals(MAC, mac);
+    }
+
+    @Test
     public void testUpdate() {
         try(NativeSM3HMac sm3hmac = new NativeSM3HMac(KEY)) {
 

@@ -335,3 +335,221 @@ JNIEXPORT jint JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeCr
 
     return verified;
 }
+
+JNIEXPORT jbyteArray JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeCrypto_sm2OneShotSignatureSign
+  (JNIEnv* env, jclass classObj, jbyteArray key, jbyteArray id, jbyteArray message) {
+    int key_len = (*env)->GetArrayLength(env, key);
+    if (key_len < SM2_PRI_KEY_LEN) {
+        return NULL;
+    }
+    jbyte* key_bytes = (*env)->GetByteArrayElements(env, key, NULL);
+    if (key_bytes == NULL) {
+        return NULL;
+    }
+
+    int id_len = (*env)->GetArrayLength(env, id);
+    if (id_len <= 0) {
+        (*env)->ReleaseByteArrayElements(env, key, key_bytes, JNI_ABORT);
+        return NULL;
+    }
+    jbyte* id_bytes = (*env)->GetByteArrayElements(env, id, NULL);
+    if (id_bytes == NULL) {
+        (*env)->ReleaseByteArrayElements(env, key, key_bytes, JNI_ABORT);
+        return NULL;
+    }
+
+    EVP_PKEY* pkey = NULL;
+    if (key_len == SM2_PRI_KEY_LEN) {
+        uint8_t* pub_key_buf = OPENSSL_malloc(SM2_PUB_KEY_LEN);
+        if (!pub_key_buf) {
+            (*env)->ReleaseByteArrayElements(env, key, key_bytes, JNI_ABORT);
+            (*env)->ReleaseByteArrayElements(env, id, id_bytes, JNI_ABORT);
+            return NULL;
+        }
+
+        if (!sm2_gen_pub_key((const uint8_t*)key_bytes, pub_key_buf)) {
+            OPENSSL_free(pub_key_buf);
+            (*env)->ReleaseByteArrayElements(env, key, key_bytes, JNI_ABORT);
+            (*env)->ReleaseByteArrayElements(env, id, id_bytes, JNI_ABORT);
+            return NULL;
+        }
+
+        pkey = sm2_load_key_pair((const uint8_t*)key_bytes, pub_key_buf);
+        OPENSSL_free(pub_key_buf);
+    } else if (key_len == SM2_PUB_KEY_LEN) {
+        pkey = sm2_load_pub_key((const uint8_t*)key_bytes, key_len);
+    } else if (key_len == (SM2_PRI_KEY_LEN + SM2_PUB_KEY_LEN)) {
+        uint8_t* pri_key_buf = OPENSSL_malloc(SM2_PRI_KEY_LEN);
+        uint8_t* pub_key_buf = OPENSSL_malloc(SM2_PUB_KEY_LEN);
+        if (!pri_key_buf || !pub_key_buf) {
+            OPENSSL_free(pri_key_buf);
+            OPENSSL_free(pub_key_buf);
+            (*env)->ReleaseByteArrayElements(env, key, key_bytes, JNI_ABORT);
+            (*env)->ReleaseByteArrayElements(env, id, id_bytes, JNI_ABORT);
+            return NULL;
+        }
+
+        memcpy(pri_key_buf, (const uint8_t*)key_bytes, SM2_PRI_KEY_LEN);
+        memcpy(pub_key_buf, (const uint8_t*)key_bytes + SM2_PRI_KEY_LEN, SM2_PUB_KEY_LEN);
+
+        pkey = sm2_load_key_pair((const uint8_t*)pri_key_buf, pub_key_buf);
+        OPENSSL_free(pri_key_buf);
+        OPENSSL_free(pub_key_buf);
+    }
+
+    if (pkey == NULL) {
+        (*env)->ReleaseByteArrayElements(env, key, key_bytes, JNI_ABORT);
+        (*env)->ReleaseByteArrayElements(env, id, id_bytes, JNI_ABORT);
+        return NULL;
+    }
+
+    SM2_SIGNATURE_CTX* ctx = sm2_create_md_ctx(pkey, (const uint8_t*)id_bytes, id_len, true);
+    if (ctx == NULL) {
+        (*env)->ReleaseByteArrayElements(env, key, key_bytes, JNI_ABORT);
+        (*env)->ReleaseByteArrayElements(env, id, id_bytes, JNI_ABORT);
+        EVP_PKEY_free(pkey);
+        return NULL;
+    }
+
+    (*env)->ReleaseByteArrayElements(env, key, key_bytes, JNI_ABORT);
+    (*env)->ReleaseByteArrayElements(env, id, id_bytes, JNI_ABORT);
+
+    jsize msg_len = (*env)->GetArrayLength(env, message);
+    if (msg_len < 0) {
+        sm2_signature_ctx_free(ctx);
+        return NULL;
+    }
+    jbyte* msg_bytes = (*env)->GetByteArrayElements(env, message, NULL);
+    if (msg_bytes == NULL) {
+        sm2_signature_ctx_free(ctx);
+        return NULL;
+    }
+
+    size_t sig_len = 0;
+    uint8_t* sig_buf = sm2_sign(ctx->mctx, (uint8_t*)msg_bytes, msg_len, &sig_len);
+
+    (*env)->ReleaseByteArrayElements(env, message, msg_bytes, JNI_ABORT);
+
+    if (sig_buf == NULL) {
+        sm2_signature_ctx_free(ctx);
+        return NULL;
+    }
+
+    jbyteArray sig_bytes = (*env)->NewByteArray(env, sig_len);
+    if (sig_bytes == NULL) {
+        OPENSSL_free(sig_buf);
+        sm2_signature_ctx_free(ctx);
+        return NULL;
+    }
+
+    (*env)->SetByteArrayRegion(env, sig_bytes, 0, sig_len, (jbyte*)sig_buf);
+
+    OPENSSL_free(sig_buf);
+    sm2_signature_ctx_free(ctx);
+
+    return sig_bytes;
+}
+
+JNIEXPORT jint JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeCrypto_sm2OneShotSignatureVerify
+  (JNIEnv* env, jclass classObj, jbyteArray key, jbyteArray id, jbyteArray message, jbyteArray signature) {
+    int key_len = (*env)->GetArrayLength(env, key);
+    if (key_len < SM2_PRI_KEY_LEN) {
+        return OPENSSL_FAILURE;
+    }
+    jbyte* key_bytes = (*env)->GetByteArrayElements(env, key, NULL);
+    if (key_bytes == NULL) {
+        return OPENSSL_FAILURE;
+    }
+
+    int id_len = (*env)->GetArrayLength(env, id);
+    if (id_len <= 0) {
+        (*env)->ReleaseByteArrayElements(env, key, key_bytes, JNI_ABORT);
+        return OPENSSL_FAILURE;
+    }
+    jbyte* id_bytes = (*env)->GetByteArrayElements(env, id, NULL);
+    if (id_bytes == NULL) {
+        (*env)->ReleaseByteArrayElements(env, key, key_bytes, JNI_ABORT);
+        return OPENSSL_FAILURE;
+    }
+
+    EVP_PKEY* pkey = NULL;
+    if (key_len == SM2_PRI_KEY_LEN) {
+        uint8_t* pub_key_buf = OPENSSL_malloc(SM2_PUB_KEY_LEN);
+        if (!pub_key_buf) {
+            (*env)->ReleaseByteArrayElements(env, key, key_bytes, JNI_ABORT);
+            (*env)->ReleaseByteArrayElements(env, id, id_bytes, JNI_ABORT);
+            return OPENSSL_FAILURE;
+        }
+
+        if (!sm2_gen_pub_key((const uint8_t*)key_bytes, pub_key_buf)) {
+            OPENSSL_free(pub_key_buf);
+            (*env)->ReleaseByteArrayElements(env, key, key_bytes, JNI_ABORT);
+            (*env)->ReleaseByteArrayElements(env, id, id_bytes, JNI_ABORT);
+            return OPENSSL_FAILURE;
+        }
+
+        pkey = sm2_load_key_pair((const uint8_t*)key_bytes, pub_key_buf);
+        OPENSSL_free(pub_key_buf);
+    } else if (key_len == SM2_PUB_KEY_LEN) {
+        pkey = sm2_load_pub_key((const uint8_t*)key_bytes, key_len);
+    } else if (key_len == (SM2_PRI_KEY_LEN + SM2_PUB_KEY_LEN)) {
+        uint8_t* pri_key_buf = OPENSSL_malloc(SM2_PRI_KEY_LEN);
+        uint8_t* pub_key_buf = OPENSSL_malloc(SM2_PUB_KEY_LEN);
+        if (!pri_key_buf || !pub_key_buf) {
+            OPENSSL_free(pri_key_buf);
+            OPENSSL_free(pub_key_buf);
+            (*env)->ReleaseByteArrayElements(env, key, key_bytes, JNI_ABORT);
+            (*env)->ReleaseByteArrayElements(env, id, id_bytes, JNI_ABORT);
+            return OPENSSL_FAILURE;
+        }
+
+        memcpy(pri_key_buf, (const uint8_t*)key_bytes, SM2_PRI_KEY_LEN);
+        memcpy(pub_key_buf, (const uint8_t*)key_bytes + SM2_PRI_KEY_LEN, SM2_PUB_KEY_LEN);
+
+        pkey = sm2_load_key_pair((const uint8_t*)pri_key_buf, pub_key_buf);
+        OPENSSL_free(pri_key_buf);
+        OPENSSL_free(pub_key_buf);
+    }
+
+    if (pkey == NULL) {
+        (*env)->ReleaseByteArrayElements(env, key, key_bytes, JNI_ABORT);
+        (*env)->ReleaseByteArrayElements(env, id, id_bytes, JNI_ABORT);
+        return OPENSSL_FAILURE;
+    }
+
+    SM2_SIGNATURE_CTX* ctx = sm2_create_md_ctx(pkey, (const uint8_t*)id_bytes, id_len, false);
+    if (ctx == NULL) {
+        (*env)->ReleaseByteArrayElements(env, key, key_bytes, JNI_ABORT);
+        (*env)->ReleaseByteArrayElements(env, id, id_bytes, JNI_ABORT);
+        EVP_PKEY_free(pkey);
+        return OPENSSL_FAILURE;
+    }
+
+    (*env)->ReleaseByteArrayElements(env, key, key_bytes, JNI_ABORT);
+    (*env)->ReleaseByteArrayElements(env, id, id_bytes, JNI_ABORT);
+
+    jsize msg_len = (*env)->GetArrayLength(env, message);
+    jbyte* msg_bytes = (*env)->GetByteArrayElements(env, message, NULL);
+    if (msg_bytes == NULL) {
+        sm2_signature_ctx_free(ctx);
+        return OPENSSL_FAILURE;
+    }
+
+    jsize sig_len = (*env)->GetArrayLength(env, signature);
+    jbyte* sig_bytes = (*env)->GetByteArrayElements(env, signature, NULL);
+    if (sig_bytes == NULL) {
+        (*env)->ReleaseByteArrayElements(env, message, msg_bytes, JNI_ABORT);
+        sm2_signature_ctx_free(ctx);
+        return OPENSSL_FAILURE;
+    }
+
+    int verified = sm2_verify(ctx->mctx, (uint8_t*)msg_bytes, msg_len, (uint8_t*)sig_bytes, sig_len)
+                   ? OPENSSL_SUCCESS : OPENSSL_FAILURE;
+
+    (*env)->ReleaseByteArrayElements(env, message, msg_bytes, JNI_ABORT);
+    (*env)->ReleaseByteArrayElements(env, signature, sig_bytes, JNI_ABORT);
+
+    sm2_signature_ctx_free(ctx);
+
+    return verified;
+}

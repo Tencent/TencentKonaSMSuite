@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022, 2024, THL A29 Limited, a Tencent company. All rights reserved.
+ * Copyright (C) 2022, 2025, THL A29 Limited, a Tencent company. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify
@@ -44,8 +44,9 @@ public final class CryptoUtils {
     private static final String JDK_VENDOR = privilegedGetProperty(
             "java.specification.vendor");
 
-    private static final boolean USE_NATIVE_CRYPTO = privilegedGetBoolProperty(
-            "com.tencent.kona.useNativeCrypto", "false");
+    // Java, Native or NativeOneShot
+    private static final String DEFAULT_CRYPTO = privilegedGetProperty(
+            "com.tencent.kona.defaultCrypto", "Java");
 
     public static String privilegedGetProperty(String key, String def) {
         return AccessController.doPrivileged(
@@ -86,8 +87,8 @@ public final class CryptoUtils {
         return JDK_VENDOR.contains("Android");
     }
 
-    public static boolean useNativeCrypto() {
-        return USE_NATIVE_CRYPTO && isLinux() && !isAndroid();
+    public static String defaultCrypto() {
+        return isLinux() && !isAndroid() ? DEFAULT_CRYPTO : "Java";
     }
 
     public static boolean isLinux() {

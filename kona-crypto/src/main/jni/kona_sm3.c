@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024, THL A29 Limited, a Tencent company. All rights reserved.
+ * Copyright (C) 2024, 2025, THL A29 Limited, a Tencent company. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -192,6 +192,62 @@ JNIEXPORT jlong JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeC
     return (jlong)new_ctx;
 }
 
+JNIEXPORT jbyteArray JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeCrypto_sm3OneShotDigest
+  (JNIEnv* env, jclass classObj, jbyteArray data) {
+    EVP_MD_CTX* ctx = sm3_create_ctx();
+    if (ctx == NULL) {
+        return NULL;
+    }
+
+    if (data == NULL) {
+        EVP_MD_CTX_free(ctx);
+        return NULL;
+    }
+
+    jsize data_len = (*env)->GetArrayLength(env, data);
+    if (data_len < 0) {
+        EVP_MD_CTX_free(ctx);
+        return NULL;
+    }
+
+    jbyte* data_bytes = (*env)->GetByteArrayElements(env, data, NULL);
+    if (data_bytes == NULL) {
+        EVP_MD_CTX_free(ctx);
+        return NULL;
+    }
+
+    if (!EVP_DigestUpdate(ctx, data_bytes, data_len)) {
+        (*env)->ReleaseByteArrayElements(env, data, data_bytes, JNI_ABORT);
+        EVP_MD_CTX_free(ctx);
+        return NULL;
+    }
+
+    (*env)->ReleaseByteArrayElements(env, data, data_bytes, JNI_ABORT);
+
+    uint8_t digest[SM3_DIGEST_LEN];
+    unsigned int digest_len = 0;
+
+    if (!EVP_DigestFinal_ex(ctx, digest, &digest_len)) {
+        EVP_MD_CTX_free(ctx);
+        return NULL;
+    }
+
+    EVP_MD_CTX_free(ctx);
+
+    if (digest_len <= 0) {
+        return NULL;
+    }
+
+    jbyteArray digest_bytes = (*env)->NewByteArray(env, digest_len);
+    if (digest_bytes == NULL) {
+        return NULL;
+    }
+
+    (*env)->SetByteArrayRegion(env, digest_bytes, 0, digest_len, (jbyte*)digest);
+
+    return digest_bytes;
+}
+
 EVP_MAC_CTX* sm3hmac_create_ctx(EVP_MAC* mac, const uint8_t* key, size_t key_len) {
     if (mac == NULL) {
         return OPENSSL_FAILURE;
@@ -356,4 +412,78 @@ JNIEXPORT jlong JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeC
     }
 
     return (jlong)new_ctx;
+}
+
+JNIEXPORT jbyteArray JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeCrypto_sm3hmacOneShotMac
+  (JNIEnv* env, jclass classObj, jbyteArray key, jbyteArray data) {
+    EVP_MAC* mac = hmac();
+    if (mac == NULL) {
+        return NULL;
+    }
+
+    if (key == NULL) {
+        return NULL;
+    }
+
+    const int key_len = (*env)->GetArrayLength(env, key);
+    if (key_len <= 0) {
+        return NULL;
+    }
+    jbyte* key_bytes = (*env)->GetByteArrayElements(env, key, NULL);
+    if (key_bytes == NULL) {
+        return NULL;
+    }
+
+    EVP_MAC_CTX* ctx = sm3hmac_create_ctx(mac, (const uint8_t*)key_bytes, key_len);
+
+    (*env)->ReleaseByteArrayElements(env, key, key_bytes, JNI_ABORT);
+
+    if (ctx == NULL) {
+        return NULL;
+    }
+
+    if (data == NULL) {
+        EVP_MAC_CTX_free(ctx);
+        return NULL;
+    }
+
+    const int data_len = (*env)->GetArrayLength(env, data);
+    jbyte* data_bytes = (*env)->GetByteArrayElements(env, data, NULL);
+    if (data_bytes == NULL) {
+        EVP_MAC_CTX_free(ctx);
+        return NULL;
+    }
+
+    if (!EVP_MAC_update(ctx, (const uint8_t*)data_bytes, data_len)) {
+        (*env)->ReleaseByteArrayElements(env, data, data_bytes, JNI_ABORT);
+        EVP_MAC_CTX_free(ctx);
+        return NULL;
+    }
+
+    (*env)->ReleaseByteArrayElements(env, data, data_bytes, JNI_ABORT);
+
+    uint8_t mac_buf[SM3_MAC_LEN];
+    size_t mac_len = 0;
+
+    if (!EVP_MAC_final(ctx, mac_buf, &mac_len, sizeof(mac_buf))) {
+        EVP_MAC_CTX_free(ctx);
+        return NULL;
+    }
+
+    if (mac_len <= 0) {
+        EVP_MAC_CTX_free(ctx);
+        return NULL;
+    }
+
+    jbyteArray result = (*env)->NewByteArray(env, mac_len);
+    if (result == NULL) {
+        EVP_MAC_CTX_free(ctx);
+        return NULL;
+    }
+
+    (*env)->SetByteArrayRegion(env, result, 0, mac_len, (jbyte*)mac_buf);
+
+    EVP_MAC_CTX_free(ctx);
+
+    return result;
 }

@@ -61,6 +61,14 @@ JNIEXPORT jlong JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeC
 
 /*
  * Class:     com_tencent_kona_crypto_provider_nativeImpl_NativeCrypto
+ * Method:    sm3OneShotDigest
+ * Signature: ([B)[B
+ */
+JNIEXPORT jbyteArray JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeCrypto_sm3OneShotDigest
+  (JNIEnv *, jclass, jbyteArray);
+
+/*
+ * Class:     com_tencent_kona_crypto_provider_nativeImpl_NativeCrypto
  * Method:    sm3hmacCreateCtx
  * Signature: ([B)J
  */
@@ -106,6 +114,14 @@ JNIEXPORT jint JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeCr
  */
 JNIEXPORT jlong JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeCrypto_sm3hmacClone
   (JNIEnv *, jobject, jlong);
+
+/*
+ * Class:     com_tencent_kona_crypto_provider_nativeImpl_NativeCrypto
+ * Method:    sm3hmacOneShotMac
+ * Signature: ([B[B)[B
+ */
+JNIEXPORT jbyteArray JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeCrypto_sm3hmacOneShotMac
+  (JNIEnv *, jclass, jbyteArray, jbyteArray);
 
 /*
  * Class:     com_tencent_kona_crypto_provider_nativeImpl_NativeCrypto
@@ -213,6 +229,14 @@ JNIEXPORT jbyteArray JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_Na
 
 /*
  * Class:     com_tencent_kona_crypto_provider_nativeImpl_NativeCrypto
+ * Method:    sm2OneShotKeyPairGenGenKeyPair
+ * Signature: ()[B
+ */
+JNIEXPORT jbyteArray JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeCrypto_sm2OneShotKeyPairGenGenKeyPair
+  (JNIEnv *, jclass);
+
+/*
+ * Class:     com_tencent_kona_crypto_provider_nativeImpl_NativeCrypto
  * Method:    sm2CipherCreateCtx
  * Signature: ([B)J
  */
@@ -242,6 +266,22 @@ JNIEXPORT jbyteArray JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_Na
  */
 JNIEXPORT jbyteArray JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeCrypto_sm2CipherDecrypt
   (JNIEnv *, jobject, jlong, jbyteArray);
+
+/*
+ * Class:     com_tencent_kona_crypto_provider_nativeImpl_NativeCrypto
+ * Method:    sm2OneShotCipherEncrypt
+ * Signature: ([B[B)[B
+ */
+JNIEXPORT jbyteArray JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeCrypto_sm2OneShotCipherEncrypt
+  (JNIEnv *, jclass, jbyteArray, jbyteArray);
+
+/*
+ * Class:     com_tencent_kona_crypto_provider_nativeImpl_NativeCrypto
+ * Method:    sm2OneShotCipherDecrypt
+ * Signature: ([B[B)[B
+ */
+JNIEXPORT jbyteArray JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeCrypto_sm2OneShotCipherDecrypt
+  (JNIEnv *, jclass, jbyteArray, jbyteArray);
 
 /*
  * Class:     com_tencent_kona_crypto_provider_nativeImpl_NativeCrypto
@@ -277,6 +317,22 @@ JNIEXPORT jint JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeCr
 
 /*
  * Class:     com_tencent_kona_crypto_provider_nativeImpl_NativeCrypto
+ * Method:    sm2OneShotSignatureSign
+ * Signature: ([B[B[B)[B
+ */
+JNIEXPORT jbyteArray JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeCrypto_sm2OneShotSignatureSign
+  (JNIEnv *, jclass, jbyteArray, jbyteArray, jbyteArray);
+
+/*
+ * Class:     com_tencent_kona_crypto_provider_nativeImpl_NativeCrypto
+ * Method:    sm2OneShotSignatureVerify
+ * Signature: ([B[B[B[B)I
+ */
+JNIEXPORT jint JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeCrypto_sm2OneShotSignatureVerify
+  (JNIEnv *, jclass, jbyteArray, jbyteArray, jbyteArray, jbyteArray);
+
+/*
+ * Class:     com_tencent_kona_crypto_provider_nativeImpl_NativeCrypto
  * Method:    sm2KeyExCreateCtx
  * Signature: ()J
  */
@@ -298,6 +354,14 @@ JNIEXPORT void JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeCr
  */
 JNIEXPORT jbyteArray JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeCrypto_sm2DeriveKey
   (JNIEnv *, jobject, jlong, jbyteArray, jbyteArray, jbyteArray, jbyteArray, jbyteArray, jbyteArray, jbyteArray, jboolean, jint);
+
+/*
+ * Class:     com_tencent_kona_crypto_provider_nativeImpl_NativeCrypto
+ * Method:    sm2OneShotDeriveKey
+ * Signature: ([B[B[B[B[B[B[BZI)[B
+ */
+JNIEXPORT jbyteArray JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeCrypto_sm2OneShotDeriveKey
+  (JNIEnv *, jclass, jbyteArray, jbyteArray, jbyteArray, jbyteArray, jbyteArray, jbyteArray, jbyteArray, jboolean, jint);
 
 #ifdef __cplusplus
 }

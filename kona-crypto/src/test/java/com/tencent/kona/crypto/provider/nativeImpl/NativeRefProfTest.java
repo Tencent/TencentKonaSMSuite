@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024, THL A29 Limited, a Tencent company. All rights reserved.
+ * Copyright (C) 2024, 2025, THL A29 Limited, a Tencent company. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -42,7 +42,7 @@ public class NativeRefProfTest {
 
     private static final int ITERATIONS = 1_000_000_000;
 
-    private static void testSM3() {
+    private static void testSM3Digest() {
         for (int i = 0; i < ITERATIONS; i++) {
             NativeSM3 sm3 = new NativeSM3();
             sm3.update(DATA);
@@ -51,7 +51,22 @@ public class NativeRefProfTest {
         }
     }
 
+    private static void testSM3OneShotDigest() {
+        for (int i = 0; i < ITERATIONS; i++) {
+            NativeCrypto.sm3OneShotDigest(DATA);
+        }
+    }
+
     private static void testSM3HMac() {
+        for (int i = 0; i < ITERATIONS; i++) {
+            NativeSM3HMac sm3HMac = new NativeSM3HMac(KEY);
+            sm3HMac.update(DATA);
+            sm3HMac.doFinal(DATA);
+            sm3HMac.close();
+        }
+    }
+
+    private static void testSM3OneShotHMac() {
         for (int i = 0; i < ITERATIONS; i++) {
             NativeSM3HMac sm3HMac = new NativeSM3HMac(KEY);
             sm3HMac.update(DATA);
@@ -143,6 +158,12 @@ public class NativeRefProfTest {
         }
     }
 
+    private static void testSM2OneShotKeyPairGen() {
+        for (int i = 0; i < ITERATIONS; i++) {
+            NativeCrypto.sm2OneShotKeyPairGenGenKeyPair();
+        }
+    }
+
     private static void testSM2CipherEncrypter() throws Exception {
         NativeSM2KeyPairGen sm2KeyPairGen = new NativeSM2KeyPairGen();
         byte[] keyPair = sm2KeyPairGen.genKeyPair();
@@ -152,6 +173,16 @@ public class NativeRefProfTest {
             NativeSM2Cipher sm2Encrypter = new NativeSM2Cipher(keyPair);
             sm2Encrypter.encrypt(DATA);
             sm2Encrypter.close();
+        }
+    }
+
+    private static void testSM2OneShotCipherEncrypter() throws Exception {
+        NativeSM2KeyPairGen sm2KeyPairGen = new NativeSM2KeyPairGen();
+        byte[] keyPair = sm2KeyPairGen.genKeyPair();
+        sm2KeyPairGen.close();
+
+        for (int i = 0; i < ITERATIONS; i++) {
+            NativeCrypto.sm2OneShotCipherEncrypt(keyPair, DATA);
         }
     }
 
@@ -171,6 +202,20 @@ public class NativeRefProfTest {
         }
     }
 
+    private static void testSM2OneShotCipherDecrypter() throws Exception {
+        NativeSM2KeyPairGen sm2KeyPairGen = new NativeSM2KeyPairGen();
+        byte[] keyPair = sm2KeyPairGen.genKeyPair();
+        sm2KeyPairGen.close();
+
+        NativeSM2Cipher sm2Encrypter = new NativeSM2Cipher(keyPair);
+        byte[] ciphertext = sm2Encrypter.encrypt(DATA);
+        sm2Encrypter.close();
+
+        for (int i = 0; i < ITERATIONS; i++) {
+            NativeCrypto.sm2OneShotCipherDecrypt(keyPair, ciphertext);
+        }
+    }
+
     private static void testSM2SignatureSign() throws Exception {
         NativeSM2KeyPairGen sm2KeyPairGen = new NativeSM2KeyPairGen();
         byte[] keyPair = sm2KeyPairGen.genKeyPair();
@@ -183,6 +228,18 @@ public class NativeRefProfTest {
                     = new NativeSM2Signature(priKey, pubKey, ID, true);
             sm2Signer.sign(DATA);
             sm2Signer.close();
+        }
+    }
+
+    private static void testSM2OneShotSignatureSign() throws Exception {
+        NativeSM2KeyPairGen sm2KeyPairGen = new NativeSM2KeyPairGen();
+        byte[] keyPair = sm2KeyPairGen.genKeyPair();
+        byte[] priKey = copy(keyPair, 0, SM2_PRIKEY_LEN);
+        byte[] pubKey = copy(keyPair, SM2_PRIKEY_LEN, SM2_PUBKEY_LEN);
+        sm2KeyPairGen.close();
+
+        for (int i = 0; i < ITERATIONS; i++) {
+            NativeCrypto.sm2OneShotSignatureSign(keyPair, priKey, pubKey);
         }
     }
 
@@ -202,6 +259,22 @@ public class NativeRefProfTest {
                     = new NativeSM2Signature(pubKey, ID, false);
             sm2Verifier.verify(DATA, signature);
             sm2Verifier.close();
+        }
+    }
+
+    private static void testSM2OneShotSignatureVerify() throws Exception {
+        NativeSM2KeyPairGen sm2KeyPairGen = new NativeSM2KeyPairGen();
+        byte[] keyPair = sm2KeyPairGen.genKeyPair();
+        sm2KeyPairGen.close();
+        byte[] priKey = copy(keyPair, 0, SM2_PRIKEY_LEN);
+        byte[] pubKey = copy(keyPair, SM2_PRIKEY_LEN, SM2_PUBKEY_LEN);
+
+        NativeSM2Signature sm2Signer
+                = new NativeSM2Signature(priKey, pubKey, ID, true);
+        byte[] signature = sm2Signer.sign(DATA);
+
+        for (int i = 0; i < ITERATIONS; i++) {
+            NativeCrypto.sm2OneShotSignatureVerify(keyPair, priKey, pubKey, signature);
         }
     }
 
@@ -231,11 +304,38 @@ public class NativeRefProfTest {
         }
     }
 
+    private static void testSM2OneShotKeyAgreement() throws Exception {
+        NativeSM2KeyPairGen sm2KeyPairGen = new NativeSM2KeyPairGen();
+        byte[] keyPair = sm2KeyPairGen.genKeyPair();
+        byte[] priKey = copy(keyPair, 0, SM2_PRIKEY_LEN);
+        byte[] pubKey = copy(keyPair, SM2_PRIKEY_LEN, SM2_PUBKEY_LEN);
+
+        byte[] eKeyPair = sm2KeyPairGen.genKeyPair();
+        byte[] ePriKey = copy(eKeyPair, 0, SM2_PRIKEY_LEN);
+
+        byte[] peerKeyPair = sm2KeyPairGen.genKeyPair();
+        byte[] peerPubKey = copy(peerKeyPair, SM2_PRIKEY_LEN, SM2_PUBKEY_LEN);
+
+        byte[] peerEKeyPair = sm2KeyPairGen.genKeyPair();
+        byte[] peerEPubKey = copy(peerEKeyPair, SM2_PRIKEY_LEN, SM2_PUBKEY_LEN);
+        sm2KeyPairGen.close();
+
+        for (int i = 0; i < ITERATIONS; i++) {
+            NativeCrypto.sm2OneShotDeriveKey(
+                    priKey, pubKey, ePriKey, ID,
+                    peerPubKey, peerEPubKey, ID,
+                    true, 32);
+        }
+    }
+
     public static void main(String[] args) throws Exception {
         List<Callable<Void>> tasks = new ArrayList<>();
 
-        tasks.add(()-> {testSM3(); return null;});
+        tasks.add(()-> {testSM3Digest(); return null;});
+        tasks.add(()-> {testSM3OneShotDigest(); return null;});
+
         tasks.add(()-> {testSM3HMac(); return null;});
+        tasks.add(()-> {testSM3OneShotHMac(); return null;});
 
         tasks.add(()-> {testSM4CBCEncrypter(); return null;});
         tasks.add(()-> {testSM4CBCDecrypter(); return null;});
@@ -250,14 +350,20 @@ public class NativeRefProfTest {
         tasks.add(()-> {testSM4GCMDecrypter(); return null;});
 
         tasks.add(()-> {testSM2KeyPairGen(); return null;});
+        tasks.add(()-> {testSM2OneShotKeyPairGen(); return null;});
 
         tasks.add(()-> {testSM2CipherEncrypter(); return null;});
         tasks.add(()-> {testSM2CipherDecrypter(); return null;});
+        tasks.add(()-> {testSM2OneShotCipherEncrypter(); return null;});
+        tasks.add(()-> {testSM2OneShotCipherDecrypter(); return null;});
 
         tasks.add(()-> {testSM2SignatureSign(); return null;});
         tasks.add(()-> {testSM2SignatureVerify(); return null;});
+        tasks.add(()-> {testSM2OneShotSignatureSign(); return null;});
+        tasks.add(()-> {testSM2OneShotSignatureVerify(); return null;});
 
         tasks.add(()-> {testSM2KeyAgreement(); return null;});
+        tasks.add(()-> {testSM2OneShotKeyAgreement(); return null;});
 
         execTasksParallelly(tasks);
     }
