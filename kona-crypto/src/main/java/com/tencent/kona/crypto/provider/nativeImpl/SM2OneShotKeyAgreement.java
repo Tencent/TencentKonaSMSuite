@@ -23,18 +23,13 @@ package com.tencent.kona.crypto.provider.nativeImpl;
 import com.tencent.kona.crypto.provider.SM2PrivateKey;
 import com.tencent.kona.crypto.provider.SM2PublicKey;
 import com.tencent.kona.crypto.spec.SM2KeyAgreementParamSpec;
-import com.tencent.kona.crypto.util.Sweeper;
 
 import javax.crypto.KeyAgreementSpi;
 import javax.crypto.SecretKey;
 import javax.crypto.ShortBufferException;
 import javax.crypto.spec.SecretKeySpec;
 import java.math.BigInteger;
-import java.security.InvalidAlgorithmParameterException;
-import java.security.InvalidKeyException;
-import java.security.Key;
-import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
+import java.security.*;
 import java.security.interfaces.ECPrivateKey;
 import java.security.interfaces.ECPublicKey;
 import java.security.spec.AlgorithmParameterSpec;
@@ -46,20 +41,11 @@ import static java.math.BigInteger.ZERO;
 /**
  * SM2 key agreement in compliance with GB/T 32918.3-2016.
  */
-public final class SM2KeyAgreement extends KeyAgreementSpi {
-
-    private static final Sweeper SWEEPER = Sweeper.instance();
+public final class SM2OneShotKeyAgreement extends KeyAgreementSpi {
 
     private SM2PrivateKey ephemeralPrivateKey;
     private SM2KeyAgreementParamSpec paramSpec;
     private SM2PublicKey peerEphemeralPublicKey;
-
-    private final NativeSM2KeyAgreement sm2;
-
-    public SM2KeyAgreement() {
-        sm2 = new NativeSM2KeyAgreement();
-        SWEEPER.register(this, new SweepNativeRef(sm2));
-    }
 
     @Override
     protected void engineInit(Key key, SecureRandom random) {
@@ -144,7 +130,7 @@ public final class SM2KeyAgreement extends KeyAgreementSpi {
     }
 
     private byte[] deriveKeyImpl() {
-        return sm2.deriveKey(
+        return NativeCrypto.sm2OneShotDeriveKey(
                 new SM2PrivateKey(paramSpec.privateKey()).getEncoded(),
                 new SM2PublicKey(paramSpec.publicKey()).getEncoded(),
                 ephemeralPrivateKey.getEncoded(),

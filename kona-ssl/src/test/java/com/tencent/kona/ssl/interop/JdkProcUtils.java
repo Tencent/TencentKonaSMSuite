@@ -58,7 +58,7 @@ public class JdkProcUtils {
     public static final String PROP_MESSAGE = "test.message";
     public static final String PROP_READ_RESPONSE = "test.read.response";
 
-    public static final String PROP_USE_NATIVE_CRYPTO = "com.tencent.kona.useNativeCrypto";
+    public static final String PROP_DEFAULT_CRYPTO = "com.tencent.kona.defaultCrypto";
 
     /*
      * Converts a Cert instance to a string, which contains the field values of

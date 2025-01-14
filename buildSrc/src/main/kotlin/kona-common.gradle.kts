@@ -59,8 +59,8 @@ tasks {
         }
     }
 
-    val testOnCurrent = register("testOnCurrent", CommonTest::class) {
-        jvmArgs("-Dcom.tencent.kona.useNativeCrypto=false")
+    val testJavaOnCurrent = register("testJavaOnCurrent", CommonTest::class) {
+        jvmArgs("-Dcom.tencent.kona.defaultCrypto=Java")
 
         systemProperty("test.classpath", classpath.joinToString(separator = ":"))
 
@@ -70,7 +70,7 @@ tasks {
     }
 
     register("testNativeOnCurrent", CommonTest::class) {
-        jvmArgs("-Dcom.tencent.kona.useNativeCrypto=true")
+        jvmArgs("-Dcom.tencent.kona.defaultCrypto=Native")
 
         systemProperty("test.classpath", classpath.joinToString(separator = ":"))
 
@@ -79,8 +79,18 @@ tasks {
         }
     }
 
-    register("testOnAdop8", CommonTest::class) {
-        jvmArgs("-Dcom.tencent.kona.useNativeCrypto=false")
+    register("testNativeOneShotOnCurrent", CommonTest::class) {
+        jvmArgs("-Dcom.tencent.kona.defaultCrypto=NativeOneShot")
+
+        systemProperty("test.classpath", classpath.joinToString(separator = ":"))
+
+        doFirst {
+            println("Testing JDK: " + javaLauncher.get().metadata.installationPath)
+        }
+    }
+
+    register("testJavaOnAdop8", CommonTest::class) {
+        jvmArgs("-Dcom.tencent.kona.defaultCrypto=Java")
 
         systemProperty("test.classpath", classpath.joinToString(separator = ":"))
 
@@ -94,8 +104,8 @@ tasks {
         }
     }
 
-    register("testOnAdop11", CommonTest::class) {
-        jvmArgs("-Dcom.tencent.kona.useNativeCrypto=false",
+    register("testJavaOnAdop11", CommonTest::class) {
+        jvmArgs("-Dcom.tencent.kona.defaultCrypto=Java",
             "--add-exports", "java.base/jdk.internal.misc=ALL-UNNAMED")
 
         systemProperty("test.classpath", classpath.joinToString(separator = ":"))
@@ -110,8 +120,8 @@ tasks {
         }
     }
 
-    register("testOnAdop17", CommonTest::class) {
-        jvmArgs("-Dcom.tencent.kona.useNativeCrypto=false",
+    register("testJavaOnAdop17", CommonTest::class) {
+        jvmArgs("-Dcom.tencent.kona.defaultCrypto=Java",
             "--add-exports", "java.base/jdk.internal.access=ALL-UNNAMED")
 
         systemProperty("test.classpath", classpath.joinToString(separator = ":"))
@@ -126,8 +136,8 @@ tasks {
         }
     }
 
-    register("testOnAdop21", CommonTest::class) {
-        jvmArgs("-Dcom.tencent.kona.useNativeCrypto=false",
+    register("testJavaOnAdop21", CommonTest::class) {
+        jvmArgs("-Dcom.tencent.kona.defaultCrypto=Java",
             "--add-exports", "java.base/jdk.internal.access=ALL-UNNAMED")
 
         systemProperty("test.classpath", classpath.joinToString(separator = ":"))
@@ -142,8 +152,8 @@ tasks {
         }
     }
 
-    register("testOnKona8", CommonTest::class) {
-        jvmArgs("-Dcom.tencent.kona.useNativeCrypto=false");
+    register("testJavaOnKona8", CommonTest::class) {
+        jvmArgs("-Dcom.tencent.kona.defaultCrypto=Java");
 
         systemProperty("test.classpath", classpath.joinToString(separator = ":"))
 
@@ -157,8 +167,8 @@ tasks {
         }
     }
 
-    register("testOnKona11", CommonTest::class) {
-        jvmArgs("-Dcom.tencent.kona.useNativeCrypto=false",
+    register("testJavaOnKona11", CommonTest::class) {
+        jvmArgs("-Dcom.tencent.kona.defaultCrypto=Java",
             "--add-exports", "java.base/jdk.internal.misc=ALL-UNNAMED")
 
         systemProperty("test.classpath", classpath.joinToString(separator = ":"))
@@ -173,8 +183,8 @@ tasks {
         }
     }
 
-    register("testOnKona17", CommonTest::class) {
-        jvmArgs("-Dcom.tencent.kona.useNativeCrypto=false",
+    register("testJavaOnKona17", CommonTest::class) {
+        jvmArgs("-Dcom.tencent.kona.defaultCrypto=Java",
             "--add-exports", "java.base/jdk.internal.access=ALL-UNNAMED")
 
         systemProperty("test.classpath", classpath.joinToString(separator = ":"))
@@ -189,8 +199,8 @@ tasks {
         }
     }
 
-    register("testOnKona21", CommonTest::class) {
-        jvmArgs("-Dcom.tencent.kona.useNativeCrypto=false",
+    register("testJavaOnKona21", CommonTest::class) {
+        jvmArgs("-Dcom.tencent.kona.defaultCrypto=Java",
             "--add-exports", "java.base/jdk.internal.access=ALL-UNNAMED")
 
         systemProperty("test.classpath", classpath.joinToString(separator = ":"))
@@ -205,8 +215,8 @@ tasks {
         }
     }
 
-    register("testOnGraal17", CommonTest::class) {
-        jvmArgs("-Dcom.tencent.kona.useNativeCrypto=false",
+    register("testJavaOnGraal17", CommonTest::class) {
+        jvmArgs("-Dcom.tencent.kona.defaultCrypto=Java",
             "--add-exports", "java.base/jdk.internal.access=ALL-UNNAMED")
 
         systemProperty("test.classpath", classpath.joinToString(separator = ":"))
@@ -221,8 +231,8 @@ tasks {
         }
     }
 
-    register("testOnGraal21", CommonTest::class) {
-        jvmArgs("-Dcom.tencent.kona.useNativeCrypto=false",
+    register("testJavaOnGraal21", CommonTest::class) {
+        jvmArgs("-Dcom.tencent.kona.defaultCrypto=Java",
             "--add-exports", "java.base/jdk.internal.access=ALL-UNNAMED")
 
         systemProperty("test.classpath", classpath.joinToString(separator = ":"))
@@ -238,7 +248,7 @@ tasks {
     }
 
     test {
-        dependsOn(testOnCurrent)
+        dependsOn(testJavaOnCurrent)
     }
 
     javadoc {
@@ -246,16 +256,22 @@ tasks {
         isFailOnError = false
     }
 
-    register("jmh", type=JavaExec::class) {
+    register("jmhJava", type=JavaExec::class) {
         mainClass.set("org.openjdk.jmh.Main")
         classpath(sourceSets["jmh"].runtimeClasspath)
-        jvmArgs("-Dcom.tencent.kona.useNativeCrypto=false")
+        jvmArgs("-Dcom.tencent.kona.defaultCrypto=Java")
     }
 
     register("jmhNative", type=JavaExec::class) {
         mainClass.set("org.openjdk.jmh.Main")
         classpath(sourceSets["jmh"].runtimeClasspath)
-        jvmArgs("-Dcom.tencent.kona.useNativeCrypto=true")
+        jvmArgs("-Dcom.tencent.kona.defaultCrypto=Native")
+    }
+
+    register("jmhNativeOneShot", type=JavaExec::class) {
+        mainClass.set("org.openjdk.jmh.Main")
+        classpath(sourceSets["jmh"].runtimeClasspath)
+        jvmArgs("-Dcom.tencent.kona.defaultCrypto=NativeOneShot")
     }
 }
 

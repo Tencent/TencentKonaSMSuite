@@ -29,6 +29,7 @@ import javax.crypto.BadPaddingException;
 
 import static com.tencent.kona.crypto.CryptoUtils.*;
 import static com.tencent.kona.crypto.CryptoUtils.toBytes;
+import static com.tencent.kona.crypto.provider.nativeImpl.NativeCrypto.OPENSSL_SUCCESS;
 import static com.tencent.kona.crypto.util.Constants.*;
 
 /**
@@ -135,6 +136,12 @@ public class NativeSM2Test {
     }
 
     @Test
+    public void testSM2OneShotKeyPairGenGenKeyPair() {
+        byte[] keyPair = NativeCrypto.sm2OneShotKeyPairGenGenKeyPair();
+        Assertions.assertEquals(SM2_PRIKEY_LEN + SM2_PUBKEY_LEN, keyPair.length);
+    }
+
+    @Test
     public void testSM2KeyPairGenGenKeyPairParallelly() throws Exception {
         TestUtils.repeatTaskParallelly(() -> {
             testSM2KeyPairGenGenKeyPair();
@@ -143,9 +150,25 @@ public class NativeSM2Test {
     }
 
     @Test
+    public void testSM2OneShotKeyPairGenGenKeyPairParallelly() throws Exception {
+        TestUtils.repeatTaskParallelly(() -> {
+            testSM2OneShotKeyPairGenGenKeyPair();
+            return null;
+        });
+    }
+
+    @Test
     public void testSM2KeyPairGenGenKeyPairSerially() throws Exception {
         TestUtils.repeatTaskSerially(() -> {
             testSM2KeyPairGenGenKeyPair();
+            return null;
+        });
+    }
+
+    @Test
+    public void testSM2OneShotKeyPairGenGenKeyPairSerially() throws Exception {
+        TestUtils.repeatTaskSerially(() -> {
+            testSM2OneShotKeyPairGenGenKeyPair();
             return null;
         });
     }
@@ -189,6 +212,17 @@ public class NativeSM2Test {
     }
 
     @Test
+    public void testSM2OneShotCipher() throws Exception {
+        byte[] keyPair = NativeCrypto.sm2OneShotKeyPairGenGenKeyPair();
+        byte[] priKey = copy(keyPair, 0, SM2_PRIKEY_LEN);
+        byte[] pubKey = copy(keyPair, SM2_PRIKEY_LEN, SM2_PUBKEY_LEN);
+
+        byte[] ciphertext = NativeCrypto.sm2OneShotCipherEncrypt(pubKey, MESSAGE);
+        byte[] cleartext = NativeCrypto.sm2OneShotCipherDecrypt(priKey, ciphertext);
+        Assertions.assertArrayEquals(MESSAGE, cleartext);
+    }
+
+    @Test
     public void testSM2CipherWithKeyPair() throws Exception {
         try (NativeSM2KeyPairGen sm2KeyPairGen = new NativeSM2KeyPairGen()) {
             byte[] keyPair = sm2KeyPairGen.genKeyPair();
@@ -214,9 +248,25 @@ public class NativeSM2Test {
     }
 
     @Test
+    public void testSM2OneShotCipherParallelly() throws Exception {
+        TestUtils.repeatTaskParallelly(() -> {
+            testSM2OneShotCipher();
+            return null;
+        });
+    }
+
+    @Test
     public void testSM2CipherSerially() throws Exception {
         TestUtils.repeatTaskSerially(() -> {
             testSM2Cipher();
+            return null;
+        });
+    }
+
+    @Test
+    public void testSM2OneShotCipherSerially() throws Exception {
+        TestUtils.repeatTaskSerially(() -> {
+            testSM2OneShotCipher();
             return null;
         });
     }
@@ -311,6 +361,19 @@ public class NativeSM2Test {
     }
 
     @Test
+    public void testSM2OneShotSignature() {
+        byte[] keyPair = NativeCrypto.sm2OneShotKeyPairGenGenKeyPair();
+        byte[] priKey = copy(keyPair, 0, SM2_PRIKEY_LEN);
+        byte[] pubKey = copy(keyPair, SM2_PRIKEY_LEN, SM2_PUBKEY_LEN);
+
+        byte[] signature = NativeCrypto.sm2OneShotSignatureSign(
+                priKey, ID, MESSAGE);
+        int verified = NativeCrypto.sm2OneShotSignatureVerify(
+                pubKey, ID, MESSAGE, signature);
+        Assertions.assertEquals(OPENSSL_SUCCESS, verified);
+    }
+
+    @Test
     public void testSM2SignatureWithKeyPair() throws Exception {
         try (NativeSM2KeyPairGen sm2KeyPairGen = new NativeSM2KeyPairGen()) {
             byte[] keyPair = sm2KeyPairGen.genKeyPair();
@@ -340,9 +403,25 @@ public class NativeSM2Test {
     }
 
     @Test
+    public void testSM2OneShotSignatureParallelly() throws Exception {
+        TestUtils.repeatTaskParallelly(() -> {
+            testSM2OneShotSignature();
+            return null;
+        });
+    }
+
+    @Test
     public void testSM2SignatureSerially() throws Exception {
         TestUtils.repeatTaskSerially(() -> {
             testSM2Signature();
+            return null;
+        });
+    }
+
+    @Test
+    public void testSM2OneShotSignatureSerially() throws Exception {
+        TestUtils.repeatTaskSerially(() -> {
+            testSM2OneShotSignature();
             return null;
         });
     }
@@ -472,6 +551,16 @@ public class NativeSM2Test {
     }
 
     @Test
+    public void testSM2OneShotKeyAgreement() {
+        byte[] sharedKey = NativeCrypto.sm2OneShotDeriveKey(
+                PRI_KEY, PUB_KEY, E_PRI_KEY, ID,
+                PEER_PUB_KEY, PEER_E_PUB_KEY, PEER_ID,
+                true, 16);
+
+        Assertions.assertArrayEquals(SHARED_KEY, sharedKey);
+    }
+
+    @Test
     public void testSM2KeyAgreementWithKeyPair() {
         try (NativeSM2KeyPairGen sm2KeyPairGen = new NativeSM2KeyPairGen()) {
             byte[] keyPair = sm2KeyPairGen.genKeyPair();
@@ -508,9 +597,25 @@ public class NativeSM2Test {
     }
 
     @Test
+    public void testSM2OneShotKeyAgreementParallelly() throws Exception {
+        TestUtils.repeatTaskParallelly(() -> {
+            testSM2OneShotKeyAgreement();
+            return null;
+        });
+    }
+
+    @Test
     public void testSM2KeyAgreementSerially() throws Exception {
         TestUtils.repeatTaskSerially(() -> {
             testSM2KeyAgreement();
+            return null;
+        });
+    }
+
+    @Test
+    public void testSM2OneShotKeyAgreementSerially() throws Exception {
+        TestUtils.repeatTaskSerially(() -> {
+            testSM2OneShotKeyAgreement();
             return null;
         });
     }

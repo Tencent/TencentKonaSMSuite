@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022, 2024, THL A29 Limited, a Tencent company. All rights reserved.
+ * Copyright (C) 2022, 2025, THL A29 Limited, a Tencent company. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -45,13 +45,7 @@ public class TestUtils {
     public static final byte[] EMPTY = new byte[0];
 
     public static void addProviders() {
-        if (PROVIDER instanceof KonaCryptoProvider) {
-            Security.addProvider(KonaCryptoProvider.instance());
-            Security.addProvider(KonaCryptoNativeProvider.instance());
-        } else {
-            Security.addProvider(KonaCryptoNativeProvider.instance());
-            Security.addProvider(KonaCryptoProvider.instance());
-        }
+        Security.addProvider(PROVIDER);
     }
 
     public static void repeatTaskParallelly(Callable<Void> task, int count)

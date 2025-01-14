@@ -410,9 +410,9 @@ JNIEXPORT void JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeCr
 
 JNIEXPORT jbyteArray JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeCrypto_sm2DeriveKey
   (JNIEnv* env, jobject thisObj, jlong pointer,
-         jbyteArray priKey, jbyteArray pubKey, jbyteArray ePriKey, jbyteArray id,
-         jbyteArray peerPubKey, jbyteArray peerEPubKey, jbyteArray peerId,
-         jboolean isInitiator, jint sharedKeyLength) {
+   jbyteArray priKey, jbyteArray pubKey, jbyteArray ePriKey, jbyteArray id,
+   jbyteArray peerPubKey, jbyteArray peerEPubKey, jbyteArray peerId,
+   jboolean isInitiator, jint sharedKeyLength) {
     SM2_KEYEX_CTX* ctx = (SM2_KEYEX_CTX*)pointer;
     if (ctx == NULL) {
         return NULL;
@@ -587,6 +587,190 @@ cleanup:
     EC_POINT_free(peer_e_pub_key);
     OPENSSL_free(params);
     OPENSSL_free(shared_key_buf);
+
+    return shared_key_bytes;
+}
+
+JNIEXPORT jbyteArray JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeCrypto_sm2OneShotDeriveKey
+  (JNIEnv* env, jclass classObj,
+   jbyteArray priKey, jbyteArray pubKey, jbyteArray ePriKey, jbyteArray id,
+   jbyteArray peerPubKey, jbyteArray peerEPubKey, jbyteArray peerId,
+   jboolean isInitiator, jint sharedKeyLength) {
+    SM2_KEYEX_CTX* ctx = sm2_create_keyex_ctx();
+    if (ctx == NULL) {
+        return NULL;
+    }
+
+    jbyte* pri_key_bytes = NULL;
+    jbyte* pub_key_bytes = NULL;
+    jbyte* e_pri_key_bytes = NULL;
+    jbyte* id_bytes = NULL;
+    jbyte* peer_pub_key_bytes = NULL;
+    jbyte* peer_e_pub_key_bytes = NULL;
+    jbyte* peer_id_bytes = NULL;
+    BIGNUM* pri_key = NULL;
+    EC_POINT* pub_key = NULL;
+    BIGNUM* e_pri_key = NULL;
+    EC_POINT* peer_pub_key = NULL;
+    EC_POINT* peer_e_pub_key = NULL;
+    SM2_KEYEX_PARAMS* params = NULL;
+    uint8_t* shared_key_buf = NULL;
+    jbyteArray shared_key_bytes = NULL;
+
+    int pri_key_len = (*env)->GetArrayLength(env, priKey);
+    if (pri_key_len != SM2_PRI_KEY_LEN) {
+        goto cleanup;
+    }
+    pri_key_bytes = (*env)->GetByteArrayElements(env, priKey, NULL);
+    if (pri_key_bytes == NULL) {
+        goto cleanup;
+    }
+
+    int pub_key_len = (*env)->GetArrayLength(env, pubKey);
+    if (pub_key_len != SM2_PUB_KEY_LEN) {
+        goto cleanup;
+    }
+    pub_key_bytes = (*env)->GetByteArrayElements(env, pubKey, NULL);
+    if (pub_key_bytes == NULL) {
+        goto cleanup;
+    }
+
+    int e_pri_key_len = (*env)->GetArrayLength(env, ePriKey);
+    if (e_pri_key_len != SM2_PRI_KEY_LEN) {
+        goto cleanup;
+    }
+    e_pri_key_bytes = (*env)->GetByteArrayElements(env, ePriKey, NULL);
+    if (e_pri_key_bytes == NULL) {
+        goto cleanup;
+    }
+
+    int id_len = (*env)->GetArrayLength(env, id);
+    if (id_len <= 0) {
+        goto cleanup;
+    }
+    id_bytes = (*env)->GetByteArrayElements(env, id, NULL);
+    if (id_bytes == NULL) {
+        goto cleanup;
+    }
+
+    int peer_pub_key_len = (*env)->GetArrayLength(env, peerPubKey);
+    if (peer_pub_key_len != SM2_PUB_KEY_LEN) {
+        goto cleanup;
+    }
+    peer_pub_key_bytes = (*env)->GetByteArrayElements(env, peerPubKey, NULL);
+    if (peer_pub_key_bytes == NULL) {
+        goto cleanup;
+    }
+
+    int peer_e_pub_key_len = (*env)->GetArrayLength(env, peerEPubKey);
+    if (peer_e_pub_key_len != SM2_PUB_KEY_LEN) {
+        goto cleanup;
+    }
+    peer_e_pub_key_bytes = (*env)->GetByteArrayElements(env, peerEPubKey, NULL);
+    if (peer_e_pub_key_bytes == NULL) {
+        goto cleanup;
+    }
+
+    int peer_id_len = (*env)->GetArrayLength(env, peerId);
+    if (peer_id_len <= 0) {
+        goto cleanup;
+    }
+    peer_id_bytes = (*env)->GetByteArrayElements(env, peerId, NULL);
+    if (peer_id_bytes == NULL) {
+        goto cleanup;
+    }
+
+    bool is_initiator = (bool)isInitiator;
+
+    int shared_key_len = (int)sharedKeyLength;
+    if (shared_key_len <= 0) {
+        goto cleanup;
+    }
+
+    pri_key = sm2_pri_key((const uint8_t *)pri_key_bytes);
+    if (pri_key == NULL) {
+        goto cleanup;
+    }
+
+    pub_key = sm2_pub_key((const uint8_t *)pub_key_bytes, pub_key_len);
+    if (pub_key == NULL) {
+        goto cleanup;
+    }
+
+    e_pri_key = sm2_pri_key((const uint8_t *)e_pri_key_bytes);
+    if (e_pri_key == NULL) {
+        goto cleanup;
+    }
+
+    peer_pub_key = sm2_pub_key((const uint8_t *)peer_pub_key_bytes, peer_pub_key_len);
+    if (peer_pub_key == NULL) {
+        goto cleanup;
+    }
+
+    peer_e_pub_key = sm2_pub_key((const uint8_t *)peer_e_pub_key_bytes, peer_e_pub_key_len);
+    if (peer_e_pub_key == NULL) {
+        goto cleanup;
+    }
+
+    params = OPENSSL_malloc(sizeof(SM2_KEYEX_PARAMS));
+    if (params == NULL) {
+        goto cleanup;
+    }
+    params->pri_key = pri_key;
+    params->pub_key = pub_key;
+    params->e_pri_key = e_pri_key;
+    params->id = (uint8_t*)id_bytes;
+    params->id_len = id_len;
+    params->peer_pub_key = peer_pub_key;
+    params->peer_e_pub_key = peer_e_pub_key;
+    params->peer_id = (uint8_t*)peer_id_bytes;
+    params->peer_id_len = peer_id_len;
+
+    shared_key_buf = OPENSSL_malloc(shared_key_len);
+    if (shared_key_buf == NULL) {
+        goto cleanup;
+    }
+
+    if (!sm2_derive_key(shared_key_buf, shared_key_len, ctx, params, is_initiator)) {
+        goto cleanup;
+    }
+
+    shared_key_bytes = (*env)->NewByteArray(env, shared_key_len);
+    if (shared_key_bytes == NULL) {
+        goto cleanup;
+    }
+    (*env)->SetByteArrayRegion(env, shared_key_bytes, 0, shared_key_len, (jbyte*)shared_key_buf);
+
+cleanup:
+    if (pri_key_bytes != NULL) {
+        (*env)->ReleaseByteArrayElements(env, priKey, pri_key_bytes, JNI_ABORT);
+    }
+    if (pub_key_bytes != NULL) {
+        (*env)->ReleaseByteArrayElements(env, pubKey, pub_key_bytes, JNI_ABORT);
+    }
+    if (e_pri_key_bytes != NULL) {
+        (*env)->ReleaseByteArrayElements(env, ePriKey, e_pri_key_bytes, JNI_ABORT);
+    }
+    if (id_bytes != NULL) {
+        (*env)->ReleaseByteArrayElements(env, id, id_bytes, JNI_ABORT);
+    }
+    if (peer_pub_key_bytes != NULL) {
+        (*env)->ReleaseByteArrayElements(env, peerPubKey, peer_pub_key_bytes, JNI_ABORT);
+    }
+    if (peer_e_pub_key_bytes != NULL) {
+        (*env)->ReleaseByteArrayElements(env, peerEPubKey, peer_e_pub_key_bytes, JNI_ABORT);
+    }
+    if (peer_id_bytes != NULL) {
+        (*env)->ReleaseByteArrayElements(env, peerId, peer_id_bytes, JNI_ABORT);
+    }
+    BN_free(pri_key);
+    EC_POINT_free(pub_key);
+    BN_free(e_pri_key);
+    EC_POINT_free(peer_pub_key);
+    EC_POINT_free(peer_e_pub_key);
+    OPENSSL_free(params);
+    OPENSSL_free(shared_key_buf);
+    sm2_free_keyex_ctx(ctx);
 
     return shared_key_bytes;
 }

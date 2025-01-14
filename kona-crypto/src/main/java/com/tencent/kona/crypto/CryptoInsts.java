@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022, 2024, THL A29 Limited, a Tencent company. All rights reserved.
+ * Copyright (C) 2022, 2025, THL A29 Limited, a Tencent company. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify
@@ -33,9 +33,18 @@ import java.util.Set;
 
 public class CryptoInsts {
 
-    public static final Provider PROV = CryptoUtils.useNativeCrypto()
-            ? KonaCryptoNativeProvider.instance()
-            : KonaCryptoProvider.instance();
+    public static final Provider PROV = provider();
+
+    private static Provider provider() {
+        String provName = CryptoUtils.defaultCrypto();
+        if ("Native".equalsIgnoreCase(provName)) {
+            return KonaCryptoNativeProvider.instance();
+        } else if ("NativeOneShot".equalsIgnoreCase(provName)) {
+            return KonaCryptoNativeOneShotProvider.instance();
+        } else {
+            return KonaCryptoProvider.instance();
+        }
+    }
 
     private static final Set<String> ALGO_PARAMS_ALGOS
             = new HashSet<>(Arrays.asList("EC", "SM4", "PBES2"));
@@ -114,7 +123,13 @@ public class CryptoInsts {
 
     public static Cipher getCipher(String algorithm)
             throws NoSuchPaddingException, NoSuchAlgorithmException {
-        return getCipher(algorithm, PROV);
+        if ("SM4".equalsIgnoreCase(algorithm)) {
+            return getCipher(algorithm,
+                    // use pure Java-based SM4 for TLCP/TLS protocol
+                    KonaCryptoProvider.instance());
+        } else {
+            return getCipher(algorithm, PROV);
+        }
     }
 
     private static final Set<String> MESSAGE_DIGEST_ALGOS

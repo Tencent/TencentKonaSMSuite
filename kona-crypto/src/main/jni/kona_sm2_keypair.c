@@ -258,3 +258,33 @@ JNIEXPORT jbyteArray JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_Na
 
     return result;
 }
+
+JNIEXPORT jbyteArray JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeCrypto_sm2OneShotKeyPairGenGenKeyPair
+  (JNIEnv* env, jclass classObj) {
+    EVP_PKEY_CTX* ctx = sm2_create_pkey_ctx(NULL);
+    if (ctx == NULL) {
+        return NULL;
+    }
+
+    size_t key_pair_len = SM2_PRI_KEY_LEN + SM2_PUB_KEY_LEN;
+    uint8_t* key_pair_buf = OPENSSL_malloc(key_pair_len);
+    if (key_pair_buf == NULL) {
+        return NULL;
+    }
+
+    if (!sm2_gen_key_pair(ctx, key_pair_buf, &key_pair_len)) {
+        OPENSSL_free(key_pair_buf);
+        EVP_PKEY_CTX_free(ctx);
+        return NULL;
+    }
+
+    jbyteArray result = (*env)->NewByteArray(env, key_pair_len);
+    if (result) {
+        (*env)->SetByteArrayRegion(env, result, 0, key_pair_len, (jbyte*)key_pair_buf);
+    }
+
+    OPENSSL_free(key_pair_buf);
+    EVP_PKEY_CTX_free(ctx);
+
+    return result;
+}

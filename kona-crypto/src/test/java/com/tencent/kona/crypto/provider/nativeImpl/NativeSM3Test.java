@@ -59,6 +59,17 @@ public class NativeSM3Test {
     }
 
     @Test
+    public void testOneShotKAT() {
+        checkOneShotDigest(MESSAGE_SHORT, DIGEST_SHORT);
+        checkOneShotDigest(MESSAGE_LONG, DIGEST_LONG);
+    }
+
+    private static void checkOneShotDigest(byte[] message, byte[] expectedDigest) {
+        byte[] digest = NativeCrypto.sm3OneShotDigest(message);
+        Assertions.assertArrayEquals(expectedDigest, digest);
+    }
+
+    @Test
     public void testUpdate() {
         try(NativeSM3 sm3 = new NativeSM3()) {
 

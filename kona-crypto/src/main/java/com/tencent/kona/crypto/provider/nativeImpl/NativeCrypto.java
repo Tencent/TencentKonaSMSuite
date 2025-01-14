@@ -32,7 +32,7 @@ import java.security.PrivilegedExceptionAction;
 import static com.tencent.kona.crypto.CryptoUtils.*;
 
 /**
- * The internal APIs for underlying native crypto library from OpenSSL 3.4.0.
+ * The internal APIs for underlying native crypto library from OpenSSL.
  */
 final class NativeCrypto {
 
@@ -41,19 +41,8 @@ final class NativeCrypto {
     private static final String KONA_CRYPTO_LIB = privilegedGetProperty(
             "com.tencent.kona.crypto.lib.path");
 
-    private NativeCrypto() {}
-
-    private static class InstanceHolder {
-
-        static {
-            loadLibs();
-        }
-
-        private static final NativeCrypto INSTANCE = new NativeCrypto();
-    }
-
-    static NativeCrypto nativeCrypto() {
-        return InstanceHolder.INSTANCE;
+    static {
+        loadLibs();
     }
 
     private static void loadLibs() {
@@ -161,6 +150,16 @@ final class NativeCrypto {
         }
     }
 
+    private static class InstanceHolder {
+        private static final NativeCrypto INSTANCE = new NativeCrypto();
+    }
+
+    static NativeCrypto nativeCrypto() {
+        return InstanceHolder.INSTANCE;
+    }
+
+    private NativeCrypto() {}
+
     static final int OPENSSL_SUCCESS = 1;
     static final int OPENSSL_FAILURE = 0;
 
@@ -171,6 +170,7 @@ final class NativeCrypto {
     native byte[] sm3Final(long pointer);
     native int    sm3Reset(long pointer);
     native long   sm3Clone(long pointer);
+    static native byte[] sm3OneShotDigest(byte[] data);
 
     /* ***** SM3HMAC ***** */
     native long   sm3hmacCreateCtx(byte[] key);
@@ -179,6 +179,7 @@ final class NativeCrypto {
     native byte[] sm3hmacFinal(long pointer);
     native int    sm3hmacReset(long pointer);
     native long   sm3hmacClone(long pointer);
+    static native byte[] sm3hmacOneShotMac(byte[] key, byte[] data);
 
     /* ***** SM4 ***** */
     native long   sm4CreateCtx(boolean encrypt, String mode, boolean padding, byte[] key, byte[] iv);
@@ -197,20 +198,29 @@ final class NativeCrypto {
     native long   sm2KeyPairGenCreateCtx();
     native void   sm2KeyPairGenFreeCtx(long pointer);
     native byte[] sm2KeyPairGenGenKeyPair(long pointer);
+    static native byte[] sm2OneShotKeyPairGenGenKeyPair();
 
     native long   sm2CipherCreateCtx(byte[] key);
     native void   sm2CipherFreeCtx(long pointer);
     native byte[] sm2CipherEncrypt(long pointer, byte[] plaintext);
     native byte[] sm2CipherDecrypt(long pointer, byte[] ciphertext);
+    static native byte[] sm2OneShotCipherEncrypt(byte[] key, byte[] plaintext);
+    static native byte[] sm2OneShotCipherDecrypt(byte[] key, byte[] ciphertext);
 
     native long   sm2SignatureCreateCtx(byte[] key, byte[] id, boolean isSign);
     native void   sm2SignatureFreeCtx(long pointer);
     native byte[] sm2SignatureSign(long pointer, byte[] message);
     native int    sm2SignatureVerify(long pointer, byte[] message, byte[] signature);
+    static native byte[] sm2OneShotSignatureSign(byte[] key, byte[] id, byte[] message);
+    static native int    sm2OneShotSignatureVerify(byte[] key, byte[] id, byte[] message, byte[] signature);
 
     native long   sm2KeyExCreateCtx();
     native void   sm2KeyExFreeCtx(long pointer);
     native byte[] sm2DeriveKey(long pointer,
+                               byte[] priKey, byte[] pubKey, byte[] ePrivKey, byte[] id,
+                               byte[] peerPubKey, byte[] peerEPubKey, byte[] peerId,
+                               boolean isInitiator, int sharedKeyLength);
+    static native byte[] sm2OneShotDeriveKey(
                                byte[] priKey, byte[] pubKey, byte[] ePrivKey, byte[] id,
                                byte[] peerPubKey, byte[] peerEPubKey, byte[] peerId,
                                boolean isInitiator, int sharedKeyLength);

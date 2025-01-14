@@ -199,8 +199,7 @@ public class JdkProcClient extends AbstractClient {
     public void connect(String host, int port) throws IOException {
         props.put(JdkProcUtils.PROP_HOST, host);
         props.put(JdkProcUtils.PROP_PORT, port + "");
-        props.put(JdkProcUtils.PROP_USE_NATIVE_CRYPTO,
-                CryptoUtils.useNativeCrypto() + "");
+        props.put(JdkProcUtils.PROP_DEFAULT_CRYPTO, CryptoUtils.defaultCrypto());
 
         process = JdkProcUtils.java(jdk, Collections.emptyList(), getClass(),
                 props, getLogPath());

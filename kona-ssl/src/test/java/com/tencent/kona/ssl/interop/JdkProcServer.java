@@ -214,8 +214,7 @@ public class JdkProcServer extends AbstractServer {
 
     @Override
     public void accept() throws IOException {
-        props.put(JdkProcUtils.PROP_USE_NATIVE_CRYPTO,
-                CryptoUtils.useNativeCrypto() + "");
+        props.put(JdkProcUtils.PROP_DEFAULT_CRYPTO, CryptoUtils.defaultCrypto());
 
         process = JdkProcUtils.java(jdk, Collections.emptyList(), getClass(),
                 props, getLogPath());
