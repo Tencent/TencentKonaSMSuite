@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, 2022, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2018, 2024, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -35,7 +35,8 @@ import java.security.spec.MGF1ParameterSpec;
 import java.security.interfaces.*;
 
 import java.util.Arrays;
-import java.util.Hashtable;
+import java.util.HashMap;
+import java.util.Map;
 
 import com.tencent.kona.crypto.CryptoInsts;
 import com.tencent.kona.sun.security.util.KnownOIDs;
@@ -81,8 +82,8 @@ public class RSAPSSSignature extends SignatureSpi {
 
     private static final byte[] EIGHT_BYTES_OF_ZEROS = new byte[8];
 
-    private static final Hashtable<KnownOIDs, Integer> DIGEST_LENGTHS =
-            new Hashtable<>();
+    private static final Map<KnownOIDs, Integer> DIGEST_LENGTHS =
+            new HashMap<>();
     static {
         DIGEST_LENGTHS.put(KnownOIDs.SHA_1, 20);
         DIGEST_LENGTHS.put(KnownOIDs.SHA_224, 28);
