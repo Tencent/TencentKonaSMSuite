@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1997, 2024, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997, 2025, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -38,7 +38,8 @@ import java.security.cert.CRL;
 import java.security.cert.X509Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.TrustAnchor;
-
+import java.security.spec.ECParameterSpec;
+//import java.security.spec.NamedParameterSpec;
 import java.text.Collator;
 import java.text.MessageFormat;
 import java.util.*;
@@ -62,21 +63,12 @@ import com.tencent.kona.java.util.HexFormat;
 import com.tencent.kona.pkix.PKIXInsts;
 import com.tencent.kona.sun.security.pkcs12.PKCS12KeyStore;
 import com.tencent.kona.sun.security.provider.certpath.CertPathConstraintsParameters;
-import com.tencent.kona.sun.security.util.ConstraintsParameters;
-import com.tencent.kona.sun.security.util.ECKeySizeParameterSpec;
-import com.tencent.kona.sun.security.util.HexDumpEncoder;
-import com.tencent.kona.sun.security.util.IOUtils;
-import com.tencent.kona.sun.security.util.KeyUtil;
-import com.tencent.kona.sun.security.util.ObjectIdentifier;
+import com.tencent.kona.sun.security.util.*;
 import com.tencent.kona.sun.security.pkcs10.PKCS10;
 import com.tencent.kona.sun.security.pkcs10.PKCS10Attribute;
 import com.tencent.kona.sun.security.provider.X509Factory;
 import com.tencent.kona.sun.security.provider.certpath.ssl.SSLServerCertStore;
-import com.tencent.kona.sun.security.util.KnownOIDs;
-import com.tencent.kona.sun.security.util.Password;
-import com.tencent.kona.sun.security.util.SecurityProperties;
-import com.tencent.kona.sun.security.util.SecurityProviderConstants;
-import com.tencent.kona.sun.security.util.SignatureUtil;
+
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
 import javax.crypto.SecretKeyFactory;
@@ -84,15 +76,12 @@ import javax.crypto.spec.PBEKeySpec;
 
 import com.tencent.kona.sun.security.pkcs.PKCS9Attribute;
 import com.tencent.kona.sun.security.tools.KeyStoreUtil;
-import com.tencent.kona.sun.security.util.DerValue;
-import com.tencent.kona.sun.security.util.Pem;
 import com.tencent.kona.sun.security.validator.Validator;
 import com.tencent.kona.sun.security.x509.*;
 
 import static java.security.KeyStore.*;
 import static com.tencent.kona.sun.security.tools.keytool.Main.Command.*;
 import static com.tencent.kona.sun.security.tools.keytool.Main.Option.*;
-import com.tencent.kona.sun.security.util.DisabledAlgorithmConstraints;
 
 /**
  * This tool manages keystores.
@@ -2062,20 +2051,18 @@ public final class Main {
         Object[] source;
         if (signerAlias != null) {
             form = new MessageFormat(rb.getString
-                    ("Generating.keysize.bit.keyAlgName.key.pair.and.a.certificate.sigAlgName.issued.by.signerAlias.with.a.validity.of.validality.days.for"));
+                    ("Generating.full.keyAlgName.key.pair.and.a.certificate.sigAlgName.issued.by.signerAlias.with.a.validity.of.days.for"));
             source = new Object[]{
-                    groupName == null ? keysize : KeyUtil.getKeySize(privKey),
-                    KeyUtil.fullDisplayAlgName(privKey),
+                    fullDisplayKeyName(privKey),
                     newCert.getSigAlgName(),
                     signerAlias,
                     validity,
                     x500Name};
         } else {
             form = new MessageFormat(rb.getString
-                    ("Generating.keysize.bit.keyAlgName.key.pair.and.self.signed.certificate.sigAlgName.with.a.validity.of.validality.days.for"));
+                    ("Generating.full.keyAlgName.key.pair.and.self.signed.certificate.sigAlgName.with.a.validity.of.days.for"));
             source = new Object[]{
-                    groupName == null ? keysize : KeyUtil.getKeySize(privKey),
-                    KeyUtil.fullDisplayAlgName(privKey),
+                    fullDisplayKeyName(privKey),
                     newCert.getSigAlgName(),
                     validity,
                     x500Name};
@@ -2098,6 +2085,38 @@ public final class Main {
         checkWeakConstraint(rb.getString("the.generated.certificate"),
                 finalChain);
         keyStore.setKeyEntry(alias, privKey, keyPass, finalChain);
+    }
+
+    /**
+     * Returns the full display name of the given key object. Could be
+     * - "X25519", if its getParams() is NamedParameterSpec
+     * - "EC (secp256r1)", if it's an EC key
+     * - "1024-bit RSA", other known keys
+     * - plain algorithm name, otherwise
+     *
+     * Note: the same method appears in keytool and jarsigner which uses
+     * same resource string defined in their own Resources.java.
+     *
+     * @param key the key object, cannot be null
+     * @return the full name
+     */
+    private static String fullDisplayKeyName(Key key) {
+        String alg = key.getAlgorithm();
+//        if (key instanceof AsymmetricKey ak) {
+//            var params = ak.getParams();
+//            if (params instanceof NamedParameterSpec nps) {
+//                return nps.getName(); // directly return
+//            } else if (params instanceof ECParameterSpec eps) {
+//                var nc = CurveDB.lookup(eps);
+//                if (nc != null) {
+//                    alg += " (" + nc.getNameAndAliases()[0] + ")"; // append name
+//                }
+//            }
+//        }
+        int size = KeyUtil.getKeySize(key);
+        return size >= 0
+                ? String.format(rb.getString("size.bit.alg"), size, alg)
+                : alg;
     }
 
     private String ecGroupNameForSize(int size) throws Exception {
@@ -3629,22 +3648,17 @@ public final class Main {
 
     private String withWeakConstraint(Key key,
             CertPathConstraintsParameters cpcp) {
-        int kLen = KeyUtil.getKeySize(key);
-        String displayAlg = KeyUtil.fullDisplayAlgName(key);
+        String displayAlg = fullDisplayKeyName(key);
         try {
             DISABLED_CHECK.permits(key.getAlgorithm(), cpcp, true);
         } catch (CertPathValidatorException e) {
-            return String.format(rb.getString("key.bit.disabled"), kLen, displayAlg);
+            return String.format(rb.getString("key.bit.disabled"), displayAlg);
         }
         try {
             LEGACY_CHECK.permits(key.getAlgorithm(), cpcp, true);
-            if (kLen >= 0) {
-                return String.format(rb.getString("key.bit"), kLen, displayAlg);
-            } else {
-                return String.format(rb.getString("unknown.size.1"), displayAlg);
-            }
+            return String.format(rb.getString("key.bit"), displayAlg);
         } catch (CertPathValidatorException e) {
-            return String.format(rb.getString("key.bit.weak"), kLen, displayAlg);
+            return String.format(rb.getString("key.bit.weak"), displayAlg);
         }
     }
 
@@ -5009,14 +5023,12 @@ public final class Main {
                 } catch (CertPathValidatorException e) {
                     weakWarnings.add(String.format(
                             rb.getString("whose.key.weak"), label,
-                            String.format(rb.getString("key.bit"),
-                            KeyUtil.getKeySize(key), KeyUtil.fullDisplayAlgName(key))));
+                            String.format(rb.getString("key.bit"), fullDisplayKeyName(key))));
                 }
             } catch (CertPathValidatorException e) {
                 weakWarnings.add(String.format(
                         rb.getString("whose.key.disabled"), label,
-                        String.format(rb.getString("key.bit"),
-                        KeyUtil.getKeySize(key), KeyUtil.fullDisplayAlgName(key))));
+                        String.format(rb.getString("key.bit"), fullDisplayKeyName(key))));
             }
         }
     }
@@ -5036,13 +5048,11 @@ public final class Main {
             if (!DISABLED_CHECK.permits(SIG_PRIMITIVE_SET, key)) {
                 weakWarnings.add(String.format(
                     rb.getString("whose.key.disabled"), label,
-                    String.format(rb.getString("key.bit"),
-                    KeyUtil.getKeySize(key), KeyUtil.fullDisplayAlgName(key))));
+                        String.format(rb.getString("key.bit"), fullDisplayKeyName(key))));
             } else if (!LEGACY_CHECK.permits(SIG_PRIMITIVE_SET, key)) {
                 weakWarnings.add(String.format(
                     rb.getString("whose.key.weak"), label,
-                    String.format(rb.getString("key.bit"),
-                    KeyUtil.getKeySize(key), KeyUtil.fullDisplayAlgName(key))));
+                        String.format(rb.getString("key.bit"), fullDisplayKeyName(key))));
             }
         }
     }
@@ -5109,7 +5119,7 @@ public final class Main {
                 weakWarnings.add(String.format(
                         rb.getString("key.size.weak"), label,
                         String.format(rb.getString("key.bit"),
-                        KeyUtil.getKeySize(secKey), secKeyAlg)));
+                        fullDisplayKeyName(secKey))));
             } else {
                 weakWarnings.add(String.format(
                         rb.getString("key.algorithm.weak"), label, secKeyAlg));
