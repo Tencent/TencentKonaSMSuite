@@ -22,7 +22,7 @@ package com.tencent.kona.crypto.provider.nativeImpl;
 
 import java.security.InvalidKeyException;
 
-abstract class SymmetricCipher {
+public abstract class SymmetricCipher {
 
     abstract int getBlockSize();
 

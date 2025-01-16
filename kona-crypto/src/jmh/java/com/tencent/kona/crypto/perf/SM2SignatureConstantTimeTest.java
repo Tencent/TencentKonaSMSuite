@@ -85,7 +85,7 @@ public class SM2SignatureConstantTimeTest {
     @State(Scope.Thread)
     public static class SignerHolder {
 
-        @Param({"KonaCrypto", "KonaCrypto-Native"})
+        @Param({"KonaCrypto", "KonaCrypto-Native", "KonaCrypto-NativeOneShot"})
         String provider;
 
         @Param({"Small", "Mid", "Big"})
