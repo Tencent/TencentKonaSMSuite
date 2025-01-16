@@ -67,15 +67,13 @@ public class TlcpHandshakeProfTest {
     private ByteBuffer cTOs = ByteBuffer.allocateDirect(1 << 16);
     private ByteBuffer sTOc = ByteBuffer.allocateDirect(1 << 16);
 
-    String protocol = "TLCPv1.1";
-
     boolean resume = false;
 
     public static void main(String[] args) throws Exception {
         TlcpHandshakeProfTest test = new TlcpHandshakeProfTest();
         test.init();
 
-        for (int i = 0; i < 100; i++) {
+        for (int i = 0; i < 1_000_000_000; i++) {
             test.doHandshake();
         }
     }
@@ -156,7 +154,7 @@ public class TlcpHandshakeProfTest {
         clientEngine = clientContext.createSSLEngine("client", 80);
         clientEngine.setUseClientMode(true);
         clientEngine.setEnabledProtocols(new String[] {"TLCPv1.1"});
-        clientEngine.setEnabledCipherSuites(new String[] { "TLCP_ECC_SM4_CBC_SM3" });
+        clientEngine.setEnabledCipherSuites(new String[] { "TLCP_ECC_SM4_GCM_SM3" });
     }
 
     private HandshakeStatus checkResult(SSLEngine engine, SSLEngineResult result) {

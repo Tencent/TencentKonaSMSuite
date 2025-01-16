@@ -62,7 +62,7 @@ public class KonaCryptoNativeProvider extends Provider {
         provider.put("Cipher.SM4 SupportedPaddings", "NOPADDING|PKCS7PADDING");
         provider.put("Cipher.SM4 SupportedModes", "CBC|CTR|ECB|GCM");
         provider.put("Cipher.SM4",
-                "com.tencent.kona.crypto.provider.nativeImpl.SM4Cipher");;
+                "com.tencent.kona.crypto.provider.nativeImpl.SM4Cipher$Native");;
         provider.put("AlgorithmParameters.SM4",
                 "com.tencent.kona.crypto.provider.SM4Parameters");
         provider.put("AlgorithmParameterGenerator.SM4",

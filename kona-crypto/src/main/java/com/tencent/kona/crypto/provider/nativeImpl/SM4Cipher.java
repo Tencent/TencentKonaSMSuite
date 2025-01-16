@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022, 2023, THL A29 Limited, a Tencent company. All rights reserved.
+ * Copyright (C) 2022, 2025, THL A29 Limited, a Tencent company. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify
@@ -38,12 +38,30 @@ import java.util.Arrays;
 
 import static com.tencent.kona.crypto.util.Constants.*;
 
-public final class SM4Cipher extends CipherSpi {
+public abstract class SM4Cipher extends CipherSpi {
 
     private final CipherCore core;
 
     public SM4Cipher() {
-        core = new CipherCore(new SM4Crypt());
+        core = new CipherCore(getInnerCipher());
+    }
+
+    abstract protected SymmetricCipher getInnerCipher();
+
+    public static class Native extends SM4Cipher {
+
+        @Override
+        protected SymmetricCipher getInnerCipher() {
+            return new SM4Crypt();
+        }
+    }
+
+    public static class NativeOneShot extends SM4Cipher {
+
+        @Override
+        protected SymmetricCipher getInnerCipher() {
+            return new SM4OneShotCrypt();
+        }
     }
 
     @Override

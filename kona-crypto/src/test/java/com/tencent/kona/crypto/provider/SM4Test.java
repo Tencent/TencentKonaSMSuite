@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022, 2024, THL A29 Limited, a Tencent company. All rights reserved.
+ * Copyright (C) 2022, 2025, THL A29 Limited, a Tencent company. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -19,6 +19,7 @@
 
 package com.tencent.kona.crypto.provider;
 
+import com.tencent.kona.crypto.KonaCryptoNativeOneShotProvider;
 import com.tencent.kona.crypto.TestUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
@@ -640,6 +641,11 @@ public class SM4Test {
 
     @Test
     public void testReuse() throws Exception {
+        if (PROVIDER instanceof KonaCryptoNativeOneShotProvider) {
+            System.out.println("SM4OneShotCipher cannot be reused");
+            return;
+        }
+
         testReuse("SM4/CBC/NoPadding", new IvParameterSpec(IV));
         testReuse("SM4/CBC/PKCS7Padding", new IvParameterSpec(IV));
         testReuse("SM4/CTR/NoPadding", new IvParameterSpec(IV));

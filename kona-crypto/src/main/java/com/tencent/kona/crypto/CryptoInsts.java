@@ -33,6 +33,7 @@ import java.util.Set;
 
 public class CryptoInsts {
 
+    // CAUTION: This provider is used internally by the implementations and tests.
     public static final Provider PROV = provider();
 
     private static Provider provider() {
@@ -123,13 +124,7 @@ public class CryptoInsts {
 
     public static Cipher getCipher(String algorithm)
             throws NoSuchPaddingException, NoSuchAlgorithmException {
-        if ("SM4".equalsIgnoreCase(algorithm)) {
-            return getCipher(algorithm,
-                    // use pure Java-based SM4 for TLCP/TLS protocol
-                    KonaCryptoProvider.instance());
-        } else {
-            return getCipher(algorithm, PROV);
-        }
+        return getCipher(algorithm, PROV);
     }
 
     private static final Set<String> MESSAGE_DIGEST_ALGOS
