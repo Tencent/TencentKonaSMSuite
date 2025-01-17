@@ -3,7 +3,7 @@
 # 腾讯Kona Crypto
 
 ## 简介
-腾讯Kona Crypto包含两个Java Security Provider，一个是`KonaCrypto`，另一个是`KonaCrypto-Native`。它们遵循相关的国家标准实现了如下的国密基础算法：
+腾讯Kona Crypto包含三个Java Security Provider，包括`KonaCrypto`，`KonaCrypto-Native`和`KonaCrypto-NativeOneShot`。它们遵循相关的国家标准实现了如下的国密基础算法：
 
 - SM2，它是一个基于[椭圆曲线(ECC)]的公钥加密算法，在实现该算法时遵循了如下的国家标准：
   - GB/T 32918.1-2016 第1部分：总则
@@ -20,13 +20,18 @@
 
 ## 实现方式
 
-目前提供了纯Java语言实现的`KonaCrypto` Provider，以及基于JNI与OpenSSL实现的`KonaCrypto-Native` Provider。后者仅支持`Linux x86_64/aarch64`平台。本项目默认使用的OpenSSL版本为3.4.0，但可以支持3.0及之后的版本。
+目前提供了纯Java语言实现的`KonaCrypto` Provider，以及基于JNI与OpenSSL实现的`KonaCrypto-Native`和`KonaCrypto-NativeOneShot` Provider。后两者仅支持`Linux x86_64/aarch64`平台。本项目默认使用的OpenSSL版本为3.4.0，但可以支持3.0及之后的版本。
+
+`KonaCrypto-Native`和`KonaCrypto-NativeOneShot`的主要区别：
+
+- `KonaCrypto-Native`基于`PhantomReference`自动地管理JNI本地内存，会复用OpenSSL本地上下文，这会提高计算性能。但过多的创建算法实例，如`Cipher`，会增大GC的开销，GC时间会显著增长。
+- `KonaCrypto-NativeOneShot`不会自动地管理JNI本地，应用程序需要确保调用最终操作，如`Cipher::doFinal`，去释放内存。而且它不会复用OpenSSL本地上下文，计算性能可能会低一些。但该Provider几乎不会增加GC的开销，GC时长与纯Java实现的GC时长相当。
 
 可以使用系统属性`com.tencent.kona.openssl.crypto.lib.path`去指定使用其他的OpenSSL crypto库文件（`libcrypto.so`），该系统属性的值是一个本地绝对路径。
 
 ## 使用
 
-应用程序使用`KonaCrypto`和`KonaCrypto-Native`的方法完全相同，所以本文仅以`KonaCrypto`为例来描述用法。
+应用程序使用`KonaCrypto`，`KonaCrypto-Native`和`KonaCrypto-NativeOneShot`的方法基本相同，所以本文仅以`KonaCrypto`为例来描述用法。
 
 由于`KonaCrypto`是基于JCA框架的，所以在使用风格上，与其它的JCA实现（如JDK自带的[SunJCE]和[SunEC]）是一样的。正常地，应用程序并不需要直接访问`KonaCrypto`中的算法实现类，而是通过相关的JDK API去调用指定算法的实现。了解JCA的设计原理与代码风格，对于应用`KonaCrypto`是非常有帮助的，请阅读官方的[参考指南]。
 

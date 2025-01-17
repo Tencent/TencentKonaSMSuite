@@ -3,7 +3,7 @@ English | **[中文]**
 # Tencent Kona Crypto
 
 ## Introduction
-Tencent Kona Crypto contains two Java security providers, one is `KonaCrypto` and the other is `KonaCrypto-Native`. Per the associated China's specifications, they implement the following ShangMi algorithms:
+Tencent Kona Crypto contains three Java security providers, including `KonaCrypto`, `KonaCrypto-Native` and `KonaCrypto-NativeOneShot`. Per the associated China's specifications, they implement the following ShangMi algorithms:
 
 - SM2, which is [Elliptic Curve Cryptography (ECC)]-based public key algorithm. It complies with the below national specifications:
   - GB/T 32918.1-2016 Part 1：General
@@ -20,13 +20,18 @@ For providing the above features, the providers implements the JDK-specified Ser
 
 ## Implementations
 
-Tencent Kona Crypto provides pure Java-based implementations via provider `KonaCrypto`, and JNI and OpenSSL-based implementations via provider `KonaCrypto-Native`. The latter provider supports `Linux x86_64/aarch64` platforms. OpenSSL version 3.4.0 is used by default, but versions 3.0 and later can be supported.
+Tencent Kona Crypto provides pure Java-based implementations via provider `KonaCrypto`, and JNI and OpenSSL-based implementations via provider `KonaCrypto-Native` and `KonaCrypto-NativeOneShot`. The latter two providers support `Linux x86_64/aarch64` platforms. OpenSSL version 3.4.0 is used by default, but versions 3.0 and later can be supported.
+
+The main differences between `KonaCrypto-Native` and `KonaCrypto-NativeOneShot`:
+
+- `KonaCrypto-Native` can automatically manage JNI native memory based on `PhantomReference`. And it can reuse OpenSSL native context that is beneficial for computing performance. But creating many algorithm instances, like `Cipher`, will raise the overhead of GC, so the GC time may be much longer.
+- `KonaCrypto-NativeOneShot` cannot automatically manage JNI native memory. The applications have to invoke the final operations, like `Cipher::doFinal`, to release the native memory. And it doesn't reuse OpenSSL native context, then the computing performance may be lower. But it almost doesn't affect GC performance, and the GC time is similar to that in pure Java provider.
 
 The system property `com.tencent.kona.openssl.crypto.lib.path` is used to specify an alternative OpenSSL crypto lib file (`libcrypto.so`). The value of this property is a local absolute path.
 
 ## Usages
 
-The application can use `KonaCrypto` and `KonaCrypto-Native` on the same way, so this doc just describe the usages with provider `KonaCrypto`.
+The application can use `KonaCrypto`, `KonaCrypto-Native` and `KonaCrypto-NativeOneShot` on the similar way, so this doc just describes the usages with provider `KonaCrypto`.
 
 Now that `KonaCrypto` is based on JCA framework, then the usages are the same as other JCA implementations, such as [SunJCE] and [SunEC]. Understanding the design and coding style on JCA really helps for applying `KonaCrypto`, please read the official [JCA reference].
 
