@@ -45,8 +45,8 @@ import static com.tencent.kona.crypto.CryptoUtils.toBytes;
 public class SM4DecrypterPerfTest {
 
     private static final byte[] KEY = toBytes("0123456789abcdef0123456789abcdef");
-    private static final byte[] IV = toBytes("00000000000000000000000000000000");
-    private static final byte[] GCM_IV = toBytes("000000000000000000000000");
+    private static final byte[] IV = toBytes("10000000000000000000000000000000");
+    private static final byte[] GCM_IV = toBytes("100000000000000000000000");
 
     private static final SecretKey SECRET_KEY = new SecretKeySpec(KEY, "SM4");
     private static final IvParameterSpec IV_PARAM_SPEC = new IvParameterSpec(IV);
@@ -64,7 +64,7 @@ public class SM4DecrypterPerfTest {
     @State(Scope.Benchmark)
     public static class DecrypterHolder {
 
-        @Param({"KonaCrypto", "KonaCrypto-Native"})
+        @Param({"KonaCrypto", "KonaCrypto-Native", "KonaCrypto-NativeOneShot"})
         String provider;
 
         @Param({"Small", "Mid", "Big"})
@@ -72,16 +72,14 @@ public class SM4DecrypterPerfTest {
 
         byte[] data;
 
-        byte[] ciphertextCBCPadding;
         byte[] ciphertextCBCNoPadding;
         byte[] ciphertextCTRNoPadding;
         byte[] ciphertextECBNoPadding;
         byte[] ciphertextGCMNoPadding;
 
-        Cipher decrypterCBCPadding;
         Cipher decrypterCBCNoPadding;
-        Cipher decrypterECBNoPadding;
         Cipher decrypterCTRNoPadding;
+        Cipher decrypterECBNoPadding;
         Cipher decrypterGCMNoPadding;
 
         @Setup(Level.Trial)
@@ -93,22 +91,17 @@ public class SM4DecrypterPerfTest {
         private void setupCiphertexts() throws Exception {
             data = data(dataType);
 
-            Cipher cipher = Cipher.getInstance(
-                    "SM4/CBC/PKCS7Padding", provider);
-            cipher.init(Cipher.ENCRYPT_MODE, SECRET_KEY, IV_PARAM_SPEC);
-            ciphertextCBCPadding = cipher.doFinal(data);
-
-            cipher = Cipher.getInstance("SM4/CBC/NoPadding", provider);
+            Cipher cipher = Cipher.getInstance("SM4/CBC/NoPadding", provider);
             cipher.init(Cipher.ENCRYPT_MODE, SECRET_KEY, IV_PARAM_SPEC);
             ciphertextCBCNoPadding = cipher.doFinal(data);
-
-            cipher = Cipher.getInstance("SM4/ECB/NoPadding", provider);
-            cipher.init(Cipher.ENCRYPT_MODE, SECRET_KEY);
-            ciphertextECBNoPadding = cipher.doFinal(data);
 
             cipher = Cipher.getInstance("SM4/CTR/NoPadding", provider);
             cipher.init(Cipher.ENCRYPT_MODE, SECRET_KEY, IV_PARAM_SPEC);
             ciphertextCTRNoPadding = cipher.doFinal(data);
+
+            cipher = Cipher.getInstance("SM4/ECB/NoPadding", provider);
+            cipher.init(Cipher.ENCRYPT_MODE, SECRET_KEY);
+            ciphertextECBNoPadding = cipher.doFinal(data);
 
             cipher = Cipher.getInstance("SM4/GCM/NoPadding", provider);
             cipher.init(Cipher.ENCRYPT_MODE, SECRET_KEY, GCM_PARAM_SPEC);
@@ -116,25 +109,20 @@ public class SM4DecrypterPerfTest {
         }
 
         private void setupDecrypters() throws Exception {
-            decrypterCBCPadding = Cipher.getInstance(
-                    "SM4/CBC/PKCS7Padding", provider);
-            decrypterCBCPadding.init(
-                    Cipher.DECRYPT_MODE, SECRET_KEY, IV_PARAM_SPEC);
-
             decrypterCBCNoPadding = Cipher.getInstance(
                     "SM4/CBC/NoPadding", provider);
             decrypterCBCNoPadding.init(
+                    Cipher.DECRYPT_MODE, SECRET_KEY, IV_PARAM_SPEC);
+
+            decrypterCTRNoPadding = Cipher.getInstance(
+                    "SM4/CTR/NoPadding", provider);
+            decrypterCTRNoPadding.init(
                     Cipher.DECRYPT_MODE, SECRET_KEY, IV_PARAM_SPEC);
 
             decrypterECBNoPadding = Cipher.getInstance(
                     "SM4/ECB/NoPadding", provider);
             decrypterECBNoPadding.init(
                     Cipher.DECRYPT_MODE, SECRET_KEY);
-
-            decrypterCTRNoPadding = Cipher.getInstance(
-                    "SM4/CTR/NoPadding", provider);
-            decrypterCTRNoPadding.init(
-                    Cipher.DECRYPT_MODE, SECRET_KEY, IV_PARAM_SPEC);
 
             decrypterGCMNoPadding = Cipher.getInstance(
                     "SM4/GCM/NoPadding", provider);
@@ -153,21 +141,43 @@ public class SM4DecrypterPerfTest {
 
     @Benchmark
     public byte[] cbc(DecrypterHolder holder) throws Exception {
+        if ("KonaCrypto-NativeOneShot".equals(holder.provider)) {
+            holder.decrypterCBCNoPadding = Cipher.getInstance(
+                    "SM4/CBC/NoPadding", holder.provider);
+            holder.decrypterCBCNoPadding.init(
+                    Cipher.DECRYPT_MODE, SECRET_KEY, IV_PARAM_SPEC);
+        }
         return holder.decrypterCBCNoPadding.doFinal(holder.ciphertextCBCNoPadding);
     }
 
     @Benchmark
-    public byte[] ecb(DecrypterHolder holder) throws Exception {
-        return holder.decrypterECBNoPadding.doFinal(holder.ciphertextECBNoPadding);
-    }
-
-    @Benchmark
     public byte[] ctr(DecrypterHolder holder) throws Exception {
+        if ("KonaCrypto-NativeOneShot".equals(holder.provider)) {
+            holder.decrypterCTRNoPadding = Cipher.getInstance(
+                    "SM4/CTR/NoPadding", holder.provider);
+            holder.decrypterCTRNoPadding.init(
+                    Cipher.DECRYPT_MODE, SECRET_KEY, IV_PARAM_SPEC);
+        }
         return holder.decrypterCTRNoPadding.doFinal(holder.ciphertextCTRNoPadding);
     }
 
     @Benchmark
+    public byte[] ecb(DecrypterHolder holder) throws Exception {
+        if ("KonaCrypto-NativeOneShot".equals(holder.provider)) {
+            holder.decrypterECBNoPadding = Cipher.getInstance(
+                    "SM4/ECB/NoPadding", holder.provider);
+            holder.decrypterECBNoPadding.init(
+                    Cipher.DECRYPT_MODE, SECRET_KEY);
+        }
+        return holder.decrypterECBNoPadding.doFinal(holder.ciphertextECBNoPadding);
+    }
+
+    @Benchmark
     public byte[] gcm(DecrypterHolder holder) throws Exception {
+        if ("KonaCrypto-NativeOneShot".equals(holder.provider)) {
+            holder.decrypterGCMNoPadding = Cipher.getInstance(
+                    "SM4/GCM/NoPadding", holder.provider);
+        }
         holder.decrypterGCMNoPadding.init(
                 Cipher.DECRYPT_MODE, SECRET_KEY, GCM_PARAM_SPEC);
         return holder.decrypterGCMNoPadding.doFinal(holder.ciphertextGCMNoPadding);

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022, 2024, THL A29 Limited, a Tencent company. All rights reserved.
+ * Copyright (C) 2022, 2025, THL A29 Limited, a Tencent company. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -64,7 +64,7 @@ public class SM4EncrypterPerfTest {
 
         private BigInteger gcmIvValue = BigInteger.ZERO;
 
-        @Param({"KonaCrypto", "KonaCrypto-Native"})
+        @Param({"KonaCrypto", "KonaCrypto-Native", "KonaCrypto-NativeOneShot"})
         String provider;
 
         @Param({"Small", "Mid", "Big"})
@@ -73,8 +73,8 @@ public class SM4EncrypterPerfTest {
         byte[] data;
 
         Cipher encrypterCBCNoPadding;
-        Cipher encrypterECBNoPadding;
         Cipher encrypterCTRNoPadding;
+        Cipher encrypterECBNoPadding;
         Cipher encrypterGCMNoPadding;
 
         @Setup(Level.Trial)
@@ -86,15 +86,15 @@ public class SM4EncrypterPerfTest {
             encrypterCBCNoPadding.init(
                     Cipher.ENCRYPT_MODE, SECRET_KEY, IV_PARAM_SPEC);
 
-            encrypterECBNoPadding = Cipher.getInstance(
-                    "SM4/ECB/NoPadding", provider);
-            encrypterECBNoPadding.init(
-                    Cipher.ENCRYPT_MODE, SECRET_KEY);
-
             encrypterCTRNoPadding = Cipher.getInstance(
                     "SM4/CTR/NoPadding", provider);
             encrypterCTRNoPadding.init(
                     Cipher.ENCRYPT_MODE, SECRET_KEY, IV_PARAM_SPEC);
+
+            encrypterECBNoPadding = Cipher.getInstance(
+                    "SM4/ECB/NoPadding", provider);
+            encrypterECBNoPadding.init(
+                    Cipher.ENCRYPT_MODE, SECRET_KEY);
 
             encrypterGCMNoPadding = Cipher.getInstance(
                     "SM4/GCM/NoPadding", provider);
@@ -113,21 +113,47 @@ public class SM4EncrypterPerfTest {
 
     @Benchmark
     public byte[] cbc(EncrypterHolder holder) throws Exception {
+        if ("KonaCrypto-NativeOneShot".equals(holder.provider)) {
+            holder.encrypterCBCNoPadding = Cipher.getInstance(
+                    "SM4/CBC/NoPadding", holder.provider);
+            holder.encrypterCBCNoPadding.init(
+                    Cipher.ENCRYPT_MODE, SECRET_KEY, IV_PARAM_SPEC);
+        }
+
         return holder.encrypterCBCNoPadding.doFinal(holder.data);
     }
 
     @Benchmark
     public byte[] ctr(EncrypterHolder holder) throws Exception {
+        if ("KonaCrypto-NativeOneShot".equals(holder.provider)) {
+            holder.encrypterCTRNoPadding = Cipher.getInstance(
+                    "SM4/CTR/NoPadding", holder.provider);
+            holder.encrypterCTRNoPadding.init(
+                    Cipher.ENCRYPT_MODE, SECRET_KEY, IV_PARAM_SPEC);
+        }
+
         return holder.encrypterCTRNoPadding.doFinal(holder.data);
     }
 
     @Benchmark
     public byte[] ecb(EncrypterHolder holder) throws Exception {
+        if ("KonaCrypto-NativeOneShot".equals(holder.provider)) {
+            holder.encrypterECBNoPadding = Cipher.getInstance(
+                    "SM4/ECB/NoPadding", holder.provider);
+            holder.encrypterECBNoPadding.init(
+                    Cipher.ENCRYPT_MODE, SECRET_KEY);
+        }
+
         return holder.encrypterECBNoPadding.doFinal(holder.data);
     }
 
     @Benchmark
     public byte[] gcm(EncrypterHolder holder) throws Exception {
+        if ("KonaCrypto-NativeOneShot".equals(holder.provider)) {
+            holder.encrypterGCMNoPadding = Cipher.getInstance(
+                    "SM4/GCM/NoPadding", holder.provider);
+        }
+
         holder.gcmIvValue = holder.gcmIvValue.add(BigInteger.ONE);
         GCMParameterSpec GCM_PARAM_SPEC = new GCMParameterSpec(
                 Constants.SM4_GCM_TAG_LEN * 8, toByte12(holder.gcmIvValue));
