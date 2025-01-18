@@ -82,7 +82,7 @@ public class SM2SignaturePerfTest {
     @State(Scope.Benchmark)
     public static class VerifierHolder {
 
-        @Param({"KonaCrypto", "KonaCrypto-Native"})
+        @Param({"KonaCrypto", "KonaCrypto-Native", "KonaCrypto-NativeOneShot"})
         String provider;
 
         @Param({"Small", "Mid", "Big"})
