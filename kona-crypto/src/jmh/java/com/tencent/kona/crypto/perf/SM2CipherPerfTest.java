@@ -75,7 +75,7 @@ public class SM2CipherPerfTest {
     @State(Scope.Benchmark)
     public static class DecrypterHolder {
 
-        @Param({"KonaCrypto", "KonaCrypto-Native"})
+        @Param({"KonaCrypto", "KonaCrypto-Native", "KonaCrypto-NativeOneShot"})
         String provider;
 
         @Param({"Small", "Mid", "Big"})
