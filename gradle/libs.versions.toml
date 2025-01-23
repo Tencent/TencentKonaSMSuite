@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2023, 2024, THL A29 Limited, a Tencent company. All rights reserved.
+# Copyright (C) 2023, 2025, THL A29 Limited, a Tencent company. All rights reserved.
 # DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
 #
 # This code is free software; you can redistribute it and/or modify it
@@ -18,7 +18,7 @@
 #
 
 [versions]
-bouncycastle = "1.78"
+bouncycastle = "1.80"
 
 grpc = "1.58.0"
 tomcat = "9.0.78"
@@ -37,17 +37,17 @@ protobufPlugin = "0.9.4"
 
 
 [libraries]
-bcprov-jdk18on = { module = "org.bouncycastle:bcprov-jdk18on", version.ref = "bouncycastle"}
-jetty-server = { module = "org.eclipse.jetty:jetty-server", version.ref = "jetty"}
-jetty-http2-server = { module = "org.eclipse.jetty.http2:http2-server", version.ref = "jetty"}
-jetty-servlet = { module = "org.eclipse.jetty:jetty-servlet", version.ref = "jetty"}
-jetty-alpn-openjdk8-server  = { module = "org.eclipse.jetty:jetty-alpn-openjdk8-server", version.ref = "jetty"}
-jetty-alpn-java-server = { module = "org.eclipse.jetty:jetty-alpn-java-server", version.ref = "jetty"}
-jetty-client = { module = "org.eclipse.jetty:jetty-client", version.ref = "jetty"}
-netty-all = { module = "io.netty:netty-all", version.ref = "netty"}
-apache-httpclient = { module = "org.apache.httpcomponents:httpclient", version.ref = "apache.httpclient"}
-tomcat-embed-core = { module = "org.apache.tomcat.embed:tomcat-embed-core", version.ref = "tomcat"}
-okhttp = { module = "com.squareup.okhttp3:okhttp", version.ref = "okhttp"}
+bcprov-jdk18on = { module = "org.bouncycastle:bcprov-jdk18on", version.ref = "bouncycastle" }
+jetty-server = { module = "org.eclipse.jetty:jetty-server", version.ref = "jetty" }
+jetty-http2-server = { module = "org.eclipse.jetty.http2:http2-server", version.ref = "jetty" }
+jetty-servlet = { module = "org.eclipse.jetty:jetty-servlet", version.ref = "jetty" }
+jetty-alpn-openjdk8-server = { module = "org.eclipse.jetty:jetty-alpn-openjdk8-server", version.ref = "jetty" }
+jetty-alpn-java-server = { module = "org.eclipse.jetty:jetty-alpn-java-server", version.ref = "jetty" }
+jetty-client = { module = "org.eclipse.jetty:jetty-client", version.ref = "jetty" }
+netty-all = { module = "io.netty:netty-all", version.ref = "netty" }
+apache-httpclient = { module = "org.apache.httpcomponents:httpclient", version.ref = "apache.httpclient" }
+tomcat-embed-core = { module = "org.apache.tomcat.embed:tomcat-embed-core", version.ref = "tomcat" }
+okhttp = { module = "com.squareup.okhttp3:okhttp", version.ref = "okhttp" }
 
 protoc = { module = "com.google.protobuf:protoc", version.ref = "protoc" }
 grpc-protoc-gen-grpc = { module = "io.grpc:protoc-gen-grpc-java", version.ref = "grpc" }
@@ -56,23 +56,23 @@ grpc-protobuf = { module = "io.grpc:grpc-protobuf", version.ref = "grpc" }
 grpc-stub = { module = "io.grpc:grpc-stub", version.ref = "grpc" }
 grpc-netty = { module = "io.grpc:grpc-netty", version.ref = "grpc" }
 
-spring-boot-starter-web = { module = "org.springframework.boot:spring-boot-starter-web", version.ref = "springboot"}
-spring-boot-starter-tomcat = { module = "org.springframework.boot:spring-boot-starter-tomcat", version.ref = "springboot"}
-spring-boot-starter-jetty = { module = "org.springframework.boot:spring-boot-starter-jetty", version.ref = "springboot"}
+spring-boot-starter-web = { module = "org.springframework.boot:spring-boot-starter-web", version.ref = "springboot" }
+spring-boot-starter-tomcat = { module = "org.springframework.boot:spring-boot-starter-tomcat", version.ref = "springboot" }
+spring-boot-starter-jetty = { module = "org.springframework.boot:spring-boot-starter-jetty", version.ref = "springboot" }
 
-junit-jupiter-api = { module = "org.junit.jupiter:junit-jupiter-api", version.ref = "junit"}
-junit-jupiter-engine = { module = "org.junit.jupiter:junit-jupiter-engine", version.ref = "junit"}
-junit-platform-launcher = { module = "org.junit.platform:junit-platform-launcher", version.ref = "junit.platform.launcher"}
+junit-jupiter-api = { module = "org.junit.jupiter:junit-jupiter-api", version.ref = "junit" }
+junit-jupiter-engine = { module = "org.junit.jupiter:junit-jupiter-engine", version.ref = "junit" }
+junit-platform-launcher = { module = "org.junit.platform:junit-platform-launcher", version.ref = "junit.platform.launcher" }
 
-jmh-core = { module = "org.openjdk.jmh:jmh-core", version.ref = "jmh"}
-jmh-generator-annprocess = { module = "org.openjdk.jmh:jmh-generator-annprocess", version.ref = "jmh"}
+jmh-core = { module = "org.openjdk.jmh:jmh-core", version.ref = "jmh" }
+jmh-generator-annprocess = { module = "org.openjdk.jmh:jmh-generator-annprocess", version.ref = "jmh" }
 
 
 [bundles]
-grpc = [ "grpc.core", "grpc.protobuf", "grpc.stub", "grpc.netty"]
+grpc = ["grpc.core", "grpc.protobuf", "grpc.stub", "grpc.netty"]
 
 
 [plugins]
-springboot = { id = "org.springframework.boot", version.ref = "springboot"}
-springdepman = { id = "io.spring.dependency-management", version.ref = "springdepmanPlugin"}
+springboot = { id = "org.springframework.boot", version.ref = "springboot" }
+springdepman = { id = "io.spring.dependency-management", version.ref = "springdepmanPlugin" }
 protobuf = { id = "com.google.protobuf", version.ref = "protobufPlugin" }
