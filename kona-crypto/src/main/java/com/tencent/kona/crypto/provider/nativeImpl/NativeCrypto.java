@@ -224,4 +224,10 @@ final class NativeCrypto {
                                byte[] priKey, byte[] pubKey, byte[] ePrivKey, byte[] id,
                                byte[] peerPubKey, byte[] peerEPubKey, byte[] peerId,
                                boolean isInitiator, int sharedKeyLength);
+
+    /* ***** ECC ***** */
+    static native Object[] ecOneShotKeyPairGenGenKeyPair(int curveNID);
+    static native long     ecKeyPairGenCreateCtx(int curveNID);
+    static native void     ecKeyPairGenFreeCtx(long pointer);
+    static native Object[] ecKeyPairGenGenKeyPair(long pointer);
 }

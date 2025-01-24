@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2024, THL A29 Limited, a Tencent company. All rights reserved.
+# Copyright (C) 2024, 2025, THL A29 Limited, a Tencent company. All rights reserved.
 # DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
 #
 # This code is free software; you can redistribute it and/or modify it
@@ -30,7 +30,8 @@ set(SOURCES kona_common.c
             kona_sm2_signature.c
             kona_sm2_keyagreement.c
             kona_sm3.c
-            kona_sm4.c)
+            kona_sm4.c
+            kona_ec_keypair.c)
 set(LIB_DIR "${CMAKE_SOURCE_DIR}/../resources")
 
 add_library(KonaCrypto SHARED ${SOURCES})
