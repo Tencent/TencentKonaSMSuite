@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022, 2024, THL A29 Limited, a Tencent company. All rights reserved.
+ * Copyright (C) 2022, 2025, THL A29 Limited, a Tencent company. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify
@@ -21,6 +21,7 @@
 package com.tencent.kona.crypto.util;
 
 import java.math.BigInteger;
+import java.util.Arrays;
 
 public final class Constants {
 
@@ -61,5 +62,33 @@ public final class Constants {
 
     public static byte[] defaultId() {
         return DEFAULT_ID.clone();
+    }
+
+    public static int NID_SPEC256R1 = 415;
+    public static int NID_SPEC384R1 = 715;
+    public static int NID_SPEC521R1 = 716;
+    public static int NID_CURVESM2 = 1172;
+
+    private static final byte[] ENCODED_SECP256R1_OID
+            = new byte[]{6, 8, 42, -122, 72, -50, 61, 3, 1, 7};
+    private static final byte[] ENCODED_SECP384R1_OID
+            = new byte[]{6, 5, 43, -127, 4, 0, 34};
+    private static final byte[] ENCODED_SECP521R1_OID
+            = new byte[]{6, 5, 43, -127, 4, 0, 35};
+    private static final byte[] ENCODED_CURVESM2_OID
+            = new byte[]{6, 8, 42, -127, 28, -49, 85, 1, -126, 45};
+
+    public static int getNID(byte[] encodedOID) {
+        if (Arrays.equals(encodedOID, ENCODED_SECP256R1_OID)) {
+            return NID_SPEC256R1;
+        } else if (Arrays.equals(encodedOID, ENCODED_SECP384R1_OID)) {
+            return NID_SPEC384R1;
+        } else if (Arrays.equals(encodedOID, ENCODED_SECP521R1_OID)) {
+            return NID_SPEC521R1;
+        } else if (Arrays.equals(encodedOID, ENCODED_CURVESM2_OID)) {
+            return NID_CURVESM2;
+        }
+
+        return -1;
     }
 }
