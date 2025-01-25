@@ -37,8 +37,6 @@ import java.security.*;
 import java.security.spec.*;
 import java.util.*;
 
-import static com.tencent.kona.crypto.util.Constants.*;
-
 /**
  * EC keypair generator.
  * Standard algorithm, minimum key length is 112 bits, maximum is 571 bits.
