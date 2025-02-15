@@ -40,7 +40,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest]
-        java-version: [8, 11, 17, 21]
+        java-version: [8.0.19, 11, 17.0.12, 21.0.5]
     runs-on: ${{ matrix.os }}
 
     steps:
@@ -48,10 +48,10 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Setup JDK
-        uses: actions/setup-java@v4
+        uses: johnshajiang/setup-java@v4
         with:
           java-version: ${{ matrix.java-version }}
-          distribution: 'temurin'
+          distribution: 'kona'
 
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v3
