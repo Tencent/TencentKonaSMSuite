@@ -259,6 +259,7 @@ public class SSLEngineTest {
      */
     protected SSLEngine configureClientEngine(SSLEngine clientEngine) {
         clientEngine.setUseClientMode(true);
+        clientEngine.setEnabledCipherSuites(new String[] {"TLCP_ECC_SM4_GCM_SM3"});
 
         // Get/set parameters if needed
         // SSLParameters paramsClient = clientEngine.getSSLParameters();
