@@ -27,7 +27,10 @@ The main differences between `KonaCrypto-Native` and `KonaCrypto-NativeOneShot`:
 - `KonaCrypto-Native` can automatically manage JNI native memory based on `PhantomReference`. And it can reuse OpenSSL native context that is beneficial for computing performance. But creating many algorithm instances, like `Cipher`, will raise the overhead of GC, so the GC time may be much longer.
 - `KonaCrypto-NativeOneShot` cannot automatically manage JNI native memory. The applications have to invoke the final operations, like `Cipher::doFinal`, to release the native memory. And it doesn't reuse OpenSSL native context, then the computing performance may be lower. But it almost doesn't affect GC performance, and the GC time is similar to that in pure Java provider.
 
-The system property `com.tencent.kona.openssl.crypto.lib.path` is used to specify an alternative OpenSSL crypto lib file (`libcrypto.so`). The value of this property is a local absolute path.
+The associated system properties:
+
+- `com.tencent.kona.openssl.crypto.lib.path`, used to specify an alternative OpenSSL crypto lib file (`libcrypto.so`). The value of this property is a local absolute path.
+- `com.tencent.kona.defaultCrypto`, used to specify the crypto provider applied by `KonaPKIX` and `KonaSSL`. The value can be `Java` (stands for `KonaCrypto` provider), `Native` (stands for `KonaCrypto-Native` provider) or `NativeOneShot` (stands for `KonaCrypto-NativeOneShot` provider). The default value is `Java`.
 
 ## Usages
 
