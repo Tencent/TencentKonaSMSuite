@@ -24,7 +24,6 @@ import com.tencent.kona.crypto.provider.SM2PrivateKey;
 import com.tencent.kona.crypto.provider.SM2PublicKey;
 import com.tencent.kona.crypto.spec.SM2SignatureParameterSpec;
 
-import javax.crypto.BadPaddingException;
 import java.math.BigInteger;
 import java.security.*;
 import java.security.interfaces.ECPrivateKey;
@@ -142,16 +141,24 @@ public final class SM2OneShotSignature extends SignatureSpi {
             id = DEFAULT_ID.clone();
         }
 
-        try (NativeSM2Signature sm2 = new NativeSM2Signature(
-                privateKey.getEncoded(),
-                publicKey != null ? publicKey.getEncoded() : null,
-                id, true)) {
-            return sm2.sign(buffer.toByteArray());
-        } catch (BadPaddingException e) {
-            throw new SignatureException(e);
-        } finally {
-            buffer.reset();
+        byte[] key = combineKey(privateKey.getEncoded(),
+                publicKey != null ? publicKey.getEncoded() : null);
+        byte[] sign = NativeCrypto.sm2OneShotSignatureSign(
+                key, id, buffer.toByteArray());
+        buffer.reset();
+        return sign;
+    }
+
+    private static byte[] combineKey(byte[] priKey, byte[] pubKey) {
+        int keySize = priKey.length;
+        keySize += pubKey == null ? 0 : pubKey.length;
+        byte[] key = new byte[keySize];
+        System.arraycopy(priKey, 0, key, 0, priKey.length);
+        if (pubKey != null) {
+            System.arraycopy(pubKey, 0, key, priKey.length, pubKey.length);
         }
+
+        return key;
     }
 
     @Override
@@ -164,13 +171,9 @@ public final class SM2OneShotSignature extends SignatureSpi {
             id = DEFAULT_ID.clone();
         }
 
-        try (NativeSM2Signature sm2 = new NativeSM2Signature(
-                null, publicKey.getEncoded(), id, false)) {
-            return sm2.verify(buffer.toByteArray(), sigBytes);
-        } catch (BadPaddingException e) {
-            throw new SignatureException(e);
-        } finally {
-            buffer.reset();
-        }
+        int verified = NativeCrypto.sm2OneShotSignatureVerify(
+                publicKey.getEncoded(), id, buffer.toByteArray(), sigBytes);
+        buffer.reset();
+        return verified == NativeCrypto.OPENSSL_SUCCESS;
     }
 }
