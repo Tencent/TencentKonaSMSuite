@@ -27,7 +27,10 @@
 - `KonaCrypto-Native`基于`PhantomReference`自动地管理JNI本地内存，会复用OpenSSL本地上下文，这会提高计算性能。但过多的创建算法实例，如`Cipher`，会增大GC的开销，GC时间会显著增长。
 - `KonaCrypto-NativeOneShot`不会自动地管理JNI本地，应用程序需要确保调用最终操作，如`Cipher::doFinal`，去释放内存。而且它不会复用OpenSSL本地上下文，计算性能可能会低一些。但该Provider几乎不会增加GC的开销，GC时长与纯Java实现的GC时长相当。
 
-可以使用系统属性`com.tencent.kona.openssl.crypto.lib.path`去指定使用其他的OpenSSL crypto库文件（`libcrypto.so`），该系统属性的值是一个本地绝对路径。
+相关的系统属性：
+
+- `com.tencent.kona.openssl.crypto.lib.path`，用于指定使用其他的OpenSSL crypto库文件（`libcrypto.so`）。该系统属性的值是一个本地绝对路径。
+- `com.tencent.kona.defaultCrypto`，用于指定在`KonaPKIX`和`KonaSSL`中使用的crypto provider。该系统属性的值可为`Java`（代表`KonaCrypto`），`Native`（代表`KonaCrypto-Native`）或`NativeOneShot`（代表`KonaCrypto-NativeOneShot`）。默认值为`Java`。
 
 ## 使用
 
