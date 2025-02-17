@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022, 2024, THL A29 Limited, a Tencent company. All rights reserved.
+ * Copyright (C) 2022, 2025, THL A29 Limited, a Tencent company. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify
@@ -199,13 +199,36 @@ public final class SM2OneShotCipher extends CipherSpi {
         buffer.write(input, inputOffset, inputLen);
     }
 
-    private byte[] doFinal() throws BadPaddingException, IllegalBlockSizeException {
-        try (NativeSM2Cipher sm2 = new NativeSM2Cipher(key)) {
-            byte[] input = buffer.toByteArray();
-            return encrypted ? sm2.encrypt(input) : sm2.decrypt(input);
-        } finally {
-            buffer.reset();
+    private byte[] doFinal() throws BadPaddingException {
+        byte[] input = buffer.toByteArray();
+
+        byte[] result = encrypted ? encrypt(input) : decrypt(input);
+        buffer.reset();
+        return result;
+    }
+
+    private byte[] encrypt(byte[] plaintext) throws BadPaddingException {
+        if (plaintext == null || plaintext.length == 0) {
+            throw new BadPaddingException("Invalid plaintext");
         }
+
+        byte[] ciphertext = NativeCrypto.sm2OneShotCipherEncrypt(key, plaintext);
+        if (ciphertext == null) {
+            throw new BadPaddingException("Encrypt failed");
+        }
+        return ciphertext;
+    }
+
+    byte[] decrypt(byte[] ciphertext) throws BadPaddingException {
+        if (ciphertext == null || ciphertext.length == 0) {
+            throw new BadPaddingException("Invalid ciphertext");
+        }
+
+        byte[] cleartext = NativeCrypto.sm2OneShotCipherDecrypt(key, ciphertext);
+        if (cleartext == null) {
+            throw new BadPaddingException("Decrypt failed");
+        }
+        return cleartext;
     }
 
     @Override
