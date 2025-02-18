@@ -21,7 +21,11 @@ package com.tencent.kona.ssl.tlcp;
 
 import com.tencent.kona.ssl.TestUtils;
 
-public class SSLEngineProfTest {
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.*;
+
+public class TLCPProfTest {
 
     static {
         TestUtils.addProviders();
@@ -30,9 +34,41 @@ public class SSLEngineProfTest {
     private static final int ITERATIONS = 1_000_000_000;
 
     public static void main(String[] args) throws Exception {
+        List<Callable<Void>> tasks = new ArrayList<>();
+
+        tasks.add(()-> {testEngine(); return null;});
+        tasks.add(()-> {testSocket(); return null;});
+
+        execTasksParallelly(tasks);
+    }
+
+    private static void testEngine() throws Exception {
         for (int i = 0; i < ITERATIONS; i++) {
             SSLEngineTest test = new SSLEngineTest();
             test.testSSL();
+        }
+    }
+
+    private static void testSocket() throws Exception {
+        for (int i = 0; i < ITERATIONS; i++) {
+            SSLSocketTest test = new SSLSocketTest();
+            test.testSSL();
+        }
+    }
+
+    private static void execTasksParallelly(List<Callable<Void>> tasks) throws Exception {
+        ExecutorService executorService = Executors.newFixedThreadPool(tasks.size());
+        try {
+            List<Future<Void>> futures = executorService.invokeAll(tasks);
+            futures.forEach(future -> {
+                try {
+                    future.get();
+                } catch (InterruptedException | ExecutionException e) {
+                    throw new RuntimeException("Run task failed", e);
+                }
+            });
+        } finally {
+            executorService.shutdown();
         }
     }
 }

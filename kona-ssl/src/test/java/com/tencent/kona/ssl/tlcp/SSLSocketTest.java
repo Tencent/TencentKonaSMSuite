@@ -201,7 +201,7 @@ public class SSLSocketTest {
      */
     protected void configureClientSocket(SSLSocket socket) {
         socket.setEnabledProtocols(new String[] { "TLCPv1.1" });
-        socket.setEnabledCipherSuites(new String[] { "TLCP_ECDHE_SM4_GCM_SM3" });
+        socket.setEnabledCipherSuites(new String[] { "TLCP_ECC_SM4_GCM_SM3" });
     }
 
     /*
