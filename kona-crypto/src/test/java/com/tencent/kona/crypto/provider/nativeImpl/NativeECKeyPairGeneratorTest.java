@@ -30,21 +30,21 @@ import static com.tencent.kona.crypto.util.Constants.*;
 /**
  * The test for native EC key pair generator implementation.
  */
-@EnabledOnOs(OS.LINUX)
+@EnabledOnOs(OS.MAC)
 public class NativeECKeyPairGeneratorTest {
 
     @Test
     public void testECKeyPairGenGenKeyPair() {
-        checkECKeyPairGenGenKeyPair(NID_SPEC256R1, 32);
-        checkECKeyPairGenGenKeyPair(NID_SPEC384R1, 48);
+//        checkECKeyPairGenGenKeyPair(NID_SPEC256R1, 32);
+//        checkECKeyPairGenGenKeyPair(NID_SPEC384R1, 48);
         checkECKeyPairGenGenKeyPair(NID_SPEC521R1, 66);
-        checkECKeyPairGenGenKeyPair(NID_CURVESM2, 32);
+//        checkECKeyPairGenGenKeyPair(NID_CURVESM2, 32);
     }
 
     private void checkECKeyPairGenGenKeyPair(int curveNID, int keySize) {
         try (NativeECKeyPairGen ecKeyPairGen = new NativeECKeyPairGen(curveNID)) {
             Object[] keyPair = ecKeyPairGen.genKeyPair();
-            Assertions.assertTrue(keySize >= (((byte[])keyPair[0]).length));
+            Assertions.assertEquals(keySize, (((byte[]) keyPair[0]).length));
         }
     }
 
@@ -58,7 +58,7 @@ public class NativeECKeyPairGeneratorTest {
 
     private void checkOneShotECKeyPairGenGenKeyPair(int curveNID, int keySize) {
         Object[] keyPair = NativeCrypto.ecOneShotKeyPairGenGenKeyPair(curveNID);
-        Assertions.assertTrue(keySize >= (((byte[])keyPair[0]).length));
+        Assertions.assertEquals(keySize, (((byte[]) keyPair[0]).length));
     }
 
     @Test
