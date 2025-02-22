@@ -73,17 +73,19 @@ JNIEXPORT jobjectArray JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_
     EVP_PKEY_CTX_free(pctx);
 
     const EC_KEY* ec_key = EVP_PKEY_get0_EC_KEY(pkey);
-    const BIGNUM* priv_key_bn = EC_KEY_get0_private_key(ec_key);
-    int priv_key_len = BN_num_bytes(priv_key_bn);
-    unsigned char* priv_key_bytes = (unsigned char*)malloc(priv_key_len);
+    const EC_GROUP *group = EC_KEY_get0_group(ec_key);
+    const BIGNUM *order = EC_GROUP_get0_order(group);
+    int priv_key_len = (BN_num_bits(order) + 7) / 8;
+    const BIGNUM* pri_key_bn = EC_KEY_get0_private_key(ec_key);
+    uint8_t* priv_key_bytes = (uint8_t*)malloc(priv_key_len);
     if (priv_key_bytes == NULL) {
         EVP_PKEY_free(pkey);
+
         return NULL;
     }
-    BN_bn2bin(priv_key_bn, priv_key_bytes);
+    BN_bn2binpad(pri_key_bn, priv_key_bytes, priv_key_len);
 
     const EC_POINT* pub_key_point = EC_KEY_get0_public_key(ec_key);
-    const EC_GROUP* group = EC_KEY_get0_group(ec_key);
     size_t pub_key_len = EC_POINT_point2oct(group, pub_key_point, POINT_CONVERSION_UNCOMPRESSED, NULL, 0, NULL);
     unsigned char* pub_key_bytes = (unsigned char*)malloc(pub_key_len);
     if (pub_key_bytes == NULL) {
@@ -170,18 +172,19 @@ JNIEXPORT jobjectArray JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_
     }
 
     const EC_KEY* ec_key = EVP_PKEY_get0_EC_KEY(pkey);
-    const BIGNUM* priv_key_bn = EC_KEY_get0_private_key(ec_key);
-    int priv_key_len = BN_num_bytes(priv_key_bn);
-    unsigned char* priv_key_bytes = (unsigned char*)malloc(priv_key_len);
+    const EC_GROUP *group = EC_KEY_get0_group(ec_key);
+    const BIGNUM *order = EC_GROUP_get0_order(group);
+    int priv_key_len = (BN_num_bits(order) + 7) / 8;
+    const BIGNUM* pri_key_bn = EC_KEY_get0_private_key(ec_key);
+    uint8_t* priv_key_bytes = (uint8_t*)malloc(priv_key_len);
     if (priv_key_bytes == NULL) {
         EVP_PKEY_free(pkey);
 
         return NULL;
     }
-    BN_bn2bin(priv_key_bn, priv_key_bytes);
+    BN_bn2binpad(pri_key_bn, priv_key_bytes, priv_key_len);
 
     const EC_POINT* pub_key_point = EC_KEY_get0_public_key(ec_key);
-    const EC_GROUP* group = EC_KEY_get0_group(ec_key);
     size_t pub_key_len = EC_POINT_point2oct(group, pub_key_point, POINT_CONVERSION_UNCOMPRESSED, NULL, 0, NULL);
     unsigned char* pub_key_bytes = (unsigned char*)malloc(pub_key_len);
     if (pub_key_bytes == NULL) {
