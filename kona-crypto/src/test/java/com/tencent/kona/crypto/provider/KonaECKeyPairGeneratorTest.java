@@ -81,7 +81,6 @@ public class KonaECKeyPairGeneratorTest {
         ECPublicKey pubKey = (ECPublicKey) keyPair.getPublic();
         ECPrivateKey priKey = (ECPrivateKey) keyPair.getPrivate();
 
-
         Signature signer = Signature.getInstance("SHA256withECDSA", PROVIDER);
         signer.initSign(priKey);
         signer.update(MESSAGE);

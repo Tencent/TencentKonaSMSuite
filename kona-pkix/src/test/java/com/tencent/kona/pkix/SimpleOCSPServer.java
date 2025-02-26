@@ -63,6 +63,7 @@ import java.security.cert.CertificateEncodingException;
 import java.security.cert.CertificateException;
 import java.security.cert.Extension;
 import java.security.cert.X509Certificate;
+import java.security.interfaces.ECPrivateKey;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Base64;
@@ -206,10 +207,23 @@ public class SimpleOCSPServer {
                     issuerAlias + " not found");
             }
         }
-        sigAlgId = AlgorithmId.get(SignatureUtil.getDefaultSigAlgForKey(signerKey));
+        sigAlgId = AlgorithmId.get(getSigAlg(signerKey));
         respId = new ResponderId(signerCert.getSubjectX500Principal());
         listenAddress = addr;
         listenPort = port;
+    }
+
+    private String getSigAlg(PrivateKey key) {
+        if (key instanceof ECPrivateKey) {
+            ECPrivateKey ecPrivateKey = (ECPrivateKey)key;
+            if (ecPrivateKey.getParams().toString().toUpperCase().contains("SM2")) {
+                return "SM3withSM2";
+            } else {
+                return SignatureUtil.getDefaultSigAlgForKey(key);
+            }
+        }
+
+        return SignatureUtil.getDefaultSigAlgForKey(key);
     }
 
     /**

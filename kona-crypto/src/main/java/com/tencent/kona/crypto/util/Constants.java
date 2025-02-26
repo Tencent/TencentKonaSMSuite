@@ -22,6 +22,8 @@ package com.tencent.kona.crypto.util;
 
 import java.math.BigInteger;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
 public final class Constants {
 
@@ -64,10 +66,16 @@ public final class Constants {
         return DEFAULT_ID.clone();
     }
 
-    public static int NID_SPEC256R1 = 415;
-    public static int NID_SPEC384R1 = 715;
-    public static int NID_SPEC521R1 = 716;
+    public static int NID_SECP256R1 = 415;
+    public static int NID_SECP384R1 = 715;
+    public static int NID_SECP521R1 = 716;
     public static int NID_CURVESM2 = 1172;
+
+    public static int NID_SHA1 = 64;
+    public static int NID_SHA224 = 675;
+    public static int NID_SHA256 = 672;
+    public static int NID_SHA384 = 673;
+    public static int NID_SHA512 = 674;
 
     private static final byte[] ENCODED_SECP256R1_OID
             = new byte[]{6, 8, 42, -122, 72, -50, 61, 3, 1, 7};
@@ -80,15 +88,45 @@ public final class Constants {
 
     public static int getNID(byte[] encodedOID) {
         if (Arrays.equals(encodedOID, ENCODED_SECP256R1_OID)) {
-            return NID_SPEC256R1;
+            return NID_SECP256R1;
         } else if (Arrays.equals(encodedOID, ENCODED_SECP384R1_OID)) {
-            return NID_SPEC384R1;
+            return NID_SECP384R1;
         } else if (Arrays.equals(encodedOID, ENCODED_SECP521R1_OID)) {
-            return NID_SPEC521R1;
+            return NID_SECP521R1;
         } else if (Arrays.equals(encodedOID, ENCODED_CURVESM2_OID)) {
             return NID_CURVESM2;
         }
 
         return -1;
+    }
+
+    private static final Map<String, Integer> MD_NID_MAP = new HashMap<>();
+    static {
+        MD_NID_MAP.put("SHA1", NID_SHA1);
+        MD_NID_MAP.put("SHA224", NID_SHA224);
+        MD_NID_MAP.put("SHA256", NID_SHA256);
+        MD_NID_MAP.put("SHA384", NID_SHA384);
+        MD_NID_MAP.put("SHA512", NID_SHA512);
+    }
+
+    public static int getDigestNID(String digest) {
+        String name = digest.replace("-", "").toUpperCase();
+        Integer nid = MD_NID_MAP.get(name);
+        return nid == null ? -1 : nid;
+    }
+
+    public static int getCurveNID(String curve) {
+        String curveName = curve.toUpperCase();
+        if (curveName.contains("SECP256R1")) {
+            return NID_SECP256R1;
+        } else if (curveName.contains("SECP384R1")) {
+            return NID_SECP384R1;
+        } else if (curveName.contains("SECP521R1")) {
+            return NID_SECP521R1;
+        } else if (curveName.contains("CURVESM2")) {
+            return NID_CURVESM2;
+        } else {
+            return -1;
+        }
     }
 }

@@ -230,4 +230,11 @@ final class NativeCrypto {
     static native long     ecKeyPairGenCreateCtx(int curveNID);
     static native void     ecKeyPairGenFreeCtx(long pointer);
     static native Object[] ecKeyPairGenGenKeyPair(long pointer);
+
+    static native long   ecdsaCreateCtx(int mdNID, int curveNID, byte[] key, boolean isSign);
+    static native void   ecdsaFreeCtx(long pointer);
+    static native byte[] ecdsaSign(long pointer, byte[] message);
+    static native int    ecdsaVerify(long pointer, byte[] message, byte[] signature);
+    static native byte[] ecdsaOneShotSign(int mdNID, int curveNID, byte[] key, byte[] message);
+    static native int    ecdsaOneShotVerify(int mdNID, int curveNID, byte[] key, byte[] message, byte[] signature);
 }

@@ -378,14 +378,14 @@ public class NativeRefProfTest {
         tasks.add(()-> {testSM2KeyAgreement(); return null;});
         tasks.add(()-> {testSM2OneShotKeyAgreement(); return null;});
 
-        tasks.add(()-> {testECKeyPairGenGenKeyPair(NID_SPEC256R1); return null;});
-        tasks.add(()-> {testECKeyPairGenGenKeyPair(NID_SPEC384R1); return null;});
-        tasks.add(()-> {testECKeyPairGenGenKeyPair(NID_SPEC521R1); return null;});
+        tasks.add(()-> {testECKeyPairGenGenKeyPair(NID_SECP256R1); return null;});
+        tasks.add(()-> {testECKeyPairGenGenKeyPair(NID_SECP384R1); return null;});
+        tasks.add(()-> {testECKeyPairGenGenKeyPair(NID_SECP521R1); return null;});
         tasks.add(()-> {testECKeyPairGenGenKeyPair(NID_CURVESM2); return null;});
 
-        tasks.add(()-> {testECKeyPairGenOneShotGenKeyPair(NID_SPEC256R1); return null;});
-        tasks.add(()-> {testECKeyPairGenOneShotGenKeyPair(NID_SPEC384R1); return null;});
-        tasks.add(()-> {testECKeyPairGenOneShotGenKeyPair(NID_SPEC521R1); return null;});
+        tasks.add(()-> {testECKeyPairGenOneShotGenKeyPair(NID_SECP256R1); return null;});
+        tasks.add(()-> {testECKeyPairGenOneShotGenKeyPair(NID_SECP384R1); return null;});
+        tasks.add(()-> {testECKeyPairGenOneShotGenKeyPair(NID_SECP521R1); return null;});
         tasks.add(()-> {testECKeyPairGenOneShotGenKeyPair(NID_CURVESM2); return null;});
 
         execTasksParallelly(tasks);

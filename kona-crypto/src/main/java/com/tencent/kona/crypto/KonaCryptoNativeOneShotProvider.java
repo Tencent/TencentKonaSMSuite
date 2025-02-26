@@ -95,6 +95,42 @@ public class KonaCryptoNativeOneShotProvider extends Provider {
     private static void putECEntries(Provider provider) {
         provider.put("KeyPairGenerator.EC",
                 "com.tencent.kona.crypto.provider.nativeImpl.KonaOneShotECKeyPairGenerator");
+        pubECDSAEntries(provider);
+    }
+
+    private static void pubECDSAEntries(Provider provider) {
+        provider.put("Signature.SHA1withECDSA",
+                "com.tencent.kona.crypto.provider.nativeImpl.KonaOneShotECDSASignature$SHA1");
+        provider.put("Alg.Alias.Signature.OID.1.2.840.10045.4.1", "SHA1withECDSA");
+        provider.put("Alg.Alias.Signature.1.2.840.10045.4.1", "SHA1withECDSA");
+
+        provider.put("Signature.SHA224withECDSA",
+                "com.tencent.kona.crypto.provider.nativeImpl.KonaOneShotECDSASignature$SHA224");
+        provider.put("Alg.Alias.Signature.OID.1.2.840.10045.4.3.1", "SHA224withECDSA");
+        provider.put("Alg.Alias.Signature.1.2.840.10045.4.3.1", "SHA224withECDSA");
+
+        provider.put("Signature.SHA256withECDSA",
+                "com.tencent.kona.crypto.provider.nativeImpl.KonaOneShotECDSASignature$SHA256");
+        provider.put("Alg.Alias.Signature.OID.1.2.840.10045.4.3.2", "SHA256withECDSA");
+        provider.put("Alg.Alias.Signature.1.2.840.10045.4.3.2", "SHA256withECDSA");
+
+        provider.put("Signature.SHA384withECDSA",
+                "com.tencent.kona.crypto.provider.nativeImpl.KonaOneShotECDSASignature$SHA384");
+        provider.put("Alg.Alias.Signature.OID.1.2.840.10045.4.3.3", "SHA384withECDSA");
+        provider.put("Alg.Alias.Signature.1.2.840.10045.4.3.3", "SHA384withECDSA");
+
+        provider.put("Signature.SHA512withECDSA",
+                "com.tencent.kona.crypto.provider.nativeImpl.KonaOneShotECDSASignature$SHA512");
+        provider.put("Alg.Alias.Signature.OID.1.2.840.10045.4.3.4", "SHA512withECDSA");
+        provider.put("Alg.Alias.Signature.1.2.840.10045.4.3.4", "SHA512withECDSA");
+
+        String ecKeyClasses = "java.security.interfaces.ECPublicKey" +
+                "|java.security.interfaces.ECPrivateKey";
+        provider.put("Signature.NONEwithECDSA SupportedKeyClasses", ecKeyClasses);
+        provider.put("Signature.SHA224withECDSA SupportedKeyClasses", ecKeyClasses);
+        provider.put("Signature.SHA256withECDSA SupportedKeyClasses", ecKeyClasses);
+        provider.put("Signature.SHA384withECDSA SupportedKeyClasses", ecKeyClasses);
+        provider.put("Signature.SHA512withECDSA SupportedKeyClasses", ecKeyClasses);
     }
 
     public static KonaCryptoNativeOneShotProvider instance() {
