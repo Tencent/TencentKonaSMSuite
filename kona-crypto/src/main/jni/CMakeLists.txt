@@ -31,7 +31,9 @@ set(SOURCES kona_common.c
             kona_sm2_keyagreement.c
             kona_sm3.c
             kona_sm4.c
-            kona_ec_keypair.c)
+            kona_ec.c
+            kona_ec_keypair.c
+            kona_ecdsa.c)
 set(LIB_DIR "${CMAKE_SOURCE_DIR}/../resources")
 
 add_library(KonaCrypto SHARED ${SOURCES})

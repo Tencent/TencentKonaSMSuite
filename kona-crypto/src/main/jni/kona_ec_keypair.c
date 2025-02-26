@@ -28,24 +28,7 @@
 
 #include "kona/kona_common.h"
 #include "kona/kona_jni.h"
-
-EVP_PKEY_CTX* ec_create_pkey_ctx(EVP_PKEY* pkey) {
-    EVP_PKEY_CTX* ctx = NULL;
-
-    if (pkey != NULL) {
-        ctx = EVP_PKEY_CTX_new(pkey, NULL);
-    } else {
-        ctx = EVP_PKEY_CTX_new_id(EVP_PKEY_EC, NULL);
-    }
-
-    if (ctx == NULL) {
-        OPENSSL_print_err();
-
-        return NULL;
-    }
-
-    return ctx;
-}
+#include "kona/kona_ec.h"
 
 JNIEXPORT jobjectArray JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeCrypto_ecOneShotKeyPairGenGenKeyPair
   (JNIEnv* env, jclass classObj, jint curveNID) {
