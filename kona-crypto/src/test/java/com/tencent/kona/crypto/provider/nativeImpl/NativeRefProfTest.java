@@ -341,6 +341,36 @@ public class NativeRefProfTest {
         }
     }
 
+    private static void testECDSASignature(int mdNID, int curveNID)
+            throws Exception {
+        for (int i = 0; i < ITERATIONS; i++) {
+            Object[] keyPair = NativeCrypto.ecOneShotKeyPairGenGenKeyPair(curveNID);
+            byte[] priKey = (byte[]) keyPair[0];
+            byte[] pubKey = (byte[]) keyPair[1];
+
+            NativeECDSASignature signer = new NativeECDSASignature(
+                    mdNID, curveNID, priKey, true);
+            byte[] sig = signer.sign(DATA);
+            signer.close();
+
+            NativeECDSASignature verifier = new NativeECDSASignature(
+                    mdNID, curveNID, pubKey, false);
+            verifier.verify(DATA, sig);
+            verifier.close();
+        }
+    }
+
+    private static void testECDSAOneShotSignature(int mdNID, int curveNID) {
+        for (int i = 0; i < ITERATIONS; i++) {
+            Object[] keyPair = NativeCrypto.ecOneShotKeyPairGenGenKeyPair(curveNID);
+            byte[] priKey = (byte[]) keyPair[0];
+            byte[] pubKey = (byte[]) keyPair[1];
+
+            byte[] sig = NativeCrypto.ecdsaOneShotSign(mdNID, curveNID, priKey, DATA);
+            NativeCrypto.ecdsaOneShotVerify(mdNID, curveNID, pubKey, DATA, sig);
+        }
+    }
+
     public static void main(String[] args) throws Exception {
         List<Callable<Void>> tasks = new ArrayList<>();
 
@@ -382,11 +412,17 @@ public class NativeRefProfTest {
         tasks.add(()-> {testECKeyPairGenGenKeyPair(NID_SECP384R1); return null;});
         tasks.add(()-> {testECKeyPairGenGenKeyPair(NID_SECP521R1); return null;});
         tasks.add(()-> {testECKeyPairGenGenKeyPair(NID_CURVESM2); return null;});
-
         tasks.add(()-> {testECKeyPairGenOneShotGenKeyPair(NID_SECP256R1); return null;});
         tasks.add(()-> {testECKeyPairGenOneShotGenKeyPair(NID_SECP384R1); return null;});
         tasks.add(()-> {testECKeyPairGenOneShotGenKeyPair(NID_SECP521R1); return null;});
         tasks.add(()-> {testECKeyPairGenOneShotGenKeyPair(NID_CURVESM2); return null;});
+
+        tasks.add(()-> {testECDSASignature(NID_SHA256, NID_SECP256R1); return null;});
+        tasks.add(()-> {testECDSASignature(NID_SHA256, NID_SECP384R1); return null;});
+        tasks.add(()-> {testECDSASignature(NID_SHA256, NID_SECP521R1); return null;});
+        tasks.add(()-> {testECDSAOneShotSignature(NID_SHA256, NID_SECP256R1); return null;});
+        tasks.add(()-> {testECDSAOneShotSignature(NID_SHA256, NID_SECP384R1); return null;});
+        tasks.add(()-> {testECDSAOneShotSignature(NID_SHA256, NID_SECP521R1); return null;});
 
         execTasksParallelly(tasks);
     }
