@@ -49,6 +49,13 @@ ECDSA_CTX* ecdsa_create_ctx(int md_nid, EVP_PKEY* pkey, bool is_sign) {
     EVP_MD_CTX_set_pkey_ctx(mctx, pctx);
 
     const EVP_MD* md = EVP_get_digestbynid(md_nid);
+    if (md == NULL) {
+        OPENSSL_print_err();
+        EVP_PKEY_CTX_free(pctx);
+        EVP_MD_CTX_free(mctx);
+        return NULL;
+    }
+
     if (is_sign) {
         if (!EVP_DigestSignInit(mctx, NULL, md, NULL, pkey)) {
             OPENSSL_print_err();
@@ -91,10 +98,14 @@ JNIEXPORT jlong JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeC
 
     int key_len = (*env)->GetArrayLength(env, key);
     if (key_len < (isSign ? PRI_KEY_MIN_LEN : PUB_KEY_MIN_LEN)) {
+        EC_GROUP_free(group);
+
         return OPENSSL_FAILURE;
     }
     jbyte* key_bytes = (*env)->GetByteArrayElements(env, key, NULL);
     if (key_bytes == NULL) {
+        EC_GROUP_free(group);
+
         return OPENSSL_FAILURE;
     }
 
@@ -105,15 +116,17 @@ JNIEXPORT jlong JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeC
         pkey = ec_pub_key(curveNID, (const uint8_t *) key_bytes, key_len);
     }
 
-    if (pkey == NULL) {
-        (*env)->ReleaseByteArrayElements(env, key, key_bytes, JNI_ABORT);
+    (*env)->ReleaseByteArrayElements(env, key, key_bytes, JNI_ABORT);
+    EC_GROUP_free(group);
 
+    if (pkey == NULL) {
         return OPENSSL_FAILURE;
     }
 
     ECDSA_CTX* ctx = ecdsa_create_ctx(mdNID, pkey, isSign);
-
-    (*env)->ReleaseByteArrayElements(env, key, key_bytes, JNI_ABORT);
+    if (ctx == NULL) {
+        return OPENSSL_FAILURE;
+    }
 
     return (jlong)ctx;
 }
@@ -194,7 +207,6 @@ JNIEXPORT jbyteArray JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_Na
 
     size_t sig_len = 0;
     uint8_t* sig_buf = ecdsa_sign(ctx->mctx, (uint8_t*)msg_bytes, msg_len, &sig_len);
-
     (*env)->ReleaseByteArrayElements(env, message, msg_bytes, JNI_ABORT);
 
     if (sig_buf == NULL) {
@@ -209,10 +221,8 @@ JNIEXPORT jbyteArray JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_Na
     }
 
     (*env)->SetByteArrayRegion(env, sig_bytes, 0, sig_len, (jbyte*)sig_buf);
-
     OPENSSL_free(sig_buf);
 
-    // Re-init with the original parameters for the next operation
     if (!EVP_DigestSignInit(ctx->mctx, NULL, NULL, NULL, NULL)) {
         OPENSSL_print_err();
 
@@ -243,7 +253,7 @@ int ecdsa_verify(EVP_MD_CTX* ctx, const uint8_t* msg, size_t msg_len, const uint
 }
 
 JNIEXPORT jint JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeCrypto_ecdsaVerify
-        (JNIEnv* env, jobject thisObj, jlong pointer, jbyteArray message, jbyteArray signature) {
+  (JNIEnv* env, jobject thisObj, jlong pointer, jbyteArray message, jbyteArray signature) {
     ECDSA_CTX* ctx = (ECDSA_CTX*)pointer;
     if (ctx == NULL) {
         return OPENSSL_FAILURE;
@@ -269,7 +279,6 @@ JNIEXPORT jint JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeCr
     (*env)->ReleaseByteArrayElements(env, message, msg_bytes, JNI_ABORT);
     (*env)->ReleaseByteArrayElements(env, signature, sig_bytes, JNI_ABORT);
 
-    // Re-init with the original parameters for the next operation
     if (!EVP_DigestVerifyInit(ctx->mctx, NULL, NULL, NULL, NULL)) {
         OPENSSL_print_err();
 
@@ -291,19 +300,16 @@ JNIEXPORT jbyteArray JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_Na
     }
 
     EVP_PKEY* pkey = ec_pri_key(curveNID, (const uint8_t *) key_bytes, key_len);
+    (*env)->ReleaseByteArrayElements(env, key, key_bytes, JNI_ABORT);
     if (pkey == NULL) {
-        (*env)->ReleaseByteArrayElements(env, key, key_bytes, JNI_ABORT);
         return NULL;
     }
 
     ECDSA_CTX* ctx = ecdsa_create_ctx(mdNID, pkey, true);
     if (ctx == NULL) {
-        (*env)->ReleaseByteArrayElements(env, key, key_bytes, JNI_ABORT);
         EVP_PKEY_free(pkey);
         return NULL;
     }
-
-    (*env)->ReleaseByteArrayElements(env, key, key_bytes, JNI_ABORT);
 
     jsize msg_len = (*env)->GetArrayLength(env, message);
     if (msg_len < 0) {
@@ -318,7 +324,6 @@ JNIEXPORT jbyteArray JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_Na
 
     size_t sig_len = 0;
     uint8_t* sig_buf = ecdsa_sign(ctx->mctx, (uint8_t*)msg_bytes, msg_len, &sig_len);
-
     (*env)->ReleaseByteArrayElements(env, message, msg_bytes, JNI_ABORT);
 
     if (sig_buf == NULL) {
@@ -334,7 +339,6 @@ JNIEXPORT jbyteArray JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_Na
     }
 
     (*env)->SetByteArrayRegion(env, sig_bytes, 0, sig_len, (jbyte*)sig_buf);
-
     OPENSSL_free(sig_buf);
     ECDSA_CTX_free(ctx);
 
@@ -353,19 +357,16 @@ JNIEXPORT jint JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeCr
     }
 
     EVP_PKEY* pkey = ec_pub_key(curveNID, (const uint8_t *) key_bytes, key_len);
+    (*env)->ReleaseByteArrayElements(env, key, key_bytes, JNI_ABORT);
     if (pkey == NULL) {
-        (*env)->ReleaseByteArrayElements(env, key, key_bytes, JNI_ABORT);
         return OPENSSL_FAILURE;
     }
 
     ECDSA_CTX* ctx = ecdsa_create_ctx(mdNID, pkey, false);
     if (ctx == NULL) {
-        (*env)->ReleaseByteArrayElements(env, key, key_bytes, JNI_ABORT);
         EVP_PKEY_free(pkey);
         return OPENSSL_FAILURE;
     }
-
-    (*env)->ReleaseByteArrayElements(env, key, key_bytes, JNI_ABORT);
 
     jsize msg_len = (*env)->GetArrayLength(env, message);
     jbyte* msg_bytes = (*env)->GetByteArrayElements(env, message, NULL);
