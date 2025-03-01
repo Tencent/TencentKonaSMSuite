@@ -23,29 +23,9 @@
 
 package com.tencent.kona.ssl.perf;
 
-import com.tencent.kona.ssl.interop.CertTuple;
-import com.tencent.kona.ssl.interop.CipherSuite;
-import com.tencent.kona.ssl.interop.ContextProtocol;
-import com.tencent.kona.ssl.interop.FileCert;
-import com.tencent.kona.ssl.interop.HashAlgorithm;
-import com.tencent.kona.ssl.interop.KeyAlgorithm;
-import com.tencent.kona.ssl.interop.Protocol;
-import com.tencent.kona.ssl.interop.Provider;
-import com.tencent.kona.ssl.interop.SignatureAlgorithm;
-import com.tencent.kona.ssl.interop.Utilities;
-import org.openjdk.jmh.annotations.Benchmark;
-import org.openjdk.jmh.annotations.BenchmarkMode;
-import org.openjdk.jmh.annotations.Fork;
-import org.openjdk.jmh.annotations.Level;
-import org.openjdk.jmh.annotations.Measurement;
-import org.openjdk.jmh.annotations.Mode;
-import org.openjdk.jmh.annotations.OutputTimeUnit;
-import org.openjdk.jmh.annotations.Param;
-import org.openjdk.jmh.annotations.Scope;
-import org.openjdk.jmh.annotations.Setup;
-import org.openjdk.jmh.annotations.State;
-import org.openjdk.jmh.annotations.Threads;
-import org.openjdk.jmh.annotations.Warmup;
+import com.tencent.kona.ssl.TestUtils;
+import com.tencent.kona.ssl.interop.*;
+import org.openjdk.jmh.annotations.*;
 
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLEngine;
@@ -62,23 +42,25 @@ import java.util.concurrent.TimeUnit;
 @Threads(1)
 @OutputTimeUnit(TimeUnit.SECONDS)
 @State(Scope.Benchmark)
-public class SunJSSETlsHandshakePerfTest {
+public class KonaSSLTlsHandshakeWithSMPerfTest {
 
-    private static final FileCert ECDSA_INTCA_CERT = new FileCert(
-            KeyAlgorithm.EC, SignatureAlgorithm.ECDSA, HashAlgorithm.SHA256,
-            "intca-p256ecdsa-p256ecdsa.crt",
-            "intca-p256ecdsa-p256ecdsa.key");
-    private static final FileCert ECDSA_EE_CERT = new FileCert(
-            KeyAlgorithm.EC, SignatureAlgorithm.ECDSA, HashAlgorithm.SHA256,
-            "ee-p256ecdsa-p256ecdsa-p256ecdsa.crt",
-            "ee-p256ecdsa-p256ecdsa-p256ecdsa.key");
+    private static final FileCert SM_INTCA_CERT = new FileCert(
+            KeyAlgorithm.EC, SignatureAlgorithm.SM2, HashAlgorithm.SM3,
+            "intca-sm2sm2-sm2sm2.crt",
+            "intca-sm2sm2-sm2sm2.key");
+    private static final FileCert SM_EE_CERT = new FileCert(
+            KeyAlgorithm.EC, SignatureAlgorithm.SM2, HashAlgorithm.SM3,
+            "ee-sm2sm2-sm2sm2-sm2sm2.crt",
+            "ee-sm2sm2-sm2sm2-sm2sm2.key");
 
     private static final CertTuple CERT_TUPLE = new CertTuple(
-            ECDSA_INTCA_CERT, ECDSA_EE_CERT);
+            SM_INTCA_CERT, SM_EE_CERT);
 
     static {
-        System.setProperty("com.tencent.kona.ssl.namedGroups", "secp256r1");
-        System.setProperty("com.tencent.kona.ssl.client.signatureSchemes", "ecdsa_secp256r1_sha256");
+        System.setProperty("com.tencent.kona.ssl.namedGroups", "curvesm2");
+        System.setProperty("com.tencent.kona.ssl.client.signatureSchemes", "sm2sig_sm3");
+
+        TestUtils.addProviders();
     }
 
     private SSLContext serverContext;
@@ -103,9 +85,9 @@ public class SunJSSETlsHandshakePerfTest {
 
     @Setup(Level.Trial)
     public void init() throws Exception {
-        serverContext = Utilities.createSSLContext(Provider.JDK,
+        serverContext = Utilities.createSSLContext(Provider.KONA,
                 ContextProtocol.TLS, CERT_TUPLE);
-        clientContext = Utilities.createSSLContext(Provider.JDK,
+        clientContext = Utilities.createSSLContext(Provider.KONA,
                 ContextProtocol.TLS, CERT_TUPLE);
     }
 
@@ -183,7 +165,7 @@ public class SunJSSETlsHandshakePerfTest {
 
         String cipherSuite = null;
         if (Protocol.TLSV1_3.name.equals(protocol)) {
-            cipherSuite = CipherSuite.TLS_AES_128_GCM_SHA256.name();
+            cipherSuite = CipherSuite.TLS_SM4_GCM_SM3.name();
         } else {
             cipherSuite = CipherSuite.TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256.name();
         }
