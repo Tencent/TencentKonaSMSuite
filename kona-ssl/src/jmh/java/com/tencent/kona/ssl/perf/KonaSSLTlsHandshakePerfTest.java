@@ -65,21 +65,21 @@ import java.util.concurrent.TimeUnit;
 @State(Scope.Benchmark)
 public class KonaSSLTlsHandshakePerfTest {
 
-    private static final FileCert SM_INTCA_CERT = new FileCert(
-            KeyAlgorithm.EC, SignatureAlgorithm.SM2, HashAlgorithm.SM3,
-            "intca-sm2sm2-sm2sm2.crt",
-            "intca-sm2sm2-sm2sm2.key");
-    private static final FileCert SM_EE_CERT = new FileCert(
-            KeyAlgorithm.EC, SignatureAlgorithm.SM2, HashAlgorithm.SM3,
-            "ee-sm2sm2-sm2sm2-sm2sm2.crt",
-            "ee-sm2sm2-sm2sm2-sm2sm2.key");
+    private static final FileCert ECDSA_INTCA_CERT = new FileCert(
+            KeyAlgorithm.EC, SignatureAlgorithm.ECDSA, HashAlgorithm.SHA256,
+            "intca-p256ecdsa-p256ecdsa.crt",
+            "intca-p256ecdsa-p256ecdsa.key");
+    private static final FileCert ECDSA_EE_CERT = new FileCert(
+            KeyAlgorithm.EC, SignatureAlgorithm.ECDSA, HashAlgorithm.SHA256,
+            "ee-p256ecdsa-p256ecdsa-p256ecdsa.crt",
+            "ee-p256ecdsa-p256ecdsa-p256ecdsa.key");
 
     private static final CertTuple CERT_TUPLE = new CertTuple(
-            SM_INTCA_CERT, SM_EE_CERT);
+            ECDSA_INTCA_CERT, ECDSA_EE_CERT);
 
     static {
-        System.setProperty("com.tencent.kona.ssl.namedGroups", "curvesm2");
-        System.setProperty("com.tencent.kona.ssl.client.signatureSchemes", "sm2sig_sm3");
+        System.setProperty("com.tencent.kona.ssl.namedGroups", "secp256r1");
+        System.setProperty("com.tencent.kona.ssl.client.signatureSchemes", "ecdsa_secp256r1_sha256");
 
         TestUtils.addProviders();
     }
@@ -186,7 +186,7 @@ public class KonaSSLTlsHandshakePerfTest {
 
         String cipherSuite = null;
         if (Protocol.TLSV1_3.name.equals(protocol)) {
-            cipherSuite = CipherSuite.TLS_SM4_GCM_SM3.name();
+            cipherSuite = CipherSuite.TLS_AES_128_GCM_SHA256.name();
         } else {
             cipherSuite = CipherSuite.TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256.name();
         }
