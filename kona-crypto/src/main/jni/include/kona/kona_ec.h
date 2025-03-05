@@ -29,11 +29,13 @@
 int ec_pri_key_len(const EC_GROUP* group);
 int ec_pub_key_len(const EC_GROUP* group);
 
-EVP_PKEY* ec_pri_key(int curveNID, const uint8_t* pri_key, size_t pri_key_len);
-EVP_PKEY* ec_pub_key(int curveNID, const uint8_t* pub_key, size_t pub_key_len);
+EC_KEY* ec_pri_key_new(int curveNID, const uint8_t* pri_key, size_t pri_key_len);
+EC_KEY* ec_pub_key_new(int curveNID, const uint8_t* pub_key, size_t pub_key_len);
+EC_KEY* ec_key_new(int curveNID, const uint8_t* pri_key, size_t pri_key_len, const uint8_t* pub_key, size_t pub_key_len);
+EVP_PKEY* ec_pkey_new(EC_KEY* ec_key);
 
-BIGNUM* ec_pri_key_bn(const EC_GROUP* group, const uint8_t* pri_key_bytes);
-EC_POINT* ec_pub_key_point(const EC_GROUP* group, const uint8_t* pub_key_bytes, size_t pub_key_len);
+BIGNUM* ec_pri_key_bn_new(const EC_GROUP* group, const uint8_t* pri_key_bytes);
+EC_POINT* ec_pub_key_point_new(const EC_GROUP* group, const uint8_t* pub_key_bytes, size_t pub_key_len);
 
 int ec_check_point_order(const EC_GROUP* group, const EC_POINT *point);
 int ec_validate_point(EC_GROUP* group, EC_POINT *point);
@@ -51,3 +53,13 @@ ECDSA_CTX* ecdsa_create_ctx(int md_nid, EVP_PKEY* pkey, bool is_sign);
 void ECDSA_CTX_free(ECDSA_CTX* ctx);
 uint8_t* ecdsa_sign(EVP_MD_CTX* ctx, const uint8_t* msg, size_t msg_len, size_t* sig_len);
 int ecdsa_verify(EVP_MD_CTX* ctx, const uint8_t* msg, size_t msg_len, const uint8_t* sig, size_t sig_len);
+
+typedef struct {
+    int curve_nid;
+    int key_len;
+    EC_KEY* pri_key;
+} ECDH_CTX;
+
+ECDH_CTX* ecdh_create_ctx(int curve_nid, EC_KEY* pri_key);
+ECDH_CTX* ecdh_ctx_free(ECDH_CTX* ctx);
+uint8_t* ecdh_derive(ECDH_CTX* ctx, const EC_POINT* peer_pub_point);

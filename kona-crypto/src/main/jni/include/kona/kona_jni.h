@@ -443,6 +443,38 @@ JNIEXPORT jbyteArray JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_Na
 JNIEXPORT jint JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeCrypto_ecdsaOneShotVerify
   (JNIEnv *, jclass, jint, jint, jbyteArray, jbyteArray, jbyteArray);
 
+/*
+ * Class:     com_tencent_kona_crypto_provider_nativeImpl_NativeCrypto
+ * Method:    ecdhCreateCtx
+ * Signature: (I[B)J
+ */
+JNIEXPORT jlong JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeCrypto_ecdhCreateCtx
+  (JNIEnv *, jclass, jint, jbyteArray);
+
+/*
+ * Class:     com_tencent_kona_crypto_provider_nativeImpl_NativeCrypto
+ * Method:    ecdhFreeCtx
+ * Signature: (J)V
+ */
+JNIEXPORT void JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeCrypto_ecdhFreeCtx
+  (JNIEnv *, jclass, jlong);
+
+/*
+ * Class:     com_tencent_kona_crypto_provider_nativeImpl_NativeCrypto
+ * Method:    ecdhDeriveKey
+ * Signature: (J[B)[B
+ */
+JNIEXPORT jbyteArray JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeCrypto_ecdhDeriveKey
+  (JNIEnv *, jclass, jlong, jbyteArray);
+
+/*
+ * Class:     com_tencent_kona_crypto_provider_nativeImpl_NativeCrypto
+ * Method:    ecdhOneShotDeriveKey
+ * Signature: (I[B[B)[B
+ */
+JNIEXPORT jbyteArray JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeCrypto_ecdhOneShotDeriveKey
+  (JNIEnv *, jclass, jint, jbyteArray, jbyteArray);
+
 #ifdef __cplusplus
 }
 #endif

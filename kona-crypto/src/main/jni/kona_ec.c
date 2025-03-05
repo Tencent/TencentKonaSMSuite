@@ -38,7 +38,7 @@ int ec_pub_key_len(const EC_GROUP* group) {
     return 1 + ec_pri_key_len(group) * 2;
 }
 
-EVP_PKEY* ec_pri_key(int curveNID, const uint8_t* pri_key, size_t pri_key_len) {
+EC_KEY* ec_pri_key_new(int curveNID, const uint8_t* pri_key, size_t pri_key_len) {
     EC_KEY *ec_key = EC_KEY_new_by_curve_name(curveNID);
     if (!ec_key) return NULL;
 
@@ -49,44 +49,91 @@ EVP_PKEY* ec_pri_key(int curveNID, const uint8_t* pri_key, size_t pri_key_len) {
         return NULL;
     }
 
-    EVP_PKEY *pkey = EVP_PKEY_new();
-    if (!pkey || !EVP_PKEY_assign_EC_KEY(pkey, ec_key)) {
-        EC_KEY_free(ec_key);
-        EVP_PKEY_free(pkey);
-        BN_free(pri_key_bn);
-        return NULL;
-    }
-
     BN_free(pri_key_bn);
-    return pkey;
+    return ec_key;
 }
 
-EVP_PKEY* ec_pub_key(int curveNID, const uint8_t* pub_key, size_t pub_key_len) {
+EC_KEY* ec_pub_key_new(int curveNID, const uint8_t* pub_key, size_t pub_key_len) {
     EC_KEY *ec_key = EC_KEY_new_by_curve_name(curveNID);
     if (!ec_key) return NULL;
 
     const EC_GROUP *group = EC_KEY_get0_group(ec_key);
-    EC_POINT *pub_point = EC_POINT_new(group);
-    if (!pub_point || !EC_POINT_oct2point(group, pub_point, pub_key, pub_key_len, NULL)
-            || !EC_KEY_set_public_key(ec_key, pub_point)) {
+    if (!group) {
         EC_KEY_free(ec_key);
-        EC_POINT_free(pub_point);
         return NULL;
     }
 
-    EVP_PKEY *pkey = EVP_PKEY_new();
-    if (!pkey || !EVP_PKEY_assign_EC_KEY(pkey, ec_key)) {
+    EC_POINT *pub_point = EC_POINT_new(group);
+    if (!pub_point) {
         EC_KEY_free(ec_key);
-        EVP_PKEY_free(pkey);
+        return NULL;
+    }
+
+    if (!EC_POINT_oct2point(group, pub_point, pub_key, pub_key_len, NULL) ||
+        !EC_KEY_set_public_key(ec_key, pub_point)) {
+        EC_KEY_free(ec_key);
         EC_POINT_free(pub_point);
         return NULL;
     }
 
     EC_POINT_free(pub_point);
+    return ec_key;
+}
+
+EC_KEY* ec_key_new(int curveNID,
+                   const uint8_t* pri_key, size_t pri_key_len,
+                   const uint8_t* pub_key, size_t pub_key_len) {
+    EC_KEY* ec_key = EC_KEY_new_by_curve_name(curveNID);
+    if (!ec_key) return NULL;
+
+    BIGNUM* pri_key_bn = BN_bin2bn(pri_key, pri_key_len, NULL);
+    if (!pri_key_bn || !EC_KEY_set_private_key(ec_key, pri_key_bn)) {
+        EC_KEY_free(ec_key);
+        BN_free(pri_key_bn);
+        return NULL;
+    }
+
+    BN_free(pri_key_bn);
+
+    const EC_GROUP* group = EC_KEY_get0_group(ec_key);
+    if (!group) {
+        EC_KEY_free(ec_key);
+        return NULL;
+    }
+
+    EC_POINT* pub_point = EC_POINT_new(group);
+    if (!pub_point) {
+        EC_KEY_free(ec_key);
+        return NULL;
+    }
+
+    if (!EC_POINT_oct2point(group, pub_point, pub_key, pub_key_len, NULL) ||
+        !EC_KEY_set_public_key(ec_key, pub_point)) {
+        EC_KEY_free(ec_key);
+        EC_POINT_free(pub_point);
+        return NULL;
+    }
+
+    EC_POINT_free(pub_point);
+
+    return ec_key;
+}
+
+EVP_PKEY* ec_pkey_new(EC_KEY* ec_key) {
+    EVP_PKEY *pkey = EVP_PKEY_new();
+    if (!pkey) {
+        return NULL;
+    }
+
+    if (!EVP_PKEY_assign_EC_KEY(pkey, ec_key)) {
+        EVP_PKEY_free(pkey);
+        return NULL;
+    }
+
     return pkey;
 }
 
-BIGNUM* ec_pri_key_bn(const EC_GROUP* group, const uint8_t* pri_key_bytes) {
+BIGNUM* ec_pri_key_bn_new(const EC_GROUP* group, const uint8_t* pri_key_bytes) {
     int pri_key_len = ec_pri_key_len(group);
     if (pri_key_len == OPENSSL_FAILURE) {
         return NULL;
@@ -106,7 +153,7 @@ BIGNUM* ec_pri_key_bn(const EC_GROUP* group, const uint8_t* pri_key_bytes) {
     return pri_key;
 }
 
-EC_POINT* ec_pub_key_point(const EC_GROUP* group, const uint8_t* pub_key_bytes, const size_t pub_key_len) {
+EC_POINT* ec_pub_key_point_new(const EC_GROUP* group, const uint8_t* pub_key_bytes, size_t pub_key_len) {
     EC_POINT* pub_point = EC_POINT_new(group);
     if (pub_point == NULL) {
         return NULL;

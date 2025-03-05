@@ -95,10 +95,10 @@ public class KonaCryptoNativeProvider extends Provider {
     private static void putECEntries(Provider provider) {
         provider.put("KeyPairGenerator.EC",
                 "com.tencent.kona.crypto.provider.nativeImpl.KonaECKeyPairGenerator");
-        pubECDSAEntries(provider);
+        putECDSAEntries(provider);
     }
 
-    private static void pubECDSAEntries(Provider provider) {
+    private static void putECDSAEntries(Provider provider) {
         provider.put("Signature.SHA1withECDSA",
                 "com.tencent.kona.crypto.provider.nativeImpl.KonaECDSASignature$SHA1");
         provider.put("Alg.Alias.Signature.OID.1.2.840.10045.4.1", "SHA1withECDSA");
@@ -131,6 +131,9 @@ public class KonaCryptoNativeProvider extends Provider {
         provider.put("Signature.SHA256withECDSA SupportedKeyClasses", ecKeyClasses);
         provider.put("Signature.SHA384withECDSA SupportedKeyClasses", ecKeyClasses);
         provider.put("Signature.SHA512withECDSA SupportedKeyClasses", ecKeyClasses);
+
+        provider.put("KeyAgreement.ECDH", "com.tencent.kona.crypto.provider.nativeImpl.KonaECDHKeyAgreement");
+        provider.put("KeyAgreement.ECDH SupportedKeyClasses", ecKeyClasses);
     }
 
     public static KonaCryptoNativeProvider instance() {
