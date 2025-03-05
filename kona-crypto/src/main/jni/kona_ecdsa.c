@@ -109,17 +109,20 @@ JNIEXPORT jlong JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeC
         return OPENSSL_FAILURE;
     }
 
-    EVP_PKEY* pkey = NULL;
+    EC_KEY* ec_key = NULL;
     if (isSign) {
-        pkey = ec_pri_key(curveNID, (const uint8_t *) key_bytes, key_len);
+        ec_key = ec_pri_key_new(curveNID, (const uint8_t *) key_bytes, key_len);
     } else {
-        pkey = ec_pub_key(curveNID, (const uint8_t *) key_bytes, key_len);
+        ec_key = ec_pub_key_new(curveNID, (const uint8_t *) key_bytes, key_len);
     }
 
     (*env)->ReleaseByteArrayElements(env, key, key_bytes, JNI_ABORT);
     EC_GROUP_free(group);
 
+    EVP_PKEY* pkey = ec_pkey_new(ec_key);
     if (pkey == NULL) {
+        EC_KEY_free(ec_key);
+
         return OPENSSL_FAILURE;
     }
 
@@ -299,15 +302,25 @@ JNIEXPORT jbyteArray JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_Na
         return NULL;
     }
 
-    EVP_PKEY* pkey = ec_pri_key(curveNID, (const uint8_t *) key_bytes, key_len);
+    EC_KEY* ec_key = ec_pri_key_new(curveNID, (const uint8_t *) key_bytes,
+                                    key_len);
     (*env)->ReleaseByteArrayElements(env, key, key_bytes, JNI_ABORT);
+    if (ec_key == NULL) {
+        return NULL;
+    }
+
+    EVP_PKEY* pkey = ec_pkey_new(ec_key);
     if (pkey == NULL) {
+        EC_KEY_free(ec_key);
+
         return NULL;
     }
 
     ECDSA_CTX* ctx = ecdsa_create_ctx(mdNID, pkey, true);
     if (ctx == NULL) {
+        EC_KEY_free(ec_key);
         EVP_PKEY_free(pkey);
+
         return NULL;
     }
 
@@ -356,9 +369,17 @@ JNIEXPORT jint JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeCr
         return OPENSSL_FAILURE;
     }
 
-    EVP_PKEY* pkey = ec_pub_key(curveNID, (const uint8_t *) key_bytes, key_len);
+    EC_KEY* ec_key = ec_pub_key_new(curveNID, (const uint8_t *) key_bytes,
+                                    key_len);
     (*env)->ReleaseByteArrayElements(env, key, key_bytes, JNI_ABORT);
+    if (ec_key == NULL) {
+        return OPENSSL_FAILURE;
+    }
+
+    EVP_PKEY* pkey = ec_pkey_new(ec_key);
     if (pkey == NULL) {
+        EC_KEY_free(ec_key);
+
         return OPENSSL_FAILURE;
     }
 

@@ -20,6 +20,7 @@
 package com.tencent.kona.crypto.provider.nativeImpl;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.*;
 
@@ -371,6 +372,44 @@ public class NativeRefProfTest {
         }
     }
 
+    private static void testECDHKeyAgreementDeriveKey(int curveNID) {
+        for (int i = 0; i < ITERATIONS; i++) {
+            Object[] keyPair = NativeCrypto.ecOneShotKeyPairGenGenKeyPair(curveNID);
+            byte[] priKey = (byte[]) keyPair[0];
+            byte[] pubKey = (byte[]) keyPair[1];
+
+            Object[] peerKeyPair = NativeCrypto.ecOneShotKeyPairGenGenKeyPair(curveNID);
+            byte[] peerPriKey = (byte[]) peerKeyPair[0];
+            byte[] peerPubKey = (byte[]) peerKeyPair[1];
+
+            NativeECDHKeyAgreement ka = new NativeECDHKeyAgreement(curveNID, priKey);
+            byte[] sharedKey = ka.deriveKey(peerPubKey);
+            ka.close();
+
+            NativeECDHKeyAgreement peerKA = new NativeECDHKeyAgreement(curveNID, peerPriKey);
+            byte[] peerSharedKey = peerKA.deriveKey(pubKey);
+            peerKA.close();
+
+            assert Arrays.equals(sharedKey, peerSharedKey);
+        }
+    }
+
+    private static void testECDHKeyAgreementOneShotDeriveKey(int curveNID) {
+        for (int i = 0; i < ITERATIONS; i++) {
+            Object[] keyPair = NativeCrypto.ecOneShotKeyPairGenGenKeyPair(curveNID);
+            byte[] priKey = (byte[]) keyPair[0];
+            byte[] pubKey = (byte[]) keyPair[1];
+
+            Object[] peerKeyPair = NativeCrypto.ecOneShotKeyPairGenGenKeyPair(curveNID);
+            byte[] peerPriKey = (byte[]) peerKeyPair[0];
+            byte[] peerPubKey = (byte[]) peerKeyPair[1];
+
+            byte[] sharedKey = NativeCrypto.ecdhOneShotDeriveKey(curveNID, priKey, peerPubKey);
+            byte[] peerSharedKey = NativeCrypto.ecdhOneShotDeriveKey(curveNID, peerPriKey, pubKey);
+            assert Arrays.equals(sharedKey, peerSharedKey);
+        }
+    }
+
     public static void main(String[] args) throws Exception {
         List<Callable<Void>> tasks = new ArrayList<>();
 
@@ -423,6 +462,14 @@ public class NativeRefProfTest {
         tasks.add(()-> {testECDSAOneShotSignature(NID_SHA256, NID_SECP256R1); return null;});
         tasks.add(()-> {testECDSAOneShotSignature(NID_SHA256, NID_SECP384R1); return null;});
         tasks.add(()-> {testECDSAOneShotSignature(NID_SHA256, NID_SECP521R1); return null;});
+
+        tasks.add(()-> {testECDHKeyAgreementDeriveKey(NID_SECP256R1); return null;});
+        tasks.add(()-> {testECDHKeyAgreementDeriveKey(NID_SECP384R1); return null;});
+        tasks.add(()-> {testECDHKeyAgreementDeriveKey(NID_SECP521R1); return null;});
+        tasks.add(()-> {testECDHKeyAgreementDeriveKey(NID_CURVESM2); return null;});
+        tasks.add(()-> {testECDHKeyAgreementOneShotDeriveKey(NID_SECP256R1); return null;});
+        tasks.add(()-> {testECDHKeyAgreementOneShotDeriveKey(NID_SECP384R1); return null;});
+        tasks.add(()-> {testECDHKeyAgreementOneShotDeriveKey(NID_CURVESM2); return null;});
 
         execTasksParallelly(tasks);
     }

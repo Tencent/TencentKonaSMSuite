@@ -237,4 +237,9 @@ final class NativeCrypto {
     static native int    ecdsaVerify(long pointer, byte[] message, byte[] signature);
     static native byte[] ecdsaOneShotSign(int mdNID, int curveNID, byte[] key, byte[] message);
     static native int    ecdsaOneShotVerify(int mdNID, int curveNID, byte[] key, byte[] message, byte[] signature);
+
+    static native long   ecdhCreateCtx(int curveNID, byte[] priKey);
+    static native void   ecdhFreeCtx(long pointer);
+    static native byte[] ecdhDeriveKey(long pointer, byte[] peerPubKey);
+    static native byte[] ecdhOneShotDeriveKey(int curveNID, byte[] priKey, byte[] peerPubKey);
 }
