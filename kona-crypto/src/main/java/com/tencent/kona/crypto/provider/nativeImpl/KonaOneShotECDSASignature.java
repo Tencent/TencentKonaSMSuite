@@ -463,7 +463,7 @@ abstract class KonaOneShotECDSASignature extends SignatureSpi {
         byte[] publicKey = ECUtil.encodePoint(w, params.getCurve());
 
         byte[] sig;
-        if (p1363Format) {
+        if (!p1363Format) {
             sig = signature;
         } else {
             sig = ECUtil.decodeSignature(signature);
