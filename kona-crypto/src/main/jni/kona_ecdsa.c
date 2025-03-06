@@ -30,61 +30,31 @@
 #include "kona/kona_common.h"
 #include "kona/kona_ec.h"
 
-ECDSA_CTX* ecdsa_create_ctx(int md_nid, EVP_PKEY* pkey, bool is_sign) {
-    EVP_PKEY_CTX* pctx = EVP_PKEY_CTX_new(pkey, NULL);
-    if (pctx == NULL) {
-        OPENSSL_print_err();
-
-        return NULL;
-    }
-
+ECDSA_CTX* ecdsa_create_ctx(int md_nid, EC_KEY* key) {
     EVP_MD_CTX* mctx = EVP_MD_CTX_new();
     if (mctx == NULL) {
         OPENSSL_print_err();
-        EVP_PKEY_CTX_free(pctx);
 
         return NULL;
     }
-
-    EVP_MD_CTX_set_pkey_ctx(mctx, pctx);
 
     const EVP_MD* md = EVP_get_digestbynid(md_nid);
     if (md == NULL) {
         OPENSSL_print_err();
-        EVP_PKEY_CTX_free(pctx);
         EVP_MD_CTX_free(mctx);
         return NULL;
     }
-
-    if (is_sign) {
-        if (!EVP_DigestSignInit(mctx, NULL, md, NULL, pkey)) {
-            OPENSSL_print_err();
-            EVP_PKEY_CTX_free(pctx);
-            EVP_MD_CTX_free(mctx);
-
-            return NULL;
-        }
-    } else {
-        if (!EVP_DigestVerifyInit(mctx, NULL, md, NULL, pkey)) {
-            OPENSSL_print_err();
-            EVP_PKEY_CTX_free(pctx);
-            EVP_MD_CTX_free(mctx);
-
-            return NULL;
-        }
-    }
+    EVP_DigestInit_ex(mctx, md, NULL);
 
     ECDSA_CTX* ctx = OPENSSL_malloc(sizeof(ECDSA_CTX));
     if (ctx == NULL) {
         OPENSSL_print_err();
-        EVP_PKEY_CTX_free(pctx);
         EVP_MD_CTX_free(mctx);
         return NULL;
     }
 
-    ctx->pkey = pkey;
-    ctx->pctx = pctx;
     ctx->mctx = mctx;
+    ctx->key = key;
 
     return ctx;
 }
@@ -119,14 +89,7 @@ JNIEXPORT jlong JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeC
     (*env)->ReleaseByteArrayElements(env, key, key_bytes, JNI_ABORT);
     EC_GROUP_free(group);
 
-    EVP_PKEY* pkey = ec_pkey_new(ec_key);
-    if (pkey == NULL) {
-        EC_KEY_free(ec_key);
-
-        return OPENSSL_FAILURE;
-    }
-
-    ECDSA_CTX* ctx = ecdsa_create_ctx(mdNID, pkey, isSign);
+    ECDSA_CTX* ctx = ecdsa_create_ctx(mdNID, ec_key);
     if (ctx == NULL) {
         return OPENSSL_FAILURE;
     }
@@ -140,13 +103,9 @@ void ECDSA_CTX_free(ECDSA_CTX* ctx) {
             EVP_MD_CTX_free(ctx->mctx);
             ctx->mctx = NULL;
         }
-        if (ctx->pctx != NULL) {
-            EVP_PKEY_CTX_free(ctx->pctx);
-            ctx->pctx = NULL;
-        }
-        if (ctx->pkey != NULL) {
-            EVP_PKEY_free(ctx->pkey);
-            ctx->pkey = NULL;
+        if (ctx->key != NULL) {
+            EC_KEY_free(ctx->key);
+            ctx->key = NULL;
         }
 
         OPENSSL_free(ctx);
@@ -158,34 +117,32 @@ JNIEXPORT void JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeCr
     ECDSA_CTX_free((ECDSA_CTX*)pointer);
 }
 
-uint8_t* ecdsa_sign(EVP_MD_CTX* ctx, const uint8_t* msg, size_t msg_len, size_t* sig_len) {
+uint8_t* ecdsa_sign(ECDSA_CTX* ctx, const uint8_t* msg, size_t msg_len, size_t* sig_len) {
     if (ctx == NULL || msg == NULL || sig_len == NULL) {
         return NULL;
     }
 
-    if (!EVP_DigestSignUpdate(ctx, msg, msg_len)) {
-        OPENSSL_print_err();
+    unsigned char digest[EVP_MAX_MD_SIZE];
+    unsigned int digest_len;
+    if (!EVP_DigestUpdate(ctx->mctx, msg, msg_len)) {
+        return NULL;
+    }
+    if (!EVP_DigestFinal_ex(ctx->mctx, digest, &digest_len)) {
+        return NULL;
+    }
+    EVP_DigestInit_ex(ctx->mctx, NULL, NULL);
 
+    ECDSA_SIG* signature = ECDSA_do_sign(digest, digest_len, ctx->key);
+    if (signature == NULL) {
         return NULL;
     }
 
-    if (!EVP_DigestSignFinal(ctx, NULL, sig_len)) {
-        OPENSSL_print_err();
+    uint8_t* sig_buf = NULL;
+    *sig_len = i2d_ECDSA_SIG(signature, &sig_buf);
+    ECDSA_SIG_free(signature);
 
-        return NULL;
-    }
-
-    uint8_t* sig_buf = (uint8_t*)OPENSSL_malloc(*sig_len);
-    if (sig_buf == NULL) {
-        OPENSSL_print_err();
-
-        return NULL;
-    }
-
-    if (!EVP_DigestSignFinal(ctx, sig_buf, sig_len)) {
-        OPENSSL_print_err();
+    if (*sig_len <= 0) {
         OPENSSL_free(sig_buf);
-
         return NULL;
     }
 
@@ -209,7 +166,7 @@ JNIEXPORT jbyteArray JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_Na
     }
 
     size_t sig_len = 0;
-    uint8_t* sig_buf = ecdsa_sign(ctx->mctx, (uint8_t*)msg_bytes, msg_len, &sig_len);
+    uint8_t* sig_buf = ecdsa_sign(ctx, (uint8_t*)msg_bytes, msg_len, &sig_len);
     (*env)->ReleaseByteArrayElements(env, message, msg_bytes, JNI_ABORT);
 
     if (sig_buf == NULL) {
@@ -226,33 +183,34 @@ JNIEXPORT jbyteArray JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_Na
     (*env)->SetByteArrayRegion(env, sig_bytes, 0, sig_len, (jbyte*)sig_buf);
     OPENSSL_free(sig_buf);
 
-    if (!EVP_DigestSignInit(ctx->mctx, NULL, NULL, NULL, NULL)) {
-        OPENSSL_print_err();
-
-        return NULL;
-    }
-
     return sig_bytes;
 }
 
-int ecdsa_verify(EVP_MD_CTX* ctx, const uint8_t* msg, size_t msg_len, const uint8_t* sig, size_t sig_len) {
-    if (ctx == NULL) {
+int ecdsa_verify(ECDSA_CTX* ctx, const uint8_t* msg, size_t msg_len, const uint8_t* sig, size_t sig_len) {
+    if (ctx == NULL || msg == NULL || sig == NULL) {
         return OPENSSL_FAILURE;
     }
 
-    if (!EVP_DigestVerifyUpdate(ctx, msg, msg_len)) {
-        OPENSSL_print_err();
+    unsigned char digest[EVP_MAX_MD_SIZE];
+    unsigned int digest_len;
+    if (!EVP_DigestUpdate(ctx->mctx, msg, msg_len)) {
+        return OPENSSL_FAILURE;
+    }
+    if (!EVP_DigestFinal_ex(ctx->mctx, digest, &digest_len)) {
+        return OPENSSL_FAILURE;
+    }
+    EVP_DigestInit_ex(ctx->mctx, NULL, NULL);
 
+    const unsigned char* p = sig;
+    ECDSA_SIG* signature = d2i_ECDSA_SIG(NULL, &p, sig_len);
+    if (signature == NULL) {
         return OPENSSL_FAILURE;
     }
 
-    if (!EVP_DigestVerifyFinal(ctx, sig, sig_len)) {
-        OPENSSL_print_err();
+    int verify_status = ECDSA_do_verify(digest, digest_len, signature, ctx->key);
+    ECDSA_SIG_free(signature);
 
-        return OPENSSL_FAILURE;
-    }
-
-    return OPENSSL_SUCCESS;
+    return verify_status;
 }
 
 JNIEXPORT jint JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeCrypto_ecdsaVerify
@@ -276,17 +234,11 @@ JNIEXPORT jint JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeCr
         return OPENSSL_FAILURE;
     }
 
-    int verified = ecdsa_verify(ctx->mctx, (uint8_t*)msg_bytes, msg_len, (uint8_t*)sig_bytes, sig_len)
+    int verified = ecdsa_verify(ctx, (uint8_t*)msg_bytes, msg_len, (uint8_t*)sig_bytes, sig_len)
                    ? OPENSSL_SUCCESS : OPENSSL_FAILURE;
 
     (*env)->ReleaseByteArrayElements(env, message, msg_bytes, JNI_ABORT);
     (*env)->ReleaseByteArrayElements(env, signature, sig_bytes, JNI_ABORT);
-
-    if (!EVP_DigestVerifyInit(ctx->mctx, NULL, NULL, NULL, NULL)) {
-        OPENSSL_print_err();
-
-        return OPENSSL_FAILURE;
-    }
 
     return verified;
 }
@@ -302,24 +254,15 @@ JNIEXPORT jbyteArray JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_Na
         return NULL;
     }
 
-    EC_KEY* ec_key = ec_pri_key_new(curveNID, (const uint8_t *) key_bytes,
-                                    key_len);
+    EC_KEY* ec_key = ec_pri_key_new(curveNID, (const uint8_t *) key_bytes, key_len);
     (*env)->ReleaseByteArrayElements(env, key, key_bytes, JNI_ABORT);
     if (ec_key == NULL) {
         return NULL;
     }
 
-    EVP_PKEY* pkey = ec_pkey_new(ec_key);
-    if (pkey == NULL) {
-        EC_KEY_free(ec_key);
-
-        return NULL;
-    }
-
-    ECDSA_CTX* ctx = ecdsa_create_ctx(mdNID, pkey, true);
+    ECDSA_CTX* ctx = ecdsa_create_ctx(mdNID, ec_key);
     if (ctx == NULL) {
         EC_KEY_free(ec_key);
-        EVP_PKEY_free(pkey);
 
         return NULL;
     }
@@ -336,7 +279,7 @@ JNIEXPORT jbyteArray JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_Na
     }
 
     size_t sig_len = 0;
-    uint8_t* sig_buf = ecdsa_sign(ctx->mctx, (uint8_t*)msg_bytes, msg_len, &sig_len);
+    uint8_t* sig_buf = ecdsa_sign(ctx, (uint8_t*)msg_bytes, msg_len, &sig_len);
     (*env)->ReleaseByteArrayElements(env, message, msg_bytes, JNI_ABORT);
 
     if (sig_buf == NULL) {
@@ -369,23 +312,15 @@ JNIEXPORT jint JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeCr
         return OPENSSL_FAILURE;
     }
 
-    EC_KEY* ec_key = ec_pub_key_new(curveNID, (const uint8_t *) key_bytes,
-                                    key_len);
+    EC_KEY* ec_key = ec_pub_key_new(curveNID, (const uint8_t *) key_bytes, key_len);
     (*env)->ReleaseByteArrayElements(env, key, key_bytes, JNI_ABORT);
     if (ec_key == NULL) {
         return OPENSSL_FAILURE;
     }
 
-    EVP_PKEY* pkey = ec_pkey_new(ec_key);
-    if (pkey == NULL) {
-        EC_KEY_free(ec_key);
-
-        return OPENSSL_FAILURE;
-    }
-
-    ECDSA_CTX* ctx = ecdsa_create_ctx(mdNID, pkey, false);
+    ECDSA_CTX* ctx = ecdsa_create_ctx(mdNID, ec_key);
     if (ctx == NULL) {
-        EVP_PKEY_free(pkey);
+        EC_KEY_free(ec_key);
         return OPENSSL_FAILURE;
     }
 
@@ -404,7 +339,7 @@ JNIEXPORT jint JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeCr
         return OPENSSL_FAILURE;
     }
 
-    int verified = ecdsa_verify(ctx->mctx, (uint8_t*)msg_bytes, msg_len, (uint8_t*)sig_bytes, sig_len)
+    int verified = ecdsa_verify(ctx, (uint8_t*)msg_bytes, msg_len, (uint8_t*)sig_bytes, sig_len)
                    ? OPENSSL_SUCCESS : OPENSSL_FAILURE;
 
     (*env)->ReleaseByteArrayElements(env, message, msg_bytes, JNI_ABORT);

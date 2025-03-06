@@ -47,6 +47,9 @@ public class NativeECDSASignatureTest {
         checkECDSASignature(NID_SHA256, NID_SECP521R1);
         checkECDSASignature(NID_SHA384, NID_SECP521R1);
         checkECDSASignature(NID_SHA512, NID_SECP521R1);
+        checkECDSASignature(NID_SHA256, NID_CURVESM2);
+        checkECDSASignature(NID_SHA384, NID_CURVESM2);
+        checkECDSASignature(NID_SHA512, NID_CURVESM2);
     }
 
     private void checkECDSASignature(int mdNID, int curveNID) {
@@ -75,6 +78,9 @@ public class NativeECDSASignatureTest {
         checkOneShotECDSASignature(NID_SHA256, NID_SECP521R1);
         checkOneShotECDSASignature(NID_SHA384, NID_SECP521R1);
         checkOneShotECDSASignature(NID_SHA512, NID_SECP521R1);
+        checkOneShotECDSASignature(NID_SHA256, NID_CURVESM2);
+        checkOneShotECDSASignature(NID_SHA384, NID_CURVESM2);
+        checkOneShotECDSASignature(NID_SHA512, NID_CURVESM2);
     }
 
     private void checkOneShotECDSASignature(int mdNID, int curveNID) {

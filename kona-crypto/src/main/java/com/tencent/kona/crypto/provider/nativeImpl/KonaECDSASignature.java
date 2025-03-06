@@ -481,7 +481,7 @@ abstract class KonaECDSASignature extends SignatureSpi {
         }
 
         byte[] sig;
-        if (p1363Format) {
+        if (!p1363Format) {
             sig = signature;
         } else {
             sig = ECUtil.decodeSignature(signature);

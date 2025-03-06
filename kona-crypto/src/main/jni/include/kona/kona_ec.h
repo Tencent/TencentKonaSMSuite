@@ -44,15 +44,14 @@ EVP_PKEY_CTX* ec_create_pkey_ctx(EVP_PKEY* pkey);
 uint8_t* ec_gen_key_pair(const EC_GROUP* group, EVP_PKEY_CTX* ctx, size_t* key_pair_len);
 
 typedef struct {
-    EVP_PKEY* pkey;
-    EVP_PKEY_CTX* pctx;
     EVP_MD_CTX* mctx;
+    EC_KEY* key; // private key or public key
 } ECDSA_CTX;
 
-ECDSA_CTX* ecdsa_create_ctx(int md_nid, EVP_PKEY* pkey, bool is_sign);
+ECDSA_CTX* ecdsa_create_ctx(int md_nid, EC_KEY* key);
 void ECDSA_CTX_free(ECDSA_CTX* ctx);
-uint8_t* ecdsa_sign(EVP_MD_CTX* ctx, const uint8_t* msg, size_t msg_len, size_t* sig_len);
-int ecdsa_verify(EVP_MD_CTX* ctx, const uint8_t* msg, size_t msg_len, const uint8_t* sig, size_t sig_len);
+uint8_t* ecdsa_sign(ECDSA_CTX* ctx, const uint8_t* msg, size_t msg_len, size_t* sig_len);
+int ecdsa_verify(ECDSA_CTX* ctx, const uint8_t* msg, size_t msg_len, const uint8_t* sig, size_t sig_len);
 
 typedef struct {
     int curve_nid;
