@@ -71,6 +71,9 @@ public class TlsHandshakeProfTest {
     private ByteBuffer sTOc = ByteBuffer.allocateDirect(1 << 16);
 
     static {
+        System.setProperty("com.tencent.kona.ssl.namedGroups", "secp256r1");
+        System.setProperty("com.tencent.kona.ssl.client.signatureSchemes", "ecdsa_secp256r1_sha256");
+
         TestUtils.addProviders();
     }
 
@@ -82,7 +85,7 @@ public class TlsHandshakeProfTest {
         TlsHandshakeProfTest test = new TlsHandshakeProfTest();
         test.init();
 
-        for (int i = 0; i < 100; i++) {
+        for (int i = 0; i < 1_000_000_000; i++) {
             test.doHandshake();
         }
     }
