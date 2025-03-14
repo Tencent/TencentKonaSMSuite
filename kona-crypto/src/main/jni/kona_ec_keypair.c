@@ -17,6 +17,9 @@
  * Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+// Need to use the deprecated lower EC functions
+#define OPENSSL_SUPPRESS_DEPRECATED
+
 #include <stdio.h>
 
 #include <jni.h>

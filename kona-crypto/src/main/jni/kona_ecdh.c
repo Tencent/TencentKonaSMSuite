@@ -17,6 +17,9 @@
  * Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+// Need to use the deprecated lower EC functions
+#define OPENSSL_SUPPRESS_DEPRECATED
+
 #include <stdbool.h>
 #include <string.h>
 
@@ -48,7 +51,7 @@ ECDH_CTX* ecdh_create_ctx(int curve_nid, EC_KEY* pri_key) {
     return ctx;
 }
 
-ECDH_CTX* ecdh_ctx_free(ECDH_CTX* ctx) {
+void ecdh_ctx_free(ECDH_CTX* ctx) {
     if (ctx != NULL) {
         if (ctx->pri_key != NULL) {
             EC_KEY_free(ctx->pri_key);
