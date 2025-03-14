@@ -60,5 +60,5 @@ typedef struct {
 } ECDH_CTX;
 
 ECDH_CTX* ecdh_create_ctx(int curve_nid, EC_KEY* pri_key);
-ECDH_CTX* ecdh_ctx_free(ECDH_CTX* ctx);
+void ecdh_ctx_free(ECDH_CTX* ctx);
 uint8_t* ecdh_derive(ECDH_CTX* ctx, const EC_POINT* peer_pub_point);
