@@ -56,6 +56,7 @@ public class KonaECKeyPairGeneratorTest {
         testKeyPairGen("secp256r1", ECOperator.SECP256R1);
         testKeyPairGen("secp384r1", ECOperator.SECP384R1);
         testKeyPairGen("secp521r1", ECOperator.SECP521R1);
+        testKeyPairGen("curvesm2", ECOperator.SM2);
     }
 
     private void testKeyPairGen(String curve, ECOperator ecOperator)
@@ -74,6 +75,7 @@ public class KonaECKeyPairGeneratorTest {
         testSignatureWithECKeyPair("secp256r1");
         testSignatureWithECKeyPair("secp384r1");
         testSignatureWithECKeyPair("secp521r1");
+        testSignatureWithECKeyPair("curvesm2");
     }
 
     private void testSignatureWithECKeyPair(String curve) throws Exception {
