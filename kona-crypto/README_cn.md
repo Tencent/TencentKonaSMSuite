@@ -108,7 +108,7 @@ PrivateKey privateKey = keyFactory.generatePrivate(privateKeySpec);
 创建Signature实例。
 
 ```
-Signature signature = Signature.getInstance("SM2);
+Signature signature = Signature.getInstance("SM2");
 ```
 
 使用私钥进行初始化，以准备进行签名操作。

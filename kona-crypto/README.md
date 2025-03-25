@@ -64,7 +64,7 @@ Generating SM2 key pair is the same as generating the key pairs on other EC curv
 Create `KeyPairGenerator` implementation on `ECKeyPairGenerator`.
 
 ```
-KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("EC);
+KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("EC");
 keyPairGenerator.initialize(spec);
 ```
 
@@ -73,7 +73,7 @@ keyPairGenerator.initialize(spec);
 If create `KeyPairGenerator` implementation on `SM2KeyPairGenerator`, the codes are the belows,
 
 ```
-KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("SM2);
+KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("SM2");
 ```
 
 Generate key pair.
@@ -122,7 +122,7 @@ Using SM2 signature is the same as using other existing signatures, like ECDSA, 
 Create Signature instance.
 
 ```
-Signature signature = Signature.getInstance("SM2);
+Signature signature = Signature.getInstance("SM2");
 ```
 
 Initialize the Signature instance with the private key for signing.
