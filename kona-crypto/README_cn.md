@@ -64,7 +64,7 @@ position的值越小，代表的优先级越高，最小可为1。然而，并�
 创建使用`ECKeyPairGenerator`的`KeyPairGenerator`实例。
 
 ```
-KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("EC);
+KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("EC");
 keyPairGenerator.initialize(spec);
 ```
 
@@ -73,7 +73,7 @@ keyPairGenerator.initialize(spec);
 若创建使用`SM2KeyPairGenerator`的`KeyPairGenerator`实例，则代码如下。
 
 ```
-KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("SM2);
+KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("SM2");
 ```
 
 生成密钥对。
