@@ -64,7 +64,7 @@ position的值越小，代表的优先级越高，最小可为1。然而，并�
 创建使用`ECKeyPairGenerator`的`KeyPairGenerator`实例。
 
 ```
-KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("EC);
+KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("EC");
 keyPairGenerator.initialize(spec);
 ```
 
@@ -73,7 +73,7 @@ keyPairGenerator.initialize(spec);
 若创建使用`SM2KeyPairGenerator`的`KeyPairGenerator`实例，则代码如下。
 
 ```
-KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("SM2);
+KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("SM2");
 ```
 
 生成密钥对。
@@ -108,7 +108,7 @@ PrivateKey privateKey = keyFactory.generatePrivate(privateKeySpec);
 创建Signature实例。
 
 ```
-Signature signature = Signature.getInstance("SM2);
+Signature signature = Signature.getInstance("SM2");
 ```
 
 使用私钥进行初始化，以准备进行签名操作。
