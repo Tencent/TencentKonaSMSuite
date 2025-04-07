@@ -20,12 +20,8 @@
 // Need to use the deprecated lower EC functions
 #define OPENSSL_SUPPRESS_DEPRECATED
 
-#include <stdlib.h>
-#include <string.h>
-
 #include <jni.h>
 
-#include <openssl/core_names.h>
 #include <openssl/ec.h>
 #include <openssl/evp.h>
 
@@ -217,6 +213,41 @@ int ec_check_point_order(const EC_GROUP* group, const EC_POINT *point) {
 int ec_validate_point(EC_GROUP* group, EC_POINT *point) {
     return EC_POINT_is_on_curve(group, point, NULL) &&
            ec_check_point_order(group, point);
+}
+
+EVP_PKEY *ec_gen_param(int curve_nid) {
+    EVP_PKEY_CTX *param_ctx = NULL;
+    EVP_PKEY *params = NULL;
+
+    param_ctx = EVP_PKEY_CTX_new_id(EVP_PKEY_EC, NULL);
+    if (!param_ctx) {
+        OPENSSL_print_err();
+
+        return NULL;
+    }
+
+    if (!EVP_PKEY_paramgen_init(param_ctx)) {
+        OPENSSL_print_err();
+        EVP_PKEY_CTX_free(param_ctx);
+
+        return NULL;
+    }
+
+    if (!EVP_PKEY_CTX_set_ec_paramgen_curve_nid(param_ctx, curve_nid)) {
+        OPENSSL_print_err();
+        EVP_PKEY_CTX_free(param_ctx);
+
+        return NULL;
+    }
+
+    if (!EVP_PKEY_paramgen(param_ctx, &params)) {
+        OPENSSL_print_err();
+        EVP_PKEY_CTX_free(param_ctx);
+
+        return NULL;
+    }
+
+    return params;
 }
 
 EVP_PKEY_CTX* ec_create_pkey_ctx(EVP_PKEY* pkey) {
