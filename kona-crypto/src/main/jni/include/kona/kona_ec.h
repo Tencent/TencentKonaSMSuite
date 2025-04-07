@@ -39,6 +39,11 @@ EC_POINT* ec_pub_key_point_new(const EC_GROUP* group, const uint8_t* pub_key_byt
 
 int ec_check_point_order(const EC_GROUP* group, const EC_POINT *point);
 int ec_validate_point(EC_GROUP* group, EC_POINT *point);
+EVP_PKEY *ec_gen_param(int curve_nid);
+
+void ec_init_param_cache();
+EVP_PKEY* ec_get_cached_param(int curve_nid);
+void ec_param_cache_free();
 
 EVP_PKEY_CTX* ec_create_pkey_ctx(EVP_PKEY* pkey);
 uint8_t* ec_gen_key_pair(const EC_GROUP* group, EVP_PKEY_CTX* ctx, size_t* key_pair_len);

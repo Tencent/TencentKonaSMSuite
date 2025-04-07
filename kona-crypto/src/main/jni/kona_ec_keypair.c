@@ -26,7 +26,6 @@
 
 #include <openssl/evp.h>
 #include <openssl/ec.h>
-#include <openssl/obj_mac.h>
 #include <openssl/objects.h>
 
 #include "kona/kona_common.h"
@@ -35,17 +34,17 @@
 
 JNIEXPORT jobjectArray JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeCrypto_ecOneShotKeyPairGenGenKeyPair
   (JNIEnv* env, jclass classObj, jint curveNID) {
-    EVP_PKEY_CTX* pctx = EVP_PKEY_CTX_new_id(EVP_PKEY_EC, NULL);
+    EVP_PKEY* param = ec_get_cached_param(curveNID);
+    if (param == NULL) {
+        return NULL;
+    }
+
+    EVP_PKEY_CTX* pctx = EVP_PKEY_CTX_new(param, NULL);
     if (pctx == NULL) {
         return NULL;
     }
 
     if (EVP_PKEY_keygen_init(pctx) <= 0) {
-        EVP_PKEY_CTX_free(pctx);
-        return NULL;
-    }
-
-    if (EVP_PKEY_CTX_set_ec_paramgen_curve_nid(pctx, curveNID) <= 0) {
         EVP_PKEY_CTX_free(pctx);
         return NULL;
     }
