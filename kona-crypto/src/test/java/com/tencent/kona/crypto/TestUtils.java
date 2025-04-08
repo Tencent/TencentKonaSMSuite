@@ -19,6 +19,7 @@
 
 package com.tencent.kona.crypto;
 
+import com.amazon.corretto.crypto.provider.AmazonCorrettoCryptoProvider;
 import com.tencent.kona.crypto.spec.SM2PrivateKeySpec;
 import com.tencent.kona.crypto.spec.SM2PublicKeySpec;
 
@@ -48,6 +49,7 @@ public class TestUtils {
         Security.addProvider(KonaCryptoProvider.instance());
         Security.addProvider(KonaCryptoNativeProvider.instance());
         Security.addProvider(KonaCryptoNativeOneShotProvider.instance());
+        Security.addProvider(new AmazonCorrettoCryptoProvider());
     }
 
     public static void repeatTaskParallelly(Callable<Void> task, int count)

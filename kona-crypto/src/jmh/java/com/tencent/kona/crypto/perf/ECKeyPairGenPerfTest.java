@@ -22,9 +22,13 @@ package com.tencent.kona.crypto.perf;
 import com.tencent.kona.crypto.TestUtils;
 import org.openjdk.jmh.annotations.*;
 
+import java.math.BigInteger;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
+import java.security.interfaces.ECPrivateKey;
+import java.security.interfaces.ECPublicKey;
 import java.security.spec.ECGenParameterSpec;
+import java.security.spec.ECPoint;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -45,7 +49,8 @@ public class ECKeyPairGenPerfTest {
     @State(Scope.Benchmark)
     public static class KeyPairGenHolder {
 
-        @Param({"SunEC", "KonaCrypto-Native", "KonaCrypto-NativeOneShot"})
+        @Param({"SunEC", "AmazonCorrettoCryptoProvider",
+                "KonaCrypto-Native", "KonaCrypto-NativeOneShot"})
         String provider;
 
         @Param({"secp256r1", "secp384r1", "secp521r1"})
@@ -61,7 +66,12 @@ public class ECKeyPairGenPerfTest {
     }
 
     @Benchmark
-    public KeyPair genKeyPair(KeyPairGenHolder holder) {
-        return holder.keyPairGenerator.generateKeyPair();
+    public BigInteger[] genKeyPair(KeyPairGenHolder holder) {
+        KeyPair keyPair = holder.keyPairGenerator.generateKeyPair();
+        ECPrivateKey privateKey = (ECPrivateKey) keyPair.getPrivate();
+        ECPublicKey publicKey = (ECPublicKey) keyPair.getPublic();
+        ECPoint publicPoint = publicKey.getW();
+        return new BigInteger[]{privateKey.getS(),
+                publicPoint.getAffineX(), publicPoint.getAffineY()};
     }
 }

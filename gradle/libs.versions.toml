@@ -19,6 +19,7 @@
 
 [versions]
 bouncycastle = "1.80"
+accp = "2.4.1"
 
 grpc = "1.58.0"
 tomcat = "9.0.78"
@@ -38,6 +39,7 @@ protobufPlugin = "0.9.4"
 
 [libraries]
 bcprov-jdk18on = { module = "org.bouncycastle:bcprov-jdk18on", version.ref = "bouncycastle" }
+
 jetty-server = { module = "org.eclipse.jetty:jetty-server", version.ref = "jetty" }
 jetty-http2-server = { module = "org.eclipse.jetty.http2:http2-server", version.ref = "jetty" }
 jetty-servlet = { module = "org.eclipse.jetty:jetty-servlet", version.ref = "jetty" }

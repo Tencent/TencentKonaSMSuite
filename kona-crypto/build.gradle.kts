@@ -17,12 +17,39 @@
  * Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+import org.gradle.nativeplatform.platform.internal.ArchitectureInternal
+import org.gradle.nativeplatform.platform.internal.DefaultNativePlatform
+
 plugins {
     id("kona-common")
 }
 
+val os: OperatingSystem = DefaultNativePlatform.getCurrentOperatingSystem()
+val arch: ArchitectureInternal = DefaultNativePlatform.getCurrentArchitecture()
+
+fun getAccpClassifier(os: OperatingSystem, arch: ArchitectureInternal): String {
+    return when {
+        os.isLinux && arch.isAmd64 -> "linux-x86_64"
+        os.isLinux && arch.isArm64 -> "linux-aarch_64"
+        os.isMacOsX && arch.isAmd64 -> "osx-x86_64"
+        os.isMacOsX && arch.isArm64 -> "osx-aarch_64"
+        // Just use linux-x86_64 for other platforms, like Windows
+        else -> "linux-x86_64"
+    }
+}
+
 dependencies {
     testImplementation(libs.bcprov.jdk18on)
+
+    val accpClassifier = getAccpClassifier(os, arch)
+    testImplementation(
+        mapOf(
+            "group" to "software.amazon.cryptools",
+            "name" to "AmazonCorrettoCryptoProvider",
+            "version" to libs.versions.accp.get(),
+            "classifier" to accpClassifier
+        )
+    )
 
     testImplementation(libs.junit.jupiter.api)
     testRuntimeOnly(libs.junit.jupiter.engine)
