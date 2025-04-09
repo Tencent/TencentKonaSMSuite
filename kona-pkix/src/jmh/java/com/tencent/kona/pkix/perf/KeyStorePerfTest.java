@@ -179,7 +179,7 @@ public class KeyStorePerfTest {
             = new KeyStore.PasswordProtection(PASSWORD);
 
     static {
-        TestUtils.addProviders();
+        TestUtils.insertProvidersAtTop();
     }
 
     @State(Scope.Benchmark)

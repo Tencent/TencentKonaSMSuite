@@ -95,6 +95,11 @@ public class TestUtils {
         Security.addProvider(KonaPKIXProvider.instance());
     }
 
+    public static void insertProvidersAtTop() {
+        Security.insertProviderAt(CryptoInsts.PROV, 1);
+        Security.insertProviderAt(KonaPKIXProvider.instance(), 1);
+    }
+
     public static Path resFilePath(String resource) {
         return TEST_RES_PATH.resolve(resource);
     }

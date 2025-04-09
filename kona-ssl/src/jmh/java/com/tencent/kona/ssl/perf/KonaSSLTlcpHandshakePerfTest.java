@@ -67,7 +67,7 @@ public class KonaSSLTlcpHandshakePerfTest {
             = new SmCertTuple(INTCA_CERT, CLIENT_SIGN_CERT, CLIENT_ENC_CERT);
 
     static {
-        TestUtils.addProviders();
+        TestUtils.insertProvidersAtTop();
     }
 
     private SSLContext serverContext;
