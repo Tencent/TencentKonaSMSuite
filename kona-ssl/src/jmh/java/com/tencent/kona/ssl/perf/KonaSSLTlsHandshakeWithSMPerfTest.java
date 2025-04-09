@@ -60,7 +60,7 @@ public class KonaSSLTlsHandshakeWithSMPerfTest {
         System.setProperty("com.tencent.kona.ssl.namedGroups", "curvesm2");
         System.setProperty("com.tencent.kona.ssl.client.signatureSchemes", "sm2sig_sm3");
 
-        TestUtils.addProviders();
+        TestUtils.insertProvidersAtTop();
     }
 
     private SSLContext serverContext;

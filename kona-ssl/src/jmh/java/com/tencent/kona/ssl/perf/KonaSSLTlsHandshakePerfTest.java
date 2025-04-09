@@ -81,7 +81,7 @@ public class KonaSSLTlsHandshakePerfTest {
         System.setProperty("com.tencent.kona.ssl.namedGroups", "secp256r1");
         System.setProperty("com.tencent.kona.ssl.client.signatureSchemes", "ecdsa_secp256r1_sha256");
 
-        TestUtils.addProviders();
+        TestUtils.insertProvidersAtTop();
     }
 
     private SSLContext serverContext;
