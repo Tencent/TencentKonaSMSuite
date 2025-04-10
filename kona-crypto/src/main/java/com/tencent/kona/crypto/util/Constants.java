@@ -66,16 +66,16 @@ public final class Constants {
         return DEFAULT_ID.clone();
     }
 
-    public static int NID_SECP256R1 = 415;
-    public static int NID_SECP384R1 = 715;
-    public static int NID_SECP521R1 = 716;
-    public static int NID_CURVESM2 = 1172;
+    public static final int NID_SECP256R1 = 415;
+    public static final int NID_SECP384R1 = 715;
+    public static final int NID_SECP521R1 = 716;
+    public static final int NID_CURVESM2 = 1172;
 
-    public static int NID_SHA1 = 64;
-    public static int NID_SHA224 = 675;
-    public static int NID_SHA256 = 672;
-    public static int NID_SHA384 = 673;
-    public static int NID_SHA512 = 674;
+    public static final int NID_SHA1 = 64;
+    public static final int NID_SHA224 = 675;
+    public static final int NID_SHA256 = 672;
+    public static final int NID_SHA384 = 673;
+    public static final int NID_SHA512 = 674;
 
     private static final byte[] ENCODED_SECP256R1_OID
             = new byte[]{6, 8, 42, -122, 72, -50, 61, 3, 1, 7};
@@ -98,6 +98,20 @@ public final class Constants {
         }
 
         return -1;
+    }
+
+    public static int getPrivateKeySize(int curveNID) {
+        switch (curveNID) {
+            case NID_SECP256R1:
+            case NID_CURVESM2:
+                return 32;
+            case NID_SECP384R1:
+                return 48;
+            case NID_SECP521R1:
+                return 66;
+            default:
+                return -1;
+        }
     }
 
     private static final Map<String, Integer> MD_NID_MAP = new HashMap<>();
