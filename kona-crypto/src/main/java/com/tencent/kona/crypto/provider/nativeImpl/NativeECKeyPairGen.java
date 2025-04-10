@@ -24,8 +24,11 @@ import static com.tencent.kona.crypto.provider.nativeImpl.NativeCrypto.*;
 
 public class NativeECKeyPairGen extends NativeRef {
 
+    private final int curveNID;
+
     NativeECKeyPairGen(int curveNID) {
         super(createCtx(curveNID));
+        this.curveNID = curveNID;
     }
 
     private static long createCtx(int curveNID) {
@@ -37,7 +40,7 @@ public class NativeECKeyPairGen extends NativeRef {
     public Object[] genKeyPair() {
         Object[] keyPair = pointer == 0
                 ? null
-                : ecKeyPairGenGenKeyPair(pointer);
+                : ecKeyPairGenGenKeyPair(pointer, curveNID);
         if (keyPair == null) {
             throw new IllegalStateException("Generate key pair failed");
         }

@@ -32,84 +32,24 @@
 #include "kona/kona_jni.h"
 #include "kona/kona_ec.h"
 
-JNIEXPORT jobjectArray JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeCrypto_ecOneShotKeyPairGenGenKeyPair
-  (JNIEnv* env, jclass classObj, jint curveNID) {
-    EVP_PKEY* param = ec_get_cached_param(curveNID);
-    if (param == NULL) {
-        return NULL;
-    }
+JNIEXPORT void JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeCrypto_ecOneShotKeyPairGenGenKeyPair
+  (JNIEnv* env, jclass classObj, jint curveNID, jbyteArray priKey, jbyteArray pubKey) {
+    EC_KEY* ec_key = EC_KEY_new_by_curve_name(curveNID);
+    EC_KEY_generate_key(ec_key);
 
-    EVP_PKEY_CTX* pctx = EVP_PKEY_CTX_new(param, NULL);
-    if (pctx == NULL) {
-        return NULL;
-    }
+    const EC_GROUP* group = EC_KEY_get0_group(ec_key);
 
-    if (EVP_PKEY_keygen_init(pctx) <= 0) {
-        EVP_PKEY_CTX_free(pctx);
-        return NULL;
-    }
-
-    EVP_PKEY* pkey = NULL;
-    if (EVP_PKEY_keygen(pctx, &pkey) <= 0) {
-        EVP_PKEY_CTX_free(pctx);
-        return NULL;
-    }
-
-    EVP_PKEY_CTX_free(pctx);
-
-    const EC_KEY* ec_key = EVP_PKEY_get0_EC_KEY(pkey);
-    const EC_GROUP *group = EC_KEY_get0_group(ec_key);
-    const BIGNUM *order = EC_GROUP_get0_order(group);
-    int priv_key_len = (BN_num_bits(order) + 7) / 8;
     const BIGNUM* pri_key_bn = EC_KEY_get0_private_key(ec_key);
-    uint8_t* priv_key_bytes = (uint8_t*)malloc(priv_key_len);
-    if (priv_key_bytes == NULL) {
-        EVP_PKEY_free(pkey);
-
-        return NULL;
-    }
-    BN_bn2binpad(pri_key_bn, priv_key_bytes, priv_key_len);
+    jsize priv_key_len = (*env)->GetArrayLength(env, priKey);
+    jbyte* priv_key_bytes = (*env)->GetPrimitiveArrayCritical(env, priKey, NULL);
+    BN_bn2binpad(pri_key_bn, (uint8_t*)priv_key_bytes, priv_key_len);
+    (*env)->ReleasePrimitiveArrayCritical(env, priKey, priv_key_bytes, 0);
 
     const EC_POINT* pub_key_point = EC_KEY_get0_public_key(ec_key);
-    size_t pub_key_len = EC_POINT_point2oct(group, pub_key_point, POINT_CONVERSION_UNCOMPRESSED, NULL, 0, NULL);
-    unsigned char* pub_key_bytes = (unsigned char*)malloc(pub_key_len);
-    if (pub_key_bytes == NULL) {
-        free(priv_key_bytes);
-        EVP_PKEY_free(pkey);
-        return NULL;
-    }
-    EC_POINT_point2oct(group, pub_key_point, POINT_CONVERSION_UNCOMPRESSED, pub_key_bytes, pub_key_len, NULL);
-
-    jbyteArray privKeyArray = (*env)->NewByteArray(env, priv_key_len);
-    if (privKeyArray == NULL) {
-        free(priv_key_bytes);
-        free(pub_key_bytes);
-        EVP_PKEY_free(pkey);
-        return NULL;
-    }
-    (*env)->SetByteArrayRegion(env, privKeyArray, 0, priv_key_len, (jbyte*)priv_key_bytes);
-
-    jbyteArray pubKeyArray = (*env)->NewByteArray(env, (jsize)pub_key_len);
-    if (pubKeyArray == NULL) {
-        free(priv_key_bytes);
-        free(pub_key_bytes);
-        EVP_PKEY_free(pkey);
-        return NULL;
-    }
-    (*env)->SetByteArrayRegion(env, pubKeyArray, 0, (jsize)pub_key_len, (jbyte*)pub_key_bytes);
-
-    free(priv_key_bytes);
-    free(pub_key_bytes);
-    EVP_PKEY_free(pkey);
-
-    jobjectArray result = (*env)->NewObjectArray(env, 2, (*env)->FindClass(env, "[B"), NULL);
-    if (result == NULL) {
-        return NULL;
-    }
-    (*env)->SetObjectArrayElement(env, result, 0, privKeyArray);
-    (*env)->SetObjectArrayElement(env, result, 1, pubKeyArray);
-
-    return result;
+    jsize pub_key_len = (*env)->GetArrayLength(env, pubKey);
+    jbyte* pub_key_bytes = (*env)->GetPrimitiveArrayCritical(env, pubKey, NULL);
+    EC_POINT_point2oct(group, pub_key_point, POINT_CONVERSION_UNCOMPRESSED, (uint8_t*)pub_key_bytes, pub_key_len, NULL);
+    (*env)->ReleasePrimitiveArrayCritical(env, pubKey, pub_key_bytes, 0);
 }
 
 JNIEXPORT jlong JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeCrypto_ecKeyPairGenCreateCtx
@@ -144,72 +84,55 @@ JNIEXPORT void JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeCr
     }
 }
 
-JNIEXPORT jobjectArray JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeCrypto_ecKeyPairGenGenKeyPair
-  (JNIEnv* env, jclass classObj, jlong pointer) {
+JNIEXPORT void JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeCrypto_ecKeyPairGenGenKeyPair
+  (JNIEnv* env, jclass classObj, jlong pointer, jbyteArray priKey, jbyteArray pubKey) {
     EVP_PKEY_CTX* pctx = (EVP_PKEY_CTX*)pointer;
     if (pctx == NULL) {
-        return NULL;
+        return;
     }
 
     EVP_PKEY* pkey = NULL;
     if (!EVP_PKEY_keygen(pctx, &pkey)) {
-        return NULL;
+        return;
     }
 
     const EC_KEY* ec_key = EVP_PKEY_get0_EC_KEY(pkey);
     const EC_GROUP *group = EC_KEY_get0_group(ec_key);
-    const BIGNUM *order = EC_GROUP_get0_order(group);
-    int priv_key_len = (BN_num_bits(order) + 7) / 8;
-    const BIGNUM* pri_key_bn = EC_KEY_get0_private_key(ec_key);
-    uint8_t* priv_key_bytes = (uint8_t*)malloc(priv_key_len);
-    if (priv_key_bytes == NULL) {
-        EVP_PKEY_free(pkey);
 
-        return NULL;
-    }
-    BN_bn2binpad(pri_key_bn, priv_key_bytes, priv_key_len);
+    const BIGNUM* pri_key_bn = EC_KEY_get0_private_key(ec_key);
+    jsize priv_key_len = (*env)->GetArrayLength(env, priKey);
+    jbyte* priv_key_bytes = (*env)->GetPrimitiveArrayCritical(env, priKey, NULL);
+    BN_bn2binpad(pri_key_bn, (uint8_t*)priv_key_bytes, priv_key_len);
+    (*env)->ReleasePrimitiveArrayCritical(env, priKey, priv_key_bytes, 0);
 
     const EC_POINT* pub_key_point = EC_KEY_get0_public_key(ec_key);
-    size_t pub_key_len = EC_POINT_point2oct(group, pub_key_point, POINT_CONVERSION_UNCOMPRESSED, NULL, 0, NULL);
-    unsigned char* pub_key_bytes = (unsigned char*)malloc(pub_key_len);
-    if (pub_key_bytes == NULL) {
-        free(priv_key_bytes);
-        EVP_PKEY_free(pkey);
-
-        return NULL;
-    }
-    EC_POINT_point2oct(group, pub_key_point, POINT_CONVERSION_UNCOMPRESSED, pub_key_bytes, pub_key_len, NULL);
+    jsize pub_key_len = (*env)->GetArrayLength(env, pubKey);
+    jbyte* pub_key_bytes = (*env)->GetPrimitiveArrayCritical(env, pubKey, NULL);
+    EC_POINT_point2oct(group, pub_key_point, POINT_CONVERSION_UNCOMPRESSED, (uint8_t*)pub_key_bytes, pub_key_len, NULL);
+    (*env)->ReleasePrimitiveArrayCritical(env, pubKey, pub_key_bytes, 0);
 
     jbyteArray privKeyArray = (*env)->NewByteArray(env, priv_key_len);
     if (privKeyArray == NULL) {
-        free(priv_key_bytes);
-        free(pub_key_bytes);
         EVP_PKEY_free(pkey);
 
-        return NULL;
+        return;
     }
     (*env)->SetByteArrayRegion(env, privKeyArray, 0, priv_key_len, (jbyte*)priv_key_bytes);
 
     jbyteArray pubKeyArray = (*env)->NewByteArray(env, (jsize)pub_key_len);
     if (pubKeyArray == NULL) {
-        free(priv_key_bytes);
-        free(pub_key_bytes);
         EVP_PKEY_free(pkey);
 
-        return NULL;
+        return;
     }
     (*env)->SetByteArrayRegion(env, pubKeyArray, 0, (jsize)pub_key_len, (jbyte*)pub_key_bytes);
 
-    free(priv_key_bytes);
-    free(pub_key_bytes);
     EVP_PKEY_free(pkey);
 
     jobjectArray result = (*env)->NewObjectArray(env, 2, (*env)->FindClass(env, "[B"), NULL);
     if (result == NULL) {
-        return NULL;
+        return;
     }
     (*env)->SetObjectArrayElement(env, result, 0, privKeyArray);
     (*env)->SetObjectArrayElement(env, result, 1, pubKeyArray);
-
-    return result;
 }

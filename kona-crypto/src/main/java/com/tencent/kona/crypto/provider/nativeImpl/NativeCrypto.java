@@ -20,6 +20,8 @@
 
 package com.tencent.kona.crypto.provider.nativeImpl;
 
+import com.tencent.kona.crypto.util.Constants;
+
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -226,10 +228,28 @@ final class NativeCrypto {
                                boolean isInitiator, int sharedKeyLength);
 
     /* ***** ECC ***** */
-    static native Object[] ecOneShotKeyPairGenGenKeyPair(int curveNID);
-    static native long     ecKeyPairGenCreateCtx(int curveNID);
-    static native void     ecKeyPairGenFreeCtx(long pointer);
-    static native Object[] ecKeyPairGenGenKeyPair(long pointer);
+    static Object[] ecOneShotKeyPairGenGenKeyPair(int curveNID) {
+        int priKeySize = Constants.getPrivateKeySize(curveNID);
+        byte[] priKey = new byte[priKeySize];
+        byte[] pubKey = new byte[priKeySize * 2 + 1];
+        ecOneShotKeyPairGenGenKeyPair(curveNID, priKey, pubKey);
+
+        return new Object[] {priKey, pubKey};
+    }
+
+    static Object[] ecKeyPairGenGenKeyPair(long pointer, int curveNID) {
+        int priKeySize = Constants.getPrivateKeySize(curveNID);
+        byte[] priKey = new byte[priKeySize];
+        byte[] pubKey = new byte[priKeySize * 2 + 1];
+        ecKeyPairGenGenKeyPair(pointer, priKey, pubKey);
+
+        return new Object[] {priKey, pubKey};
+    }
+
+    static native void ecOneShotKeyPairGenGenKeyPair(int curveNID, byte[] privateKey, byte[] publicKey);
+    static native long ecKeyPairGenCreateCtx(int curveNID);
+    static native void ecKeyPairGenFreeCtx(long pointer);
+    static native void ecKeyPairGenGenKeyPair(long pointer, byte[] privateKey, byte[] publicKey);
 
     static native long   ecdsaCreateCtx(int mdNID, int curveNID, byte[] key, boolean isSign);
     static native void   ecdsaFreeCtx(long pointer);
