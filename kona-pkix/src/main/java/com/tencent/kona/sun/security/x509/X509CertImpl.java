@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1996, 2023, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1996, 2025, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -142,7 +142,7 @@ public class X509CertImpl extends X509Certificate
      */
     public X509CertImpl(X509CertInfo info, AlgorithmId algId, byte[] signature,
             byte[] signedCert) {
-        this.info = info;
+        this.info = Objects.requireNonNull(info);
         this.algId = algId;
         this.signature = signature;
         this.signedCert = Objects.requireNonNull(signedCert);
@@ -607,7 +607,7 @@ public class X509CertImpl extends X509Certificate
      * before this function may be called.
      */
     public String toString() {
-        if (info == null || algId == null || signature == null)
+        if (algId == null || signature == null)
             return "";
 
         HexDumpEncoder encoder = new HexDumpEncoder();
@@ -624,8 +624,6 @@ public class X509CertImpl extends X509Certificate
      * @return the publickey.
      */
     public PublicKey getPublicKey() {
-        if (info == null)
-            return null;
         return info.getKey().getKey();
     }
 
@@ -635,8 +633,6 @@ public class X509CertImpl extends X509Certificate
      * @return the version number, i.e. 1, 2 or 3.
      */
     public int getVersion() {
-        if (info == null)
-            return -1;
         try {
             int vers = info.getVersion().getVersion();
             return vers + 1;
@@ -663,8 +659,6 @@ public class X509CertImpl extends X509Certificate
      * @return the serial number.
      */
     public SerialNumber getSerialNumberObject() {
-        if (info == null)
-            return null;
         return info.getSerialNumber().getSerial();
     }
 
@@ -675,8 +669,6 @@ public class X509CertImpl extends X509Certificate
      */
     @SuppressWarnings("deprecation")
     public Principal getSubjectDN() {
-        if (info == null)
-            return null;
         return info.getSubject();
     }
 
@@ -686,9 +678,6 @@ public class X509CertImpl extends X509Certificate
      * also aware of X509CertImpl mutability.
      */
     public X500Principal getSubjectX500Principal() {
-        if (info == null) {
-            return null;
-        }
         try {
             return info.getSubject().asX500Principal();
         } catch (Exception e) {
@@ -703,8 +692,6 @@ public class X509CertImpl extends X509Certificate
      */
     @SuppressWarnings("deprecation")
     public Principal getIssuerDN() {
-        if (info == null)
-            return null;
         return info.getIssuer();
     }
 
@@ -714,9 +701,6 @@ public class X509CertImpl extends X509Certificate
      * also aware of X509CertImpl mutability.
      */
     public X500Principal getIssuerX500Principal() {
-        if (info == null) {
-            return null;
-        }
         try {
             return info.getIssuer().asX500Principal();
         } catch (Exception e) {
@@ -730,8 +714,6 @@ public class X509CertImpl extends X509Certificate
      * @return the start date of the validity period.
      */
     public Date getNotBefore() {
-        if (info == null)
-            return null;
         return info.getValidity().getNotBefore();
     }
 
@@ -741,8 +723,6 @@ public class X509CertImpl extends X509Certificate
      * @return the end date of the validity period.
      */
     public Date getNotAfter() {
-        if (info == null)
-            return null;
         return info.getValidity().getNotAfter();
     }
 
@@ -755,10 +735,7 @@ public class X509CertImpl extends X509Certificate
      * @exception CertificateEncodingException if an encoding error occurs.
      */
     public byte[] getTBSCertificate() throws CertificateEncodingException {
-        if (info != null) {
-            return info.getEncodedInfo();
-        } else
-            throw new CertificateEncodingException("Uninitialized certificate");
+        return info.getEncodedInfo();
     }
 
     /**
@@ -819,8 +796,6 @@ public class X509CertImpl extends X509Certificate
      * @return the Issuer Unique Identity.
      */
     public boolean[] getIssuerUniqueID() {
-        if (info == null)
-            return null;
         UniqueIdentity id = info.getIssuerUniqueId();
         if (id == null)
             return null;
@@ -834,8 +809,6 @@ public class X509CertImpl extends X509Certificate
      * @return the Subject Unique Identity.
      */
     public boolean[] getSubjectUniqueID() {
-        if (info == null)
-            return null;
         UniqueIdentity id = info.getSubjectUniqueId();
         if (id == null)
             return null;
@@ -988,8 +961,6 @@ public class X509CertImpl extends X509Certificate
      * not supported, otherwise return false.
      */
     public boolean hasUnsupportedCriticalExtension() {
-        if (info == null)
-            return false;
         CertificateExtensions exts = info.getExtensions();
         if (exts == null)
             return false;
@@ -1005,9 +976,6 @@ public class X509CertImpl extends X509Certificate
      * certificate that are marked critical.
      */
     public Set<String> getCriticalExtensionOIDs() {
-        if (info == null) {
-            return null;
-        }
         try {
             CertificateExtensions exts = info.getExtensions();
             if (exts == null) {
@@ -1035,9 +1003,6 @@ public class X509CertImpl extends X509Certificate
      * certificate that are NOT marked critical.
      */
     public Set<String> getNonCriticalExtensionOIDs() {
-        if (info == null) {
-            return null;
-        }
         try {
             CertificateExtensions exts = info.getExtensions();
             if (exts == null) {
@@ -1065,9 +1030,6 @@ public class X509CertImpl extends X509Certificate
      *         extension
      */
     public Extension getExtension(ObjectIdentifier oid) {
-        if (info == null) {
-            return null;
-        }
         CertificateExtensions extensions = info.getExtensions();
         if (extensions != null) {
             Extension ex = extensions.getExtension(oid.toString());
@@ -1086,9 +1048,6 @@ public class X509CertImpl extends X509Certificate
     }
 
     public Extension getUnparseableExtension(ObjectIdentifier oid) {
-        if (info == null) {
-            return null;
-        }
         CertificateExtensions extensions = info.getExtensions();
         if (extensions == null) {
             return null;
@@ -1102,6 +1061,8 @@ public class X509CertImpl extends X509Certificate
      * oid String.
      *
      * @param oid the Object Identifier value for the extension.
+     * @return the DER-encoded extension value, or {@code null} if
+     *         the extensions are not present or the value is not found
      */
     public byte[] getExtensionValue(String oid) {
         try {
@@ -1109,13 +1070,12 @@ public class X509CertImpl extends X509Certificate
             String extAlias = OIDMap.getName(findOID);
             Extension certExt = null;
             CertificateExtensions exts = info.getExtensions();
+            if (exts == null) {
+                return null;
+            }
 
             if (extAlias == null) { // may be unknown
                 // get the extensions, search through' for this oid
-                if (exts == null) {
-                    return null;
-                }
-
                 for (Extension ex : exts.getAllExtensions()) {
                     ObjectIdentifier inCertOID = ex.getExtensionId();
                     if (inCertOID.equals((Object) findOID)) {
@@ -1124,12 +1084,10 @@ public class X509CertImpl extends X509Certificate
                     }
                 }
             } else { // there's subclass that can handle this extension
-                certExt = getInfo().getExtensions().getExtension(extAlias);
+                certExt = exts.getExtension(extAlias);
             }
             if (certExt == null) {
-                if (exts != null) {
-                    certExt = exts.getUnparseableExtensions().get(oid);
-                }
+                certExt = exts.getUnparseableExtensions().get(oid);
                 if (certExt == null) {
                     return null;
                 }
@@ -1153,8 +1111,12 @@ public class X509CertImpl extends X509Certificate
      */
     public boolean[] getKeyUsage() {
         try {
+            CertificateExtensions extensions = info.getExtensions();
+            if (extensions == null) {
+                return null;
+            }
             KeyUsageExtension certExt = (KeyUsageExtension)
-                    getInfo().getExtensions().getExtension(KeyUsageExtension.NAME);
+                    extensions.getExtension(KeyUsageExtension.NAME);
             if (certExt == null)
                 return null;
 
