@@ -34,11 +34,9 @@ import java.security.Key;
 import java.security.cert.CertPathValidatorException;
 import java.security.cert.CertPathValidatorException.BasicReason;
 import java.security.interfaces.ECKey;
-//import java.security.interfaces.XECKey;
 import java.security.spec.AlgorithmParameterSpec;
 import java.security.spec.InvalidParameterSpecException;
 import java.security.spec.MGF1ParameterSpec;
-//import java.security.spec.NamedParameterSpec;
 import java.security.spec.PSSParameterSpec;
 import java.time.DateTimeException;
 import java.time.Instant;
@@ -255,7 +253,7 @@ public class DisabledAlgorithmConstraints extends AbstractAlgorithmConstraints {
         if (checkKey) {
             // Check if named curves in the key are disabled.
             for (Key key : cp.getKeys()) {
-                for (String curve : getNamedCurveFromKey(key)) {
+                for (String curve : getNamedParametersFromKey(key)) {
                     if (!cachedCheckAlgorithm(curve)) {
                         throw new CertPathValidatorException(
                             "Algorithm constraints check failed on disabled " +
@@ -268,13 +266,17 @@ public class DisabledAlgorithmConstraints extends AbstractAlgorithmConstraints {
         algorithmConstraints.permits(algorithm, cp, checkKey);
     }
 
-    private static List<String> getNamedCurveFromKey(Key key) {
+    private static List<String> getNamedParametersFromKey(Key key) {
         if (key instanceof ECKey) {
             NamedCurve nc = CurveDB.lookup(((ECKey)key).getParams());
             return (nc == null ? Collections.emptyList()
                                : Arrays.asList(nc.getNameAndAliases()));
         } else {
-            return Collections.emptyList();
+            String n = KeyUtil.getAlgorithm(key);
+            if (n.equalsIgnoreCase(key.getAlgorithm())) {
+                return Collections.emptyList();
+            }
+            return Arrays.asList(key.getAlgorithm(), n);
         }
     }
 
@@ -299,12 +301,12 @@ public class DisabledAlgorithmConstraints extends AbstractAlgorithmConstraints {
         }
 
         // check the key algorithm
-        if (!permits(primitives, key.getAlgorithm(), null)) {
+        if (!permits(primitives, KeyUtil.getAlgorithm(key), null)) {
             return false;
         }
 
         // If this is an elliptic curve, check if it is disabled
-        for (String curve : getNamedCurveFromKey(key)) {
+        for (String curve : getNamedParametersFromKey(key)) {
             if (!permits(primitives, curve, null)) {
                 return false;
             }
@@ -458,7 +460,7 @@ public class DisabledAlgorithmConstraints extends AbstractAlgorithmConstraints {
 
         // Check if KeySizeConstraints permit the specified key
         public boolean permits(Key key) {
-            List<Constraint> list = getConstraints(key.getAlgorithm());
+            List<Constraint> list = getConstraints(KeyUtil.getAlgorithm(key));
             if (list == null) {
                 return true;
             }
@@ -512,7 +514,7 @@ public class DisabledAlgorithmConstraints extends AbstractAlgorithmConstraints {
 
             if (checkKey) {
                 for (Key key : cp.getKeys()) {
-                    algorithms.add(key.getAlgorithm());
+                    algorithms.add(KeyUtil.getAlgorithm(key));
                 }
             }
 
