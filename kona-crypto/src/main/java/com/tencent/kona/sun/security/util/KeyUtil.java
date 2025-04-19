@@ -421,4 +421,9 @@ public final class KeyUtil {
             throw new NoSuchAlgorithmException("Cannot decode public key", e);
         }
     }
+
+    public static boolean isSupportedKeyAgreementOutputAlgorithm(String alg) {
+        return alg.equalsIgnoreCase("TlsPremasterSecret")
+                || alg.equalsIgnoreCase("Generic");
+    }
 }
