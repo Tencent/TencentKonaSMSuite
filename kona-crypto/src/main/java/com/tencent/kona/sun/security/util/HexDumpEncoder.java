@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1995, 2022, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1995, 2025, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -26,12 +26,7 @@
 
 package com.tencent.kona.sun.security.util;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.InputStream;
-import java.io.PrintStream;
-import java.io.OutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.nio.ByteBuffer;
 
 import static java.nio.charset.StandardCharsets.ISO_8859_1;
@@ -82,9 +77,9 @@ public class HexDumpEncoder {
         return (16);
     }
 
-    protected void encodeBufferPrefix(OutputStream o) {
+    protected void encodeBufferPrefix(OutputStream o) throws IOException {
         offset = 0;
-        pStream = new PrintStream(o);
+        pStream = new PrintStream(o, false, String.valueOf(ISO_8859_1));
     }
 
     protected void encodeLinePrefix(OutputStream o, int len) {
@@ -312,7 +307,11 @@ public class HexDumpEncoder {
             // This should never happen.
             throw new Error("CharacterEncoder.encodeBuffer internal error");
         }
-        return (outStream.toString());
+        try {
+            return (outStream.toString(String.valueOf(ISO_8859_1)));
+        } catch (UnsupportedEncodingException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     /**
