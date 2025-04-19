@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2009, 2024, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2009, 2025, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -29,6 +29,7 @@ import com.tencent.kona.sun.security.ec.point.Point;
 import com.tencent.kona.sun.security.util.ArrayUtil;
 import com.tencent.kona.sun.security.util.CurveDB;
 import com.tencent.kona.sun.security.util.ECUtil;
+import com.tencent.kona.sun.security.util.KeyUtil;
 import com.tencent.kona.sun.security.util.NamedCurve;
 import com.tencent.kona.sun.security.util.math.IntegerFieldModuloP;
 import com.tencent.kona.sun.security.util.math.IntegerMontgomeryFieldModuloP;
@@ -255,11 +256,11 @@ public final class ECDHKeyAgreement extends KeyAgreementSpi {
         if (algorithm == null) {
             throw new NoSuchAlgorithmException("Algorithm must not be null");
         }
-        if (!(algorithm.equals("TlsPremasterSecret"))) {
-            throw new NoSuchAlgorithmException
-                ("Only supported for algorithm TlsPremasterSecret");
+        if (!KeyUtil.isSupportedKeyAgreementOutputAlgorithm(algorithm)) {
+            throw new NoSuchAlgorithmException(
+                    "Unsupported secret key algorithm: " + algorithm);
         }
-        return new SecretKeySpec(engineGenerateSecret(), "TlsPremasterSecret");
+        return new SecretKeySpec(engineGenerateSecret(), algorithm);
     }
 
     private static byte[] deriveKeyImpl(ECPrivateKey priv, ECOperations ops,
