@@ -26,17 +26,11 @@
 package com.tencent.kona.sun.security.util;
 
 import java.io.IOException;
-import java.security.AlgorithmParameters;
-import java.security.Key;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
-import java.security.PublicKey;
+import java.security.*;
 import java.security.interfaces.ECKey;
 import java.security.interfaces.RSAKey;
 import java.security.interfaces.DSAKey;
 import java.security.interfaces.DSAParams;
-//import java.security.interfaces.XECKey;
-import java.security.SecureRandom;
 import java.security.spec.KeySpec;
 import java.security.spec.ECParameterSpec;
 import java.security.spec.InvalidParameterSpecException;
@@ -46,7 +40,6 @@ import javax.crypto.interfaces.DHPublicKey;
 import javax.crypto.spec.DHParameterSpec;
 import javax.crypto.spec.DHPublicKeySpec;
 import java.math.BigInteger;
-//import java.security.spec.NamedParameterSpec;
 import java.util.Arrays;
 
 import com.tencent.kona.sun.security.jca.JCAUtil;
@@ -165,6 +158,22 @@ public final class KeyUtil {
         }
 
         return -1;
+    }
+
+    /**
+     * If the key is a sub-algorithm of a larger group of algorithms, this
+     * method will return that sub-algorithm.  For example, key.getAlgorithm()
+     * returns "EdDSA", but the underlying key may be "Ed448".  For
+     * DisabledAlgorithmConstraints (DAC), this distinction is important.
+     * "EdDSA" means all curves for DAC, but when using it with
+     * KeyPairGenerator, "EdDSA" means "Ed25519".
+     */
+    public static String getAlgorithm(Key key) {
+        if (key instanceof ECKey || key instanceof RSAKey) {
+            return key.getAlgorithm();
+        }
+
+        throw new ProviderException("Unsupported key type: " + key.getAlgorithm());
     }
 
     /**
