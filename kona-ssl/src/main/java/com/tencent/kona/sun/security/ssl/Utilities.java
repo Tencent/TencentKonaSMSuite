@@ -37,4 +37,14 @@ public class Utilities extends com.tencent.kona.sun.security.util.Utilities {
         }
         return supported;
     }
+
+    static <T> boolean contains(T[] array, T item) {
+        for (T t : array) {
+            if (item.equals(t)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
 }
