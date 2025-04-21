@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, 2024, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2015, 2025, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -50,6 +50,9 @@ import com.tencent.kona.sun.security.ssl.SSLCipher.SSLReadCipher;
 import com.tencent.kona.sun.security.ssl.SSLCipher.SSLWriteCipher;
 import com.tencent.kona.sun.security.ssl.SSLHandshake.HandshakeMessage;
 import com.tencent.kona.sun.security.ssl.SupportedVersionsExtension.SHSupportedVersionsSpec;
+
+import static com.tencent.kona.sun.security.ssl.SignatureScheme.CERTIFICATE_SCOPE;
+import static com.tencent.kona.sun.security.ssl.SignatureScheme.HANDSHAKE_SCOPE;
 
 /**
  * Pack of the ServerHello/HelloRetryRequest handshake message.
@@ -278,9 +281,18 @@ final class ServerHello {
 
                 if (shc.localSupportedSignAlgs == null) {
                     shc.localSupportedSignAlgs =
-                        SignatureScheme.getSupportedAlgorithms(
-                                shc.sslConfig,
-                                shc.algorithmConstraints, shc.activeProtocols);
+                            SignatureScheme.getSupportedAlgorithms(
+                                    shc.sslConfig,
+                                    shc.algorithmConstraints, shc.activeProtocols,
+                                    HANDSHAKE_SCOPE);
+                }
+
+                if (shc.localSupportedCertSignAlgs == null) {
+                    shc.localSupportedCertSignAlgs =
+                            SignatureScheme.getSupportedAlgorithms(
+                                    shc.sslConfig,
+                                    shc.algorithmConstraints, shc.activeProtocols,
+                                    CERTIFICATE_SCOPE);
                 }
 
                 SSLSessionImpl session =
@@ -521,9 +533,18 @@ final class ServerHello {
 
                 if (shc.localSupportedSignAlgs == null) {
                     shc.localSupportedSignAlgs =
-                        SignatureScheme.getSupportedAlgorithms(
-                                shc.sslConfig,
-                                shc.algorithmConstraints, shc.activeProtocols);
+                            SignatureScheme.getSupportedAlgorithms(
+                                    shc.sslConfig,
+                                    shc.algorithmConstraints, shc.activeProtocols,
+                                    HANDSHAKE_SCOPE);
+                }
+
+                if (shc.localSupportedCertSignAlgs == null) {
+                    shc.localSupportedCertSignAlgs =
+                            SignatureScheme.getSupportedAlgorithms(
+                                    shc.sslConfig,
+                                    shc.algorithmConstraints, shc.activeProtocols,
+                                    CERTIFICATE_SCOPE);
                 }
 
                 SSLSessionImpl session =

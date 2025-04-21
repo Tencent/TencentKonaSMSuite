@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, 2024, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2015, 2025, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -41,6 +41,8 @@ import com.tencent.kona.sun.security.ssl.SSLExtension.SSLExtensionSpec;
 import com.tencent.kona.sun.security.ssl.SSLHandshake.HandshakeMessage;
 import com.tencent.kona.sun.security.ssl.SessionTicketExtension.SessionTicketSpec;
 import com.tencent.kona.sun.security.util.HexDumpEncoder;
+
+import static com.tencent.kona.sun.security.ssl.SignatureScheme.CERTIFICATE_SCOPE;
 
 /**
  * Pack of the "pre_shared_key" extension.
@@ -438,15 +440,16 @@ final class PreSharedKeyExtension {
             result = false;
         }
 
-        // Make sure that the server handshake context's localSupportedSignAlgs
-        // field is populated.  This is particularly important when
-        // client authentication was used in an initial session, and it is
-        // now being resumed.
-        if (shc.localSupportedSignAlgs == null) {
-            shc.localSupportedSignAlgs =
+        // Make sure that the server handshake context's
+        // localSupportedCertSignAlgs field is populated.  This is particularly
+        // important when client authentication was used in an initial session,
+        // and it is now being resumed.
+        if (shc.localSupportedCertSignAlgs == null) {
+            shc.localSupportedCertSignAlgs =
                     SignatureScheme.getSupportedAlgorithms(
                             shc.sslConfig,
-                            shc.algorithmConstraints, shc.activeProtocols);
+                            shc.algorithmConstraints, shc.activeProtocols,
+                            CERTIFICATE_SCOPE);
         }
 
         // Validate the required client authentication.
@@ -468,7 +471,7 @@ final class PreSharedKeyExtension {
             Collection<SignatureScheme> sessionSigAlgs =
                 s.getLocalSupportedSignatureSchemes();
             if (result &&
-                !shc.localSupportedSignAlgs.containsAll(sessionSigAlgs)) {
+                !shc.localSupportedCertSignAlgs.containsAll(sessionSigAlgs)) {
 
                 if (SSLLogger.isOn && SSLLogger.isOn("ssl,handshake")) {
                     SSLLogger.fine("Can't resume. Session uses different " +
@@ -662,7 +665,7 @@ final class PreSharedKeyExtension {
             // Make sure the list of supported signature algorithms matches
             Collection<SignatureScheme> sessionSigAlgs =
                 chc.resumingSession.getLocalSupportedSignatureSchemes();
-            if (!chc.localSupportedSignAlgs.containsAll(sessionSigAlgs)) {
+            if (!chc.localSupportedCertSignAlgs.containsAll(sessionSigAlgs)) {
                 if (SSLLogger.isOn && SSLLogger.isOn("ssl,handshake")) {
                     SSLLogger.fine("Existing session uses different " +
                         "signature algorithms");

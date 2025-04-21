@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, 2023, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2018, 2025, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -81,7 +81,7 @@ abstract class HandshakeContext implements ConnectionContext {
     // consolidated parameters
     final List<ProtocolVersion>             activeProtocols;
     final List<CipherSuite>                 activeCipherSuites;
-    final AlgorithmConstraints              algorithmConstraints;
+    final SSLAlgorithmConstraints           algorithmConstraints;
     final ProtocolVersion                   maximumActiveProtocol;
 
     // output stream
@@ -136,6 +136,7 @@ abstract class HandshakeContext implements ConnectionContext {
 
     // SignatureScheme
     List<SignatureScheme>                   localSupportedSignAlgs;
+    List<SignatureScheme>                   localSupportedCertSignAlgs;
     List<SignatureScheme>                   peerRequestedSignatureSchemes;
     List<SignatureScheme>                   peerRequestedCertSignSchemes;
 
