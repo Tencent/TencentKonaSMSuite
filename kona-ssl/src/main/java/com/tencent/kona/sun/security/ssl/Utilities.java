@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022, 2023, THL A29 Limited, a Tencent company. All rights reserved.
+ * Copyright (C) 2022, 2025, THL A29 Limited, a Tencent company. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify
@@ -21,7 +21,6 @@
 package com.tencent.kona.sun.security.ssl;
 
 import javax.net.ssl.SSLParameters;
-import java.nio.charset.StandardCharsets;
 
 public class Utilities extends com.tencent.kona.sun.security.util.Utilities {
 
