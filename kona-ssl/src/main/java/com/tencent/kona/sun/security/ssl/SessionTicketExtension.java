@@ -46,8 +46,6 @@ import com.tencent.kona.sun.security.ssl.SSLExtension.SSLExtensionSpec;
 import com.tencent.kona.sun.security.ssl.SSLHandshake.HandshakeMessage;
 import com.tencent.kona.sun.security.util.HexDumpEncoder;
 
-import static com.tencent.kona.sun.security.ssl.SignatureScheme.CERTIFICATE_SCOPE;
-
 /**
  * SessionTicketExtension is an implementation of RFC 5077 with some internals
  * that are used for stateless operation in TLS 1.3.
@@ -354,13 +352,7 @@ final class SessionTicketExtension {
                 return new SessionTicketSpec().getEncoded();
             }
 
-            if (chc.localSupportedCertSignAlgs == null) {
-                chc.localSupportedCertSignAlgs =
-                        SignatureScheme.getSupportedAlgorithms(
-                                chc.sslConfig,
-                                chc.algorithmConstraints, chc.activeProtocols,
-                                CERTIFICATE_SCOPE);
-            }
+            SignatureScheme.updateHandshakeLocalSupportedAlgs(chc);
 
             return chc.resumingSession.getPskIdentity();
         }
