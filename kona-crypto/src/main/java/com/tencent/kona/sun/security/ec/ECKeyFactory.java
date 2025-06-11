@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2006, 2022, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2006, 2025, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -220,7 +220,9 @@ public final class ECKeyFactory extends KeyFactorySpi {
     // internal implementation of generatePublic. See JCA doc
     private PublicKey implGeneratePublic(KeySpec keySpec)
             throws GeneralSecurityException {
-        if (keySpec instanceof X509EncodedKeySpec) {
+        if (keySpec == null) {
+            throw new InvalidKeySpecException("keySpec must not be null");
+        } else if (keySpec instanceof X509EncodedKeySpec) {
             X509EncodedKeySpec x509Spec = (X509EncodedKeySpec)keySpec;
             return new ECPublicKeyImpl(x509Spec.getEncoded());
         } else if (keySpec instanceof ECPublicKeySpec) {
@@ -238,7 +240,9 @@ public final class ECKeyFactory extends KeyFactorySpi {
     // internal implementation of generatePrivate. See JCA doc
     private PrivateKey implGeneratePrivate(KeySpec keySpec)
             throws GeneralSecurityException {
-        if (keySpec instanceof PKCS8EncodedKeySpec) {
+        if (keySpec == null) {
+            throw new InvalidKeySpecException("keySpec must not be null");
+        } else if (keySpec instanceof PKCS8EncodedKeySpec) {
             PKCS8EncodedKeySpec pkcsSpec = (PKCS8EncodedKeySpec)keySpec;
             byte[] encoded = pkcsSpec.getEncoded();
             try {
