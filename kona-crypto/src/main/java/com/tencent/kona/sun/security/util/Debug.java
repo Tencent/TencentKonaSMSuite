@@ -45,14 +45,7 @@ import com.tencent.kona.sun.security.action.GetPropertyAction;
 public class Debug {
 
     private String prefix;
-    private boolean printDateTime;
-    private boolean printThreadDetails;
-
     private static String args;
-    private static boolean threadInfoAll;
-    private static boolean timeStampInfoAll;
-    private static final String TIMESTAMP_OPTION = "+timestamp";
-    private static final String THREAD_OPTION = "+thread";
 
     static {
         args = GetPropertyAction.privilegedGetProperty("java.security.debug");
@@ -71,16 +64,6 @@ public class Debug {
             args = marshal(args);
             if (args.equals("help")) {
                 Help();
-            } else if (args.contains("all")) {
-                // "all" option has special handling for decorator options
-                // If the thread or timestamp decorator option is detected
-                // with the "all" option, then it impacts decorator options
-                // for other categories
-                int beginIndex = args.lastIndexOf("all") + "all".length();
-                int commaIndex = args.indexOf(',', beginIndex);
-                if (commaIndex == -1) commaIndex = args.length();
-                threadInfoAll = args.substring(beginIndex, commaIndex).contains(THREAD_OPTION);
-                timeStampInfoAll = args.substring(beginIndex, commaIndex).contains(TIMESTAMP_OPTION);
             }
         }
     }
@@ -168,7 +151,6 @@ public class Debug {
         if (isOn(option)) {
             Debug d = new Debug();
             d.prefix = prefix;
-            d.configureExtras(option);
             return d;
         } else {
             return null;
@@ -192,33 +174,6 @@ public class Debug {
         return "unknown caller";
     }
 
-    // parse an option string to determine if extra details,
-    // like thread and timestamp, should be printed
-    private void configureExtras(String option) {
-        // treat "all" as special case, only used for java.security.debug property
-        this.printDateTime = timeStampInfoAll;
-        this.printThreadDetails = threadInfoAll;
-
-        if (printDateTime && printThreadDetails) {
-            // nothing left to configure
-            return;
-        }
-
-        // args is converted to lower case for the most part via marshal method
-        int optionIndex = args.lastIndexOf(option);
-        if (optionIndex == -1) {
-            // option not in args list. Only here since "all" was present
-            // in debug property argument. "all" option already parsed
-            return;
-        }
-        int beginIndex = optionIndex + option.length();
-        int commaIndex = args.indexOf(',', beginIndex);
-        if (commaIndex == -1) commaIndex = args.length();
-        String subOpt = args.substring(beginIndex, commaIndex);
-        printDateTime = printDateTime || subOpt.contains(TIMESTAMP_OPTION);
-        printThreadDetails = printThreadDetails || subOpt.contains(THREAD_OPTION);
-    }
-
     /**
      * Get a Debug object corresponding to the given option on the given
      * property value.
@@ -234,11 +189,6 @@ public class Debug {
      * Debug debug = Debug.of("login", property);
      * }
      *
-     * +timestamp string can be appended to property value
-     * to print timestamp information. (e.g. true+timestamp)
-     * +thread string can be appended to property value
-     * to print thread and caller information. (e.g. true+thread)
-     *
      * @param prefix the debug option name
      * @param property debug setting for this option
      * @return a new Debug object if the property is true
@@ -247,8 +197,6 @@ public class Debug {
         if (property != null && property.toLowerCase(Locale.ROOT).startsWith("true")) {
             Debug d = new Debug();
             d.prefix = prefix;
-            d.printThreadDetails = property.contains(THREAD_OPTION);
-            d.printDateTime = property.contains(TIMESTAMP_OPTION);
             return d;
         }
         return null;
@@ -311,23 +259,18 @@ public class Debug {
     }
 
     /**
-     * If thread debug option enabled, include information containing
-     * hex value of threadId and the current thread name
-     * If timestamp debug option enabled, include timestamp string
-     * @return extra info if debug option enabled.
+     * Include information containing:
+     * - hex value of threadIdAdd commentMore actions
+     * - the current thread name
+     * - timestamp string
+     * @return String with above metadata
      */
     private String extraInfo() {
-        String retString = "";
-        if (printThreadDetails) {
-            retString = "0x" + Long.toHexString(
-                    Thread.currentThread().getId()).toUpperCase(Locale.ROOT) +
-                    "|" + Thread.currentThread().getName() + "|" + formatCaller();
-        }
-        if (printDateTime) {
-            retString += (retString.isEmpty() ? "" : "|")
-                    + FormatHolder.DATE_TIME_FORMATTER.format(Instant.now());
-        }
-        return retString.isEmpty() ? "" : "[" + retString + "]";
+        return String.format("[0x%s|%s|%s|%s]",
+                Long.toHexString(Thread.currentThread().getId()).toUpperCase(Locale.ROOT),
+                Thread.currentThread().getName(),
+                formatCaller(),
+                FormatHolder.DATE_TIME_FORMATTER.format(Instant.now()));
     }
 
     /**
