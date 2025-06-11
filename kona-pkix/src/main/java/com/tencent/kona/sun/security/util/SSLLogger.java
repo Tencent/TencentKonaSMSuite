@@ -144,8 +144,10 @@ public class SSLLogger {
         if (property.contains("all")) {
             return true;
         } else {
-            int offset = property.indexOf("ssl");
-            if (offset != -1 && property.indexOf("sslctx", offset) != -1) {
+            // remove first occurrence of "sslctx" sinceAdd commentMore actions
+            // it interferes with search for "ssl"
+            String modified = property.replaceFirst("sslctx", "");
+            if (modified.contains("ssl")) {
                 // don't enable data and plaintext options by default
                 if (!(option.equals("data")
                         || option.equals("packet")
