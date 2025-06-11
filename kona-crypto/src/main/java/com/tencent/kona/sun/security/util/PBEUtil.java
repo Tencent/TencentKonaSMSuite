@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2023, Red Hat, Inc.
+ * Copyright (c) 2023, 2025, Red Hat, Inc.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -27,6 +27,9 @@ package com.tencent.kona.sun.security.util;
 
 import com.tencent.kona.crypto.CryptoInsts;
 
+import java.nio.ByteBuffer;
+import java.nio.CharBuffer;
+import java.nio.charset.StandardCharsets;
 import java.security.AlgorithmParameters;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
@@ -200,10 +203,7 @@ public final class PBEUtil {
                 }
                 initialize(blkSize, opmode, iCountInit, saltInit, ivSpecInit,
                         random);
-                passwdChars = new char[passwdBytes.length];
-                for (int i = 0; i < passwdChars.length; i++) {
-                    passwdChars[i] = (char) (passwdBytes[i] & 0x7f);
-                }
+                passwdChars = decodePassword(passwdBytes);
                 return new PBEKeySpec(passwdChars, salt, iCount, keyLength);
             } finally {
                 // password char[] was cloned in PBEKeySpec constructor,
@@ -259,7 +259,7 @@ public final class PBEUtil {
     public static PBEKeySpec getPBAKeySpec(Key key,
             AlgorithmParameterSpec params)
             throws InvalidKeyException, InvalidAlgorithmParameterException {
-        char[] passwdChars;
+        char[] passwdChars = null;
         byte[] salt = null;
         int iCount = 0;
         if (key instanceof PBEKey) {
@@ -273,10 +273,7 @@ public final class PBEUtil {
                     (passwdBytes = key.getEncoded()) == null) {
                 throw new InvalidKeyException("Missing password");
             }
-            passwdChars = new char[passwdBytes.length];
-            for (int i = 0; i < passwdChars.length; i++) {
-                passwdChars[i] = (char) (passwdBytes[i] & 0x7f);
-            }
+            passwdChars = decodePassword(passwdBytes);
             Arrays.fill(passwdBytes, (byte)0x00);
         } else {
             throw new InvalidKeyException("SecretKey of PBE type required");
@@ -292,10 +289,7 @@ public final class PBEUtil {
                             "PBEParameterSpec required for salt " +
                             "and iteration count");
                 }
-            } else if (!(params instanceof PBEParameterSpec)) {
-                throw new InvalidAlgorithmParameterException(
-                        "PBEParameterSpec type required");
-            } else {
+            } else if (params instanceof PBEParameterSpec) {
                 PBEParameterSpec pbeParams = (PBEParameterSpec) params;
                 // make sure the parameter values are consistent
                 if (salt != null) {
@@ -316,6 +310,9 @@ public final class PBEUtil {
                 } else {
                     iCount = pbeParams.getIterationCount();
                 }
+            } else {
+                throw new InvalidAlgorithmParameterException(
+                        "PBEParameterSpec type required");
             }
             // For security purpose, we need to enforce a minimum length
             // for salt; just require the minimum salt length to be 8-byte
@@ -330,34 +327,36 @@ public final class PBEUtil {
             }
             return new PBEKeySpec(passwdChars, salt, iCount);
         } finally {
-            Arrays.fill(passwdChars, '\0');
+            if (passwdChars != null) {
+                Arrays.fill(passwdChars, '\0');
+            }
         }
     }
 
     /*
-     * Check that the key implements the PBEKey interface. If params is an
-     * instance of PBEParameterSpec, validate consistency with the key's
-     * derivation data. Used by P11Mac and P11PBECipher (SunPKCS11).
+     * Converts the password char[] to the UTF-8 encoded byte[]. Used by PBEKey
+     * and PBKDF2KeyImpl (SunJCE).
      */
-    public static void checkKeyAndParams(Key key,
-            AlgorithmParameterSpec params, String algorithm)
-            throws InvalidKeyException, InvalidAlgorithmParameterException {
-        if (key instanceof PBEKey) {
-            PBEKey pbeKey = (PBEKey) key;
-            if (params instanceof PBEParameterSpec) {
-                PBEParameterSpec pbeParams = (PBEParameterSpec) params;
-                if (pbeParams.getIterationCount() !=
-                        pbeKey.getIterationCount() ||
-                        !Arrays.equals(pbeParams.getSalt(), pbeKey.getSalt())) {
-                    throw new InvalidAlgorithmParameterException(
-                            "Salt or iteration count parameters are " +
-                            "not consistent with PBE key");
-                }
-            }
-        } else {
-            throw new InvalidKeyException(
-                    "Cannot use a " + algorithm + " service with a key that " +
-                    "does not implement javax.crypto.interfaces.PBEKey");
-        }
+    public static byte[] encodePassword(char[] passwd) {
+        ByteBuffer bb = StandardCharsets.UTF_8.encode(CharBuffer.wrap(passwd));
+        int len = bb.limit();
+        byte[] passwdBytes = new byte[len];
+        bb.get(passwdBytes, 0, len);
+        bb.clear();
+        bb.put(new byte[len]);
+
+        return passwdBytes;
+    }
+
+    // converts the UTF-8 encoded byte[] to the password char[]
+    private static char[] decodePassword(byte[] passwdBytes) {
+        CharBuffer cb = StandardCharsets.UTF_8.decode(
+                ByteBuffer.wrap(passwdBytes));
+        int len = cb.limit();
+        char[] passwd = new char[len];
+        cb.get(passwd);
+        cb.clear();
+        cb.put(new char[len]);
+        return passwd;
     }
 }
