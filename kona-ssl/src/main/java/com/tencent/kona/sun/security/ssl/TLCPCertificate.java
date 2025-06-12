@@ -257,11 +257,9 @@ final class TLCPCertificate {
             shc.handshakeSession.setLocalPrivateKey(
                     tlcpPossession.popSignPrivateKey);
 
-            X509Certificate[] certs = mergeCertChains(
-                    tlcpPossession.popSignCerts, tlcpPossession.popEncCerts);
-            shc.handshakeSession.setLocalCertificates(certs);
+            shc.handshakeSession.setLocalCertificates(tlcpPossession.popCerts);
             TLCPCertificateMessage cm =
-                    new TLCPCertificateMessage(shc, certs);
+                    new TLCPCertificateMessage(shc, tlcpPossession.popCerts);
             if (SSLLogger.isOn && SSLLogger.isOn("ssl,handshake")) {
                 SSLLogger.fine(
                         "Produced server Certificate handshake message", cm);
@@ -315,15 +313,13 @@ final class TLCPCertificate {
 
             chc.handshakeSession.setLocalPrivateKey(
                     tlcpPossession.popSignPrivateKey);
-            X509Certificate[] certs = mergeCertChains(
-                    tlcpPossession.popSignCerts, tlcpPossession.popEncCerts);
-            if (certs != null && certs.length != 0) {
-                chc.handshakeSession.setLocalCertificates(certs);
+            if (tlcpPossession.popCerts != null && tlcpPossession.popCerts.length != 0) {
+                chc.handshakeSession.setLocalCertificates(tlcpPossession.popCerts);
             } else {
                 chc.handshakeSession.setLocalCertificates(null);
             }
             TLCPCertificateMessage cm =
-                    new TLCPCertificateMessage(chc, certs);
+                    new TLCPCertificateMessage(chc, tlcpPossession.popCerts);
             if (SSLLogger.isOn && SSLLogger.isOn("ssl,handshake")) {
                 SSLLogger.fine(
                         "Produced client Certificate handshake message", cm);
@@ -336,33 +332,6 @@ final class TLCPCertificate {
             // The handshake message has been delivered.
             return null;
         }
-    }
-
-    // Merge the sign cert chain and enc cert chain to a single chain.
-    private static X509Certificate[] mergeCertChains(
-            X509Certificate[] signCertChain, X509Certificate[] encCertChain) {
-        if (signCertChain == null || signCertChain.length == 0
-                || encCertChain == null || encCertChain.length == 0) {
-            return new X509Certificate[0];
-        }
-
-        X509Certificate[] mergedCerts
-                = new X509Certificate[signCertChain.length + 1];
-
-        if (DEF_CERT_LIST_FORMAT == CertListFormat.SIGN_CA_ENC) {
-            System.arraycopy(signCertChain, 0, mergedCerts, 0,
-                    signCertChain.length);
-            mergedCerts[mergedCerts.length - 1] = encCertChain[0];
-        } else {
-            mergedCerts[0] = signCertChain[0];
-            mergedCerts[1] = encCertChain[0];
-            if (signCertChain.length > 1) {
-                System.arraycopy(signCertChain, 1, mergedCerts, 2,
-                        signCertChain.length - 1);
-            }
-        }
-
-        return mergedCerts;
     }
 
     static final class TLCPCertificateConsumer implements SSLConsumer {

@@ -20,6 +20,9 @@
 
 package com.tencent.kona.crypto;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.math.BigInteger;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
@@ -326,6 +329,19 @@ public final class CryptoUtils {
         System.arraycopy(uncompPubKey, 1, compPubKey, 1, SM2_PUBKEY_AFFINE_LEN);
 
         return compPubKey;
+    }
+
+    public static byte[] readAllBytes(InputStream input) throws IOException {
+        ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+
+        byte[] data = new byte[1024];
+        int bytesRead;
+
+        while ((bytesRead = input.read(data, 0, data.length)) != -1) {
+            buffer.write(data, 0, bytesRead);
+        }
+
+        return buffer.toByteArray();
     }
 
     private CryptoUtils() { }
