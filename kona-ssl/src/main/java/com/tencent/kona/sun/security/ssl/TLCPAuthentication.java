@@ -38,6 +38,9 @@ import java.util.AbstractMap;
 import java.util.Arrays;
 import java.util.Map;
 
+import static com.tencent.kona.sun.security.ssl.TLCPCertificate.CertListFormat;
+import static com.tencent.kona.sun.security.ssl.TLCPCertificate.DEF_CERT_LIST_FORMAT;
+
 enum TLCPAuthentication implements SSLAuthentication {
 
     SM2("EC", "EC");
@@ -99,6 +102,8 @@ enum TLCPAuthentication implements SSLAuthentication {
         final X509Certificate popEncCert;
         final PublicKey popEncPublicKey;
 
+        final X509Certificate[] popCerts;
+
         TLCPPossession(PrivateKey popSignPrivateKey,
                        X509Certificate[] popSignCerts,
                        PrivateKey popEncPrivateKey,
@@ -122,6 +127,8 @@ enum TLCPAuthentication implements SSLAuthentication {
                 popEncCert = null;
                 popEncPublicKey = null;
             }
+
+            popCerts = popCerts();
         }
 
         TLCPPossession(PossessionEntry signPossEntry,
@@ -135,6 +142,34 @@ enum TLCPAuthentication implements SSLAuthentication {
             this.popEncCerts = encPossEntry.popCerts;
             this.popEncCert = encPossEntry.popCert;
             popEncPublicKey = encPossEntry.popPublicKey;
+
+            popCerts = popCerts();
+        }
+
+        // Merge the sign cert chain and enc cert chain to a single chain.
+        private X509Certificate[] popCerts() {
+            if (popSignCerts == null || popSignCerts.length == 0
+                    || popEncCerts == null || popEncCerts.length == 0) {
+                return new X509Certificate[0];
+            }
+
+            X509Certificate[] popCerts
+                    = new X509Certificate[popSignCerts.length + 1];
+
+            if (DEF_CERT_LIST_FORMAT == CertListFormat.SIGN_CA_ENC) {
+                System.arraycopy(popSignCerts, 0, popCerts, 0,
+                        popSignCerts.length);
+                popCerts[popCerts.length - 1] = popEncCerts[0];
+            } else {
+                popCerts[0] = popSignCerts[0];
+                popCerts[1] = popEncCerts[0];
+                if (popSignCerts.length > 1) {
+                    System.arraycopy(popSignCerts, 1, popCerts, 2,
+                            popSignCerts.length - 1);
+                }
+            }
+
+            return popCerts;
         }
 
         ECParameterSpec getECParameterSpec() {

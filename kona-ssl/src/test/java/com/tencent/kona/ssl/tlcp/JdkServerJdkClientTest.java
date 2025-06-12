@@ -19,19 +19,7 @@
 
 package com.tencent.kona.ssl.tlcp;
 
-import com.tencent.kona.ssl.interop.CertTuple;
-import com.tencent.kona.ssl.interop.CipherSuite;
-import com.tencent.kona.ssl.interop.Client;
-import com.tencent.kona.ssl.interop.ClientAuth;
-import com.tencent.kona.ssl.interop.ContextProtocol;
-import com.tencent.kona.ssl.interop.FileCert;
-import com.tencent.kona.ssl.interop.JdkClient;
-import com.tencent.kona.ssl.interop.JdkProcServer;
-import com.tencent.kona.ssl.interop.Protocol;
-import com.tencent.kona.ssl.interop.Server;
-import com.tencent.kona.ssl.interop.ServerCaller;
-import com.tencent.kona.ssl.interop.SmCertTuple;
-import com.tencent.kona.ssl.interop.Utilities;
+import com.tencent.kona.ssl.interop.*;
 import com.tencent.kona.ssl.TestUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
