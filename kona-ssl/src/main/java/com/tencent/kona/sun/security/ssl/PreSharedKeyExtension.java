@@ -56,7 +56,7 @@ final class PreSharedKeyExtension {
             new CHPreSharedKeyOnLoadAbsence();
     static final HandshakeConsumer chOnTradeConsumer =
             new CHPreSharedKeyUpdate();
-    static final HandshakeAbsence chOnTradAbsence =
+    static final HandshakeAbsence chOnTradeAbsence =
             new CHPreSharedKeyOnTradeAbsence();
     static final SSLStringizer chStringizer =
             new CHPreSharedKeyStringizer();
