@@ -1,4 +1,4 @@
-Copyright (C) 2022 THL A29 Limited, a Tencent company.  All rights reserved.
+Copyright (C) 2022, Tencent. All rights reserved.
 
 TencentKonaSMSuite is licensed under the GNU GPL v2.0 license with classpath exception.
 
