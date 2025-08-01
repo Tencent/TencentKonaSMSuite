@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2021, 2022, THL A29 Limited, a Tencent company. All rights reserved.
+ * Copyright (C) 2021, 2022, Tencent. All rights reserved.
  * DO NOT ALTER OR REMOVE NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify
