@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022, 2024, THL A29 Limited, a Tencent company. All rights reserved.
+ * Copyright (C) 2022, 2025, THL A29 Limited, a Tencent company. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -16,6 +16,9 @@
  * 2 along with this work; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin St, Fifth Floor, Boston, MA 02110-1301 USA.
  */
+
+import java.security.MessageDigest
+import java.util.*
 
 plugins {
     id("java-library")
@@ -300,6 +303,22 @@ publishing {
                 name.set(pomName)
                 description.set(pomDescription)
                 url.set("https://github.com/Tencent/TencentKonaSMSuite/tree/master/${project.name}")
+
+                scm {
+                    connection.set("scm:git:git://github.com/Tencent/TencentKonaSMSuite.git")
+                    developerConnection.set("scm:git:ssh://github.com:Tencent/TencentKonaSMSuite.git")
+                    url.set("https://github.com/Tencent/TencentKonaSMSuite/tree/master")
+                }
+
+                developers {
+                    developer {
+                        name.set("John Jiang")
+                        email.set("johnsjiang@tencent.com")
+                        organization.set("Tencent")
+                        organizationUrl.set("http://www.tencent.com")
+                    }
+                }
+
                 licenses {
                     license {
                         name.set("GNU GPL v2.0 license with classpath exception")
@@ -318,9 +337,9 @@ publishing {
             url = if (version.toString().endsWith("-SNAPSHOT")) snapshotRepoURL else releaseRepoURL
 
             // gradle.properties contains the below properties:
-            // ossrhUsername=<OSSRH User Name>
-            // ossrhPassword=<OSSRH Password>
-            name = "ossrh"
+            // centralPortalUsername=<User Name>
+            // centralPortalPassword=<Password>
+            name = "centralPortal"
             credentials(PasswordCredentials::class)
         }
     }
@@ -355,5 +374,64 @@ task<Exec>("signJar") {
             "build/libs/${project.name}-${project.version}.jar",
             alias
         )
+    }
+}
+
+fun File.digest(mdAlgo: String): String {
+    val digest = MessageDigest.getInstance(mdAlgo)
+    inputStream().use { input ->
+        val buffer = ByteArray(8192)
+        var bytesRead: Int
+        while (input.read(buffer).also { bytesRead = it } > 0) {
+            digest.update(buffer, 0, bytesRead)
+        }
+    }
+    return digest.digest().joinToString("") { "%02x".format(it) }
+}
+
+fun getMavenLocalDir(): File {
+    val mavenLocalUri = repositories.mavenLocal().url
+    return if (mavenLocalUri.scheme == "file") {
+        File(mavenLocalUri.path)
+    } else {
+        File(mavenLocalUri.toString())
+    }
+}
+
+fun getPublicationDir(): File {
+    val groupPath = project.group.toString().replace('.', '/')
+    return File(
+        getMavenLocalDir(),
+        "$groupPath/${project.name}/${project.version}"
+    )
+}
+
+fun File.genChecksums(
+    algorithms: List<String> = listOf("MD5", "SHA-1", "SHA-256", "SHA-512")) {
+    algorithms.forEach { algorithm ->
+        val checksum = digest(algorithm)
+        val ext = algorithm.lowercase(Locale.getDefault()).replace("-", "");
+        val checksumFile = File(parent, "$name.$ext")
+        checksumFile.writeText(checksum)
+    }
+}
+
+tasks.register("genChecksums") {
+    doFirst {
+        val publicationDir = getPublicationDir()
+
+        println("Generating checksum files for: ${publicationDir.absolutePath}")
+
+        if (!publicationDir.exists()) {
+            println("Publication directory not found")
+            return@doFirst
+        }
+
+        val artifactExts = setOf("asc", "jar", "module", "pom")
+        publicationDir.listFiles()?.forEach { file ->
+            if (artifactExts.contains(file.extension)) {
+                file.genChecksums()
+            }
+        }
     }
 }
