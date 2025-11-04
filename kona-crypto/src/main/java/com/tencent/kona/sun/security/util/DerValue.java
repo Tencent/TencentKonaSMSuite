@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 1996, 2023, Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1996, 2025, Oracle and/or its affiliates. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -887,6 +887,22 @@ public class DerValue {
      */
     public String getUniversalString() throws IOException {
         return readStringInternal(tag_UniversalString, Charset.forName("UTF_32BE"));
+    }
+
+    /**
+     * Checks that the BMPString does not contain any surrogate characters,
+     * which are outside the Basic Multilingual Plane.
+     *
+     * @throws IOException if illegal characters are detected
+     */
+    public void validateBMPString() throws IOException {
+        String bmpString = getBMPString();
+        for (int i = 0; i < bmpString.length(); i++) {
+            if (Character.isSurrogate(bmpString.charAt(i))) {
+                throw new IOException(
+                        "Illegal character in BMPString, index: " + i);
+            }
+        }
     }
 
     /**
