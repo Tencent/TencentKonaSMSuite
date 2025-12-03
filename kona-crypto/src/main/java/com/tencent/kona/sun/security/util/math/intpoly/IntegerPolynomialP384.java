@@ -36,7 +36,7 @@ public final class IntegerPolynomialP384 extends IntegerPolynomial {
     private static final int MAX_ADDS = 2;
     public static final BigInteger MODULUS = evaluateModulus();
     private static final long CARRY_ADD = 1 << 27;
-    private static final int LIMB_MASK = -1 >>> (64 - BITS_PER_LIMB);
+    private static final long LIMB_MASK = -1L >>> (64 - BITS_PER_LIMB);
 
     public static final IntegerPolynomialP384 ONE = new IntegerPolynomialP384();
 

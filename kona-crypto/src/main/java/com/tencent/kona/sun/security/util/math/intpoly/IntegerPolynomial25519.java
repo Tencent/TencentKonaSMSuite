@@ -36,7 +36,7 @@ public final class IntegerPolynomial25519 extends IntegerPolynomial {
     private static final int MAX_ADDS = 1;
     public static final BigInteger MODULUS = evaluateModulus();
     private static final long CARRY_ADD = 1 << 25;
-    private static final int LIMB_MASK = -1 >>> (64 - BITS_PER_LIMB);
+    private static final long LIMB_MASK = -1L >>> (64 - BITS_PER_LIMB);
 
     public static final IntegerPolynomial25519 ONE = new IntegerPolynomial25519();
 
