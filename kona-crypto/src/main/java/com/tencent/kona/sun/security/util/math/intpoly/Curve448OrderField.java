@@ -36,7 +36,7 @@ public final class Curve448OrderField extends IntegerPolynomial {
     private static final int MAX_ADDS = 1;
     public static final BigInteger MODULUS = evaluateModulus();
     private static final long CARRY_ADD = 1 << 27;
-    private static final int LIMB_MASK = -1 >>> (64 - BITS_PER_LIMB);
+    private static final long LIMB_MASK = -1L >>> (64 - BITS_PER_LIMB);
 
     public static final Curve448OrderField ONE = new Curve448OrderField();
 
