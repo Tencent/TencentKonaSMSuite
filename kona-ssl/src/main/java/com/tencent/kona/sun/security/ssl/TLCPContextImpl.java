@@ -36,6 +36,9 @@ public final class TLCPContextImpl {
     public static final class TLCP11Context
             extends SSLContextImpl.AbstractTLSContext {
 
+        private static final List<ProtocolVersion> supportedProtocols;
+        private static final List<CipherSuite> supportedCipherSuites;
+
         private static final List<ProtocolVersion> serverDefaultProtocols;
         private static final List<CipherSuite> serverDefaultCipherSuites;
 
@@ -43,6 +46,13 @@ public final class TLCPContextImpl {
         private static final List<CipherSuite> clientDefaultCipherSuites;
 
         static {
+            supportedProtocols = getAvailableProtocols(
+                    new ProtocolVersion[] {
+                ProtocolVersion.TLCP11,
+            });
+            supportedCipherSuites = getApplicableSupportedCipherSuites(
+                    supportedProtocols);
+
             serverDefaultProtocols = getAvailableProtocols(
                     new ProtocolVersion[] {
                 ProtocolVersion.TLCP11,
@@ -56,6 +66,16 @@ public final class TLCPContextImpl {
                     serverDefaultProtocols, false);
             clientDefaultCipherSuites = getApplicableEnabledCipherSuites(
                     clientDefaultProtocols, true);
+        }
+
+        @Override
+        List<ProtocolVersion> getSupportedProtocolVersions() {
+            return supportedProtocols;
+        }
+
+        @Override
+        List<CipherSuite> getSupportedCipherSuites() {
+            return supportedCipherSuites;
         }
 
         @Override
@@ -82,6 +102,9 @@ public final class TLCPContextImpl {
     public static final class TLCPContext
             extends SSLContextImpl.AbstractTLSContext {
 
+        private static final List<ProtocolVersion> supportedProtocols;
+        private static final List<CipherSuite> supportedCipherSuites;
+
         private static final List<ProtocolVersion> serverDefaultProtocols;
         private static final List<CipherSuite> serverDefaultCipherSuites;
 
@@ -91,6 +114,22 @@ public final class TLCPContextImpl {
         private static final IllegalArgumentException reservedException;
 
         static {
+            // The supported set is the full union of TLCP11 and TLS protocols
+            // that this context could ever negotiate, regardless of any user
+            // customization on the default-enabled set. Including TLCP11 here
+            // is required so that SSLEngine#getSupportedProtocols() reports
+            // TLCPv1.1.
+            supportedProtocols = getAvailableProtocols(
+                    new ProtocolVersion[] {
+                ProtocolVersion.TLCP11,
+                ProtocolVersion.TLS13,
+                ProtocolVersion.TLS12,
+                ProtocolVersion.TLS11,
+                ProtocolVersion.TLS10
+            });
+            supportedCipherSuites = getApplicableSupportedCipherSuites(
+                    supportedProtocols);
+
             reservedException = CustomizedSSLProtocols.reservedException;
             if (reservedException == null) {
                 clientDefaultProtocols = customizedProtocols(true,
@@ -140,6 +179,16 @@ public final class TLCPContextImpl {
             }
 
             return getAvailableProtocols(candidates);
+        }
+
+        @Override
+        List<ProtocolVersion> getSupportedProtocolVersions() {
+            return supportedProtocols;
+        }
+
+        @Override
+        List<CipherSuite> getSupportedCipherSuites() {
+            return supportedCipherSuites;
         }
 
         @Override
