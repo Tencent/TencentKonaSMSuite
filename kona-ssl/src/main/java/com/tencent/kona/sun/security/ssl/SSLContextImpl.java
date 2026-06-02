@@ -334,7 +334,7 @@ public abstract class SSLContextImpl extends SSLContextSpi {
      * Return the list of all available CipherSuites that are supported
      * using currently installed providers.
      */
-    private static List<CipherSuite> getApplicableSupportedCipherSuites(
+    static List<CipherSuite> getApplicableSupportedCipherSuites(
             List<ProtocolVersion> protocols) {
 
         return getApplicableCipherSuites(
