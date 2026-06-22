@@ -33,35 +33,20 @@ JNIEXPORT jlong JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeC
     }
 
     const char* mode_str = (*env)->GetStringUTFChars(env, mode, 0);
-    const char* sm4_mode = NULL;
-
-    if (strcmp(mode_str, "ECB") == 0) {
-        sm4_mode = "SM4-ECB";
-    } else if (strcmp(mode_str, "CBC") == 0) {
-        sm4_mode = "SM4-CBC";
-    } else if (strcmp(mode_str, "CTR") == 0) {
-        sm4_mode = "SM4-CTR";
-    } else if (strcmp(mode_str, "GCM") == 0) {
-        sm4_mode = "SM4-GCM";
-    } else {
-        (*env)->ReleaseStringUTFChars(env, mode, mode_str);
-
+    if (mode_str == NULL) {
         return OPENSSL_FAILURE;
     }
 
-    const EVP_CIPHER* cipher = EVP_CIPHER_fetch(NULL, sm4_mode, NULL);
-    if (cipher == NULL) {
-        OPENSSL_print_err();
-        (*env)->ReleaseStringUTFChars(env, mode, mode_str);
+    const EVP_CIPHER* cipher = sm4_cipher(mode_str);
+    (*env)->ReleaseStringUTFChars(env, mode, mode_str);
 
+    if (cipher == NULL) {
         return OPENSSL_FAILURE;
     }
 
     EVP_CIPHER_CTX* ctx = EVP_CIPHER_CTX_new();
     if (ctx == NULL) {
         OPENSSL_print_err();
-        EVP_CIPHER_free((EVP_CIPHER*)cipher);
-        (*env)->ReleaseStringUTFChars(env, mode, mode_str);
 
         return OPENSSL_FAILURE;
     }
@@ -80,16 +65,10 @@ JNIEXPORT jlong JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeC
         OPENSSL_print_err();
     }
 
-    (*env)->ReleaseStringUTFChars(env, mode, mode_str);
     (*env)->ReleaseByteArrayElements(env, key, key_bytes, JNI_ABORT);
     if (iv_bytes) {
         (*env)->ReleaseByteArrayElements(env, iv, iv_bytes, JNI_ABORT);
     }
-
-    // EVP_CIPHER_fetch returns a reference-counted object. EVP_CipherInit_ex
-    // takes its own reference, so the cipher must be freed here to avoid
-    // leaking one EVP_CIPHER per created context.
-    EVP_CIPHER_free((EVP_CIPHER*)cipher);
 
     if (result == OPENSSL_FAILURE && ctx != NULL) {
         EVP_CIPHER_CTX_free(ctx);

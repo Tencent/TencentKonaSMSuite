@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024, Tencent. All rights reserved.
+ * Copyright (C) 2024, 2026, Tencent. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -18,6 +18,7 @@
  */
 
 #include <openssl/err.h>
+#include <openssl/evp.h>
 
 #define SM2_PRI_KEY_LEN      32
 #define SM2_PUB_KEY_LEN      65
@@ -42,3 +43,8 @@ void bin2hex(const uint8_t* bytes, size_t offset, size_t len, uint8_t* hex);
 uint8_t* hex2bin(const char* hex);
 
 void print_hex(const uint8_t* bytes, size_t offset, size_t len);
+
+// SM4 cipher cache: pre-fetched at JNI_OnLoad, freed at JNI_OnUnload.
+int  sm4_init();
+void sm4_free();
+const EVP_CIPHER* sm4_cipher(const char* mode_str);
