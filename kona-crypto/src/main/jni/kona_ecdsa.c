@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024, 2025, Tencent. All rights reserved.
+ * Copyright (C) 2024, 2026, Tencent. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -213,7 +213,10 @@ int ecdsa_verify(ECDSA_CTX* ctx, const uint8_t* msg, size_t msg_len, const uint8
     int verify_status = ECDSA_do_verify(digest, digest_len, signature, ctx->key);
     ECDSA_SIG_free(signature);
 
-    return verify_status;
+    // ECDSA_do_verify returns 1 on success, 0 if the signature is invalid, and
+    // -1 on internal error. Only an exact 1 means the signature is valid; a
+    // negative error code must not be reported as success.
+    return verify_status == 1 ? OPENSSL_SUCCESS : OPENSSL_FAILURE;
 }
 
 JNIEXPORT jint JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeCrypto_ecdsaVerify
