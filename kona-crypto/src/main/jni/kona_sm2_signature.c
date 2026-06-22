@@ -29,6 +29,7 @@
 #include "kona/kona_jni.h"
 #include "kona/kona_common.h"
 #include "kona/kona_sm2.h"
+#include "kona/kona_sm3.h"
 
 SM2_SIGNATURE_CTX* sm2_create_md_ctx(EVP_PKEY* pkey, const uint8_t* id, size_t id_len, bool is_sign) {
     if (pkey == NULL || id == NULL || id_len == 0) {
@@ -60,7 +61,7 @@ SM2_SIGNATURE_CTX* sm2_create_md_ctx(EVP_PKEY* pkey, const uint8_t* id, size_t i
     EVP_MD_CTX_set_pkey_ctx(mctx, pctx);
 
     if (is_sign) {
-        if (!EVP_DigestSignInit(mctx, NULL, EVP_sm3(), NULL, pkey)) {
+        if (!EVP_DigestSignInit(mctx, NULL, sm3_md(), NULL, pkey)) {
             OPENSSL_print_err();
             EVP_PKEY_CTX_free(pctx);
             EVP_MD_CTX_free(mctx);
@@ -68,7 +69,7 @@ SM2_SIGNATURE_CTX* sm2_create_md_ctx(EVP_PKEY* pkey, const uint8_t* id, size_t i
             return NULL;
         }
     } else {
-        if (!EVP_DigestVerifyInit(mctx, NULL, EVP_sm3(), NULL, pkey)) {
+        if (!EVP_DigestVerifyInit(mctx, NULL, sm3_md(), NULL, pkey)) {
             OPENSSL_print_err();
             EVP_PKEY_CTX_free(pctx);
             EVP_MD_CTX_free(mctx);
@@ -116,49 +117,7 @@ JNIEXPORT jlong JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeC
         return OPENSSL_FAILURE;
     }
 
-    EVP_PKEY* pkey = NULL;
-    if (key_len == SM2_PRI_KEY_LEN) {
-        uint8_t* pub_key_buf = OPENSSL_malloc(SM2_PUB_KEY_LEN);
-        if (!pub_key_buf) {
-            (*env)->ReleaseByteArrayElements(env, key, key_bytes, JNI_ABORT);
-            (*env)->ReleaseByteArrayElements(env, id, id_bytes, JNI_ABORT);
-
-            return OPENSSL_FAILURE;
-        }
-
-        if (!sm2_gen_pub_key((const uint8_t*)key_bytes, pub_key_buf)) {
-            OPENSSL_free(pub_key_buf);
-            (*env)->ReleaseByteArrayElements(env, key, key_bytes, JNI_ABORT);
-            (*env)->ReleaseByteArrayElements(env, id, id_bytes, JNI_ABORT);
-
-            return OPENSSL_FAILURE;
-        }
-
-        pkey = sm2_load_key_pair((const uint8_t*)key_bytes, pub_key_buf);
-
-        OPENSSL_free(pub_key_buf);
-    } else if (key_len == SM2_PUB_KEY_LEN) {
-        pkey = sm2_load_pub_key((const uint8_t*)key_bytes, key_len);
-    } else if (key_len == (SM2_PRI_KEY_LEN + SM2_PUB_KEY_LEN)) {
-        uint8_t* pri_key_buf = OPENSSL_malloc(SM2_PRI_KEY_LEN);
-        uint8_t* pub_key_buf = OPENSSL_malloc(SM2_PUB_KEY_LEN);
-        if (!pri_key_buf || !pub_key_buf) {
-            OPENSSL_free(pri_key_buf);
-            OPENSSL_free(pub_key_buf);
-            (*env)->ReleaseByteArrayElements(env, key, key_bytes, JNI_ABORT);
-            (*env)->ReleaseByteArrayElements(env, id, id_bytes, JNI_ABORT);
-
-            return OPENSSL_FAILURE;
-        }
-
-        memcpy(pri_key_buf, (const uint8_t*)key_bytes, SM2_PRI_KEY_LEN);
-        memcpy(pub_key_buf, (const uint8_t*)key_bytes + SM2_PRI_KEY_LEN, SM2_PUB_KEY_LEN);
-
-        pkey = sm2_load_key_pair((const uint8_t*)pri_key_buf, pub_key_buf);
-
-        OPENSSL_free(pri_key_buf);
-        OPENSSL_free(pub_key_buf);
-    }
+    EVP_PKEY* pkey = sm2_load_key((const uint8_t*)key_bytes, key_len);
 
     if (pkey == NULL) {
         (*env)->ReleaseByteArrayElements(env, key, key_bytes, JNI_ABORT);
@@ -362,44 +321,7 @@ JNIEXPORT jbyteArray JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_Na
         return NULL;
     }
 
-    EVP_PKEY* pkey = NULL;
-    if (key_len == SM2_PRI_KEY_LEN) {
-        uint8_t* pub_key_buf = OPENSSL_malloc(SM2_PUB_KEY_LEN);
-        if (!pub_key_buf) {
-            (*env)->ReleaseByteArrayElements(env, key, key_bytes, JNI_ABORT);
-            (*env)->ReleaseByteArrayElements(env, id, id_bytes, JNI_ABORT);
-            return NULL;
-        }
-
-        if (!sm2_gen_pub_key((const uint8_t*)key_bytes, pub_key_buf)) {
-            OPENSSL_free(pub_key_buf);
-            (*env)->ReleaseByteArrayElements(env, key, key_bytes, JNI_ABORT);
-            (*env)->ReleaseByteArrayElements(env, id, id_bytes, JNI_ABORT);
-            return NULL;
-        }
-
-        pkey = sm2_load_key_pair((const uint8_t*)key_bytes, pub_key_buf);
-        OPENSSL_free(pub_key_buf);
-    } else if (key_len == SM2_PUB_KEY_LEN) {
-        pkey = sm2_load_pub_key((const uint8_t*)key_bytes, key_len);
-    } else if (key_len == (SM2_PRI_KEY_LEN + SM2_PUB_KEY_LEN)) {
-        uint8_t* pri_key_buf = OPENSSL_malloc(SM2_PRI_KEY_LEN);
-        uint8_t* pub_key_buf = OPENSSL_malloc(SM2_PUB_KEY_LEN);
-        if (!pri_key_buf || !pub_key_buf) {
-            OPENSSL_free(pri_key_buf);
-            OPENSSL_free(pub_key_buf);
-            (*env)->ReleaseByteArrayElements(env, key, key_bytes, JNI_ABORT);
-            (*env)->ReleaseByteArrayElements(env, id, id_bytes, JNI_ABORT);
-            return NULL;
-        }
-
-        memcpy(pri_key_buf, (const uint8_t*)key_bytes, SM2_PRI_KEY_LEN);
-        memcpy(pub_key_buf, (const uint8_t*)key_bytes + SM2_PRI_KEY_LEN, SM2_PUB_KEY_LEN);
-
-        pkey = sm2_load_key_pair((const uint8_t*)pri_key_buf, pub_key_buf);
-        OPENSSL_free(pri_key_buf);
-        OPENSSL_free(pub_key_buf);
-    }
+    EVP_PKEY* pkey = sm2_load_key((const uint8_t*)key_bytes, key_len);
 
     if (pkey == NULL) {
         (*env)->ReleaseByteArrayElements(env, key, key_bytes, JNI_ABORT);
@@ -476,44 +398,7 @@ JNIEXPORT jint JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeCr
         return OPENSSL_FAILURE;
     }
 
-    EVP_PKEY* pkey = NULL;
-    if (key_len == SM2_PRI_KEY_LEN) {
-        uint8_t* pub_key_buf = OPENSSL_malloc(SM2_PUB_KEY_LEN);
-        if (!pub_key_buf) {
-            (*env)->ReleaseByteArrayElements(env, key, key_bytes, JNI_ABORT);
-            (*env)->ReleaseByteArrayElements(env, id, id_bytes, JNI_ABORT);
-            return OPENSSL_FAILURE;
-        }
-
-        if (!sm2_gen_pub_key((const uint8_t*)key_bytes, pub_key_buf)) {
-            OPENSSL_free(pub_key_buf);
-            (*env)->ReleaseByteArrayElements(env, key, key_bytes, JNI_ABORT);
-            (*env)->ReleaseByteArrayElements(env, id, id_bytes, JNI_ABORT);
-            return OPENSSL_FAILURE;
-        }
-
-        pkey = sm2_load_key_pair((const uint8_t*)key_bytes, pub_key_buf);
-        OPENSSL_free(pub_key_buf);
-    } else if (key_len == SM2_PUB_KEY_LEN) {
-        pkey = sm2_load_pub_key((const uint8_t*)key_bytes, key_len);
-    } else if (key_len == (SM2_PRI_KEY_LEN + SM2_PUB_KEY_LEN)) {
-        uint8_t* pri_key_buf = OPENSSL_malloc(SM2_PRI_KEY_LEN);
-        uint8_t* pub_key_buf = OPENSSL_malloc(SM2_PUB_KEY_LEN);
-        if (!pri_key_buf || !pub_key_buf) {
-            OPENSSL_free(pri_key_buf);
-            OPENSSL_free(pub_key_buf);
-            (*env)->ReleaseByteArrayElements(env, key, key_bytes, JNI_ABORT);
-            (*env)->ReleaseByteArrayElements(env, id, id_bytes, JNI_ABORT);
-            return OPENSSL_FAILURE;
-        }
-
-        memcpy(pri_key_buf, (const uint8_t*)key_bytes, SM2_PRI_KEY_LEN);
-        memcpy(pub_key_buf, (const uint8_t*)key_bytes + SM2_PRI_KEY_LEN, SM2_PUB_KEY_LEN);
-
-        pkey = sm2_load_key_pair((const uint8_t*)pri_key_buf, pub_key_buf);
-        OPENSSL_free(pri_key_buf);
-        OPENSSL_free(pub_key_buf);
-    }
+    EVP_PKEY* pkey = sm2_load_key((const uint8_t*)key_bytes, key_len);
 
     if (pkey == NULL) {
         (*env)->ReleaseByteArrayElements(env, key, key_bytes, JNI_ABORT);

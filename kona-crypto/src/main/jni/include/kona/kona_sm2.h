@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024, Tencent. All rights reserved.
+ * Copyright (C) 2024, 2026, Tencent. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -57,6 +57,16 @@ EC_POINT* sm2_pub_key(const uint8_t* pub_key_bytes, size_t pub_key_len);
 
 EVP_PKEY* sm2_load_pub_key(const uint8_t* pub_key, size_t pub_key_len);
 EVP_PKEY* sm2_load_key_pair(const uint8_t* pri_key, const uint8_t* pub_key);
+
+// Loads an SM2 EVP_PKEY from a raw key whose length selects the form:
+//   SM2_PRI_KEY_LEN (32)                 -> private key only (public key derived)
+//   SM2_PUB_KEY_LEN (65)                 -> uncompressed public key only
+//   SM2_PRI_KEY_LEN + SM2_PUB_KEY_LEN    -> private key followed by public key
+// The public key point is validated (on-curve and correct subgroup) before the
+// key is returned. Returns NULL on any failure. The caller owns the returned
+// EVP_PKEY and must free it with EVP_PKEY_free.
+EVP_PKEY* sm2_load_key(const uint8_t* key, int key_len);
+
 int sm2_gen_pub_key(const uint8_t* pri_key, uint8_t* pub_key);
 EVP_PKEY_CTX* sm2_create_pkey_ctx(EVP_PKEY* pkey);
 int sm2_validate_point(EC_POINT *point);
@@ -105,3 +115,7 @@ SM2_KEYEX_CTX* sm2_create_keyex_ctx();
 void sm2_free_keyex_ctx(SM2_KEYEX_CTX* ctx);
 int sm2_derive_key(uint8_t* key_out, int key_len, SM2_KEYEX_CTX* ctx, const SM2_KEYEX_PARAMS* params, bool is_initiator);
 void sm2_keyex_params_free(SM2_KEYEX_PARAMS* ctx);
+
+// Called from JNI_OnLoad / JNI_OnUnload to manage SM2 globals (id, curve, group).
+int  sm2_init();
+void sm2_free();

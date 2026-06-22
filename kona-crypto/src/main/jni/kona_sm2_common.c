@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024, Tencent. All rights reserved.
+ * Copyright (C) 2024, 2026, Tencent. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -33,20 +33,6 @@ const uint8_t ID[] = {
         0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38,
         0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38
 };
-
-const SM2_ID* sm2_id() {
-    static const SM2_ID* sm2_id = NULL;
-
-    if (sm2_id == NULL) {
-        SM2_ID* id = OPENSSL_malloc(sizeof(SM2_ID));
-        id->id = ID;
-        id->id_len = sizeof(ID);
-
-        sm2_id = id;
-    }
-
-    return sm2_id;
-}
 
 const uint8_t FIELD[] = {
         0xFF, 0xFF, 0xFF, 0xFE, 0xFF, 0xFF, 0xFF, 0xFF,
@@ -90,42 +76,63 @@ const uint8_t GEN_Y[] = {
         0x02, 0xDF, 0x32, 0xE5, 0x21, 0x39, 0xF0, 0xA0
 };
 
-const SM2_CURVE* sm2_curve() {
-    static const SM2_CURVE* sm2_curve = NULL;
+static SM2_ID*    g_sm2_id    = NULL;
+static SM2_CURVE* g_sm2_curve = NULL;
+static EC_GROUP*  g_sm2_group = NULL;
 
-    if (sm2_curve == NULL) {
-        SM2_CURVE* curve = OPENSSL_malloc(sizeof(SM2_CURVE));
-        curve->field = FIELD;
-        curve->field_len = sizeof(FIELD);
-        curve->order = ORDER;
-        curve->order_len = sizeof(ORDER);
-        curve->a = A;
-        curve->a_len = sizeof(A);
-        curve->b = B;
-        curve->b_len = sizeof(B);
-        curve->gen_x = GEN_X;
-        curve->gen_x_len = sizeof(GEN_X);
-        curve->gen_y = GEN_Y;
-        curve->gen_y_len = sizeof(GEN_Y);
+int sm2_init() {
+    SM2_ID* id = OPENSSL_malloc(sizeof(SM2_ID));
+    if (id == NULL) {
+        return OPENSSL_FAILURE;
+    }
+    id->id = ID;
+    id->id_len = sizeof(ID);
+    g_sm2_id = id;
 
-        sm2_curve = curve;
+    SM2_CURVE* curve = OPENSSL_malloc(sizeof(SM2_CURVE));
+    if (curve == NULL) {
+        sm2_free();
+        return OPENSSL_FAILURE;
+    }
+    curve->field = FIELD;    curve->field_len = sizeof(FIELD);
+    curve->order = ORDER;    curve->order_len = sizeof(ORDER);
+    curve->a = A;            curve->a_len = sizeof(A);
+    curve->b = B;            curve->b_len = sizeof(B);
+    curve->gen_x = GEN_X;   curve->gen_x_len = sizeof(GEN_X);
+    curve->gen_y = GEN_Y;   curve->gen_y_len = sizeof(GEN_Y);
+    g_sm2_curve = curve;
+
+    g_sm2_group = EC_GROUP_new_by_curve_name(NID_sm2);
+    if (g_sm2_group == NULL) {
+        OPENSSL_print_err();
+        sm2_free();
+        return OPENSSL_FAILURE;
     }
 
-    return sm2_curve;
+    return OPENSSL_SUCCESS;
+}
+
+void sm2_free() {
+    OPENSSL_free(g_sm2_id);
+    g_sm2_id = NULL;
+
+    OPENSSL_free(g_sm2_curve);
+    g_sm2_curve = NULL;
+
+    EC_GROUP_free(g_sm2_group);
+    g_sm2_group = NULL;
+}
+
+const SM2_ID* sm2_id() {
+    return g_sm2_id;
+}
+
+const SM2_CURVE* sm2_curve() {
+    return g_sm2_curve;
 }
 
 const EC_GROUP* sm2_group() {
-    static const EC_GROUP* sm2_group = NULL;
-
-    if (sm2_group == NULL) {
-        EC_GROUP* group = EC_GROUP_new_by_curve_name(NID_sm2);
-        if (group == NULL) {
-            return NULL;
-        }
-        sm2_group = group;
-    }
-
-    return sm2_group;
+    return g_sm2_group;
 }
 
 BIGNUM* sm2_pri_key(const uint8_t* pri_key_bytes) {
@@ -417,4 +424,53 @@ EVP_PKEY_CTX* sm2_create_pkey_ctx(EVP_PKEY* pkey) {
     }
 
     return ctx;
+}
+
+// Validates that the given uncompressed public key encoding is a valid point
+// on the SM2 curve (on-curve and in the correct subgroup).
+static int sm2_check_pub_key(const uint8_t* pub_key, size_t pub_key_len) {
+    EC_POINT* point = sm2_pub_key(pub_key, pub_key_len);
+    if (point == NULL) {
+        return OPENSSL_FAILURE;
+    }
+
+    int valid = sm2_validate_point(point);
+    EC_POINT_free(point);
+
+    return valid;
+}
+
+EVP_PKEY* sm2_load_key(const uint8_t* key, int key_len) {
+    if (key == NULL) {
+        return NULL;
+    }
+
+    if (key_len == SM2_PRI_KEY_LEN) {
+        // Private key only: derive the matching public key. The derived point
+        // is trusted, so no extra validation is needed.
+        uint8_t pub_key_buf[SM2_PUB_KEY_LEN];
+        if (!sm2_gen_pub_key(key, pub_key_buf)) {
+            return NULL;
+        }
+
+        return sm2_load_key_pair(key, pub_key_buf);
+    } else if (key_len == SM2_PUB_KEY_LEN) {
+        // Public key only, supplied by the caller: validate the point.
+        if (!sm2_check_pub_key(key, SM2_PUB_KEY_LEN)) {
+            return NULL;
+        }
+
+        return sm2_load_pub_key(key, SM2_PUB_KEY_LEN);
+    } else if (key_len == (SM2_PRI_KEY_LEN + SM2_PUB_KEY_LEN)) {
+        // Private key followed by public key. Validate the caller-supplied
+        // public key point before binding it to the private key.
+        const uint8_t* pub_key = key + SM2_PRI_KEY_LEN;
+        if (!sm2_check_pub_key(pub_key, SM2_PUB_KEY_LEN)) {
+            return NULL;
+        }
+
+        return sm2_load_key_pair(key, pub_key);
+    }
+
+    return NULL;
 }

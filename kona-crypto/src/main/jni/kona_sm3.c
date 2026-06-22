@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024, 2025, Tencent. All rights reserved.
+ * Copyright (C) 2024, 2026, Tencent. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -25,17 +25,40 @@
 #include "kona/kona_common.h"
 #include "kona/kona_sm3.h"
 
-EVP_MAC* hmac() {
-    static EVP_MAC* hmac = NULL;
-    if (hmac == NULL) {
-        EVP_MAC* mac = EVP_MAC_fetch(NULL, "HMAC", NULL);
-        if (mac == NULL) {
-            OPENSSL_print_err();
-        }
-        hmac = mac;
+static EVP_MD*  g_sm3_md   = NULL;
+static EVP_MAC* g_sm3_hmac = NULL;
+
+int sm3_init() {
+    g_sm3_md = EVP_MD_fetch(NULL, "SM3", NULL);
+    if (g_sm3_md == NULL) {
+        OPENSSL_print_err();
+        return OPENSSL_FAILURE;
     }
 
-    return hmac;
+    g_sm3_hmac = EVP_MAC_fetch(NULL, "HMAC", NULL);
+    if (g_sm3_hmac == NULL) {
+        OPENSSL_print_err();
+        sm3_free();
+        return OPENSSL_FAILURE;
+    }
+
+    return OPENSSL_SUCCESS;
+}
+
+void sm3_free() {
+    EVP_MD_free(g_sm3_md);
+    g_sm3_md = NULL;
+
+    EVP_MAC_free(g_sm3_hmac);
+    g_sm3_hmac = NULL;
+}
+
+const EVP_MD* sm3_md() {
+    return g_sm3_md;
+}
+
+EVP_MAC* hmac() {
+    return g_sm3_hmac;
 }
 
 EVP_MD_CTX* sm3_create_ctx() {
@@ -46,15 +69,9 @@ EVP_MD_CTX* sm3_create_ctx() {
         return NULL;
     }
 
-    const EVP_MD* md = EVP_sm3();
-    if (md == NULL) {
+    if (!EVP_DigestInit_ex(ctx, sm3_md(), NULL)) {
         OPENSSL_print_err();
-
-        return NULL;
-    }
-
-    if (!EVP_DigestInit_ex(ctx, md, NULL)) {
-        OPENSSL_print_err();
+        EVP_MD_CTX_free(ctx);
 
         return NULL;
     }

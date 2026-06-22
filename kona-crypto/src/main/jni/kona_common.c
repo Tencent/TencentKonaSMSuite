@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024, 2025, Tencent. All rights reserved.
+ * Copyright (C) 2024, 2026, Tencent. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -26,6 +26,8 @@
 
 #include "kona/kona_common.h"
 #include "kona/kona_ec.h"
+#include "kona/kona_sm2.h"
+#include "kona/kona_sm3.h"
 
 static const int supported_curves[] = {
         NID_X9_62_prime256v1,
@@ -64,10 +66,32 @@ void ec_param_cache_free() {
 JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *vm, void *reserved) {
     ec_init_param_cache();
 
+    if (!sm3_init()) {
+        goto fail;
+    }
+
+    if (!sm4_init()) {
+        goto fail;
+    }
+
+    if (!sm2_init()) {
+        goto fail;
+    }
+
     return JNI_VERSION_1_8;
+
+fail:
+    sm2_free();
+    sm4_free();
+    sm3_free();
+    ec_param_cache_free();
+    return JNI_ERR;
 }
 
 JNIEXPORT void JNICALL JNI_OnUnload(JavaVM *vm, void *reserved) {
+    sm2_free();
+    sm4_free();
+    sm3_free();
     ec_param_cache_free();
 }
 
@@ -139,4 +163,41 @@ void print_hex(const uint8_t* bytes, size_t offset, size_t len) {
     bin2hex(bytes, offset, len, hex);
     KONA_print("%s", hex);
     OPENSSL_free(hex);
+}
+
+// SM4 mode name -> index: ECB=0, CBC=1, CTR=2, GCM=3
+static const char* const SM4_MODE_NAMES[] = {
+    "SM4-ECB", "SM4-CBC", "SM4-CTR", "SM4-GCM"
+};
+#define SM4_MODE_COUNT 4
+
+static EVP_CIPHER* g_sm4_ciphers[SM4_MODE_COUNT];
+
+int sm4_init() {
+    for (int i = 0; i < SM4_MODE_COUNT; i++) {
+        g_sm4_ciphers[i] = EVP_CIPHER_fetch(NULL, SM4_MODE_NAMES[i], NULL);
+        if (g_sm4_ciphers[i] == NULL) {
+            OPENSSL_print_err();
+            sm4_free();
+            return OPENSSL_FAILURE;
+        }
+    }
+
+    return OPENSSL_SUCCESS;
+}
+
+void sm4_free() {
+    for (int i = 0; i < SM4_MODE_COUNT; i++) {
+        EVP_CIPHER_free(g_sm4_ciphers[i]);
+        g_sm4_ciphers[i] = NULL;
+    }
+}
+
+const EVP_CIPHER* sm4_cipher(const char* mode_str) {
+    if (strcmp(mode_str, "ECB") == 0) return g_sm4_ciphers[0];
+    if (strcmp(mode_str, "CBC") == 0) return g_sm4_ciphers[1];
+    if (strcmp(mode_str, "CTR") == 0) return g_sm4_ciphers[2];
+    if (strcmp(mode_str, "GCM") == 0) return g_sm4_ciphers[3];
+
+    return NULL;
 }

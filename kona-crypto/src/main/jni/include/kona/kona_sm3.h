@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024, Tencent. All rights reserved.
+ * Copyright (C) 2024, 2026, Tencent. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -21,7 +21,15 @@
 
 #include "kona/kona_common.h"
 
+// Returns the cached EVP_MD* for SM3 (pre-fetched at JNI_OnLoad).
+const EVP_MD* sm3_md();
+
+// Returns the cached EVP_MAC* for HMAC (pre-fetched at JNI_OnLoad).
 EVP_MAC* hmac();
+
+// Called from JNI_OnLoad / JNI_OnUnload to manage the SM3/HMAC globals.
+int  sm3_init();
+void sm3_free();
 
 EVP_MD_CTX* sm3_create_ctx();
 int sm3_reset(EVP_MD_CTX* ctx);

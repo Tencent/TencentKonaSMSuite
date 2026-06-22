@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024, 2025, Tencent. All rights reserved.
+ * Copyright (C) 2024, 2026, Tencent. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -211,6 +211,8 @@ int sm2_derive_key(uint8_t* key_out, int key_len,
     uint8_t* zA = NULL;
     uint8_t* zB = NULL;
     uint8_t* combined = NULL;
+    uint8_t vX[32] = {0};
+    uint8_t vY[32] = {0};
     int ret = OPENSSL_FAILURE;
 
     if (order == NULL || order_minus_one == NULL || two_pow_w == NULL || two_pow_w_sub_one == NULL ||
@@ -312,8 +314,6 @@ int sm2_derive_key(uint8_t* key_out, int key_len,
         goto cleanup;
     }
 
-    uint8_t vX[32] = {0};
-    uint8_t vY[32] = {0};
     if (!BN_bn2bin(vX_bn, vX + (32 - vX_len)) ||
         !BN_bn2bin(vY_bn, vY + (32 - vY_len))) {
         OPENSSL_print_err();
@@ -346,18 +346,20 @@ cleanup:
     BN_free(order_minus_one);
     BN_free(two_pow_w);
     BN_free(two_pow_w_sub_one);
-    BN_free(x1);
-    BN_free(tA);
+    BN_clear_free(x1);
+    BN_clear_free(tA);
     BN_free(x2);
     BN_free(cofactor);
-    BN_free(vX_bn);
-    BN_free(vY_bn);
+    BN_clear_free(vX_bn);
+    BN_clear_free(vY_bn);
     EC_POINT_free(rA_p);
     EC_POINT_free(interim_p);
     EC_POINT_free(u_p);
-    OPENSSL_free(zA);
-    OPENSSL_free(zB);
-    OPENSSL_free(combined);
+    OPENSSL_cleanse(vX, sizeof(vX));
+    OPENSSL_cleanse(vY, sizeof(vY));
+    OPENSSL_clear_free(zA, SM3_DIGEST_LEN);
+    OPENSSL_clear_free(zB, SM3_DIGEST_LEN);
+    OPENSSL_clear_free(combined, SM3_DIGEST_LEN * 4);
 
     return ret;
 }
@@ -433,6 +435,7 @@ JNIEXPORT jbyteArray JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_Na
     SM2_KEYEX_PARAMS* params = NULL;
     uint8_t* shared_key_buf = NULL;
     jbyteArray shared_key_bytes = NULL;
+    int shared_key_len = 0;
 
     int pri_key_len = (*env)->GetArrayLength(env, priKey);
     if (pri_key_len != SM2_PRI_KEY_LEN) {
@@ -499,7 +502,7 @@ JNIEXPORT jbyteArray JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_Na
 
     bool is_initiator = (bool)isInitiator;
 
-    int shared_key_len = (int)sharedKeyLength;
+    shared_key_len = (int)sharedKeyLength;
     if (shared_key_len <= 0) {
         goto cleanup;
     }
@@ -580,13 +583,13 @@ cleanup:
     if (peer_id_bytes != NULL) {
         (*env)->ReleaseByteArrayElements(env, peerId, peer_id_bytes, JNI_ABORT);
     }
-    BN_free(pri_key);
+    BN_clear_free(pri_key);
     EC_POINT_free(pub_key);
-    BN_free(e_pri_key);
+    BN_clear_free(e_pri_key);
     EC_POINT_free(peer_pub_key);
     EC_POINT_free(peer_e_pub_key);
     OPENSSL_free(params);
-    OPENSSL_free(shared_key_buf);
+    OPENSSL_clear_free(shared_key_buf, shared_key_len);
 
     return shared_key_bytes;
 }
@@ -616,6 +619,7 @@ JNIEXPORT jbyteArray JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_Na
     SM2_KEYEX_PARAMS* params = NULL;
     uint8_t* shared_key_buf = NULL;
     jbyteArray shared_key_bytes = NULL;
+    int shared_key_len = 0;
 
     int pri_key_len = (*env)->GetArrayLength(env, priKey);
     if (pri_key_len != SM2_PRI_KEY_LEN) {
@@ -682,7 +686,7 @@ JNIEXPORT jbyteArray JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_Na
 
     bool is_initiator = (bool)isInitiator;
 
-    int shared_key_len = (int)sharedKeyLength;
+    shared_key_len = (int)sharedKeyLength;
     if (shared_key_len <= 0) {
         goto cleanup;
     }
@@ -763,13 +767,13 @@ cleanup:
     if (peer_id_bytes != NULL) {
         (*env)->ReleaseByteArrayElements(env, peerId, peer_id_bytes, JNI_ABORT);
     }
-    BN_free(pri_key);
+    BN_clear_free(pri_key);
     EC_POINT_free(pub_key);
-    BN_free(e_pri_key);
+    BN_clear_free(e_pri_key);
     EC_POINT_free(peer_pub_key);
     EC_POINT_free(peer_e_pub_key);
     OPENSSL_free(params);
-    OPENSSL_free(shared_key_buf);
+    OPENSSL_clear_free(shared_key_buf, shared_key_len);
     sm2_free_keyex_ctx(ctx);
 
     return shared_key_bytes;
