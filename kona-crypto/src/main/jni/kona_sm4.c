@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024, Tencent. All rights reserved.
+ * Copyright (C) 2024, 2026, Tencent. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -60,6 +60,7 @@ JNIEXPORT jlong JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeC
     EVP_CIPHER_CTX* ctx = EVP_CIPHER_CTX_new();
     if (ctx == NULL) {
         OPENSSL_print_err();
+        EVP_CIPHER_free((EVP_CIPHER*)cipher);
         (*env)->ReleaseStringUTFChars(env, mode, mode_str);
 
         return OPENSSL_FAILURE;
@@ -84,6 +85,11 @@ JNIEXPORT jlong JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeC
     if (iv_bytes) {
         (*env)->ReleaseByteArrayElements(env, iv, iv_bytes, JNI_ABORT);
     }
+
+    // EVP_CIPHER_fetch returns a reference-counted object. EVP_CipherInit_ex
+    // takes its own reference, so the cipher must be freed here to avoid
+    // leaking one EVP_CIPHER per created context.
+    EVP_CIPHER_free((EVP_CIPHER*)cipher);
 
     if (result == OPENSSL_FAILURE && ctx != NULL) {
         EVP_CIPHER_CTX_free(ctx);

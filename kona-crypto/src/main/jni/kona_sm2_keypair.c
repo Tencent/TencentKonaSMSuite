@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024, 2025, Tencent. All rights reserved.
+ * Copyright (C) 2024, 2026, Tencent. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -132,11 +132,18 @@ JNIEXPORT jint JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeCr
     }
 
     EC_POINT* ec_point = sm2_pub_key((uint8_t*)point_bytes, point_len);
+
+    (*env)->ReleaseByteArrayElements(env, point, point_bytes, JNI_ABORT);
+
     if (ec_point == NULL) {
         return OPENSSL_FAILURE;
     }
 
-    return (jint)sm2_validate_point(ec_point);
+    jint result = (jint)sm2_validate_point(ec_point);
+
+    EC_POINT_free(ec_point);
+
+    return result;
 }
 
 JNIEXPORT jlong JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeCrypto_sm2KeyPairGenCreateCtx
