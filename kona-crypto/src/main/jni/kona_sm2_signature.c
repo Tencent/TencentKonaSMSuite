@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024, 2025, Tencent. All rights reserved.
+ * Copyright (C) 2024, 2026, Tencent. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -290,7 +290,11 @@ int sm2_verify(EVP_MD_CTX* ctx, const uint8_t* msg, size_t msg_len, const uint8_
         return OPENSSL_FAILURE;
     }
 
-    if (!EVP_DigestVerifyFinal(ctx, sig, sig_len)) {
+    // EVP_DigestVerifyFinal returns 1 on success, 0 if the signature is
+    // invalid, and a negative value on internal error. Treat anything other
+    // than an exact 1 as a verification failure; otherwise a negative error
+    // code would be coerced into a successful verification.
+    if (EVP_DigestVerifyFinal(ctx, sig, sig_len) != 1) {
         OPENSSL_print_err();
 
         return OPENSSL_FAILURE;
