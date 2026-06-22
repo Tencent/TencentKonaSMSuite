@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2025, Tencent. All rights reserved.
+ * Copyright (C) 2025, 2026, Tencent. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -35,7 +35,18 @@
 JNIEXPORT void JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeCrypto_ecOneShotKeyPairGenGenKeyPair
   (JNIEnv* env, jclass classObj, jint curveNID, jbyteArray priKey, jbyteArray pubKey) {
     EC_KEY* ec_key = EC_KEY_new_by_curve_name(curveNID);
-    EC_KEY_generate_key(ec_key);
+    if (ec_key == NULL) {
+        OPENSSL_print_err();
+
+        return;
+    }
+
+    if (!EC_KEY_generate_key(ec_key)) {
+        OPENSSL_print_err();
+        EC_KEY_free(ec_key);
+
+        return;
+    }
 
     const EC_GROUP* group = EC_KEY_get0_group(ec_key);
 
@@ -50,6 +61,8 @@ JNIEXPORT void JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeCr
     jbyte* pub_key_bytes = (*env)->GetPrimitiveArrayCritical(env, pubKey, NULL);
     EC_POINT_point2oct(group, pub_key_point, POINT_CONVERSION_UNCOMPRESSED, (uint8_t*)pub_key_bytes, pub_key_len, NULL);
     (*env)->ReleasePrimitiveArrayCritical(env, pubKey, pub_key_bytes, 0);
+
+    EC_KEY_free(ec_key);
 }
 
 JNIEXPORT jlong JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeCrypto_ecKeyPairGenCreateCtx
