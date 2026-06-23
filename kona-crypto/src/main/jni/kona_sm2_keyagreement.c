@@ -42,12 +42,16 @@ SM2_KEYEX_CTX* sm2_create_keyex_ctx() {
     BN_CTX* bn_ctx = BN_CTX_new();
     if (bn_ctx == NULL) {
         OPENSSL_print_err();
+        EVP_MD_CTX_free(sm3_ctx);
 
         return NULL;
     }
 
     SM2_KEYEX_CTX* ctx = OPENSSL_malloc(sizeof(SM2_KEYEX_CTX));
     if (ctx == NULL) {
+        EVP_MD_CTX_free(sm3_ctx);
+        BN_CTX_free(bn_ctx);
+
         return NULL;
     }
     ctx->sm3_ctx = sm3_ctx;

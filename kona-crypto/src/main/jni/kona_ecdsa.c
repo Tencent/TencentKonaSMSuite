@@ -68,21 +68,12 @@ ECDSA_CTX* ecdsa_create_ctx(int md_nid, EC_KEY* key) {
 
 JNIEXPORT jlong JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeCrypto_ecdsaCreateCtx
   (JNIEnv* env, jclass classObj, jint mdNID, jint curveNID, jbyteArray key, jboolean isSign) {
-    EC_GROUP* group = EC_GROUP_new_by_curve_name(curveNID);
-    if (group == NULL) {
-        return OPENSSL_FAILURE;
-    }
-
     int key_len = (*env)->GetArrayLength(env, key);
     if (key_len < (isSign ? PRI_KEY_MIN_LEN : PUB_KEY_MIN_LEN)) {
-        EC_GROUP_free(group);
-
         return OPENSSL_FAILURE;
     }
     jbyte* key_bytes = (*env)->GetByteArrayElements(env, key, NULL);
     if (key_bytes == NULL) {
-        EC_GROUP_free(group);
-
         return OPENSSL_FAILURE;
     }
 
@@ -94,7 +85,6 @@ JNIEXPORT jlong JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeC
     }
 
     (*env)->ReleaseByteArrayElements(env, key, key_bytes, JNI_ABORT);
-    EC_GROUP_free(group);
 
     ECDSA_CTX* ctx = ecdsa_create_ctx(mdNID, ec_key);
     if (ctx == NULL) {

@@ -215,41 +215,6 @@ int ec_validate_point(EC_GROUP* group, EC_POINT *point) {
            ec_check_point_order(group, point);
 }
 
-EVP_PKEY *ec_gen_param(int curve_nid) {
-    EVP_PKEY_CTX *param_ctx = NULL;
-    EVP_PKEY *params = NULL;
-
-    param_ctx = EVP_PKEY_CTX_new_id(EVP_PKEY_EC, NULL);
-    if (!param_ctx) {
-        OPENSSL_print_err();
-
-        return NULL;
-    }
-
-    if (!EVP_PKEY_paramgen_init(param_ctx)) {
-        OPENSSL_print_err();
-        EVP_PKEY_CTX_free(param_ctx);
-
-        return NULL;
-    }
-
-    if (!EVP_PKEY_CTX_set_ec_paramgen_curve_nid(param_ctx, curve_nid)) {
-        OPENSSL_print_err();
-        EVP_PKEY_CTX_free(param_ctx);
-
-        return NULL;
-    }
-
-    if (!EVP_PKEY_paramgen(param_ctx, &params)) {
-        OPENSSL_print_err();
-        EVP_PKEY_CTX_free(param_ctx);
-
-        return NULL;
-    }
-
-    return params;
-}
-
 EVP_PKEY_CTX* ec_create_pkey_ctx(EVP_PKEY* pkey) {
     EVP_PKEY_CTX* ctx = NULL;
 

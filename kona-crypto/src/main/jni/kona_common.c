@@ -29,43 +29,7 @@
 #include "kona/kona_sm2.h"
 #include "kona/kona_sm3.h"
 
-static const int supported_curves[] = {
-        NID_X9_62_prime256v1,
-        NID_secp384r1,
-        NID_secp521r1,
-        NID_sm2
-};
-
-static EVP_PKEY *cached_params[sizeof(supported_curves)/sizeof(int)];
-
-void ec_init_param_cache() {
-    for (size_t i = 0; i < sizeof(supported_curves)/sizeof(int); i++) {
-        cached_params[i] = ec_gen_param(supported_curves[i]);
-    }
-}
-
-EVP_PKEY* ec_get_cached_param(int curve_nid) {
-    for (size_t i = 0; i < sizeof(supported_curves)/sizeof(int); i++) {
-        if (supported_curves[i] == curve_nid) {
-            return cached_params[i];
-        }
-    }
-
-    return NULL;
-}
-
-void ec_param_cache_free() {
-    for (size_t i = 0; i < sizeof(supported_curves)/sizeof(int); i++) {
-        if (cached_params[i]) {
-            EVP_PKEY_free(cached_params[i]);
-            cached_params[i] = NULL;
-        }
-    }
-}
-
 JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM *vm, void *reserved) {
-    ec_init_param_cache();
-
     if (!sm3_init()) {
         goto fail;
     }
@@ -84,7 +48,6 @@ fail:
     sm2_free();
     sm4_free();
     sm3_free();
-    ec_param_cache_free();
     return JNI_ERR;
 }
 
@@ -92,7 +55,6 @@ JNIEXPORT void JNICALL JNI_OnUnload(JavaVM *vm, void *reserved) {
     sm2_free();
     sm4_free();
     sm3_free();
-    ec_param_cache_free();
 }
 
 uint8_t* bn2bin(BIGNUM* bn) {
