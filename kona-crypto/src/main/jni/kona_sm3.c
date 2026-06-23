@@ -267,18 +267,18 @@ JNIEXPORT jbyteArray JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_Na
 
 EVP_MAC_CTX* sm3hmac_create_ctx(EVP_MAC* mac, const uint8_t* key, size_t key_len) {
     if (mac == NULL) {
-        return OPENSSL_FAILURE;
+        return NULL;
     }
 
     if (key == NULL || key_len == 0) {
-        return OPENSSL_FAILURE;
+        return NULL;
     }
 
     EVP_MAC_CTX* ctx = EVP_MAC_CTX_new(mac);
     if (ctx == NULL) {
         OPENSSL_print_err();
 
-        return OPENSSL_FAILURE;
+        return NULL;
     }
 
     OSSL_PARAM params[] = {
@@ -290,7 +290,7 @@ EVP_MAC_CTX* sm3hmac_create_ctx(EVP_MAC* mac, const uint8_t* key, size_t key_len
         OPENSSL_print_err();
         EVP_MAC_CTX_free(ctx);
 
-        return OPENSSL_FAILURE;
+        return NULL;
     }
 
     return ctx;
