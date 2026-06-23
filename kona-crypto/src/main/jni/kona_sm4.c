@@ -32,6 +32,11 @@ JNIEXPORT jlong JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeC
         return OPENSSL_FAILURE;
     }
 
+    jsize key_len = (*env)->GetArrayLength(env, key);
+    if (key_len != SM4_KEY_LEN) {
+        return OPENSSL_FAILURE;
+    }
+
     const char* mode_str = (*env)->GetStringUTFChars(env, mode, 0);
     if (mode_str == NULL) {
         return OPENSSL_FAILURE;
@@ -97,9 +102,9 @@ JNIEXPORT jbyteArray JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_Na
         return NULL;
     }
     jsize in_len = (*env)->GetArrayLength(env, in);
-
-    int out_len = in_len + EVP_CIPHER_CTX_block_size(ctx);
-    uint8_t* out_buf = (uint8_t*)OPENSSL_malloc(out_len);
+    int block_size = EVP_CIPHER_CTX_block_size(ctx);
+    size_t out_size = (size_t)in_len + (size_t)block_size;
+    uint8_t* out_buf = (uint8_t*)OPENSSL_malloc(out_size);
     if (out_buf == NULL) {
         (*env)->ReleaseByteArrayElements(env, in, in_bytes, JNI_ABORT);
 

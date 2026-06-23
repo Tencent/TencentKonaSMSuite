@@ -101,6 +101,8 @@ int z(uint8_t* out, SM2_KEYEX_CTX* ctx,
     BIGNUM* x_bn = BN_new();
     BIGNUM* y_bn = BN_new();
     if (x_bn == NULL || y_bn == NULL) {
+        BN_free(x_bn);
+        BN_free(y_bn);
         return OPENSSL_FAILURE;
     }
 
@@ -119,6 +121,9 @@ int z(uint8_t* out, SM2_KEYEX_CTX* ctx,
         !BN_bn2binpad(y_bn, y_bytes, sizeof(y_bytes))) {
         OPENSSL_print_err();
 
+        BN_free(x_bn);
+        BN_free(y_bn);
+
         return OPENSSL_FAILURE;
     }
 
@@ -126,11 +131,16 @@ int z(uint8_t* out, SM2_KEYEX_CTX* ctx,
         !EVP_DigestUpdate(ctx->sm3_ctx, y_bytes, sizeof(y_bytes))) {
         OPENSSL_print_err();
 
+        BN_free(x_bn);
+        BN_free(y_bn);
+
         return OPENSSL_FAILURE;
     }
 
     int len = EVP_DigestFinal_ex(ctx->sm3_ctx, out, NULL);
     if (!sm3_reset(ctx->sm3_ctx)) {
+        BN_free(x_bn);
+        BN_free(y_bn);
         return OPENSSL_FAILURE;
     }
 
