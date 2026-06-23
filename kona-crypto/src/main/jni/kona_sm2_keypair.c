@@ -40,7 +40,7 @@ JNIEXPORT jbyteArray JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_Na
         return NULL;
     }
 
-    EC_GROUP* group = EC_GROUP_new_by_curve_name(NID_sm2);
+    const EC_GROUP* group = sm2_group();
     if (group == NULL) {
         OPENSSL_print_err();
         (*env)->ReleaseByteArrayElements(env, compPubKey, comp_pub_key_bytes, JNI_ABORT);
@@ -52,7 +52,6 @@ JNIEXPORT jbyteArray JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_Na
     if (point == NULL) {
         OPENSSL_print_err();
         (*env)->ReleaseByteArrayElements(env, compPubKey, comp_pub_key_bytes, JNI_ABORT);
-        EC_GROUP_free(group);
 
         return NULL;
     }
@@ -61,7 +60,6 @@ JNIEXPORT jbyteArray JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_Na
     if (!EC_POINT_oct2point(group, point, (uint8_t*)comp_pub_key_bytes, comp_pub_key_len, NULL)) {
         OPENSSL_print_err();
         (*env)->ReleaseByteArrayElements(env, compPubKey, comp_pub_key_bytes, JNI_ABORT);
-        EC_GROUP_free(group);
         EC_POINT_free(point);
 
         return NULL;
@@ -73,14 +71,12 @@ JNIEXPORT jbyteArray JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_Na
     if (uncomp_pub_key_len <= 0) {
         OPENSSL_print_err();
         (*env)->ReleaseByteArrayElements(env, compPubKey, comp_pub_key_bytes, JNI_ABORT);
-        EC_GROUP_free(group);
         EC_POINT_free(point);
 
         return NULL;
     }
 
     (*env)->ReleaseByteArrayElements(env, compPubKey, comp_pub_key_bytes, JNI_ABORT);
-    EC_GROUP_free(group);
     EC_POINT_free(point);
 
     jbyteArray uncompPubKey = (*env)->NewByteArray(env, uncomp_pub_key_len);
