@@ -43,10 +43,28 @@ JNIEXPORT jlong JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeC
     }
 
     const EVP_CIPHER* cipher = sm4_cipher(mode_str);
+    int iv_len = iv != NULL ? (*env)->GetArrayLength(env, iv) : -1;
+    int is_ecb = strcmp(mode_str, "ECB") == 0;
+    int is_gcm = strcmp(mode_str, "GCM") == 0;
     (*env)->ReleaseStringUTFChars(env, mode, mode_str);
 
     if (cipher == NULL) {
         return OPENSSL_FAILURE;
+    }
+
+    // Validate iv: ECB requires no iv; GCM requires 12-byte iv; CBC/CTR require 16-byte iv.
+    if (is_ecb) {
+        if (iv != NULL) {
+            return OPENSSL_FAILURE;
+        }
+    } else if (is_gcm) {
+        if (iv_len != SM4_GCM_IV_LEN) {
+            return OPENSSL_FAILURE;
+        }
+    } else {
+        if (iv_len != SM4_IV_LEN) {
+            return OPENSSL_FAILURE;
+        }
     }
 
     EVP_CIPHER_CTX* ctx = EVP_CIPHER_CTX_new();

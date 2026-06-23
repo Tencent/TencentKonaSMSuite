@@ -26,6 +26,8 @@
 #define SM3_DIGEST_LEN       32
 #define SM3_MAC_LEN          32
 #define SM4_KEY_LEN          16
+#define SM4_IV_LEN           16
+#define SM4_GCM_IV_LEN       12
 #define SM4_GCM_TAG_LEN      16
 
 #define PRI_KEY_MIN_LEN      32
