@@ -19,7 +19,6 @@
 
 #include <string.h>
 #include <stdbool.h>
-#include <math.h>
 
 #include <jni.h>
 
@@ -137,17 +136,18 @@ int z(uint8_t* out, SM2_KEYEX_CTX* ctx,
         return OPENSSL_FAILURE;
     }
 
-    int len = EVP_DigestFinal_ex(ctx->sm3_ctx, out, NULL);
+    int ok = EVP_DigestFinal_ex(ctx->sm3_ctx, out, NULL);
+    if (!ok) {
+        OPENSSL_print_err();
+    }
     if (!sm3_reset(ctx->sm3_ctx)) {
-        BN_free(x_bn);
-        BN_free(y_bn);
-        return OPENSSL_FAILURE;
+        ok = OPENSSL_FAILURE;
     }
 
     BN_free(x_bn);
     BN_free(y_bn);
 
-    return len;
+    return ok;
 }
 
 int kdf(uint8_t* key_out, const int key_len, EVP_MD_CTX* sm3_ctx, const uint8_t* in, size_t in_len) {
@@ -243,7 +243,8 @@ int sm2_derive_key(uint8_t* key_out, int key_len,
     }
 
     int bit_length = BN_num_bits(order_minus_one);
-    int w = (int)ceil((double)bit_length / 2) - 1;
+    // w = ceil(bit_length / 2) - 1, computed with integer arithmetic.
+    int w = (bit_length + 1) / 2 - 1;
 
     if (!BN_lshift(two_pow_w, BN_value_one(), w) ||
         !BN_sub(two_pow_w_sub_one, two_pow_w, BN_value_one())) {
