@@ -47,7 +47,11 @@ ECDSA_CTX* ecdsa_create_ctx(int md_nid, EC_KEY* key) {
         EVP_MD_CTX_free(mctx);
         return NULL;
     }
-    EVP_DigestInit_ex(mctx, md, NULL);
+    if (!EVP_DigestInit_ex(mctx, md, NULL)) {
+        OPENSSL_print_err();
+        EVP_MD_CTX_free(mctx);
+        return NULL;
+    }
 
     ECDSA_CTX* ctx = OPENSSL_malloc(sizeof(ECDSA_CTX));
     if (ctx == NULL) {
