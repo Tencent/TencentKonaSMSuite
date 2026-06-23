@@ -102,7 +102,12 @@ uint8_t* bn2bin(BIGNUM* bn) {
     }
 
     uint8_t* bn_bytes = (uint8_t*)OPENSSL_malloc(bn_size);
+    if (bn_bytes == NULL) {
+        return NULL;
+    }
+
     if (BN_bn2bin(bn, bn_bytes) != bn_size) {
+        OPENSSL_free(bn_bytes);
         return NULL;
     }
 

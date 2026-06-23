@@ -249,16 +249,8 @@ JNIEXPORT jbyteArray JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_Na
     }
 
     jbyteArray result = (*env)->NewByteArray(env, key_pair_len);
-    if (result) {
-        jbyte* result_bytes = (*env)->GetByteArrayElements(env, result, NULL);
-
-        if (result_bytes) {
-            memcpy(result_bytes, key_pair_buf, key_pair_len);
-            (*env)->ReleaseByteArrayElements(env, result, result_bytes, 0);
-        } else {
-            (*env)->DeleteLocalRef(env, result);
-            result = NULL;
-        }
+    if (result != NULL) {
+        (*env)->SetByteArrayRegion(env, result, 0, key_pair_len, (jbyte*)key_pair_buf);
     }
 
     OPENSSL_free(key_pair_buf);
