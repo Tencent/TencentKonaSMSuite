@@ -124,28 +124,7 @@ JNIEXPORT void JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeCr
     EC_POINT_point2oct(group, pub_key_point, POINT_CONVERSION_UNCOMPRESSED, (uint8_t*)pub_key_bytes, pub_key_len, NULL);
     (*env)->ReleasePrimitiveArrayCritical(env, pubKey, pub_key_bytes, 0);
 
-    jbyteArray privKeyArray = (*env)->NewByteArray(env, priv_key_len);
-    if (privKeyArray == NULL) {
-        EVP_PKEY_free(pkey);
-
-        return;
-    }
-    (*env)->SetByteArrayRegion(env, privKeyArray, 0, priv_key_len, (jbyte*)priv_key_bytes);
-
-    jbyteArray pubKeyArray = (*env)->NewByteArray(env, (jsize)pub_key_len);
-    if (pubKeyArray == NULL) {
-        EVP_PKEY_free(pkey);
-
-        return;
-    }
-    (*env)->SetByteArrayRegion(env, pubKeyArray, 0, (jsize)pub_key_len, (jbyte*)pub_key_bytes);
-
+    // The private/public keys have been written directly into the caller-supplied
+    // priKey/pubKey arrays above; nothing else needs to be returned.
     EVP_PKEY_free(pkey);
-
-    jobjectArray result = (*env)->NewObjectArray(env, 2, (*env)->FindClass(env, "[B"), NULL);
-    if (result == NULL) {
-        return;
-    }
-    (*env)->SetObjectArrayElement(env, result, 0, privKeyArray);
-    (*env)->SetObjectArrayElement(env, result, 1, pubKeyArray);
 }
