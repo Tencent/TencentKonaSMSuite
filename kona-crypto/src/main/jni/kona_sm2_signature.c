@@ -95,6 +95,10 @@ SM2_SIGNATURE_CTX* sm2_create_md_ctx(EVP_PKEY* pkey, const uint8_t* id, size_t i
 
 JNIEXPORT jlong JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeCrypto_sm2SignatureCreateCtx
   (JNIEnv* env, jobject thisObj, jbyteArray key, jbyteArray id, jboolean isSign) {
+    if (key == NULL || id == NULL) {
+        return 0;
+    }
+
     int key_len = (*env)->GetArrayLength(env, key);
     if (key_len < SM2_PRI_KEY_LEN) {
         return 0;
@@ -130,6 +134,12 @@ JNIEXPORT jlong JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeC
 
     (*env)->ReleaseByteArrayElements(env, key, key_bytes, JNI_ABORT);
     (*env)->ReleaseByteArrayElements(env, id, id_bytes, JNI_ABORT);
+
+    if (ctx == NULL) {
+        EVP_PKEY_free(pkey);
+
+        return 0;
+    }
 
     return (jlong)ctx;
 }

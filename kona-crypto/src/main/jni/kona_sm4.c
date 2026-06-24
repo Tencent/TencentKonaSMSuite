@@ -75,7 +75,18 @@ JNIEXPORT jlong JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeC
     }
 
     jbyte* key_bytes = (*env)->GetByteArrayElements(env, key, NULL);
+    if (key_bytes == NULL) {
+        EVP_CIPHER_CTX_free(ctx);
+
+        return 0;
+    }
     jbyte* iv_bytes = iv ? (*env)->GetByteArrayElements(env, iv, NULL) : NULL;
+    if (iv != NULL && iv_bytes == NULL) {
+        (*env)->ReleaseByteArrayElements(env, key, key_bytes, JNI_ABORT);
+        EVP_CIPHER_CTX_free(ctx);
+
+        return 0;
+    }
 
     jlong result = 0;
     if (EVP_CipherInit_ex(ctx, cipher, NULL, (uint8_t*)key_bytes, (uint8_t*)iv_bytes, encrypt)) {

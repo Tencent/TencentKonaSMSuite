@@ -142,6 +142,8 @@ BIGNUM* sm2_pri_key(const uint8_t* pri_key_bytes) {
     }
 
     if (BN_bin2bn(pri_key_bytes, 32, pri_key) == NULL) {
+        BN_free(pri_key);
+
         return NULL;
     }
 
@@ -157,6 +159,8 @@ EC_POINT* sm2_pub_key(const uint8_t* pub_key_bytes, const size_t pub_key_len) {
     }
 
     if(!EC_POINT_oct2point(group, pub_key, pub_key_bytes, pub_key_len, NULL)) {
+        EC_POINT_free(pub_key);
+
         return NULL;
     }
 

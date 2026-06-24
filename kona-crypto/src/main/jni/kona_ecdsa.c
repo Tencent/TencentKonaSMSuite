@@ -34,6 +34,10 @@
 #include "kona/kona_ec.h"
 
 ECDSA_CTX* ecdsa_create_ctx(int md_nid, EC_KEY* key) {
+    if (key == NULL) {
+        return NULL;
+    }
+
     EVP_MD_CTX* mctx = EVP_MD_CTX_new();
     if (mctx == NULL) {
         OPENSSL_print_err();
@@ -68,6 +72,10 @@ ECDSA_CTX* ecdsa_create_ctx(int md_nid, EC_KEY* key) {
 
 JNIEXPORT jlong JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeCrypto_ecdsaCreateCtx
   (JNIEnv* env, jclass classObj, jint mdNID, jint curveNID, jbyteArray key, jboolean isSign) {
+    if (key == NULL) {
+        return 0;
+    }
+
     int key_len = (*env)->GetArrayLength(env, key);
     if (key_len < (isSign ? PRI_KEY_MIN_LEN : PUB_KEY_MIN_LEN)) {
         return 0;
@@ -88,6 +96,8 @@ JNIEXPORT jlong JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeC
 
     ECDSA_CTX* ctx = ecdsa_create_ctx(mdNID, ec_key);
     if (ctx == NULL) {
+        EC_KEY_free(ec_key);
+
         return 0;
     }
 

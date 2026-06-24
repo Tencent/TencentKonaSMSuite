@@ -33,6 +33,10 @@
 
 JNIEXPORT jlong JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeCrypto_sm2CipherCreateCtx
   (JNIEnv* env, jobject thisObj, jbyteArray key) {
+    if (key == NULL) {
+        return 0;
+    }
+
     int key_len = (*env)->GetArrayLength(env, key);
     if (key_len < SM2_PRI_KEY_LEN) {
         return 0;
