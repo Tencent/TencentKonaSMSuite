@@ -84,6 +84,10 @@ uint8_t* ecdh_derive(ECDH_CTX* ctx, const EC_POINT* peer_pub_point) {
 
 JNIEXPORT jlong JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeCrypto_ecdhCreateCtx
   (JNIEnv* env, jclass classObj, jint curveNID, jbyteArray priKey) {
+    if (priKey == NULL) {
+        return 0;
+    }
+
     int key_len = (*env)->GetArrayLength(env, priKey);
     if (key_len <= 0) {
         return 0;
@@ -122,6 +126,10 @@ JNIEXPORT jbyteArray JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_Na
         return NULL;
     }
 
+    if (peerPubKey == NULL) {
+        return NULL;
+    }
+
     jsize peer_pub_key_len = (*env)->GetArrayLength(env, peerPubKey);
     if (peer_pub_key_len <= 0) {
         return NULL;
@@ -141,6 +149,8 @@ JNIEXPORT jbyteArray JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_Na
 
     const EC_POINT* peer_pub_point = EC_KEY_get0_public_key(peer_pub_key);
     if (peer_pub_point == NULL) {
+        EC_KEY_free(peer_pub_key);
+
         return NULL;
     }
 
@@ -163,6 +173,10 @@ JNIEXPORT jbyteArray JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_Na
 
 JNIEXPORT jbyteArray JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeCrypto_ecdhOneShotDeriveKey
   (JNIEnv* env, jclass classObj, jint curveNID, jbyteArray priKey, jbyteArray peerPubKey) {
+    if (priKey == NULL || peerPubKey == NULL) {
+        return NULL;
+    }
+
     int key_len = (*env)->GetArrayLength(env, priKey);
     if (key_len <= 0) {
         return NULL;

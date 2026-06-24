@@ -145,6 +145,7 @@ BIGNUM* ec_pri_key_bn_new(const EC_GROUP* group, const uint8_t* pri_key_bytes) {
 
     if (BN_bin2bn(pri_key_bytes, pri_key_len, pri_key) == NULL) {
         OPENSSL_print_err();
+        BN_free(pri_key);
 
         return NULL;
     }
@@ -160,6 +161,7 @@ EC_POINT* ec_pub_key_point_new(const EC_GROUP* group, const uint8_t* pub_key_byt
 
     if(!EC_POINT_oct2point(group, pub_point, pub_key_bytes, pub_key_len, NULL)) {
         OPENSSL_print_err();
+        EC_POINT_free(pub_point);
 
         return NULL;
     }
