@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022, 2025, Tencent. All rights reserved.
+ * Copyright (C) 2022, 2026, Tencent. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -1069,5 +1069,34 @@ public class SM4Test {
                 SM4_GCM_TAG_LEN * 8, GCM_IV));
         Assertions.assertEquals(31, cipherGCMNoPadding.getOutputSize(15));
         Assertions.assertEquals(32, cipherGCMNoPadding.getOutputSize(16));
+    }
+
+    // Re-initializing a Cipher (optionally feeding data) without ever calling
+    // doFinal must release the context created by the previous init. A missing
+    // explicit close on re-init would leak a native context until the cipher
+    // object itself is GC'd. This drives many re-inits and verifies the cipher
+    // still produces correct output.
+    @Test
+    public void testRepeatedReinitWithoutDoFinal() throws Exception {
+        SecretKey key = new SecretKeySpec(KEY, "SM4");
+        IvParameterSpec ivParamSpec = new IvParameterSpec(IV);
+
+        Cipher cipher = Cipher.getInstance("SM4/CBC/PKCS7Padding", PROVIDER);
+        for (int i = 0; i < 10000; i++) {
+            cipher.init(Cipher.ENCRYPT_MODE, key, ivParamSpec);
+            // Feed data but deliberately skip doFinal, then re-init.
+            cipher.update(MESSAGE);
+        }
+
+        // After all the abandoned re-inits, a full encrypt/decrypt round-trip
+        // must still work.
+        cipher.init(Cipher.ENCRYPT_MODE, key, ivParamSpec);
+        byte[] ciphertext = cipher.doFinal(MESSAGE);
+
+        Cipher decrypter = Cipher.getInstance("SM4/CBC/PKCS7Padding", PROVIDER);
+        decrypter.init(Cipher.DECRYPT_MODE, key, ivParamSpec);
+        byte[] plaintext = decrypter.doFinal(ciphertext);
+
+        Assertions.assertArrayEquals(MESSAGE, plaintext);
     }
 }

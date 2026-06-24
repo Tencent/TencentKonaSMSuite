@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022, 2024, Tencent. All rights reserved.
+ * Copyright (C) 2022, 2026, Tencent. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -313,5 +313,21 @@ public class SM3HMacTest {
 
         Assertions.assertArrayEquals(MAC, mac);
         Assertions.assertArrayEquals(mac, macClone);
+    }
+
+    // Each clone allocates its own (native) context. The cloned context must
+    // be tracked for cleanup, otherwise it leaks. This exercises that path
+    // repeatedly to make sure cloning stays correct and stable.
+    @Test
+    public void testRepeatedClone() throws Exception {
+        Mac hmacSM3 = Mac.getInstance("HmacSM3", PROVIDER);
+        SecretKeySpec keySpec = new SecretKeySpec(KEY, "HmacSM3");
+        hmacSM3.init(keySpec);
+
+        for (int i = 0; i < 10000; i++) {
+            Mac clone = (Mac) hmacSM3.clone();
+            byte[] macClone = clone.doFinal(MESSAGE);
+            Assertions.assertArrayEquals(MAC, macClone);
+        }
     }
 }
