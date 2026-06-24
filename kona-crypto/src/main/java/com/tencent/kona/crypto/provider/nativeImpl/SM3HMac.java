@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024, 2025, Tencent. All rights reserved.
+ * Copyright (C) 2024, 2026, Tencent. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify
@@ -95,6 +95,13 @@ public final class SM3HMac extends MacSpi implements Cloneable {
     public SM3HMac clone() throws CloneNotSupportedException {
         SM3HMac clone = (SM3HMac) super.clone();
         clone.sm3HMac = sm3HMac.clone();
+
+        // The cloned native context is a brand-new allocation that is not
+        // covered by the original object's Sweeper registration. Register the
+        // clone so its native context gets released as well, otherwise it
+        // would leak for the lifetime of the JVM.
+        SWEEPER.register(clone, new SweepNativeRef(clone.sm3HMac));
+
         return clone;
     }
 }

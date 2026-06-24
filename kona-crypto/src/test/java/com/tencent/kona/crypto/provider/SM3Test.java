@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022, 2023, Tencent. All rights reserved.
+ * Copyright (C) 2022, 2026, Tencent. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -312,5 +312,19 @@ public class SM3Test {
         byte[] digest = clone.digest();
 
         Assertions.assertArrayEquals(DIGEST_LONG, digest);
+    }
+
+    // Each clone allocates its own (native) context. The cloned context must
+    // be tracked for cleanup, otherwise it leaks. This exercises that path
+    // repeatedly to make sure cloning stays correct and stable.
+    @Test
+    public void testRepeatedClone() throws Exception {
+        MessageDigest md = MessageDigest.getInstance("SM3", PROVIDER);
+
+        for (int i = 0; i < 10000; i++) {
+            MessageDigest clone = (MessageDigest) md.clone();
+            byte[] digest = clone.digest(MESSAGE_SHORT);
+            Assertions.assertArrayEquals(DIGEST_SHORT, digest);
+        }
     }
 }

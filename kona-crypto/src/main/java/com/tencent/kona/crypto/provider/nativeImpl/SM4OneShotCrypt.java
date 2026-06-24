@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022, 2025, Tencent. All rights reserved.
+ * Copyright (C) 2022, 2026, Tencent. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify
@@ -21,6 +21,7 @@
 package com.tencent.kona.crypto.provider.nativeImpl;
 
 import com.tencent.kona.crypto.util.RangeUtil;
+import com.tencent.kona.crypto.util.Sweeper;
 import com.tencent.kona.crypto.CryptoUtils;
 
 import javax.crypto.AEADBadTagException;
@@ -29,6 +30,8 @@ import java.security.InvalidKeyException;
 import static com.tencent.kona.crypto.util.Constants.*;
 
 class SM4OneShotCrypt extends SymmetricCipher {
+
+    private static final Sweeper SWEEPER = Sweeper.instance();
 
     private boolean opChanged = false;
     private boolean decrypting = false;
@@ -54,7 +57,14 @@ class SM4OneShotCrypt extends SymmetricCipher {
         this.key = null;
         this.gcmLastCipherBlock = null;
 
-        this.sm4 = null;
+        // A previous init() may have left a native context behind (e.g. the
+        // caller re-initialized without ever reaching doFinal). Release it
+        // explicitly here so it is freed promptly rather than waiting for the
+        // Sweeper to reclaim it after this object becomes unreachable.
+        if (this.sm4 != null) {
+            this.sm4.close();
+            this.sm4 = null;
+        }
 
         if (!"SM4".equalsIgnoreCase(algorithm)) {
             throw new InvalidKeyException(
@@ -82,20 +92,24 @@ class SM4OneShotCrypt extends SymmetricCipher {
         switch (mode) {
             case ECB:
                 sm4 = new NativeSM4.SM4ECB(!decrypting, padding, key);
+                SWEEPER.register(this, new SweepNativeRef(sm4));
                 break;
             case CBC:
                 sm4 = new NativeSM4.SM4CBC(!decrypting, padding, key, iv);
+                SWEEPER.register(this, new SweepNativeRef(sm4));
                 break;
             case GCM:
                 gcmLastCipherBlock = new DataWindow(SM4_GCM_TAG_LEN);
                 if (sm4 == null || opChanged) {
                     sm4 = new NativeSM4.SM4GCM(!decrypting, key, iv);
+                    SWEEPER.register(this, new SweepNativeRef(sm4));
                 } else {
                     ((NativeSM4.SM4GCM) sm4).setIV(iv);
                 }
                 break;
             case CTR:
                 sm4 = new NativeSM4.SM4CTR(!decrypting, key, iv);
+                SWEEPER.register(this, new SweepNativeRef(sm4));
                 break;
             default:
                 throw new IllegalStateException("Unexpected mode: " + mode);

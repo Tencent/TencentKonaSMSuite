@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2024, Tencent. All rights reserved.
+ * Copyright (C) 2024, 2026, Tencent. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify
@@ -77,6 +77,13 @@ public final class SM3MessageDigest extends MessageDigest implements Cloneable {
     public SM3MessageDigest clone() throws CloneNotSupportedException {
         SM3MessageDigest clone = (SM3MessageDigest) super.clone();
         clone.sm3 = sm3.clone();
+
+        // The cloned native context is a brand-new allocation that is not
+        // covered by the original object's Sweeper registration. Register the
+        // clone so its native context gets released as well, otherwise it
+        // would leak for the lifetime of the JVM.
+        SWEEPER.register(clone, new SweepNativeRef(clone.sm3));
+
         return clone;
     }
 }
