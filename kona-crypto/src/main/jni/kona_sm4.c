@@ -29,17 +29,17 @@
 JNIEXPORT jlong JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeCrypto_sm4CreateCtx
   (JNIEnv* env, jobject thisObj, jboolean encrypt, jstring mode, jboolean padding, jbyteArray key, jbyteArray iv) {
     if (key == NULL) {
-        return OPENSSL_FAILURE;
+        return 0;
     }
 
     jsize key_len = (*env)->GetArrayLength(env, key);
     if (key_len != SM4_KEY_LEN) {
-        return OPENSSL_FAILURE;
+        return 0;
     }
 
     const char* mode_str = (*env)->GetStringUTFChars(env, mode, 0);
     if (mode_str == NULL) {
-        return OPENSSL_FAILURE;
+        return 0;
     }
 
     const EVP_CIPHER* cipher = sm4_cipher(mode_str);
@@ -49,21 +49,21 @@ JNIEXPORT jlong JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeC
     (*env)->ReleaseStringUTFChars(env, mode, mode_str);
 
     if (cipher == NULL) {
-        return OPENSSL_FAILURE;
+        return 0;
     }
 
     // Validate iv: ECB requires no iv; GCM requires 12-byte iv; CBC/CTR require 16-byte iv.
     if (is_ecb) {
         if (iv != NULL) {
-            return OPENSSL_FAILURE;
+            return 0;
         }
     } else if (is_gcm) {
         if (iv_len != SM4_GCM_IV_LEN) {
-            return OPENSSL_FAILURE;
+            return 0;
         }
     } else {
         if (iv_len != SM4_IV_LEN) {
-            return OPENSSL_FAILURE;
+            return 0;
         }
     }
 
@@ -71,13 +71,13 @@ JNIEXPORT jlong JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeC
     if (ctx == NULL) {
         OPENSSL_print_err();
 
-        return OPENSSL_FAILURE;
+        return 0;
     }
 
     jbyte* key_bytes = (*env)->GetByteArrayElements(env, key, NULL);
     jbyte* iv_bytes = iv ? (*env)->GetByteArrayElements(env, iv, NULL) : NULL;
 
-    jlong result = OPENSSL_FAILURE;
+    jlong result = 0;
     if (EVP_CipherInit_ex(ctx, cipher, NULL, (uint8_t*)key_bytes, (uint8_t*)iv_bytes, encrypt)) {
         if (!padding && !EVP_CIPHER_CTX_set_padding(ctx, 0)) {
             OPENSSL_print_err();
@@ -93,7 +93,7 @@ JNIEXPORT jlong JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeC
         (*env)->ReleaseByteArrayElements(env, iv, iv_bytes, JNI_ABORT);
     }
 
-    if (result == OPENSSL_FAILURE && ctx != NULL) {
+    if (result == 0 && ctx != NULL) {
         EVP_CIPHER_CTX_free(ctx);
     }
 

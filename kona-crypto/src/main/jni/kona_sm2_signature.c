@@ -97,24 +97,24 @@ JNIEXPORT jlong JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeC
   (JNIEnv* env, jobject thisObj, jbyteArray key, jbyteArray id, jboolean isSign) {
     int key_len = (*env)->GetArrayLength(env, key);
     if (key_len < SM2_PRI_KEY_LEN) {
-        return OPENSSL_FAILURE;
+        return 0;
     }
     jbyte* key_bytes = (*env)->GetByteArrayElements(env, key, NULL);
     if (key_bytes == NULL) {
-        return OPENSSL_FAILURE;
+        return 0;
     }
 
     int id_len = (*env)->GetArrayLength(env, id);
     if (id_len <= 0) {
         (*env)->ReleaseByteArrayElements(env, key, key_bytes, JNI_ABORT);
 
-        return OPENSSL_FAILURE;
+        return 0;
     }
     jbyte* id_bytes = (*env)->GetByteArrayElements(env, id, NULL);
     if (id_bytes == NULL) {
         (*env)->ReleaseByteArrayElements(env, key, key_bytes, JNI_ABORT);
 
-        return OPENSSL_FAILURE;
+        return 0;
     }
 
     EVP_PKEY* pkey = sm2_load_key((const uint8_t*)key_bytes, key_len);
@@ -123,7 +123,7 @@ JNIEXPORT jlong JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeC
         (*env)->ReleaseByteArrayElements(env, key, key_bytes, JNI_ABORT);
         (*env)->ReleaseByteArrayElements(env, id, id_bytes, JNI_ABORT);
 
-        return OPENSSL_FAILURE;
+        return 0;
     }
 
     SM2_SIGNATURE_CTX* ctx = sm2_create_md_ctx(pkey, (const uint8_t*)id_bytes, id_len, isSign);

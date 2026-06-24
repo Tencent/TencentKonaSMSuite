@@ -145,7 +145,7 @@ JNIEXPORT jint JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeCr
 JNIEXPORT jlong JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeCrypto_sm2KeyPairGenCreateCtx
   (JNIEnv* env, jobject thisObj) {
     EVP_PKEY_CTX* ctx = sm2_create_pkey_ctx(NULL);
-    return ctx == NULL ? OPENSSL_FAILURE : (jlong)ctx;
+    return ctx == NULL ? 0 : (jlong)ctx;
 }
 
 JNIEXPORT void JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeCrypto_sm2KeyPairGenFreeCtx

@@ -35,11 +35,11 @@ JNIEXPORT jlong JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeC
   (JNIEnv* env, jobject thisObj, jbyteArray key) {
     int key_len = (*env)->GetArrayLength(env, key);
     if (key_len < SM2_PRI_KEY_LEN) {
-        return OPENSSL_FAILURE;
+        return 0;
     }
     jbyte* key_bytes = (*env)->GetByteArrayElements(env, key, NULL);
     if (key_bytes == NULL) {
-        return OPENSSL_FAILURE;
+        return 0;
     }
 
     EVP_PKEY* pkey = sm2_load_key((const uint8_t*)key_bytes, key_len);
@@ -47,14 +47,14 @@ JNIEXPORT jlong JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeC
     (*env)->ReleaseByteArrayElements(env, key, key_bytes, JNI_ABORT);
 
     if (pkey == NULL) {
-        return OPENSSL_FAILURE;
+        return 0;
     }
 
     EVP_PKEY_CTX* pctx = sm2_create_pkey_ctx(pkey);
     if (pctx == NULL) {
         EVP_PKEY_free(pkey);
 
-        return OPENSSL_FAILURE;
+        return 0;
     }
 
     SM2_CIPHER_CTX* ctx = (SM2_CIPHER_CTX*)OPENSSL_malloc(sizeof(SM2_CIPHER_CTX));
@@ -62,7 +62,7 @@ JNIEXPORT jlong JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeC
         EVP_PKEY_free(pkey);
         EVP_PKEY_CTX_free(pctx);
 
-        return OPENSSL_FAILURE;
+        return 0;
     }
     ctx->pkey = pkey;
     ctx->pctx = pctx;
