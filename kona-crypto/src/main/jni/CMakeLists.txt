@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2024, 2025, Tencent. All rights reserved.
+# Copyright (C) 2024, 2026, Tencent. All rights reserved.
 # DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
 #
 # This code is free software; you can redistribute it and/or modify it
@@ -21,6 +21,12 @@ cmake_minimum_required(VERSION 3.5)
 
 project(KonaCrypto C)
 
+# Default to a Release (optimized) build when no build type is supplied, so a
+# bare "cmake .." does not silently produce an unoptimized crypto library.
+if(NOT CMAKE_BUILD_TYPE)
+    set(CMAKE_BUILD_TYPE Release)
+endif()
+
 include_directories("include")
 
 set(SOURCES kona_common.c
@@ -38,6 +44,11 @@ set(SOURCES kona_common.c
 set(LIB_DIR "${CMAKE_SOURCE_DIR}/../resources")
 
 add_library(KonaCrypto SHARED ${SOURCES})
+
+# Only the JNI entry points (marked JNIEXPORT, i.e. visibility "default") need
+# to be exported; hide everything else to shrink the dynamic symbol table and
+# avoid clashing with the underlying OpenSSL/Tongsuo library's symbols.
+set_target_properties(KonaCrypto PROPERTIES C_VISIBILITY_PRESET hidden)
 
 if(APPLE)
     if(CMAKE_SYSTEM_PROCESSOR MATCHES "arm64")
