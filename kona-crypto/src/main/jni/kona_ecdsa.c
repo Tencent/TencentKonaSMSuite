@@ -70,11 +70,11 @@ JNIEXPORT jlong JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeC
   (JNIEnv* env, jclass classObj, jint mdNID, jint curveNID, jbyteArray key, jboolean isSign) {
     int key_len = (*env)->GetArrayLength(env, key);
     if (key_len < (isSign ? PRI_KEY_MIN_LEN : PUB_KEY_MIN_LEN)) {
-        return OPENSSL_FAILURE;
+        return 0;
     }
     jbyte* key_bytes = (*env)->GetByteArrayElements(env, key, NULL);
     if (key_bytes == NULL) {
-        return OPENSSL_FAILURE;
+        return 0;
     }
 
     EC_KEY* ec_key = NULL;
@@ -88,7 +88,7 @@ JNIEXPORT jlong JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeC
 
     ECDSA_CTX* ctx = ecdsa_create_ctx(mdNID, ec_key);
     if (ctx == NULL) {
-        return OPENSSL_FAILURE;
+        return 0;
     }
 
     return (jlong)ctx;

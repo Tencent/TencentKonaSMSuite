@@ -69,21 +69,21 @@ JNIEXPORT jlong JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeC
   (JNIEnv* env, jclass classObj, jint curveNID) {
     EVP_PKEY_CTX* pctx = ec_create_pkey_ctx(NULL);
     if (pctx == NULL) {
-        return OPENSSL_FAILURE;
+        return 0;
     }
 
     if (!EVP_PKEY_keygen_init(pctx)) {
         OPENSSL_print_err();
         EVP_PKEY_CTX_free(pctx);
 
-        return OPENSSL_FAILURE;
+        return 0;
     }
 
     if (!EVP_PKEY_CTX_set_ec_paramgen_curve_nid(pctx, curveNID)) {
         OPENSSL_print_err();
         EVP_PKEY_CTX_free(pctx);
 
-        return OPENSSL_FAILURE;
+        return 0;
     }
 
     return (jlong)pctx;

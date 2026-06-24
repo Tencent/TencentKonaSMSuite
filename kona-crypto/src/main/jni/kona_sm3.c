@@ -97,7 +97,7 @@ JNIEXPORT jlong JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeC
   (JNIEnv* env, jobject thisObj) {
     EVP_MD_CTX* ctx = sm3_create_ctx();
 
-    return ctx == NULL ? OPENSSL_FAILURE : (jlong)ctx;
+    return ctx == NULL ? 0 : (jlong)ctx;
 }
 
 JNIEXPORT void JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeCrypto_sm3FreeCtx
@@ -191,19 +191,19 @@ JNIEXPORT jlong JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeC
   (JNIEnv* env, jobject thisObj, jlong pointer) {
     EVP_MD_CTX* orig_ctx = (EVP_MD_CTX*)pointer;
     if (orig_ctx == NULL) {
-        return OPENSSL_FAILURE;
+        return 0;
     }
 
     EVP_MD_CTX* new_ctx = EVP_MD_CTX_new();
     if (new_ctx == NULL) {
-        return OPENSSL_FAILURE;
+        return 0;
     }
 
     if (!EVP_MD_CTX_copy_ex(new_ctx, orig_ctx)) {
         OPENSSL_print_err();
         EVP_MD_CTX_free(new_ctx);
 
-        return OPENSSL_FAILURE;
+        return 0;
     }
 
     return (jlong)new_ctx;
@@ -309,20 +309,20 @@ JNIEXPORT jlong JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeC
   (JNIEnv* env, jobject thisObj, jbyteArray key) {
     EVP_MAC* mac = hmac();
     if (mac == NULL) {
-        return OPENSSL_FAILURE;
+        return 0;
     }
 
     if (key == NULL) {
-        return OPENSSL_FAILURE;
+        return 0;
     }
 
     const int key_len = (*env)->GetArrayLength(env, key);
     if (key_len <= 0) {
-        return OPENSSL_FAILURE;
+        return 0;
     }
     jbyte* key_bytes = (*env)->GetByteArrayElements(env, key, NULL);
     if (key_bytes == NULL) {
-        return OPENSSL_FAILURE;
+        return 0;
     }
 
     EVP_MAC_CTX* ctx = sm3hmac_create_ctx(mac, (const uint8_t*)key_bytes, key_len);
@@ -418,14 +418,14 @@ JNIEXPORT jlong JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeC
   (JNIEnv* env, jobject thisObj, jlong pointer) {
     EVP_MAC_CTX* orig_ctx = (EVP_MAC_CTX*)pointer;
     if (orig_ctx == NULL) {
-        return OPENSSL_FAILURE;
+        return 0;
     }
 
     EVP_MAC_CTX* new_ctx = EVP_MAC_CTX_dup(orig_ctx);
     if (new_ctx == NULL) {
         OPENSSL_print_err();
 
-        return OPENSSL_FAILURE;
+        return 0;
     }
 
     return (jlong)new_ctx;

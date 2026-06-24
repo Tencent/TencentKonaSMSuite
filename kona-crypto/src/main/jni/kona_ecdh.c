@@ -86,25 +86,25 @@ JNIEXPORT jlong JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeC
   (JNIEnv* env, jclass classObj, jint curveNID, jbyteArray priKey) {
     int key_len = (*env)->GetArrayLength(env, priKey);
     if (key_len <= 0) {
-        return OPENSSL_FAILURE;
+        return 0;
     }
     jbyte* pri_key_bytes = (*env)->GetByteArrayElements(env, priKey, NULL);
     if (pri_key_bytes == NULL) {
-        return OPENSSL_FAILURE;
+        return 0;
     }
 
     EC_KEY* pri_key = ec_pri_key_new(curveNID, (const uint8_t *) pri_key_bytes,
                                      key_len);
     (*env)->ReleaseByteArrayElements(env, priKey, pri_key_bytes, JNI_ABORT);
     if (pri_key == NULL) {
-        return OPENSSL_FAILURE;
+        return 0;
     }
 
     ECDH_CTX* ctx = ecdh_create_ctx(curveNID, pri_key);
     if (ctx == NULL) {
         EC_KEY_free(pri_key);
 
-        return OPENSSL_FAILURE;
+        return 0;
     }
 
     return (jlong)ctx;
