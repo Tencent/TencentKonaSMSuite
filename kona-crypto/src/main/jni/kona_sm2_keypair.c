@@ -31,6 +31,10 @@
 
 JNIEXPORT jbyteArray JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeCrypto_sm2ToUncompPubKey
   (JNIEnv* env, jclass classObj, jbyteArray compPubKey) {
+    if (compPubKey == NULL) {
+        return NULL;
+    }
+
     jsize comp_pub_key_len = (*env)->GetArrayLength(env, compPubKey);
     if (comp_pub_key_len != SM2_COMP_PUB_KEY_LEN) {
         return NULL;
@@ -90,6 +94,10 @@ JNIEXPORT jbyteArray JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_Na
 
 JNIEXPORT jbyteArray JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeCrypto_sm2GenPubKey
   (JNIEnv* env, jclass classObj, jbyteArray priKey) {
+    if (priKey == NULL) {
+        return NULL;
+    }
+
     jsize pri_key_len = (*env)->GetArrayLength(env, priKey);
     if (pri_key_len != SM2_PRI_KEY_LEN) {
         return NULL;
@@ -118,6 +126,10 @@ JNIEXPORT jbyteArray JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_Na
 
 JNIEXPORT jint JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeCrypto_sm2ValidatePoint
   (JNIEnv* env, jclass classObj, jbyteArray point) {
+    if (point == NULL) {
+        return OPENSSL_FAILURE;
+    }
+
     int point_len = (*env)->GetArrayLength(env, point);
     if (point_len != SM2_PUB_KEY_LEN) {
         return OPENSSL_FAILURE;

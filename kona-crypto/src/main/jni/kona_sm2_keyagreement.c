@@ -435,6 +435,11 @@ JNIEXPORT jbyteArray JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_Na
         return NULL;
     }
 
+    if (priKey == NULL || pubKey == NULL || ePriKey == NULL || id == NULL
+            || peerPubKey == NULL || peerEPubKey == NULL || peerId == NULL) {
+        return NULL;
+    }
+
     jbyte* pri_key_bytes = NULL;
     jbyte* pub_key_bytes = NULL;
     jbyte* e_pri_key_bytes = NULL;
@@ -616,6 +621,13 @@ JNIEXPORT jbyteArray JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_Na
    jboolean isInitiator, jint sharedKeyLength) {
     SM2_KEYEX_CTX* ctx = sm2_create_keyex_ctx();
     if (ctx == NULL) {
+        return NULL;
+    }
+
+    if (priKey == NULL || pubKey == NULL || ePriKey == NULL || id == NULL
+            || peerPubKey == NULL || peerEPubKey == NULL || peerId == NULL) {
+        sm2_free_keyex_ctx(ctx);
+
         return NULL;
     }
 
