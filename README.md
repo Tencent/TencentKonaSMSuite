@@ -1,4 +1,4 @@
-[![Release](https://img.shields.io/badge/Release-1.0.21-brightgreen)](https://github.com/Tencent/TencentKonaSMSuite/releases/tag/v1.0.21)
+[![Release](https://img.shields.io/badge/Release-1.0.22-brightgreen)](https://github.com/Tencent/TencentKonaSMSuite/releases/tag/v1.0.22)
 [![Maven Central](https://img.shields.io/badge/Maven_Central-gray)](https://central.sonatype.com/search?q=com.tencent.kona)
 
 English | **[中文]**
