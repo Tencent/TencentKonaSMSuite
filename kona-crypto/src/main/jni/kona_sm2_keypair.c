@@ -24,6 +24,7 @@
 #include <openssl/core_names.h>
 #include <openssl/ec.h>
 #include <openssl/evp.h>
+#include <openssl/crypto.h>
 
 #include "kona/kona_jni.h"
 #include "kona/kona_common.h"
@@ -102,18 +103,25 @@ JNIEXPORT jbyteArray JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_Na
     if (pri_key_len != SM2_PRI_KEY_LEN) {
         return NULL;
     }
-    jbyte* pri_key_bytes = (*env)->GetByteArrayElements(env, priKey, NULL);
-    if (pri_key_bytes == NULL) {
+    // Copy the private key into a native buffer instead of cleansing the array
+    // returned by GetByteArrayElements (which may alias the Java heap); the
+    // buffer is scrubbed via OPENSSL_clear_free after the public key is derived.
+    uint8_t* pri_key_buf = OPENSSL_malloc(pri_key_len);
+    if (pri_key_buf == NULL) {
+        return NULL;
+    }
+    (*env)->GetByteArrayRegion(env, priKey, 0, pri_key_len, (jbyte*)pri_key_buf);
+    if ((*env)->ExceptionCheck(env)) {
+        OPENSSL_clear_free(pri_key_buf, pri_key_len);
         return NULL;
     }
 
     uint8_t pub_key_buf[SM2_PUB_KEY_LEN];
-    if (!sm2_gen_pub_key((const uint8_t*)pri_key_bytes, pub_key_buf)) {
-        (*env)->ReleaseByteArrayElements(env, priKey, pri_key_bytes, JNI_ABORT);
-
+    int ok = sm2_gen_pub_key(pri_key_buf, pub_key_buf);
+    OPENSSL_clear_free(pri_key_buf, pri_key_len);
+    if (!ok) {
         return NULL;
     }
-    (*env)->ReleaseByteArrayElements(env, priKey, pri_key_bytes, JNI_ABORT);
 
     jbyteArray pubKey = (*env)->NewByteArray(env, SM2_PUB_KEY_LEN);
     if (pubKey == NULL) {
@@ -195,13 +203,13 @@ int sm2_gen_key_pair(EVP_PKEY_CTX* ctx, uint8_t* key_pair, size_t* key_pair_len)
     }
     if (BN_num_bytes(pri_key_bn) > SM2_PRI_KEY_LEN) {
         EVP_PKEY_free(pkey);
-        BN_free(pri_key_bn);
+        BN_clear_free(pri_key_bn);
 
         return OPENSSL_FAILURE;
     }
     uint8_t pri_key_buf[SM2_PRI_KEY_LEN] = {0};
     BN_bn2binpad(pri_key_bn, pri_key_buf, SM2_PRI_KEY_LEN);
-    BN_free(pri_key_bn);
+    BN_clear_free(pri_key_bn);
 
     size_t pub_key_len = 0;
     if (!EVP_PKEY_get_octet_string_param(pkey, OSSL_PKEY_PARAM_PUB_KEY, NULL, 0, &pub_key_len)) {

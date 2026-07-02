@@ -28,6 +28,7 @@
 #include <openssl/core_names.h>
 #include <openssl/ec.h>
 #include <openssl/evp.h>
+#include <openssl/crypto.h>
 
 #include "kona/kona_jni.h"
 #include "kona/kona_common.h"
@@ -74,7 +75,8 @@ uint8_t* ecdh_derive(ECDH_CTX* ctx, const EC_POINT* peer_pub_point) {
 
     int shared_key_len = ECDH_compute_key(shared_key, ctx->key_len, peer_pub_point, ctx->pri_key, NULL);
     if (shared_key_len == 0 || shared_key_len != ctx->key_len) {
-        OPENSSL_free(shared_key);
+        // ECDH_compute_key may have written partial secret material; scrub it.
+        OPENSSL_clear_free(shared_key, ctx->key_len);
 
         return NULL;
     }
@@ -92,14 +94,21 @@ JNIEXPORT jlong JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeC
     if (key_len <= 0) {
         return 0;
     }
-    jbyte* pri_key_bytes = (*env)->GetByteArrayElements(env, priKey, NULL);
-    if (pri_key_bytes == NULL) {
+    // Copy the private key into a native buffer instead of cleansing the array
+    // returned by GetByteArrayElements (which may alias the Java heap); the
+    // buffer is scrubbed via OPENSSL_clear_free after use.
+    uint8_t* pri_key_buf = OPENSSL_malloc(key_len);
+    if (pri_key_buf == NULL) {
+        return 0;
+    }
+    (*env)->GetByteArrayRegion(env, priKey, 0, key_len, (jbyte*)pri_key_buf);
+    if ((*env)->ExceptionCheck(env)) {
+        OPENSSL_clear_free(pri_key_buf, key_len);
         return 0;
     }
 
-    EC_KEY* pri_key = ec_pri_key_new(curveNID, (const uint8_t *) pri_key_bytes,
-                                     key_len);
-    (*env)->ReleaseByteArrayElements(env, priKey, pri_key_bytes, JNI_ABORT);
+    EC_KEY* pri_key = ec_pri_key_new(curveNID, pri_key_buf, key_len);
+    OPENSSL_clear_free(pri_key_buf, key_len);
     if (pri_key == NULL) {
         return 0;
     }
@@ -166,7 +175,7 @@ JNIEXPORT jbyteArray JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_Na
         (*env)->SetByteArrayRegion(env, shared_key_bytes, 0, ctx->key_len, (jbyte*)shared_key);
     }
 
-    OPENSSL_free(shared_key);
+    OPENSSL_clear_free(shared_key, ctx->key_len);
 
     return shared_key_bytes;
 }
@@ -181,14 +190,20 @@ JNIEXPORT jbyteArray JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_Na
     if (key_len <= 0) {
         return NULL;
     }
-    jbyte* pri_key_bytes = (*env)->GetByteArrayElements(env, priKey, NULL);
-    if (pri_key_bytes == NULL) {
+    // Copy the private key into a native buffer (see ecdhCreateCtx) so it can
+    // be scrubbed via OPENSSL_clear_free without touching the caller's array.
+    uint8_t* pri_key_buf = OPENSSL_malloc(key_len);
+    if (pri_key_buf == NULL) {
+        return NULL;
+    }
+    (*env)->GetByteArrayRegion(env, priKey, 0, key_len, (jbyte*)pri_key_buf);
+    if ((*env)->ExceptionCheck(env)) {
+        OPENSSL_clear_free(pri_key_buf, key_len);
         return NULL;
     }
 
-    EC_KEY* pri_key = ec_pri_key_new(curveNID, (const uint8_t *) pri_key_bytes,
-                                     key_len);
-    (*env)->ReleaseByteArrayElements(env, priKey, pri_key_bytes, JNI_ABORT);
+    EC_KEY* pri_key = ec_pri_key_new(curveNID, pri_key_buf, key_len);
+    OPENSSL_clear_free(pri_key_buf, key_len);
     if (pri_key == NULL) {
         return NULL;
     }
@@ -243,7 +258,7 @@ JNIEXPORT jbyteArray JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_Na
         (*env)->SetByteArrayRegion(env, shared_key_bytes, 0, ctx->key_len, (jbyte*)shared_key);
     }
 
-    OPENSSL_free(shared_key);
+    OPENSSL_clear_free(shared_key, ctx->key_len);
     ecdh_ctx_free(ctx);
 
     return shared_key_bytes;
