@@ -26,6 +26,7 @@
 #include <openssl/evp.h>
 #include <openssl/ec.h>
 #include <openssl/err.h>
+#include <openssl/crypto.h>
 
 #include "kona/kona_common.h"
 #include "kona/kona_sm2.h"
@@ -382,7 +383,7 @@ cleanup:
 void sm2_keyex_params_free(SM2_KEYEX_PARAMS* ctx) {
     if (ctx != NULL) {
         if (ctx->pri_key != NULL) {
-            BN_free(ctx->pri_key);
+            BN_clear_free(ctx->pri_key);
             ctx->pri_key = NULL;
         }
         if (ctx->pub_key != NULL) {
@@ -390,7 +391,7 @@ void sm2_keyex_params_free(SM2_KEYEX_PARAMS* ctx) {
             ctx->pub_key = NULL;
         }
         if (ctx->e_pri_key != NULL) {
-            BN_free(ctx->e_pri_key);
+            BN_clear_free(ctx->e_pri_key);
             ctx->e_pri_key = NULL;
         }
         if (ctx->id != NULL) {
@@ -440,9 +441,9 @@ JNIEXPORT jbyteArray JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_Na
         return NULL;
     }
 
-    jbyte* pri_key_bytes = NULL;
+    uint8_t* pri_key_buf = NULL;
     jbyte* pub_key_bytes = NULL;
-    jbyte* e_pri_key_bytes = NULL;
+    uint8_t* e_pri_key_buf = NULL;
     jbyte* id_bytes = NULL;
     jbyte* peer_pub_key_bytes = NULL;
     jbyte* peer_e_pub_key_bytes = NULL;
@@ -461,8 +462,15 @@ JNIEXPORT jbyteArray JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_Na
     if (pri_key_len != SM2_PRI_KEY_LEN) {
         goto cleanup;
     }
-    pri_key_bytes = (*env)->GetByteArrayElements(env, priKey, NULL);
-    if (pri_key_bytes == NULL) {
+    // Copy the private key into a native buffer instead of cleansing the array
+    // returned by GetByteArrayElements (which may alias the Java heap); the
+    // buffer is scrubbed via OPENSSL_clear_free in the cleanup block.
+    pri_key_buf = OPENSSL_malloc(pri_key_len);
+    if (pri_key_buf == NULL) {
+        goto cleanup;
+    }
+    (*env)->GetByteArrayRegion(env, priKey, 0, pri_key_len, (jbyte*)pri_key_buf);
+    if ((*env)->ExceptionCheck(env)) {
         goto cleanup;
     }
 
@@ -479,8 +487,14 @@ JNIEXPORT jbyteArray JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_Na
     if (e_pri_key_len != SM2_PRI_KEY_LEN) {
         goto cleanup;
     }
-    e_pri_key_bytes = (*env)->GetByteArrayElements(env, ePriKey, NULL);
-    if (e_pri_key_bytes == NULL) {
+    // Copy the ephemeral private key into a native buffer (see priKey above);
+    // scrubbed via OPENSSL_clear_free in the cleanup block.
+    e_pri_key_buf = OPENSSL_malloc(e_pri_key_len);
+    if (e_pri_key_buf == NULL) {
+        goto cleanup;
+    }
+    (*env)->GetByteArrayRegion(env, ePriKey, 0, e_pri_key_len, (jbyte*)e_pri_key_buf);
+    if ((*env)->ExceptionCheck(env)) {
         goto cleanup;
     }
 
@@ -527,7 +541,7 @@ JNIEXPORT jbyteArray JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_Na
         goto cleanup;
     }
 
-    pri_key = sm2_pri_key((const uint8_t *)pri_key_bytes);
+    pri_key = sm2_pri_key(pri_key_buf);
     if (pri_key == NULL) {
         goto cleanup;
     }
@@ -537,7 +551,7 @@ JNIEXPORT jbyteArray JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_Na
         goto cleanup;
     }
 
-    e_pri_key = sm2_pri_key((const uint8_t *)e_pri_key_bytes);
+    e_pri_key = sm2_pri_key(e_pri_key_buf);
     if (e_pri_key == NULL) {
         goto cleanup;
     }
@@ -582,14 +596,14 @@ JNIEXPORT jbyteArray JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_Na
     (*env)->SetByteArrayRegion(env, shared_key_bytes, 0, shared_key_len, (jbyte*)shared_key_buf);
 
 cleanup:
-    if (pri_key_bytes != NULL) {
-        (*env)->ReleaseByteArrayElements(env, priKey, pri_key_bytes, JNI_ABORT);
+    if (pri_key_buf != NULL) {
+        OPENSSL_clear_free(pri_key_buf, SM2_PRI_KEY_LEN);
     }
     if (pub_key_bytes != NULL) {
         (*env)->ReleaseByteArrayElements(env, pubKey, pub_key_bytes, JNI_ABORT);
     }
-    if (e_pri_key_bytes != NULL) {
-        (*env)->ReleaseByteArrayElements(env, ePriKey, e_pri_key_bytes, JNI_ABORT);
+    if (e_pri_key_buf != NULL) {
+        OPENSSL_clear_free(e_pri_key_buf, SM2_PRI_KEY_LEN);
     }
     if (id_bytes != NULL) {
         (*env)->ReleaseByteArrayElements(env, id, id_bytes, JNI_ABORT);
@@ -631,9 +645,9 @@ JNIEXPORT jbyteArray JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_Na
         return NULL;
     }
 
-    jbyte* pri_key_bytes = NULL;
+    uint8_t* pri_key_buf = NULL;
     jbyte* pub_key_bytes = NULL;
-    jbyte* e_pri_key_bytes = NULL;
+    uint8_t* e_pri_key_buf = NULL;
     jbyte* id_bytes = NULL;
     jbyte* peer_pub_key_bytes = NULL;
     jbyte* peer_e_pub_key_bytes = NULL;
@@ -652,8 +666,15 @@ JNIEXPORT jbyteArray JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_Na
     if (pri_key_len != SM2_PRI_KEY_LEN) {
         goto cleanup;
     }
-    pri_key_bytes = (*env)->GetByteArrayElements(env, priKey, NULL);
-    if (pri_key_bytes == NULL) {
+    // Copy the private key into a native buffer instead of cleansing the array
+    // returned by GetByteArrayElements (which may alias the Java heap); the
+    // buffer is scrubbed via OPENSSL_clear_free in the cleanup block.
+    pri_key_buf = OPENSSL_malloc(pri_key_len);
+    if (pri_key_buf == NULL) {
+        goto cleanup;
+    }
+    (*env)->GetByteArrayRegion(env, priKey, 0, pri_key_len, (jbyte*)pri_key_buf);
+    if ((*env)->ExceptionCheck(env)) {
         goto cleanup;
     }
 
@@ -670,8 +691,14 @@ JNIEXPORT jbyteArray JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_Na
     if (e_pri_key_len != SM2_PRI_KEY_LEN) {
         goto cleanup;
     }
-    e_pri_key_bytes = (*env)->GetByteArrayElements(env, ePriKey, NULL);
-    if (e_pri_key_bytes == NULL) {
+    // Copy the ephemeral private key into a native buffer (see priKey above);
+    // scrubbed via OPENSSL_clear_free in the cleanup block.
+    e_pri_key_buf = OPENSSL_malloc(e_pri_key_len);
+    if (e_pri_key_buf == NULL) {
+        goto cleanup;
+    }
+    (*env)->GetByteArrayRegion(env, ePriKey, 0, e_pri_key_len, (jbyte*)e_pri_key_buf);
+    if ((*env)->ExceptionCheck(env)) {
         goto cleanup;
     }
 
@@ -718,7 +745,7 @@ JNIEXPORT jbyteArray JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_Na
         goto cleanup;
     }
 
-    pri_key = sm2_pri_key((const uint8_t *)pri_key_bytes);
+    pri_key = sm2_pri_key(pri_key_buf);
     if (pri_key == NULL) {
         goto cleanup;
     }
@@ -728,7 +755,7 @@ JNIEXPORT jbyteArray JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_Na
         goto cleanup;
     }
 
-    e_pri_key = sm2_pri_key((const uint8_t *)e_pri_key_bytes);
+    e_pri_key = sm2_pri_key(e_pri_key_buf);
     if (e_pri_key == NULL) {
         goto cleanup;
     }
@@ -773,14 +800,14 @@ JNIEXPORT jbyteArray JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_Na
     (*env)->SetByteArrayRegion(env, shared_key_bytes, 0, shared_key_len, (jbyte*)shared_key_buf);
 
 cleanup:
-    if (pri_key_bytes != NULL) {
-        (*env)->ReleaseByteArrayElements(env, priKey, pri_key_bytes, JNI_ABORT);
+    if (pri_key_buf != NULL) {
+        OPENSSL_clear_free(pri_key_buf, SM2_PRI_KEY_LEN);
     }
     if (pub_key_bytes != NULL) {
         (*env)->ReleaseByteArrayElements(env, pubKey, pub_key_bytes, JNI_ABORT);
     }
-    if (e_pri_key_bytes != NULL) {
-        (*env)->ReleaseByteArrayElements(env, ePriKey, e_pri_key_bytes, JNI_ABORT);
+    if (e_pri_key_buf != NULL) {
+        OPENSSL_clear_free(e_pri_key_buf, SM2_PRI_KEY_LEN);
     }
     if (id_bytes != NULL) {
         (*env)->ReleaseByteArrayElements(env, id, id_bytes, JNI_ABORT);

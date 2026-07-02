@@ -142,7 +142,7 @@ BIGNUM* sm2_pri_key(const uint8_t* pri_key_bytes) {
     }
 
     if (BN_bin2bn(pri_key_bytes, 32, pri_key) == NULL) {
-        BN_free(pri_key);
+        BN_clear_free(pri_key);
 
         return NULL;
     }
@@ -261,7 +261,7 @@ EVP_PKEY* sm2_load_key_pair(const uint8_t* pri_key, const uint8_t* pub_key) {
 
     if (!EC_KEY_set_private_key(ec_key, pri_key_bn)) {
         OPENSSL_print_err();
-        BN_free(pri_key_bn);
+        BN_clear_free(pri_key_bn);
         EC_KEY_free(ec_key);
 
         return NULL;
@@ -271,7 +271,7 @@ EVP_PKEY* sm2_load_key_pair(const uint8_t* pri_key, const uint8_t* pub_key) {
     EC_POINT* pub_point = EC_POINT_new(group);
     if (pub_point == NULL) {
         OPENSSL_print_err();
-        BN_free(pri_key_bn);
+        BN_clear_free(pri_key_bn);
         EC_KEY_free(ec_key);
 
         return NULL;
@@ -279,7 +279,7 @@ EVP_PKEY* sm2_load_key_pair(const uint8_t* pri_key, const uint8_t* pub_key) {
 
     if (!EC_POINT_oct2point(group, pub_point, pub_key, SM2_PUB_KEY_LEN, NULL)) {
         OPENSSL_print_err();
-        BN_free(pri_key_bn);
+        BN_clear_free(pri_key_bn);
         EC_POINT_free(pub_point);
         EC_KEY_free(ec_key);
 
@@ -288,7 +288,7 @@ EVP_PKEY* sm2_load_key_pair(const uint8_t* pri_key, const uint8_t* pub_key) {
 
     if (!EC_KEY_set_public_key(ec_key, pub_point)) {
         OPENSSL_print_err();
-        BN_free(pri_key_bn);
+        BN_clear_free(pri_key_bn);
         EC_POINT_free(pub_point);
         EC_KEY_free(ec_key);
 
@@ -299,7 +299,7 @@ EVP_PKEY* sm2_load_key_pair(const uint8_t* pri_key, const uint8_t* pub_key) {
     if (pkey == NULL) {
         OPENSSL_print_err();
 
-        BN_free(pri_key_bn);
+        BN_clear_free(pri_key_bn);
         EC_POINT_free(pub_point);
         EC_KEY_free(ec_key);
 
@@ -310,14 +310,14 @@ EVP_PKEY* sm2_load_key_pair(const uint8_t* pri_key, const uint8_t* pub_key) {
         OPENSSL_print_err();
         EVP_PKEY_free(pkey);
 
-        BN_free(pri_key_bn);
+        BN_clear_free(pri_key_bn);
         EC_POINT_free(pub_point);
         EC_KEY_free(ec_key);
 
         return NULL;
     }
 
-    BN_free(pri_key_bn);
+    BN_clear_free(pri_key_bn);
     EC_POINT_free(pub_point);
     ec_key = NULL; // ec_key cannot be freed due to pkey is using it.
 
@@ -339,7 +339,7 @@ int sm2_gen_pub_key(const uint8_t* pri_key, uint8_t* pub_key) {
 
     if (!EC_KEY_set_private_key(ec_key, bn_pri_key)) {
         EC_KEY_free(ec_key);
-        BN_free(bn_pri_key);
+        BN_clear_free(bn_pri_key);
 
         return OPENSSL_FAILURE;
     }
@@ -347,7 +347,7 @@ int sm2_gen_pub_key(const uint8_t* pri_key, uint8_t* pub_key) {
     const EC_GROUP* group = EC_KEY_get0_group(ec_key);
     if (group == NULL) {
         EC_KEY_free(ec_key);
-        BN_free(bn_pri_key);
+        BN_clear_free(bn_pri_key);
 
         return OPENSSL_FAILURE;
     }
@@ -355,14 +355,14 @@ int sm2_gen_pub_key(const uint8_t* pri_key, uint8_t* pub_key) {
     EC_POINT* pub_point = EC_POINT_new(group);
     if (pub_point == NULL) {
         EC_KEY_free(ec_key);
-        BN_free(bn_pri_key);
+        BN_clear_free(bn_pri_key);
 
         return OPENSSL_FAILURE;
     }
 
     if (!EC_POINT_mul(group, pub_point, bn_pri_key, NULL, NULL, NULL)) {
         EC_KEY_free(ec_key);
-        BN_free(bn_pri_key);
+        BN_clear_free(bn_pri_key);
         EC_POINT_free(pub_point);
 
         return OPENSSL_FAILURE;
@@ -370,7 +370,7 @@ int sm2_gen_pub_key(const uint8_t* pri_key, uint8_t* pub_key) {
 
     if (!EC_KEY_set_public_key(ec_key, pub_point)) {
         EC_KEY_free(ec_key);
-        BN_free(bn_pri_key);
+        BN_clear_free(bn_pri_key);
         EC_POINT_free(pub_point);
 
         return OPENSSL_FAILURE;
@@ -379,7 +379,7 @@ int sm2_gen_pub_key(const uint8_t* pri_key, uint8_t* pub_key) {
     BN_CTX* bn_ctx = BN_CTX_new();
     if (bn_ctx == NULL) {
         EC_KEY_free(ec_key);
-        BN_free(bn_pri_key);
+        BN_clear_free(bn_pri_key);
         EC_POINT_free(pub_point);
 
         return OPENSSL_FAILURE;
@@ -388,7 +388,7 @@ int sm2_gen_pub_key(const uint8_t* pri_key, uint8_t* pub_key) {
     size_t pub_key_len = EC_POINT_point2oct(group, pub_point, POINT_CONVERSION_UNCOMPRESSED, NULL, 0, bn_ctx);
     if (pub_key_len != SM2_PUB_KEY_LEN) {
         EC_KEY_free(ec_key);
-        BN_free(bn_pri_key);
+        BN_clear_free(bn_pri_key);
         EC_POINT_free(pub_point);
         BN_CTX_free(bn_ctx);
 
@@ -397,7 +397,7 @@ int sm2_gen_pub_key(const uint8_t* pri_key, uint8_t* pub_key) {
 
     if (!EC_POINT_point2oct(group, pub_point, POINT_CONVERSION_UNCOMPRESSED, pub_key, pub_key_len, bn_ctx)) {
         EC_KEY_free(ec_key);
-        BN_free(bn_pri_key);
+        BN_clear_free(bn_pri_key);
         EC_POINT_free(pub_point);
         BN_CTX_free(bn_ctx);
 
@@ -405,7 +405,7 @@ int sm2_gen_pub_key(const uint8_t* pri_key, uint8_t* pub_key) {
     }
 
     EC_KEY_free(ec_key);
-    BN_free(bn_pri_key);
+    BN_clear_free(bn_pri_key);
     EC_POINT_free(pub_point);
     BN_CTX_free(bn_ctx);
 

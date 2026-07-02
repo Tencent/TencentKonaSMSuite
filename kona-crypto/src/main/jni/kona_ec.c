@@ -44,11 +44,11 @@ EC_KEY* ec_pri_key_new(int curveNID, const uint8_t* pri_key, size_t pri_key_len)
     BIGNUM *pri_key_bn = BN_bin2bn(pri_key, pri_key_len, NULL);
     if (!pri_key_bn || !EC_KEY_set_private_key(ec_key, pri_key_bn)) {
         EC_KEY_free(ec_key);
-        BN_free(pri_key_bn);
+        BN_clear_free(pri_key_bn);
         return NULL;
     }
 
-    BN_free(pri_key_bn);
+    BN_clear_free(pri_key_bn);
     return ec_key;
 }
 
@@ -88,11 +88,11 @@ EC_KEY* ec_key_new(int curveNID,
     BIGNUM* pri_key_bn = BN_bin2bn(pri_key, pri_key_len, NULL);
     if (!pri_key_bn || !EC_KEY_set_private_key(ec_key, pri_key_bn)) {
         EC_KEY_free(ec_key);
-        BN_free(pri_key_bn);
+        BN_clear_free(pri_key_bn);
         return NULL;
     }
 
-    BN_free(pri_key_bn);
+    BN_clear_free(pri_key_bn);
 
     const EC_GROUP* group = EC_KEY_get0_group(ec_key);
     if (!group) {
@@ -145,7 +145,7 @@ BIGNUM* ec_pri_key_bn_new(const EC_GROUP* group, const uint8_t* pri_key_bytes) {
 
     if (BN_bin2bn(pri_key_bytes, pri_key_len, pri_key) == NULL) {
         OPENSSL_print_err();
-        BN_free(pri_key);
+        BN_clear_free(pri_key);
 
         return NULL;
     }

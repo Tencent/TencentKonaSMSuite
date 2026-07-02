@@ -20,6 +20,7 @@
 #include <jni.h>
 
 #include <openssl/evp.h>
+#include <openssl/crypto.h>
 
 #include "kona/kona_jni.h"
 #include "kona/kona_common.h"
@@ -320,14 +321,22 @@ JNIEXPORT jlong JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeC
     if (key_len <= 0) {
         return 0;
     }
-    jbyte* key_bytes = (*env)->GetByteArrayElements(env, key, NULL);
-    if (key_bytes == NULL) {
+    // Copy the HMAC key into a native buffer instead of cleansing the array
+    // returned by GetByteArrayElements (which may alias the Java heap); the
+    // buffer is scrubbed via OPENSSL_clear_free after the context is created.
+    uint8_t* key_buf = OPENSSL_malloc(key_len);
+    if (key_buf == NULL) {
+        return 0;
+    }
+    (*env)->GetByteArrayRegion(env, key, 0, key_len, (jbyte*)key_buf);
+    if ((*env)->ExceptionCheck(env)) {
+        OPENSSL_clear_free(key_buf, key_len);
         return 0;
     }
 
-    EVP_MAC_CTX* ctx = sm3hmac_create_ctx(mac, (const uint8_t*)key_bytes, key_len);
+    EVP_MAC_CTX* ctx = sm3hmac_create_ctx(mac, key_buf, key_len);
 
-    (*env)->ReleaseByteArrayElements(env, key, key_bytes, JNI_ABORT);
+    OPENSSL_clear_free(key_buf, key_len);
 
     return (jlong)ctx;
 }
@@ -446,14 +455,21 @@ JNIEXPORT jbyteArray JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_Na
     if (key_len <= 0) {
         return NULL;
     }
-    jbyte* key_bytes = (*env)->GetByteArrayElements(env, key, NULL);
-    if (key_bytes == NULL) {
+    // Copy the HMAC key into a native buffer (see sm3hmacCreateCtx); scrubbed
+    // via OPENSSL_clear_free after the context is created.
+    uint8_t* key_buf = OPENSSL_malloc(key_len);
+    if (key_buf == NULL) {
+        return NULL;
+    }
+    (*env)->GetByteArrayRegion(env, key, 0, key_len, (jbyte*)key_buf);
+    if ((*env)->ExceptionCheck(env)) {
+        OPENSSL_clear_free(key_buf, key_len);
         return NULL;
     }
 
-    EVP_MAC_CTX* ctx = sm3hmac_create_ctx(mac, (const uint8_t*)key_bytes, key_len);
+    EVP_MAC_CTX* ctx = sm3hmac_create_ctx(mac, key_buf, key_len);
 
-    (*env)->ReleaseByteArrayElements(env, key, key_bytes, JNI_ABORT);
+    OPENSSL_clear_free(key_buf, key_len);
 
     if (ctx == NULL) {
         return NULL;

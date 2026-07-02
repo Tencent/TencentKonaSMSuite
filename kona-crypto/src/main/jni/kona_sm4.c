@@ -22,6 +22,7 @@
 #include <jni.h>
 
 #include <openssl/evp.h>
+#include <openssl/crypto.h>
 
 #include "kona/kona_jni.h"
 #include "kona/kona_common.h"
@@ -74,22 +75,32 @@ JNIEXPORT jlong JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeC
         return 0;
     }
 
-    jbyte* key_bytes = (*env)->GetByteArrayElements(env, key, NULL);
-    if (key_bytes == NULL) {
+    // Copy the SM4 key into a native buffer instead of cleansing the array
+    // returned by GetByteArrayElements (which may alias the Java heap); the
+    // buffer is scrubbed via OPENSSL_clear_free after the cipher is initialized.
+    uint8_t* key_buf = OPENSSL_malloc(key_len);
+    if (key_buf == NULL) {
+        EVP_CIPHER_CTX_free(ctx);
+
+        return 0;
+    }
+    (*env)->GetByteArrayRegion(env, key, 0, key_len, (jbyte*)key_buf);
+    if ((*env)->ExceptionCheck(env)) {
+        OPENSSL_clear_free(key_buf, key_len);
         EVP_CIPHER_CTX_free(ctx);
 
         return 0;
     }
     jbyte* iv_bytes = iv ? (*env)->GetByteArrayElements(env, iv, NULL) : NULL;
     if (iv != NULL && iv_bytes == NULL) {
-        (*env)->ReleaseByteArrayElements(env, key, key_bytes, JNI_ABORT);
+        OPENSSL_clear_free(key_buf, key_len);
         EVP_CIPHER_CTX_free(ctx);
 
         return 0;
     }
 
     jlong result = 0;
-    if (EVP_CipherInit_ex(ctx, cipher, NULL, (uint8_t*)key_bytes, (uint8_t*)iv_bytes, encrypt)) {
+    if (EVP_CipherInit_ex(ctx, cipher, NULL, key_buf, (uint8_t*)iv_bytes, encrypt)) {
         if (!padding && !EVP_CIPHER_CTX_set_padding(ctx, 0)) {
             OPENSSL_print_err();
         } else {
@@ -99,7 +110,7 @@ JNIEXPORT jlong JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeC
         OPENSSL_print_err();
     }
 
-    (*env)->ReleaseByteArrayElements(env, key, key_bytes, JNI_ABORT);
+    OPENSSL_clear_free(key_buf, key_len);
     if (iv_bytes) {
         (*env)->ReleaseByteArrayElements(env, iv, iv_bytes, JNI_ABORT);
     }
@@ -183,17 +194,46 @@ JNIEXPORT jbyteArray JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_Na
 
     OPENSSL_free(out_buf);
 
-    // Re-init with the original parameters for the next operations.
-    jbyte* key_bytes = key ? (*env)->GetByteArrayElements(env, key, NULL) : NULL;
-    jbyte* iv_bytes = iv ? (*env)->GetByteArrayElements(env, iv, NULL) : NULL;
-    if (!EVP_CipherInit_ex(ctx, NULL, NULL, (uint8_t*)key_bytes, (uint8_t*)iv_bytes, EVP_CIPHER_CTX_encrypting(ctx))) {
-        OPENSSL_print_err();
-    }
+    // Re-init with the original parameters for the next operations. Copy the
+    // key into a native buffer (scrubbed via OPENSSL_clear_free) rather than
+    // cleansing the array returned by GetByteArrayElements, which may alias the
+    // Java heap. A NULL key is valid (e.g. GCM re-init); but if a key was
+    // supplied and copying it fails, skip the re-init rather than reinitialize
+    // the context with a NULL key, which would silently corrupt its state. The
+    // already-computed final output is still returned.
+    uint8_t* key_buf = NULL;
+    jsize key_len = 0;
+    int key_ready = 1;
     if (key != NULL) {
-        (*env)->ReleaseByteArrayElements(env, key, key_bytes, JNI_ABORT);
+        key_len = (*env)->GetArrayLength(env, key);
+        if (key_len <= 0) {
+            key_ready = 0;
+        } else {
+            key_buf = OPENSSL_malloc(key_len);
+            if (key_buf == NULL) {
+                key_ready = 0;
+            } else {
+                (*env)->GetByteArrayRegion(env, key, 0, key_len, (jbyte*)key_buf);
+                if ((*env)->ExceptionCheck(env)) {
+                    OPENSSL_clear_free(key_buf, key_len);
+                    key_buf = NULL;
+                    key_ready = 0;
+                }
+            }
+        }
     }
-    if (iv_bytes != NULL) {
-        (*env)->ReleaseByteArrayElements(env, iv, iv_bytes, JNI_ABORT);
+
+    if (key_ready) {
+        jbyte* iv_bytes = iv ? (*env)->GetByteArrayElements(env, iv, NULL) : NULL;
+        if (!EVP_CipherInit_ex(ctx, NULL, NULL, key_buf, (uint8_t*)iv_bytes, EVP_CIPHER_CTX_encrypting(ctx))) {
+            OPENSSL_print_err();
+        }
+        if (key_buf != NULL) {
+            OPENSSL_clear_free(key_buf, key_len);
+        }
+        if (iv_bytes != NULL) {
+            (*env)->ReleaseByteArrayElements(env, iv, iv_bytes, JNI_ABORT);
+        }
     }
 
     return out_bytes;

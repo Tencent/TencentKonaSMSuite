@@ -26,6 +26,7 @@
 #include <openssl/core_names.h>
 #include <openssl/ec.h>
 #include <openssl/evp.h>
+#include <openssl/crypto.h>
 
 #include "kona/kona_jni.h"
 #include "kona/kona_common.h"
@@ -41,14 +42,22 @@ JNIEXPORT jlong JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeC
     if (key_len < SM2_PRI_KEY_LEN) {
         return 0;
     }
-    jbyte* key_bytes = (*env)->GetByteArrayElements(env, key, NULL);
-    if (key_bytes == NULL) {
+    // Copy the private key into a native buffer instead of cleansing the array
+    // returned by GetByteArrayElements (which may alias the Java heap); the
+    // buffer is scrubbed via OPENSSL_clear_free after loading the key.
+    uint8_t* key_buf = OPENSSL_malloc(key_len);
+    if (key_buf == NULL) {
+        return 0;
+    }
+    (*env)->GetByteArrayRegion(env, key, 0, key_len, (jbyte*)key_buf);
+    if ((*env)->ExceptionCheck(env)) {
+        OPENSSL_clear_free(key_buf, key_len);
         return 0;
     }
 
-    EVP_PKEY* pkey = sm2_load_key((const uint8_t*)key_bytes, key_len);
+    EVP_PKEY* pkey = sm2_load_key(key_buf, key_len);
 
-    (*env)->ReleaseByteArrayElements(env, key, key_bytes, JNI_ABORT);
+    OPENSSL_clear_free(key_buf, key_len);
 
     if (pkey == NULL) {
         return 0;
@@ -247,14 +256,22 @@ JNIEXPORT jbyteArray JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_Na
     if (key_len < SM2_PRI_KEY_LEN) {
         return NULL;
     }
-    jbyte* key_bytes = (*env)->GetByteArrayElements(env, key, NULL);
-    if (key_bytes == NULL) {
+    // Copy the private key into a native buffer instead of cleansing the array
+    // returned by GetByteArrayElements (which may alias the Java heap); the
+    // buffer is scrubbed via OPENSSL_clear_free after loading the key.
+    uint8_t* key_buf = OPENSSL_malloc(key_len);
+    if (key_buf == NULL) {
+        return NULL;
+    }
+    (*env)->GetByteArrayRegion(env, key, 0, key_len, (jbyte*)key_buf);
+    if ((*env)->ExceptionCheck(env)) {
+        OPENSSL_clear_free(key_buf, key_len);
         return NULL;
     }
 
-    EVP_PKEY* pkey = sm2_load_key((const uint8_t*)key_bytes, key_len);
+    EVP_PKEY* pkey = sm2_load_key(key_buf, key_len);
 
-    (*env)->ReleaseByteArrayElements(env, key, key_bytes, JNI_ABORT);
+    OPENSSL_clear_free(key_buf, key_len);
 
     if (pkey == NULL) {
         return NULL;
@@ -312,14 +329,22 @@ JNIEXPORT jbyteArray JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_Na
     if (key_len < SM2_PRI_KEY_LEN) {
         return NULL;
     }
-    jbyte* key_bytes = (*env)->GetByteArrayElements(env, key, NULL);
-    if (key_bytes == NULL) {
+    // Copy the private key into a native buffer instead of cleansing the array
+    // returned by GetByteArrayElements (which may alias the Java heap); the
+    // buffer is scrubbed via OPENSSL_clear_free after loading the key.
+    uint8_t* key_buf = OPENSSL_malloc(key_len);
+    if (key_buf == NULL) {
+        return NULL;
+    }
+    (*env)->GetByteArrayRegion(env, key, 0, key_len, (jbyte*)key_buf);
+    if ((*env)->ExceptionCheck(env)) {
+        OPENSSL_clear_free(key_buf, key_len);
         return NULL;
     }
 
-    EVP_PKEY* pkey = sm2_load_key((const uint8_t*)key_bytes, key_len);
+    EVP_PKEY* pkey = sm2_load_key(key_buf, key_len);
 
-    (*env)->ReleaseByteArrayElements(env, key, key_bytes, JNI_ABORT);
+    OPENSSL_clear_free(key_buf, key_len);
 
     if (pkey == NULL) {
         return NULL;
