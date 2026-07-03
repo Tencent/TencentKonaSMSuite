@@ -52,15 +52,50 @@ JNIEXPORT void JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeCr
 
     const BIGNUM* pri_key_bn = EC_KEY_get0_private_key(ec_key);
     jsize priv_key_len = (*env)->GetArrayLength(env, priKey);
-    jbyte* priv_key_bytes = (*env)->GetPrimitiveArrayCritical(env, priKey, NULL);
-    BN_bn2binpad(pri_key_bn, (uint8_t*)priv_key_bytes, priv_key_len);
-    (*env)->ReleasePrimitiveArrayCritical(env, priKey, priv_key_bytes, 0);
+    // Encode the private key into a native buffer, then copy it out to the Java
+    // array with SetByteArrayRegion. The native buffer is scrubbed with
+    // OPENSSL_clear_free rather than using GetPrimitiveArrayCritical, which
+    // would write directly into the Java heap and cannot be safely zeroed.
+    uint8_t* priv_key_buf = OPENSSL_malloc(priv_key_len);
+    if (priv_key_buf == NULL) {
+        OPENSSL_print_err();
+        EC_KEY_free(ec_key);
+        return;
+    }
+    if (BN_bn2binpad(pri_key_bn, priv_key_buf, priv_key_len) != priv_key_len) {
+        OPENSSL_print_err();
+        OPENSSL_clear_free(priv_key_buf, priv_key_len);
+        EC_KEY_free(ec_key);
+        return;
+    }
+    (*env)->SetByteArrayRegion(env, priKey, 0, priv_key_len, (jbyte*)priv_key_buf);
+    OPENSSL_clear_free(priv_key_buf, priv_key_len);
+    if ((*env)->ExceptionCheck(env)) {
+        EC_KEY_free(ec_key);
+        return;
+    }
 
     const EC_POINT* pub_key_point = EC_KEY_get0_public_key(ec_key);
     jsize pub_key_len = (*env)->GetArrayLength(env, pubKey);
-    jbyte* pub_key_bytes = (*env)->GetPrimitiveArrayCritical(env, pubKey, NULL);
-    EC_POINT_point2oct(group, pub_key_point, POINT_CONVERSION_UNCOMPRESSED, (uint8_t*)pub_key_bytes, pub_key_len, NULL);
-    (*env)->ReleasePrimitiveArrayCritical(env, pubKey, pub_key_bytes, 0);
+    uint8_t* pub_key_buf = OPENSSL_malloc(pub_key_len);
+    if (pub_key_buf == NULL) {
+        OPENSSL_print_err();
+        EC_KEY_free(ec_key);
+        return;
+    }
+    if (EC_POINT_point2oct(group, pub_key_point, POINT_CONVERSION_UNCOMPRESSED,
+                           pub_key_buf, pub_key_len, NULL) != (size_t)pub_key_len) {
+        OPENSSL_print_err();
+        OPENSSL_free(pub_key_buf);
+        EC_KEY_free(ec_key);
+        return;
+    }
+    (*env)->SetByteArrayRegion(env, pubKey, 0, pub_key_len, (jbyte*)pub_key_buf);
+    OPENSSL_free(pub_key_buf);
+    if ((*env)->ExceptionCheck(env)) {
+        EC_KEY_free(ec_key);
+        return;
+    }
 
     EC_KEY_free(ec_key);
 }
@@ -114,17 +149,51 @@ JNIEXPORT void JNICALL Java_com_tencent_kona_crypto_provider_nativeImpl_NativeCr
 
     const BIGNUM* pri_key_bn = EC_KEY_get0_private_key(ec_key);
     jsize priv_key_len = (*env)->GetArrayLength(env, priKey);
-    jbyte* priv_key_bytes = (*env)->GetPrimitiveArrayCritical(env, priKey, NULL);
-    BN_bn2binpad(pri_key_bn, (uint8_t*)priv_key_bytes, priv_key_len);
-    (*env)->ReleasePrimitiveArrayCritical(env, priKey, priv_key_bytes, 0);
+    // Encode the private key into a native buffer, then copy it out to the Java
+    // array with SetByteArrayRegion. The native buffer is scrubbed with
+    // OPENSSL_clear_free rather than using GetPrimitiveArrayCritical, which
+    // would write directly into the Java heap and cannot be safely zeroed.
+    uint8_t* priv_key_buf = OPENSSL_malloc(priv_key_len);
+    if (priv_key_buf == NULL) {
+        OPENSSL_print_err();
+        EVP_PKEY_free(pkey);
+        return;
+    }
+    if (BN_bn2binpad(pri_key_bn, priv_key_buf, priv_key_len) != priv_key_len) {
+        OPENSSL_print_err();
+        OPENSSL_clear_free(priv_key_buf, priv_key_len);
+        EVP_PKEY_free(pkey);
+        return;
+    }
+    (*env)->SetByteArrayRegion(env, priKey, 0, priv_key_len, (jbyte*)priv_key_buf);
+    OPENSSL_clear_free(priv_key_buf, priv_key_len);
+    if ((*env)->ExceptionCheck(env)) {
+        EVP_PKEY_free(pkey);
+        return;
+    }
 
     const EC_POINT* pub_key_point = EC_KEY_get0_public_key(ec_key);
     jsize pub_key_len = (*env)->GetArrayLength(env, pubKey);
-    jbyte* pub_key_bytes = (*env)->GetPrimitiveArrayCritical(env, pubKey, NULL);
-    EC_POINT_point2oct(group, pub_key_point, POINT_CONVERSION_UNCOMPRESSED, (uint8_t*)pub_key_bytes, pub_key_len, NULL);
-    (*env)->ReleasePrimitiveArrayCritical(env, pubKey, pub_key_bytes, 0);
+    uint8_t* pub_key_buf = OPENSSL_malloc(pub_key_len);
+    if (pub_key_buf == NULL) {
+        OPENSSL_print_err();
+        EVP_PKEY_free(pkey);
+        return;
+    }
+    if (EC_POINT_point2oct(group, pub_key_point, POINT_CONVERSION_UNCOMPRESSED,
+                           pub_key_buf, pub_key_len, NULL) != (size_t)pub_key_len) {
+        OPENSSL_print_err();
+        OPENSSL_free(pub_key_buf);
+        EVP_PKEY_free(pkey);
+        return;
+    }
+    (*env)->SetByteArrayRegion(env, pubKey, 0, pub_key_len, (jbyte*)pub_key_buf);
+    OPENSSL_free(pub_key_buf);
+    if ((*env)->ExceptionCheck(env)) {
+        EVP_PKEY_free(pkey);
+        return;
+    }
 
-    // The private/public keys have been written directly into the caller-supplied
-    // priKey/pubKey arrays above; nothing else needs to be returned.
+    // The private/public keys have been written into the caller-supplied arrays.
     EVP_PKEY_free(pkey);
 }
