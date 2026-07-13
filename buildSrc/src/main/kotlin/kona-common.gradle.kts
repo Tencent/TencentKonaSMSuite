@@ -38,6 +38,24 @@ sourceSets.create("jmh") {
     java.setSrcDirs(listOf("src/jmh/java"))
 }
 
+val testJdkVersion: String? = findProperty("testJdkVersion")?.toString()?.takeIf { it.isNotBlank() }
+val testJdkVendor: String? = findProperty("testJdkVendor")?.toString()?.takeIf { it.isNotBlank() }
+
+fun vendorSpecFor(name: String): JvmVendorSpec = when (name.lowercase()) {
+    "kona", "tencent" -> JvmVendorSpec.TENCENT
+    "temurin", "adoptium" -> JvmVendorSpec.ADOPTIUM
+    else -> error("Unknown testJdkVendor: $name")
+}
+
+fun Test.configureTestJdk() {
+    if (testJdkVersion != null) {
+        javaLauncher.set(javaToolchains.launcherFor {
+            languageVersion.set(JavaLanguageVersion.of(testJdkVersion.toInt()))
+            testJdkVendor?.let { vendor.set(vendorSpecFor(it)) }
+        })
+    }
+}
+
 tasks {
     val passedTasks = project.gradle.startParameter.taskNames
     println("Passed tasks: $passedTasks")
@@ -67,6 +85,8 @@ tasks {
 
         systemProperty("test.classpath", classpath.joinToString(separator = ":"))
 
+        configureTestJdk()
+
         doFirst {
             println("Testing JDK: " + javaLauncher.get().metadata.installationPath)
         }
@@ -77,6 +97,8 @@ tasks {
 
         systemProperty("test.classpath", classpath.joinToString(separator = ":"))
 
+        configureTestJdk()
+
         doFirst {
             println("Testing JDK: " + javaLauncher.get().metadata.installationPath)
         }
@@ -86,6 +108,8 @@ tasks {
         jvmArgs("-Dcom.tencent.kona.defaultCrypto=NativeOneShot")
 
         systemProperty("test.classpath", classpath.joinToString(separator = ":"))
+
+        configureTestJdk()
 
         doFirst {
             println("Testing JDK: " + javaLauncher.get().metadata.installationPath)
