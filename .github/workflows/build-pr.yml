@@ -1,5 +1,5 @@
 #
-# Copyright (C) 2023, 2025, Tencent. All rights reserved.
+# Copyright (C) 2023, 2026, Tencent. All rights reserved.
 # DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
 #
 # This code is free software; you can redistribute it and/or modify it
@@ -50,7 +50,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Setup JDK
-        uses: tencent/setup-tencent-kona@v4
+        uses: actions/setup-java@v5
         with:
           java-version: ${{ matrix.java-version }}
           distribution: ${{ matrix.java-distribution }}
