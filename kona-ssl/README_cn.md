@@ -7,6 +7,10 @@
 
 为了提供上述特性，`KonaSSL`实现了JDK定义的SSLContextSpi等Service Provider Interface（SPI）。
 
+相关的系统属性：
+
+- `com.tencent.kona.ssl.tlcp.strictClientKeyExchange`，用于控制TLCP的临时SM2（`ECDHE_SM2`）密钥交换套件下`ClientKeyExchange`消息的编码格式。当值为`true`时，客户端会按GB/T 38636-2020 6.4.5.8的要求，将`ClientECDHEParams`封装在`uint16`长度前缀的向量中；当值为`false`或未设置（默认值）时，客户端会直接写入参数，以保持与既有TLCP对端的兼容性。服务端解析器则始终同时接受两种格式。
+
 ## 使用
 由于`KonaSSL`是基于JDK定义的标准SPI，所以在使用风格上，与使用JDK自带的同等特性（如SSLContext）是完全相同的。了解JDK的JSSE的编程风格，对于应用`KonaSSL`是非常在帮助的。请阅读官方的[参考指南]。
 

@@ -7,6 +7,10 @@ Tencent Kona SSL is a java security provider, which is named `KonaSSL`. This pro
 
 For providing the above features, `KonaSSL` implements the JDK-specified Service Provider Interfaces (SPIs), such as SSLContextSpi.
 
+The associated system properties:
+
+- `com.tencent.kona.ssl.tlcp.strictClientKeyExchange`, controls how the ephemeral SM2 (`ECDHE_SM2`) `ClientKeyExchange` message is framed in TLCP. When the value is `true`, the client wraps `ClientECDHEParams` in a `uint16` length-prefixed vector as required by GB/T 38636-2020 section 6.4.5.8. When the value is `false` or the property is unset (the default), the client writes the parameters bare for backward compatibility with existing TLCP peers. The server-side parser accepts both framings regardless of this setting.
+
 ## Usages
 Now that `KonaSSL` is based on the JDK-specific SPIs, then the usages are the same as those SPIs, say SSLContext. Understanding JSSE really helps, so please read the official [reference].
 
