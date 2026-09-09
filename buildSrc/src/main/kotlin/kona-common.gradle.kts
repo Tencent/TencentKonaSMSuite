@@ -371,7 +371,7 @@ publishing {
 
     repositories {
         maven {
-            val snapshotRepoURL = uri("https://oss.sonatype.org/content/repositories/snapshots")
+            val snapshotRepoURL = uri("https://central.sonatype.com/repository/maven-snapshots/")
             val releaseRepoURL = uri("https://oss.sonatype.org/service/local/staging/deploy/maven2")
 
             url = if (version.toString().endsWith("-SNAPSHOT")) snapshotRepoURL else releaseRepoURL
