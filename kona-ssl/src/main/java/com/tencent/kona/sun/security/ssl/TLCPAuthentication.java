@@ -26,6 +26,7 @@
 package com.tencent.kona.sun.security.ssl;
 
 import com.tencent.kona.pkix.PKIXUtils;
+import com.tencent.kona.ssl.SSLUtils;
 
 import javax.net.ssl.X509ExtendedKeyManager;
 import java.security.PrivateKey;
@@ -35,7 +36,9 @@ import java.security.interfaces.ECKey;
 import java.security.interfaces.ECPublicKey;
 import java.security.spec.ECParameterSpec;
 import java.util.AbstractMap;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 import static com.tencent.kona.sun.security.ssl.TLCPCertificate.CertListFormat;
@@ -269,29 +272,17 @@ enum TLCPAuthentication implements SSLAuthentication {
                 return null;
             }
 
-            PossessionEntry signPossEntry = null;
-            PossessionEntry encPossEntry = null;
+            List<PossessionEntry> candidates = new ArrayList<>();
             for (String clientAlias : clientAliases) {
                 PossessionEntry bufPossEntry = clientPossEntry(
                         chc, keyType, km, clientAlias);
-                if (bufPossEntry == null) {
-                    continue;
-                }
-
-                if (signPossEntry == null
-                        && PKIXUtils.isSignCert(bufPossEntry.popCert)) {
-                    signPossEntry = bufPossEntry;
-                } else if (PKIXUtils.isEncCert(bufPossEntry.popCert)) {
-                    encPossEntry = bufPossEntry;
-                }
-
-                if (signPossEntry != null && encPossEntry != null) {
-                    break;
+                if (bufPossEntry != null) {
+                    candidates.add(bufPossEntry);
                 }
             }
 
-            TLCPPossession tlcpPossession
-                    = createPossession(signPossEntry, encPossEntry);
+            TLCPPossession tlcpPossession = selectTlcpPossession(
+                    candidates, SSLUtils.getPropTlcpDualCertCompat());
             if (tlcpPossession != null) {
                 return tlcpPossession;
             }
@@ -370,15 +361,41 @@ enum TLCPAuthentication implements SSLAuthentication {
                 continue;
             }
 
-            PossessionEntry signPossEntry = null;
-            PossessionEntry encPossEntry = null;
+            List<PossessionEntry> candidates = new ArrayList<>();
             for (String serverAlias : serverAliases) {
                 PossessionEntry bufPossEntry = serverPossEntry(
                         shc, keyType, km, serverAlias);
-                if (bufPossEntry == null) {
-                    continue;
+                if (bufPossEntry != null) {
+                    candidates.add(bufPossEntry);
                 }
+            }
 
+            TLCPPossession tlcpPossession = selectTlcpPossession(
+                    candidates, SSLUtils.getPropTlcpDualCertCompat());
+            if (tlcpPossession != null) {
+                return tlcpPossession;
+            }
+        }
+
+        return null;
+    }
+
+    // Select a TLCP sign/enc possession from the candidate entries.
+    //
+    // In compat mode this keeps the legacy behaviour: the first signing-capable
+    // cert and the first encryption-capable cert (with the sign cert reused as
+    // the enc cert when no separate one is found).
+    //
+    // In strict mode it searches the candidates for a (sign, enc) pair that
+    // satisfies the strict pairing rule (role-exclusive keyUsage, distinct
+    // keys, same identity), so that the producer never emits a pair that the
+    // hardened consumer would reject.
+    private static TLCPPossession selectTlcpPossession(
+            List<PossessionEntry> candidates, boolean compat) {
+        if (compat) {
+            PossessionEntry signPossEntry = null;
+            PossessionEntry encPossEntry = null;
+            for (PossessionEntry bufPossEntry : candidates) {
                 if (signPossEntry == null
                         && PKIXUtils.isSignCert(bufPossEntry.popCert)) {
                     signPossEntry = bufPossEntry;
@@ -391,13 +408,22 @@ enum TLCPAuthentication implements SSLAuthentication {
                 }
             }
 
-            TLCPPossession tlcpPossession
-                    = createPossession(signPossEntry, encPossEntry);
-            if (tlcpPossession != null) {
-                return tlcpPossession;
+            return createPossession(signPossEntry, encPossEntry);
+        }
+
+        for (PossessionEntry signCand : candidates) {
+            for (PossessionEntry encCand : candidates) {
+                if (PKIXUtils.isValidTlcpDualCertPairStrict(
+                        signCand.popCert, encCand.popCert)) {
+                    return createPossession(signCand, encCand);
+                }
             }
         }
 
+        if (SSLLogger.isOn && SSLLogger.isOn("ssl")) {
+            SSLLogger.warning(
+                    "No valid TLCP sign/enc certificate pair selected");
+        }
         return null;
     }
 
@@ -411,12 +437,8 @@ enum TLCPAuthentication implements SSLAuthentication {
             return null;
         }
 
-        // Use sign cert as enc cert if possible
-        if (encPossEntry == null
-                && PKIXUtils.isEncCert(signPossEntry.popCert)) {
-            encPossEntry = signPossEntry;
-        }
-
+        // A single certificate must never serve both roles: a separate enc
+        // certificate is always required (no "sign cert as enc cert" fallback).
         if (encPossEntry == null) {
             if (SSLLogger.isOn && SSLLogger.isOn("ssl")) {
                 SSLLogger.warning("No X.509 enc cert selected");

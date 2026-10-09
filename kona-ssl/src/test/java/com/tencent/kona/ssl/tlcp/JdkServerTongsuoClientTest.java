@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022, 2024, Tencent. All rights reserved.
+ * Copyright (C) 2022, 2026, Tencent. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -94,16 +94,22 @@ public class JdkServerTongsuoClientTest {
     }
 
     private void testConnectWithSingleCert(ClientAuth clientAuth) throws Exception {
-        connect(TlcpUtils.INTCA_CERT,
-                TlcpUtils.SERVER_CERT, null,
-                TlcpUtils.CLIENT_CERT, null,
-                CipherSuite.TLCP_ECC_SM4_CBC_SM3,
-                clientAuth);
-        connect(TlcpUtils.INTCA_CERT,
-                TlcpUtils.SERVER_CERT, null,
-                TlcpUtils.CLIENT_CERT, null,
-                CipherSuite.TLCP_ECC_SM4_GCM_SM3,
-                clientAuth);
+        // A single certificate serving both roles must be rejected even with
+        // the dual-cert compat property enabled.
+        TlcpUtils.withDualCertCompat(() -> {
+            Assertions.assertThrows(Exception.class, () ->
+                    connect(TlcpUtils.INTCA_CERT,
+                            TlcpUtils.SERVER_CERT, null,
+                            TlcpUtils.CLIENT_CERT, null,
+                            CipherSuite.TLCP_ECC_SM4_CBC_SM3,
+                            clientAuth));
+            Assertions.assertThrows(Exception.class, () ->
+                    connect(TlcpUtils.INTCA_CERT,
+                            TlcpUtils.SERVER_CERT, null,
+                            TlcpUtils.CLIENT_CERT, null,
+                            CipherSuite.TLCP_ECC_SM4_GCM_SM3,
+                            clientAuth));
+        });
     }
 
     // When use ECDHE_ cipher suites,

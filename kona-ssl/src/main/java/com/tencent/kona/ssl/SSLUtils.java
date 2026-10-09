@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022, 2024, Tencent. All rights reserved.
+ * Copyright (C) 2022, 2026, Tencent. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify
@@ -38,6 +38,19 @@ public class SSLUtils {
         String certListFormat = format == null || format.length() == 0
                 ? "" : format.toUpperCase(Locale.ENGLISH);
         System.setProperty("com.tencent.kona.ssl.certListFormat", certListFormat);
+    }
+
+    // When true, fall back to the legacy TLCP double-certificate handling:
+    // single-certificate lists are accepted (one cert serving both roles),
+    // sign/enc roles are assigned purely by position with lenient, non-
+    // exclusive keyUsage checks, and no same-identity / distinct-key binding
+    // is enforced.
+    //
+    // SECURITY: enabling this re-opens the client-impersonation weakness where
+    // possession of only the peer's encryption key is sufficient to be
+    // authenticated as that peer. Use it only as an interop break-glass.
+    public static boolean getPropTlcpDualCertCompat() {
+        return Boolean.getBoolean("com.tencent.kona.ssl.tlcpDualCertCompat");
     }
 
     /* ***** System properties end ***** */

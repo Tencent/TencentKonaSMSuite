@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# Copyright (C) 2022, 2024, Tencent. All rights reserved.
+# Copyright (C) 2022, 2026, Tencent. All rights reserved.
 # DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
 #
 # This code is free software; you can redistribute it and/or modify it
@@ -169,14 +169,14 @@ $OPENSSL x509 -text -in sm-client.crt.tmp > sm-client.crt
 
 ##### Sign EE (Server)
 $OPENSSL genpkey -algorithm ec -pkeyopt ec_paramgen_curve:SM2 -pkeyopt ec_param_enc:named_curve -out sm-server-sign.key
-$OPENSSL req -new -key sm-server-sign.key -subj "/CN=sm-server-sign" -sm3 -out sm-server-sign.csr
+$OPENSSL req -new -key sm-server-sign.key -subj "/CN=sm-server" -sm3 -out sm-server-sign.csr
 $OPENSSL x509 -extfile ee-sign.ext -req -CAcreateserial -days 3650 -in sm-server-sign.csr -sm3 \
     -CA sm-intca.crt -CAkey sm-intca.key -out sm-server-sign.crt.tmp
 $OPENSSL x509 -text -in sm-server-sign.crt.tmp > sm-server-sign.crt
 
 ##### Sign EE (Client)
 $OPENSSL genpkey -algorithm ec -pkeyopt ec_paramgen_curve:SM2 -pkeyopt ec_param_enc:named_curve -out sm-client-sign.key
-$OPENSSL req -new -key sm-client-sign.key -subj "/CN=sm-client-sign" -sm3 -out sm-client-sign.csr
+$OPENSSL req -new -key sm-client-sign.key -subj "/CN=sm-client" -sm3 -out sm-client-sign.csr
 $OPENSSL x509 -extfile ee-sign.ext -req -CAcreateserial -days 3650 -in sm-client-sign.csr -sm3 \
     -CA sm-intca.crt -CAkey sm-intca.key -out sm-client-sign.crt.tmp
 $OPENSSL x509 -text -in sm-client-sign.crt.tmp > sm-client-sign.crt
@@ -190,14 +190,14 @@ $OPENSSL x509 -text -in sm-sign-ee-lo.crt.tmp > sm-sign-ee-lo.crt
 
 ##### Enc EE (Server)
 $OPENSSL genpkey -algorithm ec -pkeyopt ec_paramgen_curve:SM2 -pkeyopt ec_param_enc:named_curve -out sm-server-enc.key
-$OPENSSL req -new -key sm-server-enc.key -subj "/CN=sm-server-enc" -sm3 -out sm-server-enc.csr
+$OPENSSL req -new -key sm-server-enc.key -subj "/CN=sm-server" -sm3 -out sm-server-enc.csr
 $OPENSSL x509 -extfile ee-enc.ext -req -CAcreateserial -days 3650 -in sm-server-enc.csr -sm3 \
     -CA sm-intca.crt -CAkey sm-intca.key -out sm-server-enc.crt.tmp
 $OPENSSL x509 -text -in sm-server-enc.crt.tmp > sm-server-enc.crt
 
 ##### Enc EE (Client)
 $OPENSSL genpkey -algorithm ec -pkeyopt ec_paramgen_curve:SM2 -pkeyopt ec_param_enc:named_curve -out sm-client-enc.key
-$OPENSSL req -new -key sm-client-enc.key -subj "/CN=sm-client-enc" -sm3 -out sm-client-enc.csr
+$OPENSSL req -new -key sm-client-enc.key -subj "/CN=sm-client" -sm3 -out sm-client-enc.csr
 $OPENSSL x509 -extfile ee-enc.ext -req -CAcreateserial -days 3650 -in sm-client-enc.csr -sm3 \
     -CA sm-intca.crt -CAkey sm-intca.key -out sm-client-enc.crt.tmp
 $OPENSSL x509 -text -in sm-client-enc.crt.tmp > sm-client-enc.crt
@@ -212,3 +212,7 @@ $OPENSSL x509 -text -in sm-enc-ee-lo.crt.tmp > sm-enc-ee-lo.crt
 ########## SM END ##########
 
 rm *.tmp *.srl *.csr
+
+# The "openssl x509 -text" dump can leave trailing whitespace on some
+# extension header lines; strip it so the generated certs stay clean.
+sed -i 's/[[:space:]]*$//' *.crt
