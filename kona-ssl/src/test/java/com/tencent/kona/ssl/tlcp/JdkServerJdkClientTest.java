@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022, 2024, Tencent. All rights reserved.
+ * Copyright (C) 2022, 2026, Tencent. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -69,28 +69,35 @@ public class JdkServerJdkClientTest {
     }
 
     @Test
-    public void testConnectWithSingleCert() throws Exception {
-        testConnectWithSingleCert(ClientAuth.NONE);
+    public void testSingleCertRejectedEvenInCompat() throws Exception {
+        testSingleCertRejected(ClientAuth.NONE);
     }
 
     @Test
-    public void testConnectWithSingleCertAndClientAuth() throws Exception {
-        testConnectWithSingleCert(ClientAuth.REQUIRED);
+    public void testSingleCertRejectedEvenInCompatWithClientAuth() throws Exception {
+        testSingleCertRejected(ClientAuth.REQUIRED);
     }
 
-    private void testConnectWithSingleCert(ClientAuth clientAuth) throws Exception {
-        connect(TlcpUtils.CA_CERT,
-                TlcpUtils.SERVER_CERT, null,
-                TlcpUtils.CLIENT_CERT, null,
-                TlcpUtils.INTCA_CERT,
-                CipherSuite.TLCP_ECC_SM4_CBC_SM3,
-                clientAuth);
-        connect(TlcpUtils.CA_CERT,
-                TlcpUtils.SERVER_CERT, null,
-                TlcpUtils.CLIENT_CERT, null,
-                TlcpUtils.INTCA_CERT,
-                CipherSuite.TLCP_ECC_SM4_GCM_SM3,
-                clientAuth);
+    // A single certificate serving both roles must be rejected even with the
+    // dual-cert compat property enabled (connect() propagates the compat flag
+    // to the forked server when the enc cert is null).
+    private void testSingleCertRejected(ClientAuth clientAuth) throws Exception {
+        TlcpUtils.withDualCertCompat(() -> {
+            Assertions.assertThrows(Exception.class, () ->
+                    connect(TlcpUtils.CA_CERT,
+                            TlcpUtils.SERVER_CERT, null,
+                            TlcpUtils.CLIENT_CERT, null,
+                            TlcpUtils.INTCA_CERT,
+                            CipherSuite.TLCP_ECC_SM4_CBC_SM3,
+                            clientAuth));
+            Assertions.assertThrows(Exception.class, () ->
+                    connect(TlcpUtils.CA_CERT,
+                            TlcpUtils.SERVER_CERT, null,
+                            TlcpUtils.CLIENT_CERT, null,
+                            TlcpUtils.INTCA_CERT,
+                            CipherSuite.TLCP_ECC_SM4_GCM_SM3,
+                            clientAuth));
+        });
     }
 
     @Test
@@ -172,6 +179,13 @@ public class JdkServerJdkClientTest {
         serverBuilder.setCertTuple(serverCertTuple);
         serverBuilder.setClientAuth(clientAuth);
         serverBuilder.addProp("com.tencent.kona.ssl.certListFormat", "SIGN|CA|ENC");
+        if (serverEncCert == null) {
+            // A single certificate serving both roles is a legacy, compat-only
+            // form; propagate the flag to the forked server JVM (the in-process
+            // client is covered by TlcpUtils.withDualCertCompat).
+            serverBuilder.addProp(
+                    "com.tencent.kona.ssl.tlcpDualCertCompat", "true");
+        }
         serverBuilder.setMessage("Server");
 
         try (Server server = serverBuilder.build()) {

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022, 2024, Tencent. All rights reserved.
+ * Copyright (C) 2022, 2026, Tencent. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -54,6 +54,7 @@ import static com.tencent.kona.ssl.tlcp.TlcpUtils.INTCA_CERT;
 import static com.tencent.kona.ssl.tlcp.TlcpUtils.SERVER_CERT;
 import static com.tencent.kona.ssl.tlcp.TlcpUtils.SERVER_ENC_CERT;
 import static com.tencent.kona.ssl.tlcp.TlcpUtils.SERVER_SIGN_CERT;
+import static com.tencent.kona.ssl.tlcp.TlcpUtils.withDualCertCompat;
 
 /**
  * The interop test between Tongsuo(OpenSSL) server and JDK client.
@@ -110,16 +111,22 @@ public class TongsuoServerJdkClientTest {
     }
 
     private void testConnectWithSingleCert(ClientAuth clientAuth) throws Exception {
-        connect(INTCA_CERT,
-                SERVER_CERT, null,
-                CLIENT_CERT, null,
-                CipherSuite.TLCP_ECC_SM4_CBC_SM3,
-                clientAuth);
-        connect(INTCA_CERT,
-                SERVER_CERT, null,
-                CLIENT_CERT, null,
-                CipherSuite.TLCP_ECC_SM4_GCM_SM3,
-                clientAuth);
+        // A single certificate serving both roles must be rejected even with
+        // the dual-cert compat property enabled.
+        withDualCertCompat(() -> {
+            Assertions.assertThrows(Exception.class, () ->
+                    connect(INTCA_CERT,
+                            SERVER_CERT, null,
+                            CLIENT_CERT, null,
+                            CipherSuite.TLCP_ECC_SM4_CBC_SM3,
+                            clientAuth));
+            Assertions.assertThrows(Exception.class, () ->
+                    connect(INTCA_CERT,
+                            SERVER_CERT, null,
+                            CLIENT_CERT, null,
+                            CipherSuite.TLCP_ECC_SM4_GCM_SM3,
+                            clientAuth));
+        });
     }
 
     // When use ECDHE_ cipher suites,

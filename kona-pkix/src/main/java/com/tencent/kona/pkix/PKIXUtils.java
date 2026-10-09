@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022, 2023, Tencent. All rights reserved.
+ * Copyright (C) 2022, 2026, Tencent. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify
@@ -185,5 +185,99 @@ public class PKIXUtils {
 
         boolean[] keyUsage = certificate.getKeyUsage();
         return keyUsage == null || keyUsage[2] || keyUsage[3] || keyUsage[4];
+    }
+
+    // KeyUsage bit indices (RFC 5280 4.2.1.3):
+    //   0 digitalSignature, 1 nonRepudiation, 2 keyEncipherment,
+    //   3 dataEncipherment, 4 keyAgreement.
+
+    // Role-exclusive sign-cert check for peer-certificate role validation.
+    // When exclusive is false, delegates to the legacy lenient check.
+    // When exclusive is true, the keyUsage extension MUST be present, assert
+    // digitalSignature, and NOT assert any encryption/agreement usage, so that
+    // an encryption certificate cannot be used in the signing (identity) slot.
+    public static boolean isSignCert(X509Certificate certificate, boolean exclusive) {
+        if (!exclusive) {
+            return isSignCert(certificate);
+        }
+        if (certificate == null) {
+            return false;
+        }
+        boolean[] ku = certificate.getKeyUsage();
+        return ku != null && ku.length >= 5
+                && ku[0] && !ku[2] && !ku[3] && !ku[4];
+    }
+
+    // Role-exclusive enc-cert check for peer-certificate role validation.
+    // When exclusive is false, delegates to the legacy lenient check.
+    // When exclusive is true, the keyUsage extension MUST be present, assert
+    // one of keyEncipherment/dataEncipherment/keyAgreement, and NOT assert any
+    // signature/non-repudiation usage.
+    public static boolean isEncCert(X509Certificate certificate, boolean exclusive) {
+        if (!exclusive) {
+            return isEncCert(certificate);
+        }
+        if (certificate == null) {
+            return false;
+        }
+        boolean[] ku = certificate.getKeyUsage();
+        return ku != null && ku.length >= 5
+                && (ku[2] || ku[3] || ku[4]) && !ku[0] && !ku[1];
+    }
+
+    // The result of the strict TLCP double-certificate pair validation;
+    // anything other than OK is the first failed rule.
+    public enum TlcpDualCertPairCheck {
+        OK, SIGN_KEY_USAGE, ENC_KEY_USAGE, SAME_KEY, DIFFERENT_IDENTITY
+    }
+
+    // Stable "same key" test: compare the encoded key material rather than
+    // relying on whether the provider overrides PublicKey.equals(). This is a
+    // public helper, so it fails closed on null certificates or missing
+    // encodings (cannot prove the keys differ -> treat as the same).
+    public static boolean hasSamePublicKey(X509Certificate a, X509Certificate b) {
+        if (a == null || b == null) {
+            return true;
+        }
+        byte[] ea = a.getPublicKey().getEncoded();
+        byte[] eb = b.getPublicKey().getEncoded();
+        return ea == null || eb == null || java.util.Arrays.equals(ea, eb);
+    }
+
+    // TLCP double-certificate same-identity test: requires the subject and the
+    // issuer to be identical. Intentionally does NOT reuse the renegotiation
+    // helper isIdentityEquivalent, whose "any overlapping SAN" semantics are
+    // too loose to be a pairing rule.
+    public static boolean isTlcpPairSameIdentity(
+            X509Certificate sign, X509Certificate enc) {
+        return sign.getSubjectX500Principal().equals(enc.getSubjectX500Principal())
+                && sign.getIssuerX500Principal().equals(enc.getIssuerX500Principal());
+    }
+
+    // The single source of truth for the strict TLCP sign/enc pairing rule.
+    // Only expresses the strict rule; the compat path does not call it.
+    public static TlcpDualCertPairCheck checkTlcpDualCertPair(
+            X509Certificate sign, X509Certificate enc) {
+        if (!isSignCert(sign, true)) {
+            return TlcpDualCertPairCheck.SIGN_KEY_USAGE;
+        }
+        if (!isEncCert(enc, true)) {
+            return TlcpDualCertPairCheck.ENC_KEY_USAGE;
+        }
+        if (hasSamePublicKey(sign, enc)) {
+            return TlcpDualCertPairCheck.SAME_KEY;
+        }
+        if (!isTlcpPairSameIdentity(sign, enc)) {
+            return TlcpDualCertPairCheck.DIFFERENT_IDENTITY;
+        }
+        return TlcpDualCertPairCheck.OK;
+    }
+
+    // Boolean wrapper over checkTlcpDualCertPair for the producer-side pair
+    // search. Strict-only by name, to avoid being misread as "valid in lenient
+    // mode too".
+    public static boolean isValidTlcpDualCertPairStrict(
+            X509Certificate sign, X509Certificate enc) {
+        return checkTlcpDualCertPair(sign, enc) == TlcpDualCertPairCheck.OK;
     }
 }

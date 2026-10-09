@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022, 2023, Tencent. All rights reserved.
+ * Copyright (C) 2022, 2026, Tencent. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -82,4 +82,30 @@ public class TlcpUtils {
             "tlcp",
             "tlcp-client-enc.crt",
             "tlcp-client-enc.key");
+
+    public static final String DUAL_CERT_COMPAT_PROP
+            = "com.tencent.kona.ssl.tlcpDualCertCompat";
+
+    public interface ThrowingRunnable {
+        void run() throws Exception;
+    }
+
+    // Run an action with the legacy TLCP certificate handling enabled. By
+    // default a single certificate serving both the sign and enc roles, and
+    // dual-keyUsage certificates, are rejected; these forms are only supported
+    // in the compat mode gated by this system property.
+    public static void withDualCertCompat(ThrowingRunnable action)
+            throws Exception {
+        String prev = System.getProperty(DUAL_CERT_COMPAT_PROP);
+        System.setProperty(DUAL_CERT_COMPAT_PROP, "true");
+        try {
+            action.run();
+        } finally {
+            if (prev == null) {
+                System.clearProperty(DUAL_CERT_COMPAT_PROP);
+            } else {
+                System.setProperty(DUAL_CERT_COMPAT_PROP, prev);
+            }
+        }
+    }
 }

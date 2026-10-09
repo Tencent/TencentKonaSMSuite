@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2022, 2024, Tencent. All rights reserved.
+ * Copyright (C) 2022, 2026, Tencent. All rights reserved.
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS FILE HEADER.
  *
  * This code is free software; you can redistribute it and/or modify it
@@ -261,6 +261,13 @@ public class TLCPWithoutCertValidationDemo {
         // Output debug info.
 //        System.setProperty("com.tencent.kona.ssl.debug", "all");
 
+        // This demo's hardcoded sign/enc certificates use the legacy
+        // cross-subject double-certificate form (CN=tlcp-server-sign /
+        // CN=tlcp-server-enc). The demo illustrates a custom, no-validation
+        // trust manager rather than the TLCP role-separation handling, so run
+        // it with the legacy dual-certificate compat behavior enabled.
+        System.setProperty("com.tencent.kona.ssl.tlcpDualCertCompat", "true");
+
         // Add providers.
         TestUtils.addProviders();
 
@@ -335,6 +342,7 @@ public class TLCPWithoutCertValidationDemo {
 
     @AfterAll
     public static void clean() throws IOException {
+        System.clearProperty("com.tencent.kona.ssl.tlcpDualCertCompat");
         deleteStoreFiles();
     }
 

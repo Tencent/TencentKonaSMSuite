@@ -2,13 +2,13 @@ Certificate:
     Data:
         Version: 3 (0x2)
         Serial Number:
-            46:73:72:37:54:46:dd:3f:6c:7a:e9:34:68:c3:df:cb:ca:60:76:85
+            04:97:00:6b:7c:cb:ca:32:94:a3:5f:57:bb:d8:58:7d:75:e4:bd:0a
         Signature Algorithm: SM2-with-SM3
         Issuer: CN = sm-intca
         Validity
-            Not Before: Jun  8 06:28:28 2022 GMT
-            Not After : Jun  5 06:28:28 2032 GMT
-        Subject: CN = sm-client-enc
+            Not Before: Oct  8 10:32:27 2026 GMT
+            Not After : Oct  5 10:32:27 2036 GMT
+        Subject: CN = sm-client
         Subject Public Key Info:
             Public Key Algorithm: id-ecPublicKey
                 Public-Key: (256 bit)
@@ -23,25 +23,25 @@ Certificate:
             X509v3 Subject Key Identifier:
                 05:82:C9:EF:04:56:2C:F3:F2:17:E1:5A:9A:54:6E:83:3E:A9:E7:68
             X509v3 Authority Key Identifier:
-                keyid:D7:88:1E:5B:30:5F:FB:DF:F5:D3:97:3C:E6:74:07:CA:51:A7:FC:99
-
+                D7:88:1E:5B:30:5F:FB:DF:F5:D3:97:3C:E6:74:07:CA:51:A7:FC:99
             X509v3 Basic Constraints: critical
                 CA:FALSE
             X509v3 Key Usage: critical
                 Key Encipherment, Data Encipherment, Key Agreement
     Signature Algorithm: SM2-with-SM3
-         30:44:02:20:77:87:39:65:a5:88:fe:b6:22:65:4a:f6:f7:ce:
-         f5:38:92:a1:dd:4f:b3:20:8c:b6:b6:6c:5d:b7:bc:93:d5:30:
-         02:20:17:e1:b8:01:63:78:bc:b6:15:c2:10:75:de:b6:2c:a4:
-         5e:68:2e:e4:b0:40:b7:2e:ec:86:81:4e:77:d6:eb:de
+    Signature Value:
+        30:43:02:20:4f:1d:46:fa:5f:ab:81:0d:80:a7:70:bd:ef:df:
+        a6:8b:45:b0:5b:57:bc:5b:9e:54:07:2e:fb:2f:25:75:b8:19:
+        02:1f:5b:c6:d1:10:6d:18:18:ad:30:77:08:dc:78:f0:a4:93:
+        1a:da:92:32:56:82:aa:e2:29:19:b6:2b:71:a9:d6
 -----BEGIN CERTIFICATE-----
-MIIBjDCCATOgAwIBAgIURnNyN1RG3T9seuk0aMPfy8pgdoUwCgYIKoEcz1UBg3Uw
-EzERMA8GA1UEAwwIc20taW50Y2EwHhcNMjIwNjA4MDYyODI4WhcNMzIwNjA1MDYy
-ODI4WjAYMRYwFAYDVQQDDA1zbS1jbGllbnQtZW5jMFkwEwYHKoZIzj0CAQYIKoEc
-z1UBgi0DQgAEZtbBztYDe17xOkJVFnFqYmd8a1G7Y+fT21nFoavOVrAv6lGA8oik
-NA3Eb5i5DmqoPp37N3OqmJEXa+rgbFydgaNgMF4wHQYDVR0OBBYEFAWCye8EVizz
-8hfhWppUboM+qedoMB8GA1UdIwQYMBaAFNeIHlswX/vf9dOXPOZ0B8pRp/yZMAwG
-A1UdEwEB/wQCMAAwDgYDVR0PAQH/BAQDAgM4MAoGCCqBHM9VAYN1A0cAMEQCIHeH
-OWWliP62ImVK9vfO9TiSod1PsyCMtrZsXbe8k9UwAiAX4bgBY3i8thXCEHXetiyk
-Xmgu5LBAty7shoFOd9br3g==
+MIIBhzCCAS+gAwIBAgIUBJcAa3zLyjKUo19Xu9hYfXXkvQowCgYIKoEcz1UBg3Uw
+EzERMA8GA1UEAwwIc20taW50Y2EwHhcNMjYxMDA4MTAzMjI3WhcNMzYxMDA1MTAz
+MjI3WjAUMRIwEAYDVQQDDAlzbS1jbGllbnQwWTATBgcqhkjOPQIBBggqgRzPVQGC
+LQNCAARm1sHO1gN7XvE6QlUWcWpiZ3xrUbtj59PbWcWhq85WsC/qUYDyiKQ0DcRv
+mLkOaqg+nfs3c6qYkRdr6uBsXJ2Bo2AwXjAdBgNVHQ4EFgQUBYLJ7wRWLPPyF+Fa
+mlRugz6p52gwHwYDVR0jBBgwFoAU14geWzBf+9/105c85nQHylGn/JkwDAYDVR0T
+AQH/BAIwADAOBgNVHQ8BAf8EBAMCAzgwCgYIKoEcz1UBg3UDRgAwQwIgTx1G+l+r
+gQ2Ap3C979+mi0WwW1e8W55UBy77LyV1uBkCH1vG0RBtGBitMHcI3HjwpJMa2pIy
+VoKq4ikZtitxqdY=
 -----END CERTIFICATE-----
