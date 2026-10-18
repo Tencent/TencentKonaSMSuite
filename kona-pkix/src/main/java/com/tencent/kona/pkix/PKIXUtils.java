@@ -50,6 +50,11 @@ import java.util.Set;
  */
 public class PKIXUtils {
 
+    // TLCP encryption certificate authType. It selects the encryption
+    // certificate key usage rule in EndEntityChecker, so it is used only by
+    // the TLCP encryption certificate path validation.
+    public static final String SM2_ENC = "SM2_ENC";
+
     private static final String PRIVATE_KEY_BEGIN = "-----BEGIN PRIVATE KEY-----";
     private static final String PRIVATE_KEY_END = "-----END PRIVATE KEY-----";
 

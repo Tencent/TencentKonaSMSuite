@@ -29,6 +29,7 @@ import java.util.*;
 
 import java.security.cert.*;
 
+import com.tencent.kona.pkix.PKIXUtils;
 import com.tencent.kona.sun.security.util.KnownOIDs;
 import com.tencent.kona.sun.security.x509.NetscapeCertTypeExtension;
 
@@ -149,7 +150,7 @@ class EndEntityChecker {
         if (variant.equals(Validator.VAR_TLS_SERVER)) {
             checkTLSServer(chain[0], (String)parameter, exts);
         } else if (variant.equals(Validator.VAR_TLS_CLIENT)) {
-            checkTLSClient(chain[0], exts);
+            checkTLSClient(chain[0], exts, parameter);
         } else if (variant.equals(Validator.VAR_CODE_SIGNING)) {
             checkCodeSigning(chain[0], exts);
         } else if (variant.equals(Validator.VAR_JCE_SIGNING)) {
@@ -235,8 +236,14 @@ class EndEntityChecker {
      * authentication.
      * @throws CertificateException if not.
      */
-    private void checkTLSClient(X509Certificate cert, Set<String> exts)
-            throws CertificateException {
+    private void checkTLSClient(X509Certificate cert, Set<String> exts,
+                                Object parameter) throws CertificateException {
+        if (PKIXUtils.SM2_ENC.equals(parameter)) {
+            checkTLCPEncCert(cert, exts, OID_EKU_TLS_CLIENT,
+                    NSCT_SSL_CLIENT, "SSL client");
+            return;
+        }
+
         if (!checkKeyUsage(cert, KU_SIGNATURE)) {
             throw new ValidatorException
                     ("KeyUsage does not allow digital signatures",
@@ -262,6 +269,42 @@ class EndEntityChecker {
     }
 
     /**
+     * Check whether this certificate can be used as a TLCP encryption
+     * certificate. The encryption certificate must assert an encryption or
+     * key agreement key usage and must not assert signature usages.
+     * @throws CertificateException if not.
+     */
+    private void checkTLCPEncCert(X509Certificate cert, Set<String> exts,
+                                  String ekuOid, String nsctBit,
+                                  String nsctName) throws CertificateException {
+        if (!PKIXUtils.isEncCert(cert, true)) {
+            throw new ValidatorException
+                    ("KeyUsage does not permit use as a TLCP encryption " +
+                            "certificate",
+                            ValidatorException.T_EE_EXTENSIONS, cert);
+        }
+
+        if (!checkEKU(cert, exts, ekuOid)) {
+            throw new ValidatorException
+                    ("Extended key usage does not permit use for TLS "
+                            + nsctName + " authentication",
+                            ValidatorException.T_EE_EXTENSIONS, cert);
+        }
+
+        if (!SimpleValidator.getNetscapeCertTypeBit(cert, nsctBit)) {
+            throw new ValidatorException
+                    ("Netscape cert type does not permit use for "
+                            + nsctName,
+                            ValidatorException.T_EE_EXTENSIONS, cert);
+        }
+
+        // remove extensions we checked
+        exts.remove(SimpleValidator.OID_KEY_USAGE);
+        exts.remove(SimpleValidator.OID_EXTENDED_KEY_USAGE);
+        exts.remove(SimpleValidator.OID_NETSCAPE_CERT_TYPE);
+    }
+
+    /**
      * Check whether this certificate can be used for TLS server authentication
      * using the specified authentication type parameter. See X509TrustManager
      * specification for details.
@@ -269,6 +312,12 @@ class EndEntityChecker {
      */
     private void checkTLSServer(X509Certificate cert, String parameter,
                                 Set<String> exts) throws CertificateException {
+        if (PKIXUtils.SM2_ENC.equals(parameter)) {
+            checkTLCPEncCert(cert, exts, OID_EKU_TLS_SERVER,
+                    NSCT_SSL_SERVER, "SSL server");
+            return;
+        }
+
         if (KU_SERVER_ENCRYPTION.contains(parameter)) {
             if (!checkKeyUsage(cert, KU_KEY_ENCIPHERMENT)) {
                 throw new ValidatorException
