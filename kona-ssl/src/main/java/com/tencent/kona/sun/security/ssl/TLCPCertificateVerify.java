@@ -50,7 +50,7 @@ final class TLCPCertificateVerify {
                         tlcpPossession.popSignPrivateKey,
                         new SM2SignatureParameterSpec(Constants.defaultId(),
                                 (ECPublicKey) tlcpPossession.popSignPublicKey));
-                signer.update(chc.handshakeHash.digest());
+                signer.update(chc.handshakeHash.archived());
                 temporary = signer.sign();
             } catch (SignatureException se) {
                 throw chc.conContext.fatal(Alert.HANDSHAKE_FAILURE,
@@ -129,7 +129,7 @@ final class TLCPCertificateVerify {
                                 Constants.defaultId(),
                                 (ECPublicKey) tlcpCredentials.popSignPublicKey));
 
-                signer.update(shc.handshakeHash.digest());
+                signer.update(shc.handshakeHash.archived());
                 if (!signer.verify(signature)) {
                     throw shc.conContext.fatal(Alert.HANDSHAKE_FAILURE,
                             "Invalid CertificateVerify signature");
